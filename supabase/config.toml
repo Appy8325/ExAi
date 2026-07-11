@@ -1,0 +1,61 @@
+# Local Supabase development stack configuration.
+# Adopted per docs/00-foundation.md §14 Amendment A5: Supabase is the managed
+# platform for Database, Auth, Storage, and Realtime. `supabase start` runs this
+# entire stack locally via Docker (Postgres+pgvector, GoTrue/Auth, Storage,
+# Realtime, Studio) — this project does not maintain a separate docker-compose
+# service for Postgres; see docker-compose.yml at the repo root for the one
+# service Supabase's local stack does not provide (Redis, for BullMQ/rate limits).
+
+project_id = "concourse"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[db.pooler]
+enabled = false
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+# Local email capture for magic-link / invite emails during development.
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+enable_confirmations = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+# Magic-link is the sole credential mechanism for the `attendee` role
+# (00-foundation.md, 19-authentication-strategy.md — pending revision per §14
+# Amendment A5, but the magic-link requirement itself is unchanged).
+[auth.sms]
+enable_signup = false
+
+[realtime]
+enabled = true
+
+[analytics]
+enabled = false

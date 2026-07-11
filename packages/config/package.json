@@ -1,0 +1,37 @@
+{
+  "name": "@concourse/config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared ESLint, TypeScript, Prettier, and Vitest base configuration consumed by every workspace's tooling. No build step \u2014 raw JS/JSON/TS config files only.",
+  "license": "UNLICENSED",
+  "files": [
+    "eslint",
+    "typescript",
+    "prettier",
+    "vitest"
+  ],
+  "exports": {
+    "./eslint/base": "./eslint/base.js",
+    "./eslint/next": "./eslint/next.js",
+    "./eslint/nestjs": "./eslint/nestjs.js",
+    "./typescript/base.json": "./typescript/base.json",
+    "./typescript/nextjs.json": "./typescript/nextjs.json",
+    "./typescript/node.json": "./typescript/node.json",
+    "./prettier": "./prettier/index.js",
+    "./vitest/base": "./vitest/base.ts"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^8.19.0",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.37.3",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.0",
+    "vitest": "^2.1.8"
+  },
+  "scripts": {
+    "lint": "eslint ."
+  }
+}

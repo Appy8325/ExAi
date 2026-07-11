@@ -1,0 +1,27 @@
+{
+  "name": "@concourse/api-contract",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zod\u2192OpenAPI pipes + the committed OpenAPI 3.1 artifact (docs/18-api-architecture.md \u00a72, docs/37-monorepo-and-folder-structure.md \u00a76.5).",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.ts",
+    "./openapi/concourse.v1.json": "./openapi/concourse.v1.json"
+  },
+  "dependencies": {
+    "zod": "^3.24.1",
+    "@concourse/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@concourse/config": "workspace:*",
+    "typescript": "^5.7.2",
+    "eslint": "^9.17.0",
+    "vitest": "^2.1.8"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}

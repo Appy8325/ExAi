@@ -1,0 +1,98 @@
+/**
+ * Base rules: focus, reduced-motion, self-hosted fonts
+ * docs/39-design-system.md §5.1 (typefaces), §9.3 (reduced motion),
+ * §12.2 (focus)
+ */
+
+/* ---- §5.1 self-hosted fonts ----
+ * Real woff2 files are added under packages/ui/src/fonts/ (or an assets
+ * location this package's build wires up) once the licensed Inter Variable /
+ * JetBrains Mono files are sourced. Paths below are placeholders so the
+ * @font-face shape (weight range, font-display, subsets) is locked now. */
+
+@font-face {
+  font-family: "Inter Variable";
+  src: url("../fonts/inter-variable-latin.woff2") format("woff2-variations");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; /* latin */
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  src: url("../fonts/inter-variable-latin-ext.woff2") format("woff2-variations");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF; /* latin-ext */
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; /* latin */
+}
+
+:root {
+  --mq-font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --mq-font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+body {
+  font-family: var(--mq-font-sans);
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--mq-font-mono);
+}
+
+/* ---- §12.2 focus ----
+ * `:focus-visible` only (no rings on mouse click). Applies to every
+ * interactive element, including custom ones (map booths, table rows —
+ * those opt in via `[data-focusable]`). Focus is never removed, only
+ * restyled. */
+
+:focus {
+  outline: none;
+}
+
+:focus-visible,
+[data-focusable]:focus-visible {
+  outline: 2px solid var(--mq-ring);
+  outline-offset: 2px;
+}
+
+/* ---- §9.3 reduced motion ----
+ * Collapse all transition/animation durations to 0.01ms except pure
+ * opacity fades <=150ms; parallax, auto-playing movement, and the
+ * heatmap's live-pulse are disabled entirely (handled by those components
+ * respecting `--mq-motion-reduced` / the media query directly). */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-opacity-fade] {
+    transition-duration: 150ms !important;
+  }
+
+  [data-parallax],
+  [data-autoplay],
+  [data-heatmap-pulse] {
+    animation: none !important;
+    transform: none !important;
+  }
+}

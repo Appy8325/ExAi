@@ -1,0 +1,10 @@
+import { Module } from '@nestjs/common';
+
+/**
+ * UsersModule — owns users (self-service) (docs/18-api-architecture.md §1).
+ * Milestone 0 scaffolding only: empty shell module, no providers/controllers wired.
+ * Real routes/services land in the milestone that implements this domain
+ * (see docs/45-implementation-roadmap.md for the per-module milestone mapping).
+ */
+@Module({})
+export class UsersModule {}

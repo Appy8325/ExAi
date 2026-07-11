@@ -1,0 +1,28 @@
+{
+  "name": "@concourse/ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AiModule \u2014 the sole boundary to Claude/Voyage (docs/21-ai-architecture.md \u00a71). Only this package may declare @anthropic-ai/sdk or voyageai (doc 37 \u00a78 rule R5).",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "voyageai": "^0.0.3",
+    "@concourse/database": "workspace:*",
+    "@concourse/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@concourse/config": "workspace:*",
+    "typescript": "^5.7.2",
+    "eslint": "^9.17.0",
+    "vitest": "^2.1.8"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}

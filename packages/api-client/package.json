@@ -1,0 +1,26 @@
+{
+  "name": "@concourse/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generated typed fetch client consumed by apps/web (docs/37-monorepo-and-folder-structure.md \u00a76.6). Never depends back on apps/api or packages/database (doc 37 \u00a78 rule R2) \u2014 generated from packages/api-contract's committed OpenAPI artifact.",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@concourse/api-contract": "workspace:*",
+    "@concourse/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@concourse/config": "workspace:*",
+    "typescript": "^5.7.2",
+    "eslint": "^9.17.0",
+    "vitest": "^2.1.8"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}

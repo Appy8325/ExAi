@@ -1,0 +1,14 @@
+/**
+ * Marquee design system — single stylesheet entry point.
+ * docs/39-design-system.md §3.3
+ *
+ * Exported as "@concourse/ui/styles.css". Consumers import exactly this file
+ * (apps/web's globals.css is `@import "tailwindcss"; @import "@concourse/ui/styles.css";`).
+ * Import order matters: primitives -> semantic -> density -> theme -> base.
+ */
+
+@import "./primitives.css";
+@import "./semantic.css";
+@import "./density.css";
+@import "./theme.css";
+@import "./base.css";

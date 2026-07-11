@@ -1,0 +1,36 @@
+{
+  "name": "@concourse/database",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Drizzle ORM schema, migrations, and seed data (doc 37 \u00a76.2) against the Supabase-managed Postgres + pgvector connection string (docs/00-foundation.md \u00a714 Amendment A5). Depends only on @concourse/shared per doc 37 \u00a78.",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/client.ts",
+    "./schema": "./schema/index.ts"
+  },
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "studio": "drizzle-kit studio",
+    "seed": "tsx seed/index.ts",
+    "build": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@concourse/shared": "workspace:*",
+    "drizzle-orm": "^0.38.2",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@concourse/config": "workspace:*",
+    "drizzle-kit": "^0.30.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "testcontainers": "^10.16.0",
+    "@testcontainers/postgresql": "^10.16.0",
+    "eslint": "^9.17.0",
+    "vitest": "^2.1.8"
+  }
+}

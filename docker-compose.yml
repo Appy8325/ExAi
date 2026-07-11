@@ -1,0 +1,24 @@
+# Local development services that Supabase's own local stack (`supabase start`,
+# see supabase/config.toml) does not provide. Database, Auth, Storage, and
+# Realtime run under the Supabase CLI, not here (00-foundation.md §14 Amendment A5).
+#
+# Usage:
+#   pnpm supabase:start   # Postgres+pgvector, Auth, Storage, Realtime, Studio
+#   docker compose up -d  # Redis (BullMQ, pub/sub, rate limits)
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: concourse-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - concourse_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  concourse_redis_data:

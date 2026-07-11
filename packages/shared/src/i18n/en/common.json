@@ -1,0 +1,7 @@
+{
+  "appName": "Concourse",
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save"
+  }
+}

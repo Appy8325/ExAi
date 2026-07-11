@@ -1,0 +1,91 @@
+/**
+ * Layer 2: Tailwind mapping
+ * docs/39-design-system.md §3.1, §3.3
+ *
+ * Tailwind 4 `@theme inline` block mapping semantic tokens (semantic.css)
+ * into Tailwind utility namespaces, so utilities like `bg-surface`,
+ * `text-muted`, `border-default` resolve to Marquee values. Components and
+ * features consume only these utilities — never primitives, never raw hex
+ * (§15 governance).
+ *
+ * `inline` keeps the mapping live against the current `[data-theme]` /
+ * [data-density]` context instead of freezing values at build time.
+ */
+
+@theme inline {
+  /* surfaces */
+  --color-bg-canvas: var(--mq-bg-canvas);
+  --color-bg-surface: var(--mq-bg-surface);
+  --color-bg-raised: var(--mq-bg-raised);
+  --color-bg-sunken: var(--mq-bg-sunken);
+  --color-bg-overlay: var(--mq-bg-overlay);
+  --color-bg-brand: var(--mq-bg-brand);
+  --color-bg-brand-hover: var(--mq-bg-brand-hover);
+  --color-bg-brand-subtle: var(--mq-bg-brand-subtle);
+  --color-bg-inverse: var(--mq-bg-inverse);
+
+  /* text */
+  --color-text-primary: var(--mq-text-primary);
+  --color-text-secondary: var(--mq-text-secondary);
+  --color-text-muted: var(--mq-text-muted);
+  --color-text-disabled: var(--mq-text-disabled);
+  --color-text-on-brand: var(--mq-text-on-brand);
+  --color-text-inverse: var(--mq-text-inverse);
+  --color-text-link: var(--mq-text-link);
+
+  /* borders + focus ring */
+  --color-border-default: var(--mq-border-default);
+  --color-border-strong: var(--mq-border-strong);
+  --color-ring: var(--mq-ring);
+
+  /* status + AI families */
+  --color-status-success-subtle: var(--mq-status-success-subtle);
+  --color-status-success-text: var(--mq-status-success-text);
+  --color-status-success-solid: var(--mq-status-success-solid);
+  --color-status-success-border: var(--mq-status-success-border);
+
+  --color-status-warning-subtle: var(--mq-status-warning-subtle);
+  --color-status-warning-text: var(--mq-status-warning-text);
+  --color-status-warning-solid: var(--mq-status-warning-solid);
+  --color-status-warning-border: var(--mq-status-warning-border);
+
+  --color-status-danger-subtle: var(--mq-status-danger-subtle);
+  --color-status-danger-text: var(--mq-status-danger-text);
+  --color-status-danger-solid: var(--mq-status-danger-solid);
+  --color-status-danger-border: var(--mq-status-danger-border);
+
+  --color-status-info-subtle: var(--mq-status-info-subtle);
+  --color-status-info-text: var(--mq-status-info-text);
+  --color-status-info-solid: var(--mq-status-info-solid);
+  --color-status-info-border: var(--mq-status-info-border);
+
+  --color-status-ai-subtle: var(--mq-status-ai-subtle);
+  --color-status-ai-text: var(--mq-status-ai-text);
+  --color-status-ai-solid: var(--mq-status-ai-solid);
+  --color-status-ai-border: var(--mq-status-ai-border);
+
+  /* data-viz categorical + heat ramp */
+  --color-viz-cat-1: var(--mq-viz-cat-1);
+  --color-viz-cat-2: var(--mq-viz-cat-2);
+  --color-viz-cat-3: var(--mq-viz-cat-3);
+  --color-viz-cat-4: var(--mq-viz-cat-4);
+  --color-viz-cat-5: var(--mq-viz-cat-5);
+  --color-viz-cat-6: var(--mq-viz-cat-6);
+  --color-viz-cat-7: var(--mq-viz-cat-7);
+  --color-viz-cat-8: var(--mq-viz-cat-8);
+
+  --color-viz-heat-1: var(--mq-viz-heat-1);
+  --color-viz-heat-2: var(--mq-viz-heat-2);
+  --color-viz-heat-3: var(--mq-viz-heat-3);
+  --color-viz-heat-4: var(--mq-viz-heat-4);
+  --color-viz-heat-5: var(--mq-viz-heat-5);
+  --color-viz-heat-6: var(--mq-viz-heat-6);
+
+  /* density-aware component sizing (density.css) */
+  --spacing-control-h: var(--mq-control-h);
+  --spacing-control-px: var(--mq-control-px);
+  --spacing-table-row-h: var(--mq-table-row-h);
+  --spacing-table-cell-px: var(--mq-table-cell-px);
+  --spacing-card-p: var(--mq-card-p);
+  --spacing-gap-stack: var(--mq-gap-stack);
+}

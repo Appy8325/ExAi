@@ -1,0 +1,38 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Concourse NestJS 11 (Fastify) API deployable \u2014 the one API service serving first-party and public API traffic. Unscoped name per docs/37-monorepo-and-folder-structure.md \u00a76: apps are deploy targets, never imported by name.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "openapi:emit": "echo \"openapi:emit -- real generation lands with the first real module, Milestone 1+\""
+  },
+  "dependencies": {
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/platform-fastify": "^11.0.1",
+    "@nestjs/config": "^4.0.0",
+    "fastify": "^5.2.0",
+    "@concourse/ai": "workspace:*",
+    "@concourse/database": "workspace:*",
+    "@concourse/shared": "workspace:*",
+    "@concourse/notifications": "workspace:*",
+    "@concourse/flags": "workspace:*",
+    "@concourse/api-contract": "workspace:*",
+    "@supabase/supabase-js": "^2.47.10",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@concourse/config": "workspace:*",
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/testing": "^11.0.1",
+    "typescript": "^5.7.2",
+    "eslint": "^9.17.0"
+  }
+}

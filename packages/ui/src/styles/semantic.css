@@ -1,0 +1,154 @@
+/**
+ * Layer 1: Semantic tokens
+ * docs/39-design-system.md §4.2 (surfaces/text/borders), §4.3 (status/AI),
+ * §4.4 (data visualization)
+ *
+ * Role-based tokens that reference primitives (primitives.css). This is the
+ * only layer that changes between light/dark/density/event-accent contexts.
+ * Components/features must consume only these (and theme.css's Tailwind
+ * mappings) — never primitives or raw hex (§15 governance).
+ */
+
+@import "./primitives.css";
+
+:root {
+  /* ---- §4.2 surfaces, text, borders (light) ---- */
+  --mq-bg-canvas: var(--mq-slate-50);
+  --mq-bg-surface: #FFFFFF;
+  --mq-bg-raised: #FFFFFF;
+  --mq-bg-sunken: var(--mq-slate-100);
+  --mq-bg-overlay: rgb(2 6 23 / 0.5);
+  --mq-bg-brand: var(--mq-indigo-600);
+  --mq-bg-brand-hover: var(--mq-indigo-700);
+  --mq-bg-brand-subtle: var(--mq-indigo-50);
+  --mq-bg-inverse: var(--mq-slate-900);
+
+  --mq-text-primary: var(--mq-slate-900);
+  --mq-text-secondary: var(--mq-slate-600);
+  --mq-text-muted: var(--mq-slate-500);
+  --mq-text-disabled: var(--mq-slate-400);
+  --mq-text-on-brand: #FFFFFF;
+  --mq-text-inverse: var(--mq-slate-50);
+  --mq-text-link: var(--mq-indigo-600);
+
+  --mq-border-default: var(--mq-slate-200);
+  --mq-border-strong: var(--mq-slate-300);
+  --mq-ring: var(--mq-indigo-500);
+
+  /* ---- §4.3 status + AI families (light) ---- */
+  --mq-status-success-subtle: var(--mq-emerald-50);
+  --mq-status-success-text: var(--mq-emerald-700);
+  --mq-status-success-solid: var(--mq-emerald-600);
+  --mq-status-success-border: var(--mq-emerald-200);
+
+  --mq-status-warning-subtle: var(--mq-amber-50);
+  --mq-status-warning-text: var(--mq-amber-700);
+  --mq-status-warning-solid: var(--mq-amber-600);
+  --mq-status-warning-border: var(--mq-amber-200);
+
+  --mq-status-danger-subtle: var(--mq-red-50);
+  --mq-status-danger-text: var(--mq-red-700);
+  --mq-status-danger-solid: var(--mq-red-600);
+  --mq-status-danger-border: var(--mq-red-200);
+
+  --mq-status-info-subtle: var(--mq-sky-50);
+  --mq-status-info-text: var(--mq-sky-700);
+  --mq-status-info-solid: var(--mq-sky-600);
+  --mq-status-info-border: var(--mq-sky-200);
+
+  --mq-status-ai-subtle: var(--mq-violet-50);
+  --mq-status-ai-text: var(--mq-violet-700);
+  --mq-status-ai-solid: var(--mq-violet-600);
+  --mq-status-ai-border: var(--mq-violet-200);
+
+  /* ---- §4.4 data visualization (light) ---- */
+  --mq-viz-cat-1: var(--mq-indigo-500);
+  --mq-viz-cat-2: var(--mq-sky-500);
+  --mq-viz-cat-3: var(--mq-emerald-500);
+  --mq-viz-cat-4: var(--mq-amber-500);
+  --mq-viz-cat-5: var(--mq-violet-500);
+  --mq-viz-cat-6: var(--mq-pink-500);
+  --mq-viz-cat-7: var(--mq-teal-500);
+  --mq-viz-cat-8: var(--mq-slate-400);
+
+  /* Sequential heat ramp for FloorHeatmap (§4.4). Single set — the doc gives
+     no separate dark-mode ramp, so this is not overridden below; the map's
+     55–80% render opacity governs legibility on either theme's floor plan. */
+  --mq-viz-heat-1: var(--mq-sky-100);
+  --mq-viz-heat-2: var(--mq-sky-300);
+  --mq-viz-heat-3: var(--mq-sky-500);
+  --mq-viz-heat-4: var(--mq-indigo-500);
+  --mq-viz-heat-5: var(--mq-violet-600);
+  --mq-viz-heat-6: var(--mq-violet-900);
+
+  /* MatchScoreChip bands (§4.4) reuse the status/neutral families directly:
+     high (>=70) -> --mq-status-success-*, medium (40-69) -> --mq-status-warning-*,
+     low (<40) -> --mq-slate-* (neutral). No dedicated tokens; documented here
+     so the mapping isn't lost. */
+}
+
+[data-theme="dark"] {
+  /* ---- §4.2 surfaces, text, borders (dark) ---- */
+  --mq-bg-canvas: var(--mq-slate-950);
+  --mq-bg-surface: var(--mq-slate-900);
+  --mq-bg-raised: var(--mq-slate-800);
+  --mq-bg-sunken: var(--mq-slate-950);
+  --mq-bg-overlay: rgb(2 6 23 / 0.7);
+  --mq-bg-brand: var(--mq-indigo-500);
+  --mq-bg-brand-hover: var(--mq-indigo-400);
+  --mq-bg-brand-subtle: var(--mq-indigo-950);
+  --mq-bg-inverse: var(--mq-slate-50);
+
+  --mq-text-primary: var(--mq-slate-50);
+  --mq-text-secondary: var(--mq-slate-400);
+  --mq-text-muted: var(--mq-slate-500);
+  --mq-text-disabled: var(--mq-slate-600);
+  --mq-text-on-brand: #FFFFFF;
+  --mq-text-inverse: var(--mq-slate-900);
+  --mq-text-link: var(--mq-indigo-400);
+
+  --mq-border-default: var(--mq-slate-800);
+  --mq-border-strong: var(--mq-slate-700);
+  --mq-ring: var(--mq-indigo-400);
+
+  /* ---- §4.3 status + AI families (dark) ---- */
+  --mq-status-success-subtle: var(--mq-emerald-950);
+  --mq-status-success-text: var(--mq-emerald-300);
+  --mq-status-success-solid: var(--mq-emerald-500);
+  --mq-status-success-border: var(--mq-emerald-800);
+
+  --mq-status-warning-subtle: var(--mq-amber-950);
+  --mq-status-warning-text: var(--mq-amber-300);
+  --mq-status-warning-solid: var(--mq-amber-500);
+  --mq-status-warning-border: var(--mq-amber-800);
+
+  --mq-status-danger-subtle: var(--mq-red-950);
+  --mq-status-danger-text: var(--mq-red-300);
+  --mq-status-danger-solid: var(--mq-red-500);
+  --mq-status-danger-border: var(--mq-red-800);
+
+  --mq-status-info-subtle: var(--mq-sky-950);
+  --mq-status-info-text: var(--mq-sky-300);
+  --mq-status-info-solid: var(--mq-sky-500);
+  --mq-status-info-border: var(--mq-sky-800);
+
+  --mq-status-ai-subtle: var(--mq-violet-950);
+  --mq-status-ai-text: var(--mq-violet-300);
+  --mq-status-ai-solid: var(--mq-violet-500);
+  --mq-status-ai-border: var(--mq-violet-800);
+
+  /* ---- §4.4 data visualization (dark) ---- */
+  /* "same hues, 400-step where the 500 fails 3:1 on slate-900" (§4.4). The
+     500-step brand/info/success/warning hues are stepped down to 400 for
+     sufficient contrast against the dark canvas; pink/teal follow the same
+     step (only the 500 primitive is defined in primitives.css, so the 400
+     equivalents are inlined here rather than adding unrequested primitives). */
+  --mq-viz-cat-1: var(--mq-indigo-400);
+  --mq-viz-cat-2: var(--mq-sky-400);
+  --mq-viz-cat-3: var(--mq-emerald-400);
+  --mq-viz-cat-4: var(--mq-amber-400);
+  --mq-viz-cat-5: var(--mq-violet-400);
+  --mq-viz-cat-6: #F472B6; /* pink-400 */
+  --mq-viz-cat-7: #2DD4BF; /* teal-400 */
+  --mq-viz-cat-8: var(--mq-slate-400);
+}

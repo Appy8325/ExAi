@@ -1,0 +1,109 @@
+/**
+ * Layer 0: Primitives
+ * docs/39-design-system.md §4.1
+ *
+ * Seven 11-step ladders (steps 50–950, OKLCH-tuned for perceptual evenness).
+ * `slate` is the only neutral; there is deliberately no second gray.
+ * Never themed, never used directly by components — see semantic.css for the
+ * only layer that changes between light/dark/density/event-accent contexts.
+ *
+ * Naming grammar (§3.2): --mq-<palette>-<step>
+ */
+
+:root {
+  /* slate (neutral) */
+  --mq-slate-50: #F8FAFC;
+  --mq-slate-100: #F1F5F9;
+  --mq-slate-200: #E2E8F0;
+  --mq-slate-300: #CBD5E1;
+  --mq-slate-400: #94A3B8;
+  --mq-slate-500: #64748B;
+  --mq-slate-600: #475569;
+  --mq-slate-700: #334155;
+  --mq-slate-800: #1E293B;
+  --mq-slate-900: #0F172A;
+  --mq-slate-950: #020617;
+
+  /* indigo (brand) */
+  --mq-indigo-50: #EEF2FF;
+  --mq-indigo-100: #E0E7FF;
+  --mq-indigo-200: #C7D2FE;
+  --mq-indigo-300: #A5B4FC;
+  --mq-indigo-400: #818CF8;
+  --mq-indigo-500: #6366F1;
+  --mq-indigo-600: #4F46E5;
+  --mq-indigo-700: #4338CA;
+  --mq-indigo-800: #3730A3;
+  --mq-indigo-900: #312E81;
+  --mq-indigo-950: #1E1B4B;
+
+  /* sky (info) */
+  --mq-sky-50: #F0F9FF;
+  --mq-sky-100: #E0F2FE;
+  --mq-sky-200: #BAE6FD;
+  --mq-sky-300: #7DD3FC;
+  --mq-sky-400: #38BDF8;
+  --mq-sky-500: #0EA5E9;
+  --mq-sky-600: #0284C7;
+  --mq-sky-700: #0369A1;
+  --mq-sky-800: #075985;
+  --mq-sky-900: #0C4A6E;
+  --mq-sky-950: #082F49;
+
+  /* emerald (success) */
+  --mq-emerald-50: #ECFDF5;
+  --mq-emerald-100: #D1FAE5;
+  --mq-emerald-200: #A7F3D0;
+  --mq-emerald-300: #6EE7B7;
+  --mq-emerald-400: #34D399;
+  --mq-emerald-500: #10B981;
+  --mq-emerald-600: #059669;
+  --mq-emerald-700: #047857;
+  --mq-emerald-800: #065F46;
+  --mq-emerald-900: #064E3B;
+  --mq-emerald-950: #022C22;
+
+  /* amber (warning) */
+  --mq-amber-50: #FFFBEB;
+  --mq-amber-100: #FEF3C7;
+  --mq-amber-200: #FDE68A;
+  --mq-amber-300: #FCD34D;
+  --mq-amber-400: #FBBF24;
+  --mq-amber-500: #F59E0B;
+  --mq-amber-600: #D97706;
+  --mq-amber-700: #B45309;
+  --mq-amber-800: #92400E;
+  --mq-amber-900: #78350F;
+  --mq-amber-950: #451A03;
+
+  /* red (danger) */
+  --mq-red-50: #FEF2F2;
+  --mq-red-100: #FEE2E2;
+  --mq-red-200: #FECACA;
+  --mq-red-300: #FCA5A5;
+  --mq-red-400: #F87171;
+  --mq-red-500: #EF4444;
+  --mq-red-600: #DC2626;
+  --mq-red-700: #B91C1C;
+  --mq-red-800: #991B1B;
+  --mq-red-900: #7F1D1D;
+  --mq-red-950: #450A0A;
+
+  /* violet (ai) — reserved for AI provenance; never used decoratively (§4.1) */
+  --mq-violet-50: #F5F3FF;
+  --mq-violet-100: #EDE9FE;
+  --mq-violet-200: #DDD6FE;
+  --mq-violet-300: #C4B5FD;
+  --mq-violet-400: #A78BFA;
+  --mq-violet-500: #8B5CF6;
+  --mq-violet-600: #7C3AED;
+  --mq-violet-700: #6D28D9;
+  --mq-violet-800: #5B21B6;
+  --mq-violet-900: #4C1D95;
+  --mq-violet-950: #2E1065;
+
+  /* extra hues for data-viz categorical set (§4.4) — not full 11-step ladders,
+     only the steps the viz tokens reference */
+  --mq-pink-500: #EC4899;
+  --mq-teal-500: #14B8A6;
+}

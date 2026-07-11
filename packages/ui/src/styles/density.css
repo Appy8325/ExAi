@@ -1,0 +1,25 @@
+/**
+ * Density modes
+ * docs/39-design-system.md §11
+ *
+ * Applied via `data-density` on the surface root layout. Font sizes never
+ * change with density — only heights, paddings, and gaps (§11).
+ */
+
+[data-density="comfortable"] {
+  --mq-control-h: 40px;
+  --mq-control-px: 14px;
+  --mq-table-row-h: 52px;
+  --mq-table-cell-px: 12px;
+  --mq-card-p: 20px;
+  --mq-gap-stack: 12px;
+}
+
+[data-density="compact"] {
+  --mq-control-h: 32px;
+  --mq-control-px: 10px;
+  --mq-table-row-h: 40px;
+  --mq-table-cell-px: 8px;
+  --mq-card-p: 16px;
+  --mq-gap-stack: 8px;
+}

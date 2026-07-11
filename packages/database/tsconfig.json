@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@concourse/config/typescript/node.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "."
+  },
+  "include": ["src/**/*.ts", "schema/**/*.ts", "seed/**/*.ts", "drizzle.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}
