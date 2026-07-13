@@ -1,13 +1,46 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
-// Stub for Milestone 0. The real implementation resolves tenancy path-based
-// by org/event slug (docs/00-foundation.md §5 — Organizer Console at
-// /org/[orgSlug]/..., Exhibitor Portal at /exhibit/[orgSlug]/events/[eventSlug]/...,
-// Attendee App at /e/[eventSlug]/...) and attaches resolved tenant context
-// for downstream route groups to consume. That resolution logic lands in a
-// later milestone; this no-op keeps the middleware file present per the
-// documented apps/web shape (docs/37-monorepo-and-folder-structure.md §3).
-export function middleware(request: NextRequest) {
-  return NextResponse.next();
+import { updateSession } from "@/lib/supabase/middleware";
+
+const protectedRoutePrefixes = ["/admin", "/exhibit", "/org"];
+
+function isProtectedRoute(pathname: string): boolean {
+  return protectedRoutePrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
 }
+
+export async function middleware(request: NextRequest) {
+  const { claims, response } = await updateSession(request);
+
+  if (isProtectedRoute(request.nextUrl.pathname) && !claims) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/auth";
+    redirectUrl.search = "";
+    redirectUrl.searchParams.set(
+      "next",
+      `${request.nextUrl.pathname}${request.nextUrl.search}`,
+    );
+
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+    ["cache-control", "expires", "pragma"].forEach((name) => {
+      const value = response.headers.get(name);
+      if (value) {
+        redirectResponse.headers.set(name, value);
+      }
+    });
+
+    return redirectResponse;
+  }
+
+  return response;
+}
+
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2)$).*)",
+  ],
+};

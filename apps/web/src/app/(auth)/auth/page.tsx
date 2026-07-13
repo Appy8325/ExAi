@@ -1,3 +1,3 @@
 export default function AuthRootPage() {
-  return <h1>Auth — Milestone 0 shell</h1>;
+  return <p>Authentication is not yet implemented.</p>;
 }

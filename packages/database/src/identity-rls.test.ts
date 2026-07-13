@@ -1,8 +1,7 @@
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { PostgreSqlContainer } from '@testcontainers/postgresql';
-import postgres from 'postgres';
+import { resolve } from "node:path";
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { PostgreSqlContainer } from "@testcontainers/postgresql";
+import postgres from "postgres";
 
 // RLS isolation tests for docs/16-database-schema.md §3 (Identity &
 // Tenancy) — required in the same PR as the tables per
@@ -16,17 +15,39 @@ import postgres from 'postgres';
 // here. Run `pnpm --filter database test` in an environment with
 // Docker before treating this as a passing gate.
 
-const migrationsDir = resolve(dirname(fileURLToPath(import.meta.url)), '../migrations');
+const migrationsDir = resolve(__dirname, "../migrations");
 
-let container: Awaited<ReturnType<PostgreSqlContainer['start']>>;
+let container: Awaited<ReturnType<PostgreSqlContainer["start"]>>;
 let sql: postgres.Sql;
 
+/**
+ * INSERT ... RETURNING is typed as an array. Fixtures require exactly one row,
+ * so prove that invariant before accessing its values under strict null checks.
+ */
+function requireReturnedRow<T>(rows: readonly T[], description: string): T {
+  const [row] = rows;
+  if (!row) {
+    throw new Error(`Expected ${description} to return one row`);
+  }
+  return row;
+}
+
 beforeAll(async () => {
-  container = await new PostgreSqlContainer('pgvector/pgvector:pg16').start();
+  container = await new PostgreSqlContainer("pgvector/pgvector:pg16").start();
   sql = postgres(container.getConnectionUri());
 
-  await sql.file(resolve(migrationsDir, '0001_uuid_v7.sql'));
-  await sql.file(resolve(migrationsDir, '0002_identity_tenancy.sql'));
+  await sql.file(resolve(migrationsDir, "0001_uuid_v7.sql"));
+  await sql.file(resolve(migrationsDir, "0002_identity_tenancy.sql"));
+  await sql`CREATE SCHEMA auth`;
+  await sql`
+    CREATE TABLE auth.users (
+      id uuid PRIMARY KEY,
+      email text NOT NULL,
+      email_confirmed_at timestamptz,
+      raw_user_meta_data jsonb NOT NULL DEFAULT '{}'::jsonb
+    )
+  `;
+  await sql.file(resolve(migrationsDir, "0003_auth_user_provisioning.sql"));
 }, 60_000);
 
 afterAll(async () => {
@@ -48,6 +69,52 @@ afterEach(async () => {
       api_keys, oauth_identities, webauthn_credentials, auth_tokens
     CASCADE
   `;
+  await sql`TRUNCATE TABLE auth.users`;
+});
+
+describe("Supabase Auth user provisioning", () => {
+  it("mirrors the auth UUID and initial verification state without duplicating retries", async () => {
+    const id = "00000000-0000-0000-0000-000000000001";
+    const confirmedAt = new Date("2026-07-13T00:00:00.000Z");
+    await sql`
+      INSERT INTO auth.users (id, email, email_confirmed_at, raw_user_meta_data)
+      VALUES (${id}, 'USER@EXAMPLE.COM', ${confirmedAt}, ${sql.json({ full_name: "User Name" })})
+    `;
+
+    const [provisioned] = await sql`
+      SELECT id, email, full_name, email_verified_at FROM users WHERE id = ${id}
+    `;
+    expect(provisioned).toMatchObject({
+      id,
+      email: "user@example.com",
+      full_name: "User Name",
+      email_verified_at: confirmedAt,
+    });
+
+    await sql`DELETE FROM auth.users WHERE id = ${id}`;
+    await sql`
+      INSERT INTO auth.users (id, email, raw_user_meta_data)
+      VALUES (${id}, 'changed@example.com', ${sql.json({ full_name: "Changed Name" })})
+    `;
+    const rows = await sql`SELECT email, full_name FROM users WHERE id = ${id}`;
+    expect(rows).toEqual([
+      { email: "user@example.com", full_name: "User Name" },
+    ]);
+  });
+
+  it("mirrors email confirmation after the user is provisioned", async () => {
+    const id = "00000000-0000-0000-0000-000000000002";
+    const confirmedAt = new Date("2026-07-13T00:00:00.000Z");
+    await sql`
+      INSERT INTO auth.users (id, email, raw_user_meta_data)
+      VALUES (${id}, 'user@example.com', ${sql.json({})})
+    `;
+    await sql`UPDATE auth.users SET email_confirmed_at = ${confirmedAt} WHERE id = ${id}`;
+
+    const [user] =
+      await sql`SELECT email_verified_at FROM users WHERE id = ${id}`;
+    expect(user).toMatchObject({ email_verified_at: confirmedAt });
+  });
 });
 
 /**
@@ -56,26 +123,38 @@ afterEach(async () => {
  * fixture setup itself isn't gated by the policies under test.
  */
 async function seedTwoTenants() {
-  const [orgA] = await sql`
+  const orgA = requireReturnedRow(
+    await sql`
     INSERT INTO organizations (kind, slug, name)
     VALUES ('organizer', 'org-a', 'Org A')
     RETURNING id
-  `;
-  const [orgB] = await sql`
+  `,
+    "Org A insert",
+  );
+  const orgB = requireReturnedRow(
+    await sql`
     INSERT INTO organizations (kind, slug, name)
     VALUES ('organizer', 'org-b', 'Org B')
     RETURNING id
-  `;
-  const [userA] = await sql`
+  `,
+    "Org B insert",
+  );
+  const userA = requireReturnedRow(
+    await sql`
     INSERT INTO users (email, full_name)
     VALUES ('a@example.com', 'User A')
     RETURNING id
-  `;
-  const [userB] = await sql`
+  `,
+    "User A insert",
+  );
+  const userB = requireReturnedRow(
+    await sql`
     INSERT INTO users (email, full_name)
     VALUES ('b@example.com', 'User B')
     RETURNING id
-  `;
+  `,
+    "User B insert",
+  );
   await sql`
     INSERT INTO organization_memberships (organization_id, user_id, role)
     VALUES (${orgA.id}, ${userA.id}, 'owner'), (${orgB.id}, ${userB.id}, 'owner')
@@ -89,7 +168,7 @@ async function asTenant<T>(
   fn: (client: postgres.TransactionSql) => Promise<T>,
 ) {
   return sql.begin(async (tx) => {
-    await tx.unsafe('SET LOCAL ROLE app_tenant');
+    await tx.unsafe("SET LOCAL ROLE app_tenant");
     if (ctx.orgId) {
       await tx.unsafe(`SET LOCAL app.current_org_id = '${ctx.orgId}'`);
     }
@@ -100,40 +179,48 @@ async function asTenant<T>(
   });
 }
 
-describe('organizations RLS', () => {
-  it('a tenant sees only its own organization row', async () => {
+describe("organizations RLS", () => {
+  it("a tenant sees only its own organization row", async () => {
     const { orgA, orgB } = await seedTwoTenants();
 
-    const rows = await asTenant({ orgId: orgA }, (tx) => tx`SELECT id FROM organizations`);
+    const rows = await asTenant(
+      { orgId: orgA },
+      (tx) => tx`SELECT id FROM organizations`,
+    );
 
     expect(rows.map((r) => r.id)).toEqual([orgA]);
     expect(rows.map((r) => r.id)).not.toContain(orgB);
   });
 
-  it('a tenant cannot write another organization\'s row', async () => {
+  it("a tenant cannot write another organization's row", async () => {
     const { orgA, orgB } = await seedTwoTenants();
 
     await expect(
-      asTenant({ orgId: orgA }, (tx) =>
-        tx`UPDATE organizations SET name = 'hijacked' WHERE id = ${orgB}`,
+      asTenant(
+        { orgId: orgA },
+        (tx) =>
+          tx`UPDATE organizations SET name = 'hijacked' WHERE id = ${orgB}`,
       ),
     ).resolves.toMatchObject({ count: 0 });
   });
 });
 
-describe('users RLS', () => {
-  it('a user sees only their own row, never another tenant\'s user', async () => {
+describe("users RLS", () => {
+  it("a user sees only their own row, never another tenant's user", async () => {
     const { userA, userB } = await seedTwoTenants();
 
-    const rows = await asTenant({ userId: userA }, (tx) => tx`SELECT id FROM users`);
+    const rows = await asTenant(
+      { userId: userA },
+      (tx) => tx`SELECT id FROM users`,
+    );
 
     expect(rows.map((r) => r.id)).toEqual([userA]);
     expect(rows.map((r) => r.id)).not.toContain(userB);
   });
 });
 
-describe('organization_memberships RLS', () => {
-  it('a tenant sees only memberships scoped to its own organization', async () => {
+describe("organization_memberships RLS", () => {
+  it("a tenant sees only memberships scoped to its own organization", async () => {
     const { orgA, userA, userB } = await seedTwoTenants();
 
     const rows = await asTenant(
@@ -146,17 +233,20 @@ describe('organization_memberships RLS', () => {
   });
 });
 
-describe('auth_sessions and oauth_identities and webauthn_credentials RLS', () => {
-  it('a user sees only their own auth_sessions row', async () => {
+describe("auth_sessions and oauth_identities and webauthn_credentials RLS", () => {
+  it("a user sees only their own auth_sessions row", async () => {
     const { userA, userB } = await seedTwoTenants();
     await sql`INSERT INTO auth_sessions (user_id) VALUES (${userA}), (${userB})`;
 
-    const rows = await asTenant({ userId: userA }, (tx) => tx`SELECT user_id FROM auth_sessions`);
+    const rows = await asTenant(
+      { userId: userA },
+      (tx) => tx`SELECT user_id FROM auth_sessions`,
+    );
 
     expect(rows.map((r) => r.user_id)).toEqual([userA]);
   });
 
-  it('a user sees only their own oauth_identities row', async () => {
+  it("a user sees only their own oauth_identities row", async () => {
     const { userA, userB } = await seedTwoTenants();
     await sql`
       INSERT INTO oauth_identities (user_id, provider, provider_user_id)
@@ -171,7 +261,7 @@ describe('auth_sessions and oauth_identities and webauthn_credentials RLS', () =
     expect(rows.map((r) => r.user_id)).toEqual([userA]);
   });
 
-  it('a user sees only their own webauthn_credentials row', async () => {
+  it("a user sees only their own webauthn_credentials row", async () => {
     const { userA, userB } = await seedTwoTenants();
     const dummyKey = Buffer.from([0]);
     await sql`
@@ -188,8 +278,8 @@ describe('auth_sessions and oauth_identities and webauthn_credentials RLS', () =
   });
 });
 
-describe('api_keys RLS', () => {
-  it('a tenant sees only its own organization\'s api_keys', async () => {
+describe("api_keys RLS", () => {
+  it("a tenant sees only its own organization's api_keys", async () => {
     const { orgA, orgB, userA } = await seedTwoTenants();
     await sql`
       INSERT INTO api_keys (organization_id, name, key_prefix, secret_hash, created_by_user_id)
@@ -198,32 +288,38 @@ describe('api_keys RLS', () => {
         (${orgB}, 'Key B', 'prefix_b_001', 'hash_b', ${userA})
     `;
 
-    const rows = await asTenant({ orgId: orgA }, (tx) => tx`SELECT organization_id FROM api_keys`);
+    const rows = await asTenant(
+      { orgId: orgA },
+      (tx) => tx`SELECT organization_id FROM api_keys`,
+    );
 
     expect(rows.map((r) => r.organization_id)).toEqual([orgA]);
   });
 });
 
-describe('auth_tokens RLS', () => {
-  it('denies all client-role access — no policy exists for app_tenant', async () => {
+describe("auth_tokens RLS", () => {
+  it("denies all client-role access — no policy exists for app_tenant", async () => {
     const { userA } = await seedTwoTenants();
     await sql`
       INSERT INTO auth_tokens (kind, token_hash, user_id, expires_at)
       VALUES ('magic_link', 'hash-a', ${userA}, now() + interval '15 minutes')
     `;
 
-    const rows = await asTenant({ userId: userA }, (tx) => tx`SELECT id FROM auth_tokens`);
+    const rows = await asTenant(
+      { userId: userA },
+      (tx) => tx`SELECT id FROM auth_tokens`,
+    );
 
     expect(rows).toHaveLength(0);
   });
 });
 
-describe('app_platform bypass', () => {
-  it('sees rows across every tenant, per its BYPASSRLS role attribute', async () => {
+describe("app_platform bypass", () => {
+  it("sees rows across every tenant, per its BYPASSRLS role attribute", async () => {
     const { orgA, orgB } = await seedTwoTenants();
 
     const rows = await sql.begin(async (tx) => {
-      await tx.unsafe('SET LOCAL ROLE app_platform');
+      await tx.unsafe("SET LOCAL ROLE app_platform");
       return tx`SELECT id FROM organizations`;
     });
 
