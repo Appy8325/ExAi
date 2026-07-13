@@ -12,6 +12,11 @@ import { DATABASE_CLIENT } from '../../common/database-client';
 import { AuthModule } from '../auth/auth.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
 import { RelationshipWorkspaceController } from './relationship-workspace.controller';
+import { ExhibitorDashboardRepository } from './exhibitor-dashboard.repository';
+import { ExhibitorDashboardService } from './exhibitor-dashboard.service';
+import { ExhibitorDashboardController } from './exhibitor-dashboard.controller';
+import { PlatformEnrollmentService } from './platform-enrollment.service';
+import { PublicEnrollmentController } from './public-enrollment.controller';
 
 /**
  * EngagementModule — owns booth_visits, leads, lead_notes, meetings (docs/18-api-architecture.md §1).
@@ -19,5 +24,5 @@ import { RelationshipWorkspaceController } from './relationship-workspace.contro
  * Real routes/services land in the milestone that implements this domain
  * (see docs/45-implementation-roadmap.md for the per-module milestone mapping).
  */
-@Module({ imports: [AuthModule, OrganizationsModule], controllers: [RelationshipWorkspaceController], providers: [{ provide: DATABASE_CLIENT, useValue: db }, LeadFormsRepository, LeadFormsService, LeadSubmissionsRepository, LeadSubmissionsService, RelationshipNotesRepository, RelationshipNotesService, RelationshipWorkspaceRepository, RelationshipWorkspaceService], exports: [LeadFormsService, LeadSubmissionsService, RelationshipNotesService, RelationshipWorkspaceService] })
+@Module({ imports: [AuthModule, OrganizationsModule], controllers: [RelationshipWorkspaceController, ExhibitorDashboardController, PublicEnrollmentController], providers: [{ provide: DATABASE_CLIENT, useValue: db }, LeadFormsRepository, LeadFormsService, LeadSubmissionsRepository, LeadSubmissionsService, RelationshipNotesRepository, RelationshipNotesService, RelationshipWorkspaceRepository, RelationshipWorkspaceService, ExhibitorDashboardRepository, ExhibitorDashboardService, PlatformEnrollmentService], exports: [LeadFormsService, LeadSubmissionsService, RelationshipNotesService, RelationshipWorkspaceService, ExhibitorDashboardService] })
 export class EngagementModule {}

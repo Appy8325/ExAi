@@ -70,6 +70,15 @@ Badge and registration data are accessed through provider adapters, not the
 core capture model. Future adapters can support Cvent, EventMobi, Bizzabo,
 Swoogo, CSV, and custom APIs.
 
+### Public enrollment transaction boundary
+
+Supabase is the canonical identity authority. Passwordless Magic Link delivery
+and authentication are external side effects outside ExAi's database
+transaction boundary. Once Supabase has verified and provisioned an attendee
+identity, ExAi-owned enrollment persistence, relationship creation, and other
+database mutations are transactional. Distributed rollback of Magic Link
+delivery is not required.
+
 ### Deferred lifecycle and offline operation
 
 Future relationship stages include New, Qualified, Follow-up, Meeting

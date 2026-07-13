@@ -11,6 +11,9 @@ vi.mock("@concourse/database", () => database);
 import { LeadSubmissionsRepository } from "./lead-submissions.repository";
 import { RelationshipNotesRepository } from "./relationship-notes.repository";
 import { RelationshipWorkspaceRepository } from "./relationship-workspace.repository";
+import { ExhibitorDashboardRepository } from "./exhibitor-dashboard.repository";
+import { PlatformEnrollmentService } from "./platform-enrollment.service";
+import { LeadSubmissionsService } from "./lead-submissions.service";
 
 database.setRlsContext.mockImplementation(async (tx: { execute(query: ReturnType<typeof drizzleSql>): Promise<unknown> }, organizationId: string, actorUserId?: string) => {
   await tx.execute(drizzleSql`SELECT set_config('app.current_org_id', ${organizationId}, true)`);
@@ -22,7 +25,7 @@ const migrations = [
   "0001_uuid_v7.sql", "0002_identity_tenancy.sql", "0003_auth_user_provisioning.sql",
   "0004_organization_owner_invariant.sql", "0005_event_foundation.sql", "0006_agenda_session_foundation.sql",
   "0007_event_exhibitor_foundation.sql", "0008_lead_form_foundation.sql", "0009_relationship_capture_engine.sql",
-  "0010_foundation_hardening.sql", "0011_relationship_workspace.sql",
+  "0010_foundation_hardening.sql", "0011_relationship_workspace.sql", "0012_exhibitor_dashboard.sql", "0013_progressive_enrichment.sql", "0014_public_enrollment.sql",
 ];
 
 let container: Awaited<ReturnType<PostgreSqlContainer["start"]>>;
@@ -56,7 +59,7 @@ beforeAll(async () => {
 }, 60_000);
 
 afterEach(async () => {
-  await sql`TRUNCATE TABLE exhibitor_relationship_notes, exhibitor_relationships, lead_submission_values, lead_submissions, lead_form_fields, lead_forms, event_exhibitors, events, attendee_profiles, attendee_profile_consents, organizations, users CASCADE`;
+  await sql`TRUNCATE TABLE public_enrollments, relationship_enrichments, exhibitor_dashboard_visits, exhibitor_relationship_notes, exhibitor_relationships, lead_submission_values, lead_submissions, lead_form_fields, lead_forms, event_exhibitors, events, attendee_profiles, attendee_profile_consents, organizations, users CASCADE`;
 });
 
 afterAll(async () => {
@@ -153,5 +156,77 @@ describe("relationship write repositories", () => {
     expect(await workspace.find({ organizationId: f.organizationId, actorUserId: f.actor, relationshipId: relationship.id })).toMatchObject({ attendee: { consentStatus: "not_shared", name: null, contact: { email: null }, profileCompleteness: 0 }, relationship: { interactionCount: 2, hasPotentialDuplicate: true }, timeline: [{ id: first.id }, { id: second.id }], notes: [{ body: "Visible" }], summary: { interactionCount: 2, noteCount: 1, profileCompleteness: 0 } });
     await sql`UPDATE attendee_profile_consents SET share_profile_with_exhibitors = true WHERE user_id = ${f.attendee}`;
     expect(await workspace.find({ organizationId: f.organizationId, actorUserId: f.actor, relationshipId: relationship.id })).toMatchObject({ attendee: { consentStatus: "shared", name: "Attendee", company: "Acme", title: "Buyer", industry: "Events", contact: { email: "attendee@example.com", linkedInUrl: "https://linkedin.example/attendee" }, profileCompleteness: 100 }, timeline: [{ values: [{ value: "attendee@example.com", field: { key: "email" } }] }, { values: [{ value: "attendee@example.com", field: { key: "email" } }] }] });
+  });
+
+  it("returns one exhibitor-scoped dashboard projection and records the visit boundary", async () => {
+    const f = await fixture();
+    const submissions = new LeadSubmissionsRepository(client as never);
+    await submissions.create({ organizationId: f.organizationId, actorUserId: f.actor, eventId: f.event, eventExhibitorId: f.exhibitor, attendeeUserId: f.attendee, leadFormId: f.form, idempotencyKey: "dashboard", interactionSource: "visitor_qr", responses: { email: "attendee@example.com" } });
+    const dashboard = new ExhibitorDashboardRepository(client as never);
+    const first = await dashboard.find({ organizationId: f.organizationId, actorUserId: f.actor, eventExhibitorId: f.exhibitor });
+    const second = await dashboard.find({ organizationId: f.organizationId, actorUserId: f.actor, eventExhibitorId: f.exhibitor });
+
+    expect(first).toMatchObject({ sinceLastVisited: { since: null, newRelationships: 1 }, pipeline: { new: 1, active: 1, returning: 0, needsFollowUp: 1 }, performance: { qrScans: 1, relationshipsCreated: 1 } });
+    expect(second?.sinceLastVisited.since).toBeTruthy();
+    expect(second?.sinceLastVisited.newRelationships).toBe(0);
+    await expect(dashboard.find({ organizationId: f.otherOrganizationId, actorUserId: f.actor, eventExhibitorId: f.exhibitor })).resolves.toBeUndefined();
+  });
+
+  it("records consented profile enrichment per active relationship, feeds only the authorized exhibitor, and rolls back with the profile write", async () => {
+    const f = await fixture();
+    const submissions = new LeadSubmissionsRepository(client as never);
+    await submissions.create({ organizationId: f.organizationId, actorUserId: f.actor, eventId: f.event, eventExhibitorId: f.exhibitor, attendeeUserId: f.attendee, leadFormId: f.form, idempotencyKey: "enrichment", interactionSource: "visitor_qr", responses: { email: "attendee@example.com" } });
+    const otherExhibitor = row(await sql`INSERT INTO event_exhibitors(organization_id, event_id, organizer_organization_id, booth_name) VALUES (${f.otherOrganizationId}, ${f.event}, (SELECT organization_id FROM events WHERE id = ${f.event}), 'Other booth') RETURNING id`, "other exhibitor");
+    await sql`INSERT INTO exhibitor_relationships(event_exhibitor_id, attendee_user_id) VALUES (${otherExhibitor.id}, ${f.attendee})`;
+    await sql`INSERT INTO attendee_profiles(user_id, company, job_title) VALUES (${f.attendee}, 'Acme', 'Buyer')`;
+    await sql`UPDATE attendee_profiles SET industry = 'Events' WHERE user_id = ${f.attendee}`;
+    expect(await sql`SELECT id FROM relationship_enrichments`).toHaveLength(0);
+    await sql`INSERT INTO attendee_profile_consents(user_id, share_profile_with_exhibitors) VALUES (${f.attendee}, true)`;
+    expect(await sql`SELECT id FROM relationship_enrichments`).toHaveLength(8);
+    expect(await asTenant(f.organizationId, tx => tx`SELECT id FROM relationship_enrichments`)).toHaveLength(4);
+    expect(await asTenant(f.otherOrganizationId, tx => tx`SELECT id FROM relationship_enrichments`)).toHaveLength(4);
+    const dashboard = new ExhibitorDashboardRepository(client as never);
+    await dashboard.find({ organizationId: f.organizationId, actorUserId: f.actor, eventExhibitorId: f.exhibitor });
+    await sql`UPDATE attendee_profiles SET company_size = '51-200' WHERE user_id = ${f.attendee}`;
+    const feed = await dashboard.find({ organizationId: f.organizationId, actorUserId: f.actor, eventExhibitorId: f.exhibitor });
+    expect(feed?.intelligenceFeed.profilesEnriched).toBe(1);
+    expect(feed?.intelligenceFeed.items[0]).toMatchObject({ label: "Company Size added" });
+    const count = await sql`SELECT id FROM relationship_enrichments`;
+    await expect(sql.begin(async tx => { await tx`UPDATE attendee_profiles SET company = 'Rolled back' WHERE user_id = ${f.attendee}`; throw new Error("rollback"); })).rejects.toThrow("rollback");
+    expect(await sql`SELECT id FROM relationship_enrichments`).toHaveLength(count.length);
+  });
+
+  it("enrolls authenticated attendees through the real relationship engine without cross-booth access", async () => {
+    const f = await fixture();
+    const auth = { sendMagicLink: vi.fn(), identity: vi.fn().mockResolvedValue({ id: f.attendee, email: "attendee@example.com" }) };
+    const service = new PlatformEnrollmentService(client as never, auth as never, new LeadSubmissionsService(new LeadSubmissionsRepository(client as never)));
+    await expect(service.enroll(f.exhibitor, "attendee@example.com")).resolves.toEqual({ accepted: true });
+    const first = await service.complete("valid");
+    expect(first).toBeTruthy();
+    await service.enroll(f.exhibitor, "attendee@example.com");
+    const second = await service.complete("valid");
+    expect(second?.id).toBe(first?.id);
+    expect(await sql`SELECT id FROM exhibitor_relationships`).toHaveLength(1);
+    auth.identity.mockResolvedValue(undefined);
+    await expect(service.complete("expired")).rejects.toThrow("Authentication required");
+    await expect(service.enroll("00000000-0000-0000-0000-000000000001", "new@example.com")).rejects.toThrow("Booth not found");
+  });
+
+  it("enrolls a newly provisioned Supabase identity into only its selected event exhibitor", async () => {
+    const f = await fixture();
+    const fresh = row(await sql`INSERT INTO auth.users(id,email,email_confirmed_at) VALUES (concourse.uuid_generate_v7(),'new@example.com',now()) RETURNING id`, "new auth user");
+    expect(await sql`SELECT id FROM users WHERE id=${fresh.id}`).toHaveLength(1);
+    const auth = { sendMagicLink: vi.fn(), identity: vi.fn().mockResolvedValue({ id: fresh.id, email: "new@example.com" }) };
+    const service = new PlatformEnrollmentService(client as never, auth as never, new LeadSubmissionsService(new LeadSubmissionsRepository(client as never)));
+    await service.enroll(f.exhibitor, "new@example.com");
+    await service.complete("new-user-token");
+    const secondEvent = row(await sql`INSERT INTO events(organization_id,name,slug,timezone,start_at,end_at) VALUES ((SELECT organization_id FROM events WHERE id=${f.event}),'Event B','event-b','UTC',now(),now()+interval '1 day') RETURNING id`, "second event");
+    const other = row(await sql`INSERT INTO event_exhibitors(organization_id,event_id,organizer_organization_id,booth_name) VALUES (${f.otherOrganizationId},${secondEvent.id},(SELECT organization_id FROM events WHERE id=${f.event}),'Other booth') RETURNING id`, "other exhibitor");
+    expect(await sql`SELECT id FROM exhibitor_relationships WHERE attendee_user_id=${fresh.id}`).toHaveLength(1);
+    await service.enroll(other.id, "new@example.com");
+    await service.complete("new-user-token");
+    expect(await sql`SELECT id FROM exhibitor_relationships WHERE attendee_user_id=${fresh.id}`).toHaveLength(2);
+    expect(await asTenant(f.organizationId, tx => tx`SELECT id FROM exhibitor_relationships WHERE attendee_user_id=${fresh.id}`)).toHaveLength(1);
+    expect(await asTenant(f.otherOrganizationId, tx => tx`SELECT id FROM exhibitor_relationships WHERE attendee_user_id=${fresh.id}`)).toHaveLength(1);
   });
 });

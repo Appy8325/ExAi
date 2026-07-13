@@ -1,6 +1,7 @@
-import type { RelationshipWorkspace } from "@concourse/api-contract";
+import type { ExhibitorDashboard, RelationshipWorkspace } from "@concourse/api-contract";
 
 export type { RelationshipWorkspace } from "@concourse/api-contract";
+export type { ExhibitorDashboard } from "@concourse/api-contract";
 
 export type RelationshipWorkspaceClient = { baseUrl: string; accessToken: string; fetch?: typeof fetch };
 
@@ -10,6 +11,10 @@ export class ApiError extends Error {
 
 export async function getRelationshipWorkspace(client: RelationshipWorkspaceClient, organizationId: string, relationshipId: string) {
   return request<RelationshipWorkspace>(client, `/v1/organizations/${organizationId}/relationships/${relationshipId}`);
+}
+
+export async function getExhibitorDashboard(client: RelationshipWorkspaceClient, organizationId: string, eventExhibitorId: string) {
+  return request<ExhibitorDashboard>(client, `/v1/organizations/${organizationId}/exhibitors/${eventExhibitorId}/dashboard`);
 }
 
 export function createRelationshipNote(client: RelationshipWorkspaceClient, organizationId: string, relationshipId: string, body: string) {
