@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import type { OrganizationPermission, Role } from '@concourse/shared';
 
 /**
  * RequestContext shape per docs/18-api-architecture.md §3.9. Milestone 0
@@ -19,6 +20,7 @@ export interface RequestContext {
     serviceName?: string;
   };
   orgId?: string;
+  membership?: { role: Role; permissions: readonly OrganizationPermission[] };
   eventId?: string;
   eventExhibitorId?: string;
 }

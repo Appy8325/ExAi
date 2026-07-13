@@ -23,9 +23,9 @@
     "@concourse/ai": "workspace:*",
     "@concourse/database": "workspace:*",
     "@concourse/shared": "workspace:*",
+    "@concourse/api-contract": "workspace:*",
     "@concourse/notifications": "workspace:*",
     "@concourse/flags": "workspace:*",
-    "@concourse/api-contract": "workspace:*",
     "@supabase/supabase-js": "^2.47.10",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"

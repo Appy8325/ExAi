@@ -1,0 +1,24 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import type { ButtonHTMLAttributes } from "react";
+import type { RelationshipWorkspace } from "@concourse/api-client";
+import { archiveRelationshipNote, createRelationshipNote, updateRelationshipNote } from "@concourse/api-client";
+import { getApiBaseUrl } from "@/lib/api/config";
+import { createClient } from "@/lib/supabase/client";
+
+type Note = RelationshipWorkspace["notes"][number];
+
+export function NotesPanel({ initialNotes, organizationId, relationshipId }: { initialNotes: Note[]; organizationId: string; relationshipId: string }) {
+  const [notes, setNotes] = useState(initialNotes);
+  const [editing, setEditing] = useState<string>();
+  const [error, setError] = useState<string>();
+  const [pending, startTransition] = useTransition();
+  const client = async () => { const { data: { session } } = await createClient().auth.getSession(); if (!session) throw new Error("Sign in required."); return { baseUrl: getApiBaseUrl(), accessToken: session.access_token }; };
+  const submit = (form: HTMLFormElement) => { const body = String(new FormData(form).get("body") ?? "").trim(); if (!body) return; form.reset(); setError(undefined); startTransition(async () => { try { const created = await createRelationshipNote(await client(), organizationId, relationshipId, body) as Note; setNotes((current) => [...current, created]); } catch { setError("Could not add the note. Please try again."); } }); };
+  const update = (note: Note, form: HTMLFormElement) => { const body = String(new FormData(form).get("body") ?? "").trim(); if (!body) return; setError(undefined); setNotes((current) => current.map((item) => item.id === note.id ? { ...item, body } : item)); setEditing(undefined); startTransition(async () => { try { await updateRelationshipNote(await client(), organizationId, note.id, body); } catch { setNotes((current) => current.map((item) => item.id === note.id ? note : item)); setError("Could not update the note. Please try again."); } }); };
+  const archive = (note: Note) => { setError(undefined); setNotes((current) => current.filter((item) => item.id !== note.id)); startTransition(async () => { try { await archiveRelationshipNote(await client(), organizationId, note.id); } catch { setNotes((current) => [...current, note]); setError("Could not archive the note. Please try again."); } }); };
+  return <section className="rounded-xl border border-strong bg-surface p-5 sm:p-6"><h2 className="text-lg font-semibold text-primary">Notes</h2><form className="mt-4 space-y-2" onSubmit={(event) => { event.preventDefault(); submit(event.currentTarget); }}><label className="sr-only" htmlFor="new-note">Add a note</label><textarea className="min-h-24 w-full rounded-lg border border-strong bg-surface p-3 text-primary outline-none focus-visible:ring-2 focus-visible:ring-brand" disabled={pending} id="new-note" name="body" placeholder="Add a private exhibitor note" /><ActionButton type="submit" disabled={pending}>Add note</ActionButton></form>{error && <p className="mt-3 text-sm text-status-danger" role="alert">{error}</p>}{notes.length === 0 ? <p className="mt-5 rounded-lg bg-sunken p-4 text-sm text-secondary">No notes yet. Capture follow-up details here.</p> : <ul className="mt-5 space-y-4">{notes.map((note) => <li className="border-t border-strong pt-4 first:border-0 first:pt-0" key={note.id}>{editing === note.id ? <form className="space-y-2" onSubmit={(event) => { event.preventDefault(); update(note, event.currentTarget); }}><label className="sr-only" htmlFor={`note-${note.id}`}>Edit note</label><textarea className="min-h-24 w-full rounded-lg border border-strong bg-surface p-3 text-primary outline-none focus-visible:ring-2 focus-visible:ring-brand" defaultValue={note.body} id={`note-${note.id}`} name="body" /><div className="flex gap-2"><ActionButton type="submit" disabled={pending}>Save</ActionButton><ActionButton type="button" onClick={() => setEditing(undefined)}>Cancel</ActionButton></div></form> : <><p className="whitespace-pre-wrap text-sm text-primary">{note.body}</p><p className="mt-2 text-xs text-muted">{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(note.updatedAt))}</p><div className="mt-2 flex gap-2"><ActionButton type="button" onClick={() => setEditing(note.id)}>Edit</ActionButton><ActionButton type="button" disabled={pending} onClick={() => archive(note)}>Archive</ActionButton></div></>}</li>)}</ul>}</section>;
+}
+
+function ActionButton(props: ButtonHTMLAttributes<HTMLButtonElement>) { return <button {...props} className={`rounded-lg px-3 py-2 text-sm font-medium text-primary outline-none transition-colors hover:bg-sunken focus-visible:ring-2 focus-visible:ring-brand disabled:cursor-not-allowed disabled:opacity-60 ${props.className ?? ""}`} />; }

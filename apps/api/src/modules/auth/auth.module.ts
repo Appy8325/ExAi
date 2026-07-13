@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { OrganizationsModule } from '../organizations/organizations.module';
+import { SupabaseRequestContextGuard } from './supabase-request-context.guard';
+import { RequestContextInterceptor } from './request-context.interceptor';
 
 /**
  * AuthModule — owns /v1/auth/* (docs/18-api-architecture.md §1).
@@ -18,5 +21,5 @@ import { Module } from '@nestjs/common';
  * lands only once docs 19-20 are substantively rewritten against Supabase Auth,
  * per a later milestone in docs/45-implementation-roadmap.md.
  */
-@Module({})
+@Module({ imports: [OrganizationsModule], providers: [SupabaseRequestContextGuard, RequestContextInterceptor], exports: [SupabaseRequestContextGuard, RequestContextInterceptor] })
 export class AuthModule {}

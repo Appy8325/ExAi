@@ -11,4 +11,4 @@
  * `src/generated/` is empty and this barrel exports nothing.
  */
 
-export {};
+export * from "./relationship-workspace";

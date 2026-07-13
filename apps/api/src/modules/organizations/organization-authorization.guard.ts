@@ -37,8 +37,8 @@ export class OrganizationAuthorizationGuard implements CanActivate {
       return true;
     }
 
-    const requestContext = requestContextStorage.getStore();
-    const request = context.switchToHttp().getRequest<{ params?: Record<string, string> }>();
+    const request = context.switchToHttp().getRequest<{ params?: Record<string, string>; requestContext?: RequestContext }>();
+    const requestContext = request.requestContext ?? requestContextStorage.getStore();
     const organizationId = request.params?.organizationId ?? request.params?.orgId;
     const userId = requestContext?.principal.userId;
 
@@ -46,7 +46,7 @@ export class OrganizationAuthorizationGuard implements CanActivate {
       throw new ForbiddenException("Organization permission denied.");
     }
 
-    const permissions = await this.resolvePermissions(
+    const permissions = requestContext.membership?.permissions ?? await this.resolvePermissions(
       requestContext,
       organizationId,
       userId,
