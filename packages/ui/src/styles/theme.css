@@ -88,4 +88,35 @@
   --spacing-table-cell-px: var(--mq-table-cell-px);
   --spacing-card-p: var(--mq-card-p);
   --spacing-gap-stack: var(--mq-gap-stack);
+
+  /* Foundation scales */
+  --font-sans: var(--mq-font-sans);
+  --font-mono: var(--mq-font-mono);
+  --text-display: var(--mq-type-display);
+  --text-display--line-height: var(--mq-leading-display);
+  --text-title-lg: var(--mq-type-title-lg);
+  --text-title-lg--line-height: var(--mq-leading-title-lg);
+  --text-title: var(--mq-type-title);
+  --text-title--line-height: var(--mq-leading-title);
+  --text-title-sm: var(--mq-type-title-sm);
+  --text-title-sm--line-height: var(--mq-leading-title-sm);
+  --text-body-lg: var(--mq-type-body-lg);
+  --text-body-lg--line-height: var(--mq-leading-body-lg);
+  --text-body: var(--mq-type-body);
+  --text-body--line-height: var(--mq-leading-body);
+  --text-body-sm: var(--mq-type-body-sm);
+  --text-body-sm--line-height: var(--mq-leading-body-sm);
+  --text-caption: var(--mq-type-caption);
+  --text-caption--line-height: var(--mq-leading-caption);
+  --spacing-gutter: var(--mq-space-gutter);
+  --spacing-section: var(--mq-space-section);
+  --radius-xs: var(--mq-radius-xs);
+  --radius-sm: var(--mq-radius-sm);
+  --radius-md: var(--mq-radius-md);
+  --radius-lg: var(--mq-radius-lg);
+  --radius-full: var(--mq-radius-full);
+  --shadow-1: var(--mq-shadow-1);
+  --shadow-2: var(--mq-shadow-2);
+  --shadow-3: var(--mq-shadow-3);
+  --shadow-4: var(--mq-shadow-4);
 }

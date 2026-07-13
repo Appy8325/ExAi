@@ -6,6 +6,7 @@
  * change with density — only heights, paddings, and gaps (§11).
  */
 
+:root,
 [data-density="comfortable"] {
   --mq-control-h: 40px;
   --mq-control-px: 14px;
