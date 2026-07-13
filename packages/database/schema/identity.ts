@@ -85,6 +85,30 @@ export const users = pgTable(
   }),
 );
 
+export const attendeeProfiles = pgTable(
+  'attendee_profiles',
+  {
+    userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+    company: text('company'),
+    jobTitle: text('job_title'),
+    industry: text('industry'),
+    companySize: text('company_size'),
+    linkedInUrl: text('linkedin_url'),
+    interests: jsonb('interests').notNull().default(sql`'[]'::jsonb`),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+);
+
+export const attendeeProfileConsents = pgTable(
+  'attendee_profile_consents',
+  {
+    userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+    shareProfileWithExhibitors: boolean('share_profile_with_exhibitors').notNull().default(false),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+);
+
 // docs/16-database-schema.md §3.3.
 export const organizationMemberships = pgTable(
   'organization_memberships',

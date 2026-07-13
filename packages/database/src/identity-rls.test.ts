@@ -53,6 +53,9 @@ beforeAll(async () => {
   await sql.file(resolve(migrationsDir, "0006_agenda_session_foundation.sql"));
   await sql.file(resolve(migrationsDir, "0007_event_exhibitor_foundation.sql"));
   await sql.file(resolve(migrationsDir, "0008_lead_form_foundation.sql"));
+  await sql.file(resolve(migrationsDir, "0009_relationship_capture_engine.sql"));
+  await sql.file(resolve(migrationsDir, "0010_foundation_hardening.sql"));
+  await sql.file(resolve(migrationsDir, "0011_relationship_workspace.sql"));
 }, 60_000);
 
 afterAll(async () => {
@@ -72,7 +75,7 @@ afterEach(async () => {
     TRUNCATE TABLE
       organizations, users, organization_memberships, auth_sessions,
       api_keys, oauth_identities, webauthn_credentials, auth_tokens, agenda_sessions,
-      lead_form_fields, lead_forms, event_exhibitors, events
+      exhibitor_relationship_notes, exhibitor_relationships, attendee_profiles, attendee_profile_consents, lead_submission_values, lead_submissions, lead_form_fields, lead_forms, event_exhibitors, events
     CASCADE
   `;
   await sql`TRUNCATE TABLE auth.users`;
@@ -749,6 +752,66 @@ describe("lead form foundation", () => {
     expect(await asTenant({orgId:f.orgB,userId:f.userA}, tx=>tx`SELECT id FROM lead_forms`)).toHaveLength(0);
     await expect(sql.begin(async tx=>{await tx`INSERT INTO lead_forms (event_exhibitor_id,name) VALUES (${f.exhibitor},'Rollback')`;throw new Error('rollback');})).rejects.toThrow("rollback");
     expect(await sql`SELECT id FROM lead_forms WHERE event_exhibitor_id=${f.exhibitor} AND name='Rollback'`).toHaveLength(0);
+  });
+});
+
+describe("relationship capture engine", () => {
+  async function fixture() {
+    const { orgA, orgB, userA } = await seedTwoTenants();
+    const event = requireReturnedRow(await sql`INSERT INTO events (organization_id,name,slug,timezone,start_at,end_at) VALUES (${orgA},'Capture Event','capture-event','UTC',now(),now()+interval '1 day') RETURNING id`, "event insert");
+    const exhibitorOrg = requireReturnedRow(await sql`INSERT INTO organizations (kind,slug,name) VALUES ('exhibitor','capture-exhibitor','Capture Exhibitor') RETURNING id`, "exhibitor org insert");
+    const exhibitor = requireReturnedRow(await sql`INSERT INTO event_exhibitors (organization_id,event_id,organizer_organization_id,booth_name) VALUES (${exhibitorOrg.id},${event.id},${orgA},'Capture Booth') RETURNING id`, "event exhibitor insert");
+    const form = requireReturnedRow(await sql`INSERT INTO lead_forms (event_exhibitor_id,name) VALUES (${exhibitor.id},'Capture') RETURNING id`, "lead form insert");
+    const field = requireReturnedRow(await sql`INSERT INTO lead_form_fields (lead_form_id,key,label,type,required,sort_order,validation) VALUES (${form.id},'email','Email','email',true,0,'{}') RETURNING id`, "lead field insert");
+    const attendee = requireReturnedRow(await sql`INSERT INTO users (email,full_name) VALUES ('attendee@example.com','Attendee Name') RETURNING id`, "attendee insert");
+    return { orgA, orgB, userA, exhibitorOrg: exhibitorOrg.id, event: event.id, exhibitor: exhibitor.id, form: form.id, field: field.id, attendee: attendee.id };
+  }
+
+  it("preserves each immutable interaction and flags a returning attendee as a potential duplicate", async () => {
+    const f = await fixture();
+    const first = requireReturnedRow(await sql`INSERT INTO lead_submissions (event_id,event_exhibitor_id,attendee_user_id,lead_form_id,interaction_source) VALUES (${f.event},${f.exhibitor},${f.attendee},${f.form},'visitor_qr') RETURNING id`, "first submission insert");
+    await sql`INSERT INTO lead_submission_values (lead_submission_id,lead_form_field_id,value,field_snapshot) VALUES (${first.id},${f.field},${sql.json('attendee@example.com')},${sql.json({ key: 'email', type: 'email' })})`;
+    const second = requireReturnedRow(await sql`INSERT INTO lead_submissions (event_id,event_exhibitor_id,attendee_user_id,lead_form_id,interaction_source,potential_duplicate) VALUES (${f.event},${f.exhibitor},${f.attendee},${f.form},'exhibitor_device',true) RETURNING id`, "second submission insert");
+    expect(await sql`SELECT id,potential_duplicate FROM lead_submissions WHERE attendee_user_id=${f.attendee} ORDER BY submitted_at,id`).toEqual([{ id: first.id, potential_duplicate: false }, { id: second.id, potential_duplicate: true }]);
+  });
+
+  it("isolates submissions and values to the exhibitor tenant and denies historical updates", async () => {
+    const f = await fixture();
+    const submission = requireReturnedRow(await sql`INSERT INTO lead_submissions (event_id,event_exhibitor_id,attendee_user_id,lead_form_id,interaction_source) VALUES (${f.event},${f.exhibitor},${f.attendee},${f.form},'visitor_qr') RETURNING id`, "submission insert");
+    await sql`INSERT INTO lead_submission_values (lead_submission_id,lead_form_field_id,value,field_snapshot) VALUES (${submission.id},${f.field},${sql.json('attendee@example.com')},${sql.json({ key: 'email' })})`;
+    expect(await asTenant({orgId:f.exhibitorOrg,userId:f.userA}, tx => tx`SELECT id FROM lead_submissions`)).toEqual([{ id: submission.id }]);
+    expect(await asTenant({orgId:f.orgA,userId:f.userA}, tx => tx`SELECT id FROM lead_submissions`)).toHaveLength(0);
+    expect(await asTenant({orgId:f.orgB,userId:f.userA}, tx => tx`SELECT id FROM lead_submission_values`)).toHaveLength(0);
+    await expect(asTenant({orgId:f.exhibitorOrg,userId:f.userA}, tx => tx`UPDATE lead_submissions SET potential_duplicate=true WHERE id=${submission.id}`)).rejects.toThrow();
+  });
+
+  it("rolls back submission and values together", async () => {
+    const f = await fixture();
+    await expect(sql.begin(async tx => { const submission = requireReturnedRow(await tx`INSERT INTO lead_submissions (event_id,event_exhibitor_id,lead_form_id,interaction_source) VALUES (${f.event},${f.exhibitor},${f.form},'visitor_qr') RETURNING id`, "submission insert"); await tx`INSERT INTO lead_submission_values (lead_submission_id,lead_form_field_id,field_snapshot) VALUES (${submission.id},${f.field},${sql.json({ key: 'email' })})`; throw new Error("rollback"); })).rejects.toThrow("rollback");
+    expect(await sql`SELECT id FROM lead_submissions WHERE event_exhibitor_id=${f.exhibitor}`).toHaveLength(0);
+    expect(await sql`SELECT id FROM lead_submission_values`).toHaveLength(0);
+  });
+});
+
+describe("foundation hardening", () => {
+  it("enforces submission retry keys, form integrity, and profile consent", async () => {
+    const { orgA, orgB, userA } = await seedTwoTenants();
+    const event = requireReturnedRow(await sql`INSERT INTO events (organization_id,name,slug,timezone,start_at,end_at) VALUES (${orgA},'Hardening','hardening','UTC',now(),now()+interval '1 day') RETURNING id`, "event");
+    const exhibitorOrg = requireReturnedRow(await sql`INSERT INTO organizations (kind,slug,name) VALUES ('exhibitor','hardening-exhibitor','Hardening') RETURNING id`, "org");
+    const exhibitor = requireReturnedRow(await sql`INSERT INTO event_exhibitors (organization_id,event_id,organizer_organization_id,booth_name) VALUES (${exhibitorOrg.id},${event.id},${orgA},'Booth') RETURNING id`, "exhibitor");
+    const form = requireReturnedRow(await sql`INSERT INTO lead_forms (event_exhibitor_id,name) VALUES (${exhibitor.id},'Form') RETURNING id`, "form");
+    const field = requireReturnedRow(await sql`INSERT INTO lead_form_fields (lead_form_id,key,label,type,sort_order,validation) VALUES (${form.id},'email','Email','email',0,'{}') RETURNING id`, "field");
+    const attendee = requireReturnedRow(await sql`INSERT INTO users (email,full_name) VALUES ('profile@example.com','Profile') RETURNING id`, "attendee");
+    const submission = requireReturnedRow(await sql`INSERT INTO lead_submissions (event_id,event_exhibitor_id,attendee_user_id,lead_form_id,idempotency_key,interaction_source) VALUES (${event.id},${exhibitor.id},${attendee.id},${form.id},'retry','visitor_qr') RETURNING id`, "submission");
+    await sql`INSERT INTO lead_submission_values (lead_submission_id,lead_form_field_id,field_snapshot) VALUES (${submission.id},${field.id},${sql.json({ key: 'email' })})`;
+    await expect(sql`INSERT INTO lead_submissions (event_id,event_exhibitor_id,attendee_user_id,lead_form_id,idempotency_key,interaction_source) VALUES (${event.id},${exhibitor.id},${attendee.id},${form.id},'retry','visitor_qr')`).rejects.toThrow();
+    await expect(sql`UPDATE lead_submissions SET potential_duplicate=true WHERE id=${submission.id}`).rejects.toThrow();
+    await sql`INSERT INTO attendee_profiles (user_id,company) VALUES (${attendee.id},'Acme')`; await sql`INSERT INTO attendee_profile_consents (user_id,share_profile_with_exhibitors) VALUES (${attendee.id},false)`;
+    expect(await asTenant({orgId:exhibitorOrg.id,userId:userA}, tx=>tx`SELECT user_id FROM attendee_profiles`)).toHaveLength(0);
+    await sql`UPDATE attendee_profile_consents SET share_profile_with_exhibitors=true WHERE user_id=${attendee.id}`;
+    expect(await asTenant({orgId:exhibitorOrg.id,userId:userA}, tx=>tx`SELECT user_id FROM attendee_profiles`)).toEqual([{user_id:attendee.id}]);
+    expect(await asTenant({orgId:orgB,userId:userA}, tx=>tx`SELECT user_id FROM attendee_profiles`)).toHaveLength(0);
+    await expect(sql`INSERT INTO lead_submission_values (lead_submission_id,lead_form_field_id,field_snapshot) VALUES (${submission.id},${form.id},'{}')`).rejects.toThrow();
   });
 });
 
