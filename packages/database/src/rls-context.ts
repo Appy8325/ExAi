@@ -19,8 +19,8 @@ export async function setRlsContext(
   orgId: string,
   userId?: string,
 ): Promise<void> {
-  await tx.execute(sql`SET LOCAL app.current_org_id = ${orgId}`);
+  await tx.execute(sql`SELECT set_config('app.current_org_id', ${orgId}, true)`);
   if (userId) {
-    await tx.execute(sql`SET LOCAL app.current_user_id = ${userId}`);
+    await tx.execute(sql`SELECT set_config('app.current_user_id', ${userId}, true)`);
   }
 }

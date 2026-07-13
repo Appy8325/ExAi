@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
+import { sql as drizzleSql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
@@ -9,6 +10,12 @@ vi.mock("@concourse/database", () => database);
 
 import { LeadSubmissionsRepository } from "./lead-submissions.repository";
 import { RelationshipNotesRepository } from "./relationship-notes.repository";
+import { RelationshipWorkspaceRepository } from "./relationship-workspace.repository";
+
+database.setRlsContext.mockImplementation(async (tx: { execute(query: ReturnType<typeof drizzleSql>): Promise<unknown> }, organizationId: string, actorUserId?: string) => {
+  await tx.execute(drizzleSql`SELECT set_config('app.current_org_id', ${organizationId}, true)`);
+  if (actorUserId) await tx.execute(drizzleSql`SELECT set_config('app.current_user_id', ${actorUserId}, true)`);
+});
 
 const migrationsDir = resolve(__dirname, "../../../../../packages/database/migrations");
 const migrations = [
@@ -126,5 +133,25 @@ describe("relationship write repositories", () => {
     expect(await asTenant(f.organizationId, (tx) => tx`SELECT id FROM exhibitor_relationship_notes`)).toEqual([{ id: note.id }]);
     expect(await asTenant(f.otherOrganizationId, (tx) => tx`SELECT id FROM exhibitor_relationship_notes`)).toHaveLength(0);
     await expect(asTenant(f.otherOrganizationId, (tx) => tx`UPDATE exhibitor_relationship_notes SET body = 'hijacked' WHERE id = ${note.id}`)).resolves.toMatchObject({ count: 0 });
+  });
+
+  it("returns a consent-filtered workspace projection with ordered immutable interactions and active notes", async () => {
+    const f = await fixture();
+    const submissions = new LeadSubmissionsRepository(client as never);
+    const input = { organizationId: f.organizationId, actorUserId: f.actor, eventId: f.event, eventExhibitorId: f.exhibitor, attendeeUserId: f.attendee, leadFormId: f.form, interactionSource: "visitor_qr" as const, responses: { email: "attendee@example.com" } };
+    const first = await submissions.create({ ...input, idempotencyKey: "workspace-first" });
+    const second = await submissions.create({ ...input, idempotencyKey: "workspace-second" });
+    const relationship = row(await sql`SELECT id FROM exhibitor_relationships WHERE event_exhibitor_id = ${f.exhibitor} AND attendee_user_id = ${f.attendee}`, "relationship");
+    const notes = new RelationshipNotesRepository(client as never);
+    await notes.create({ organizationId: f.organizationId, actorUserId: f.actor, relationshipId: relationship.id, body: "Visible" });
+    const archived = await notes.create({ organizationId: f.organizationId, actorUserId: f.actor, relationshipId: relationship.id, body: "Archived" });
+    await notes.archive({ organizationId: f.organizationId, actorUserId: f.actor, noteId: archived!.id });
+    await sql`INSERT INTO attendee_profiles(user_id, company, job_title, industry, linkedin_url) VALUES (${f.attendee}, 'Acme', 'Buyer', 'Events', 'https://linkedin.example/attendee')`;
+    await sql`INSERT INTO attendee_profile_consents(user_id, share_profile_with_exhibitors) VALUES (${f.attendee}, false)`;
+    const workspace = new RelationshipWorkspaceRepository(client as never);
+
+    expect(await workspace.find({ organizationId: f.organizationId, actorUserId: f.actor, relationshipId: relationship.id })).toMatchObject({ attendee: { consentStatus: "not_shared", name: null, contact: { email: null }, profileCompleteness: 0 }, relationship: { interactionCount: 2, hasPotentialDuplicate: true }, timeline: [{ id: first.id }, { id: second.id }], notes: [{ body: "Visible" }], summary: { interactionCount: 2, noteCount: 1, profileCompleteness: 0 } });
+    await sql`UPDATE attendee_profile_consents SET share_profile_with_exhibitors = true WHERE user_id = ${f.attendee}`;
+    expect(await workspace.find({ organizationId: f.organizationId, actorUserId: f.actor, relationshipId: relationship.id })).toMatchObject({ attendee: { consentStatus: "shared", name: "Attendee", company: "Acme", title: "Buyer", industry: "Events", contact: { email: "attendee@example.com", linkedInUrl: "https://linkedin.example/attendee" }, profileCompleteness: 100 }, timeline: [{ values: [{ value: "attendee@example.com", field: { key: "email" } }] }, { values: [{ value: "attendee@example.com", field: { key: "email" } }] }] });
   });
 });

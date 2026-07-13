@@ -81,6 +81,32 @@ attendee product.
 
 **Outcome:** exhibitors can reliably collect and qualify leads at an event.
 
+#### Approved lead capture principles
+
+- Each booth has one public QR code that opens its landing page, not a
+  form-specific URL. Visitor self-service and exhibitor-assisted capture both
+  create the same canonical submission; only the interaction source differs.
+- Badge and registration data is an optional, provider-agnostic prefill input,
+  never a dependency of the capture model.
+- The initial product is online-only. Offline capture is deferred.
+- Keep every interaction as an independent historical submission. Detect and
+  mark potential duplicates; never merge automatically.
+- Returning visitors may prefill from prior submissions, edit their answers,
+  and create a new historical submission.
+- Each event exhibitor may own multiple forms. One default form is sufficient
+  initially.
+- Submissions record an interaction source. Initial sources are Visitor QR and
+  Exhibitor Device; scan, API, import, OCR, and CRM sources remain future
+  extensions.
+- Forms remain editable for future captures. Submissions are immutable
+  snapshots of the form structure and answers at submission time.
+- Lead lifecycle stages and workflow are deferred, but the capture model must
+  accommodate them without rewriting historical submissions.
+
+See [ADR-003](ADR-003-Progressive-Lead-Intelligence.md) for the canonical
+lead architecture. ADR-002 remains the lead-submission foundation where it
+does not conflict with ADR-003.
+
 ### V2-3 — Intelligence dashboards
 
 Implement exhibitor dashboards first, then organizer aggregate dashboards.
