@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { LeadFormsService } from './lead-forms.service';
+import { LeadFormsRepository } from './lead-forms.repository';
 
 /**
  * EngagementModule — owns booth_visits, leads, lead_notes, meetings (docs/18-api-architecture.md §1).
@@ -6,5 +8,5 @@ import { Module } from '@nestjs/common';
  * Real routes/services land in the milestone that implements this domain
  * (see docs/45-implementation-roadmap.md for the per-module milestone mapping).
  */
-@Module({})
+@Module({ providers: [LeadFormsRepository, LeadFormsService], exports: [LeadFormsService] })
 export class EngagementModule {}

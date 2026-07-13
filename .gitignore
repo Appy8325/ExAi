@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build, framework, and test artifacts
+.turbo/
+.next/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+
+# Local environment configuration (the example is safe to commit)
+.env
+.env.local
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.swp
+*.swo

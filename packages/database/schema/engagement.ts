@@ -1,12 +1,6 @@
-import { pgTable, uuid, text, timestamp } from 'drizzle-orm/pg-core';
-
-// Full schema per docs/16-database-schema.md (leads, meetings,
-// booth_visits, lead_notes, ...), implemented in a later milestone.
-// Minimal placeholder table demonstrating the pattern only.
-export const boothVisits = pgTable('booth_visits', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  boothId: uuid('booth_id').notNull(),
-  note: text('note'),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-});
+import { sql } from "drizzle-orm";
+import { boolean, check, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { eventExhibitors } from "./exhibitor";
+const uuidv7 = sql`concourse.uuid_generate_v7()`;
+export const leadForms = pgTable("lead_forms", { id: uuid("id").primaryKey().default(uuidv7), eventExhibitorId: uuid("event_exhibitor_id").notNull().references(() => eventExhibitors.id, { onDelete: "cascade" }), name: text("name").notNull(), description: text("description"), isDefault: boolean("is_default").notNull().default(false), status: text("status").notNull().default("active"), createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(), updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow() }, (t) => ({ nameUnique: uniqueIndex("lead_forms_exhibitor_name_key").on(t.eventExhibitorId, t.name), exhibitorIdx: index("lead_forms_event_exhibitor_id_idx").on(t.eventExhibitorId), statusCheck: check("lead_forms_status_check", sql`${t.status} IN ('active','archived')`) }));
+export const leadFormFields = pgTable("lead_form_fields", { id: uuid("id").primaryKey().default(uuidv7), leadFormId: uuid("lead_form_id").notNull().references(() => leadForms.id, { onDelete: "cascade" }), key: text("key").notNull(), label: text("label").notNull(), type: text("type").notNull(), required: boolean("required").notNull().default(false), placeholder: text("placeholder"), defaultValue: jsonb("default_value"), validation: jsonb("validation").notNull().default(sql`'{}'::jsonb`), sortOrder: integer("sort_order").notNull(), helpText: text("help_text"), visibilityCondition: jsonb("visibility_condition"), status: text("status").notNull().default("active"), createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(), updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow() }, (t) => ({ keyUnique: uniqueIndex("lead_form_fields_form_key_key").on(t.leadFormId, t.key), orderUnique: uniqueIndex("lead_form_fields_form_order_key").on(t.leadFormId, t.sortOrder), formIdx: index("lead_form_fields_lead_form_id_idx").on(t.leadFormId), statusCheck: check("lead_form_fields_status_check", sql`${t.status} IN ('active','archived')`) }));

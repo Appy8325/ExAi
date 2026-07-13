@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "bullmq": "^5.34.5",
-    "ioredis": "^5.4.2",
+    "ioredis": "5.10.1",
     "@concourse/ai": "workspace:*",
     "@concourse/database": "workspace:*",
     "@concourse/shared": "workspace:*",

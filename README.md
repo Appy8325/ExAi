@@ -50,4 +50,4 @@ docs/            the architecture blueprint (source of truth)
 
 **Frozen at Version 1.0** (`docs/00-foundation.md` §14, Amendment A4). Do not modify any numbered document in `docs/00`–`docs/46` without following the amendment process in `docs/ENGINEERING_GUIDE.md` §8.
 
-> **Note:** `docs/00-foundation.md` §14 Amendment A5 adopted Supabase as the managed platform for Database, Auth, Storage, and Realtime. This supersedes the detailed designs in `docs/19-authentication-strategy.md`, `docs/20-session-strategy.md`, `docs/26-file-storage.md`, and the Realtime section of `docs/18-api-architecture.md` §7 — those four documents are flagged pending a detailed revision and must not be implemented literally until that revision lands.
+> **Note:** `docs/00-foundation.md` §14 Amendments A5–A6 adopt Supabase as the managed platform for Database, Auth, Storage, and Realtime. The detailed, operative designs are in `docs/19-authentication-strategy.md`, `docs/20-session-strategy.md`, `docs/26-file-storage.md`, and `docs/18-api-architecture.md` §7.

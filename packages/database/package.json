@@ -4,6 +4,8 @@
   "private": true,
   "description": "Drizzle ORM schema, migrations, and seed data (doc 37 \u00a76.2) against the Supabase-managed Postgres + pgvector connection string (docs/00-foundation.md \u00a714 Amendment A5). Depends only on @concourse/shared per doc 37 \u00a78.",
   "license": "UNLICENSED",
+  "main": "./src/client.ts",
+  "types": "./src/client.ts",
   "exports": {
     ".": "./src/client.ts",
     "./schema": "./schema/index.ts"

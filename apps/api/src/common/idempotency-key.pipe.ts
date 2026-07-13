@@ -1,4 +1,5 @@
-import { Injectable, PipeTransform } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import type { PipeTransform } from '@nestjs/common';
 
 /**
  * IdempotencyKeyPipe — placeholder for the `Idempotency-Key` handling

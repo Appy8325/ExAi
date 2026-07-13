@@ -8,8 +8,8 @@
     "emitDecoratorMetadata": true,
     "module": "CommonJS",
     "moduleResolution": "Node10",
-    "outDir": "dist",
-    "rootDir": "src",
+    // Source and output directories belong to each consuming workspace. Relative
+    // paths in an inherited config resolve from this package, not the consumer.
     "noEmit": false
   },
   "include": ["src/**/*.ts"],

@@ -4,6 +4,8 @@
   "private": true,
   "description": "The universal leaf (doc 37 \u00a76.3, \u00a78 rule R3): Zod schemas, shared TS types, i18n resources, and cross-cutting constants. Zero internal workspace dependencies \u2014 every other workspace may import this, it imports none of them.",
   "license": "UNLICENSED",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
   },

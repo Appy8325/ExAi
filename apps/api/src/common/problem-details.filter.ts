@@ -1,8 +1,5 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-} from '@nestjs/common';
+import { Catch } from '@nestjs/common';
+import type { ArgumentsHost, ExceptionFilter } from '@nestjs/common';
 
 /**
  * ProblemDetailsFilter — placeholder for the RFC 9457 `application/problem+json`

@@ -48,6 +48,11 @@ beforeAll(async () => {
     )
   `;
   await sql.file(resolve(migrationsDir, "0003_auth_user_provisioning.sql"));
+  await sql.file(resolve(migrationsDir, "0004_organization_owner_invariant.sql"));
+  await sql.file(resolve(migrationsDir, "0005_event_foundation.sql"));
+  await sql.file(resolve(migrationsDir, "0006_agenda_session_foundation.sql"));
+  await sql.file(resolve(migrationsDir, "0007_event_exhibitor_foundation.sql"));
+  await sql.file(resolve(migrationsDir, "0008_lead_form_foundation.sql"));
 }, 60_000);
 
 afterAll(async () => {
@@ -66,7 +71,8 @@ afterEach(async () => {
   await sql`
     TRUNCATE TABLE
       organizations, users, organization_memberships, auth_sessions,
-      api_keys, oauth_identities, webauthn_credentials, auth_tokens
+      api_keys, oauth_identities, webauthn_credentials, auth_tokens, agenda_sessions,
+      lead_form_fields, lead_forms, event_exhibitors, events
     CASCADE
   `;
   await sql`TRUNCATE TABLE auth.users`;
@@ -162,6 +168,309 @@ async function seedTwoTenants() {
   return { orgA: orgA.id, orgB: orgB.id, userA: userA.id, userB: userB.id };
 }
 
+describe("organization membership lifecycle", () => {
+  it("creates a pending membership and supports organization and user lookups", async () => {
+    const { orgA, userB } = await seedTwoTenants();
+    await sql`
+      INSERT INTO organization_memberships (organization_id, user_id, role, status)
+      VALUES (${orgA}, ${userB}, 'member', 'pending')
+    `;
+
+    const byOrganization = await sql`
+      SELECT user_id, status FROM organization_memberships
+      WHERE organization_id = ${orgA} AND user_id = ${userB}
+    `;
+    const byUser = await sql`
+      SELECT organization_id, status FROM organization_memberships
+      WHERE user_id = ${userB} AND organization_id = ${orgA}
+    `;
+
+    expect(byOrganization).toEqual([{ user_id: userB, status: "pending" }]);
+    expect(byUser).toEqual([{ organization_id: orgA, status: "pending" }]);
+  });
+
+  it("activates a pending membership", async () => {
+    const { orgA, userB } = await seedTwoTenants();
+    await sql`
+      INSERT INTO organization_memberships (organization_id, user_id, role, status)
+      VALUES (${orgA}, ${userB}, 'member', 'pending')
+    `;
+
+    const activated = await sql`
+      UPDATE organization_memberships SET status = 'active'
+      WHERE organization_id = ${orgA} AND user_id = ${userB}
+      RETURNING status
+    `;
+
+    expect(activated).toEqual([{ status: "active" }]);
+  });
+
+  it("enforces one membership per organization and user", async () => {
+    const { orgA, userB } = await seedTwoTenants();
+    await sql`
+      INSERT INTO organization_memberships (organization_id, user_id, role, status)
+      VALUES (${orgA}, ${userB}, 'member', 'pending')
+    `;
+
+    await expect(
+      sql`
+        INSERT INTO organization_memberships (organization_id, user_id, role, status)
+        VALUES (${orgA}, ${userB}, 'member', 'pending')
+      `,
+    ).rejects.toThrow();
+  });
+
+  it("stores only supported roles for lookup", async () => {
+    const { orgA, userB } = await seedTwoTenants();
+
+    await expect(
+      sql`
+        INSERT INTO organization_memberships (organization_id, user_id, role)
+        VALUES (${orgA}, ${userB}, 'invalid')
+      `,
+    ).rejects.toThrow();
+  });
+
+  it("looks up bootstrap owner, admin, and member roles", async () => {
+    const { orgA, userA, userB } = await seedTwoTenants();
+    const userC = requireReturnedRow(
+      await sql`
+        INSERT INTO users (email, full_name)
+        VALUES ('c@example.com', 'User C')
+        RETURNING id
+      `,
+      "User C insert",
+    );
+    await sql`
+      INSERT INTO organization_memberships (organization_id, user_id, role)
+      VALUES (${orgA}, ${userB}, 'admin'), (${orgA}, ${userC.id}, 'member')
+    `;
+
+    const memberships = await sql`
+      SELECT user_id, role FROM organization_memberships
+      WHERE organization_id = ${orgA}
+      ORDER BY role
+    `;
+
+    expect(memberships).toEqual([
+      { user_id: userB, role: "admin" },
+      { user_id: userC.id, role: "member" },
+      { user_id: userA, role: "owner" },
+    ]);
+  });
+
+  it("keeps bootstrap owner memberships active and query-compatible", async () => {
+    const { orgA, userA } = await seedTwoTenants();
+
+    const membership = await sql`
+      SELECT role, status FROM organization_memberships
+      WHERE organization_id = ${orgA} AND user_id = ${userA}
+    `;
+
+    expect(membership).toEqual([{ role: "owner", status: "active" }]);
+  });
+
+  it("rolls back a failed membership transaction", async () => {
+    const { orgA, userB } = await seedTwoTenants();
+
+    await expect(
+      sql.begin(async (tx) => {
+        await tx`
+          INSERT INTO organization_memberships (organization_id, user_id, role, status)
+          VALUES (${orgA}, ${userB}, 'member', 'pending')
+        `;
+        throw new Error("rollback");
+      }),
+    ).rejects.toThrow("rollback");
+
+    const memberships = await sql`
+      SELECT id FROM organization_memberships
+      WHERE organization_id = ${orgA} AND user_id = ${userB}
+    `;
+    expect(memberships).toHaveLength(0);
+  });
+
+  it("rejects removal or deactivation of the last active owner", async () => {
+    const { orgA, userA } = await seedTwoTenants();
+
+    await expect(
+      sql`
+        UPDATE organization_memberships SET role = 'member'
+        WHERE organization_id = ${orgA} AND user_id = ${userA}
+      `,
+    ).rejects.toThrow();
+    await expect(
+      sql`
+        DELETE FROM organization_memberships
+        WHERE organization_id = ${orgA} AND user_id = ${userA}
+      `,
+    ).rejects.toThrow();
+  });
+
+  it("allows an owner change when another active owner remains", async () => {
+    const { orgA, userA, userB } = await seedTwoTenants();
+    await sql`
+      INSERT INTO organization_memberships (organization_id, user_id, role)
+      VALUES (${orgA}, ${userB}, 'owner')
+    `;
+
+    await sql`
+      UPDATE organization_memberships SET role = 'admin'
+      WHERE organization_id = ${orgA} AND user_id = ${userA}
+    `;
+
+    const owners = await sql`
+      SELECT user_id FROM organization_memberships
+      WHERE organization_id = ${orgA} AND role = 'owner' AND status = 'active'
+    `;
+    expect(owners).toEqual([{ user_id: userB }]);
+  });
+});
+
+describe("organization owner invariant", () => {
+  it("rejects removal of an organization's final active owner", async () => {
+    const { orgA, userA } = await seedTwoTenants();
+
+    await expect(
+      sql`
+        DELETE FROM organization_memberships
+        WHERE organization_id = ${orgA} AND user_id = ${userA}
+      `,
+    ).rejects.toThrow("An active organization must retain an active owner");
+  });
+
+  it("allows a promoted owner to replace the current owner", async () => {
+    const { orgA, userA, userB } = await seedTwoTenants();
+    await sql`
+      INSERT INTO organization_memberships (organization_id, user_id, role)
+      VALUES (${orgA}, ${userB}, 'owner')
+    `;
+    await sql`
+      UPDATE organization_memberships SET role = 'member'
+      WHERE organization_id = ${orgA} AND user_id = ${userA}
+    `;
+
+    const owners = await sql`
+      SELECT user_id FROM organization_memberships
+      WHERE organization_id = ${orgA} AND role = 'owner' AND status = 'active'
+    `;
+    expect(owners).toEqual([{ user_id: userB }]);
+  });
+});
+
+describe("organization invitation lifecycle", () => {
+  it("persists a hashed organization-member invitation token", async () => {
+    const { orgA } = await seedTwoTenants();
+    await sql`
+      INSERT INTO auth_tokens (kind, token_hash, organization_id, expires_at, payload)
+      VALUES (
+        'invite',
+        'invite-hash-created',
+        ${orgA},
+        now() + interval '14 days',
+        ${sql.json({
+          type: "organization_membership",
+          organizationId: orgA,
+          role: "member",
+          email: "b@example.com",
+        })}
+      )
+    `;
+
+    const tokens = await sql`
+      SELECT token_hash, payload->>'type' AS type FROM auth_tokens
+      WHERE token_hash = 'invite-hash-created'
+    `;
+    expect(tokens).toEqual([
+      { token_hash: "invite-hash-created", type: "organization_membership" },
+    ]);
+  });
+
+  it("rejects expired and invalid invitation tokens", async () => {
+    const { orgA } = await seedTwoTenants();
+    await sql`
+      INSERT INTO auth_tokens (kind, token_hash, organization_id, expires_at)
+      VALUES ('invite', 'invite-hash-expired', ${orgA}, now() - interval '1 second')
+    `;
+
+    const expired = await sql`
+      SELECT id FROM auth_tokens
+      WHERE token_hash = 'invite-hash-expired' AND expires_at > now()
+    `;
+    const invalid = await sql`
+      SELECT id FROM auth_tokens WHERE token_hash = 'unknown-invite-hash'
+    `;
+    expect(expired).toHaveLength(0);
+    expect(invalid).toHaveLength(0);
+  });
+
+  it("consumes an invitation once and activates its pending membership", async () => {
+    const { orgA, userB } = await seedTwoTenants();
+    await sql`
+      INSERT INTO organization_memberships (organization_id, user_id, role, status)
+      VALUES (${orgA}, ${userB}, 'member', 'pending')
+    `;
+    await sql`
+      INSERT INTO auth_tokens (kind, token_hash, organization_id, expires_at)
+      VALUES ('invite', 'invite-hash-accept', ${orgA}, now() + interval '14 days')
+    `;
+
+    const first = await sql.begin(async (tx) => {
+      const consumed = await tx`
+        UPDATE auth_tokens SET used_at = now()
+        WHERE token_hash = 'invite-hash-accept'
+          AND used_at IS NULL AND revoked_at IS NULL AND expires_at > now()
+        RETURNING id
+      `;
+      await tx`
+        UPDATE organization_memberships SET status = 'active'
+        WHERE organization_id = ${orgA} AND user_id = ${userB} AND status = 'pending'
+      `;
+      return consumed;
+    });
+    const second = await sql`
+      UPDATE auth_tokens SET used_at = now()
+      WHERE token_hash = 'invite-hash-accept'
+        AND used_at IS NULL AND revoked_at IS NULL AND expires_at > now()
+      RETURNING id
+    `;
+    const memberships = await sql`
+      SELECT status FROM organization_memberships
+      WHERE organization_id = ${orgA} AND user_id = ${userB}
+    `;
+
+    expect(first).toHaveLength(1);
+    expect(second).toHaveLength(0);
+    expect(memberships).toEqual([{ status: "active" }]);
+  });
+
+  it("rolls back token consumption when membership activation fails", async () => {
+    const { orgA } = await seedTwoTenants();
+    await sql`
+      INSERT INTO auth_tokens (kind, token_hash, organization_id, expires_at)
+      VALUES ('invite', 'invite-hash-rollback', ${orgA}, now() + interval '14 days')
+    `;
+
+    await expect(
+      sql.begin(async (tx) => {
+        await tx`
+          UPDATE auth_tokens SET used_at = now()
+          WHERE token_hash = 'invite-hash-rollback' AND used_at IS NULL
+        `;
+        await tx`
+          INSERT INTO organization_memberships (organization_id, user_id, role, status)
+          VALUES (${orgA}, '00000000-0000-0000-0000-000000000099', 'member', 'active')
+        `;
+      }),
+    ).rejects.toThrow();
+
+    const tokens = await sql`
+      SELECT used_at FROM auth_tokens WHERE token_hash = 'invite-hash-rollback'
+    `;
+    expect(tokens).toEqual([{ used_at: null }]);
+  });
+});
+
 /** Runs `fn` as app_tenant with the given org/user session context set. */
 async function asTenant<T>(
   ctx: { orgId?: string; userId?: string },
@@ -202,6 +511,244 @@ describe("organizations RLS", () => {
           tx`UPDATE organizations SET name = 'hijacked' WHERE id = ${orgB}`,
       ),
     ).resolves.toMatchObject({ count: 0 });
+  });
+});
+
+describe("events foundation", () => {
+  it("creates an event with an organization-local slug and enforces that uniqueness", async () => {
+    const { orgA, orgB } = await seedTwoTenants();
+    const startsAt = new Date("2026-08-01T09:00:00.000Z");
+    const endsAt = new Date("2026-08-01T17:00:00.000Z");
+    await sql`
+      INSERT INTO events (organization_id, name, slug, timezone, start_at, end_at)
+      VALUES (${orgA}, 'Event A', 'expo-2026', 'UTC', ${startsAt}, ${endsAt})
+    `;
+    await sql`
+      INSERT INTO events (organization_id, name, slug, timezone, start_at, end_at)
+      VALUES (${orgB}, 'Event B', 'expo-2026', 'UTC', ${startsAt}, ${endsAt})
+    `;
+    await expect(sql`
+      INSERT INTO events (organization_id, name, slug, timezone, start_at, end_at)
+      VALUES (${orgA}, 'Duplicate', 'expo-2026', 'UTC', ${startsAt}, ${endsAt})
+    `).rejects.toThrow();
+  });
+
+  it("archives rather than deletes an event", async () => {
+    const { orgA } = await seedTwoTenants();
+    const event = requireReturnedRow(await sql`
+      INSERT INTO events (organization_id, name, slug, timezone, start_at, end_at)
+      VALUES (${orgA}, 'Event A', 'event-a', 'UTC', now(), now() + interval '1 day')
+      RETURNING id
+    `, "event insert");
+    await sql`UPDATE events SET status = 'archived' WHERE id = ${event.id}`;
+    expect(await sql`SELECT status FROM events WHERE id = ${event.id}`).toEqual([{ status: "archived" }]);
+  });
+
+  it("isolates event lookup and writes by organization RLS context", async () => {
+    const { orgA, orgB, userA } = await seedTwoTenants();
+    const event = requireReturnedRow(await sql`
+      INSERT INTO events (organization_id, name, slug, timezone, start_at, end_at)
+      VALUES (${orgB}, 'Event B', 'event-b', 'UTC', now(), now() + interval '1 day')
+      RETURNING id
+    `, "event insert");
+    const rows = await asTenant({ orgId: orgA, userId: userA }, (tx) => tx`SELECT id FROM events`);
+    expect(rows).toHaveLength(0);
+    await expect(asTenant({ orgId: orgA, userId: userA }, (tx) => tx`
+      UPDATE events SET name = 'hijacked' WHERE id = ${event.id}
+    `)).resolves.toMatchObject({ count: 0 });
+  });
+
+  it("rolls back an event write when its transaction fails", async () => {
+    const { orgA } = await seedTwoTenants();
+    await expect(sql.begin(async (tx) => {
+      await tx`
+        INSERT INTO events (organization_id, name, slug, timezone, start_at, end_at)
+        VALUES (${orgA}, 'Rollback', 'rollback-event', 'UTC', now(), now() + interval '1 day')
+      `;
+      throw new Error("rollback");
+    })).rejects.toThrow("rollback");
+    expect(await sql`SELECT id FROM events WHERE organization_id = ${orgA} AND slug = 'rollback-event'`).toHaveLength(0);
+  });
+});
+
+describe("agenda session foundation", () => {
+  async function seedEvent(organizationId: string, slug: string) {
+    return requireReturnedRow(await sql`
+      INSERT INTO events (organization_id, name, slug, timezone, start_at, end_at)
+      VALUES (${organizationId}, ${slug}, ${slug}, 'UTC', now(), now() + interval '1 day')
+      RETURNING id
+    `, "event insert");
+  }
+
+  it("creates a session and enforces slugs within its event", async () => {
+    const { orgA } = await seedTwoTenants();
+    const event = await seedEvent(orgA, "event-a");
+    await sql`
+      INSERT INTO agenda_sessions (event_id, title, slug, timezone, start_at, end_at)
+      VALUES (${event.id}, 'Session A', 'opening', 'UTC', now(), now() + interval '1 hour')
+    `;
+    await expect(sql`
+      INSERT INTO agenda_sessions (event_id, title, slug, timezone, start_at, end_at)
+      VALUES (${event.id}, 'Duplicate', 'opening', 'UTC', now(), now() + interval '1 hour')
+    `).rejects.toThrow();
+  });
+
+  it("archives a session without deleting it", async () => {
+    const { orgA } = await seedTwoTenants();
+    const event = await seedEvent(orgA, "event-a");
+    const session = requireReturnedRow(await sql`
+      INSERT INTO agenda_sessions (event_id, title, slug, timezone, start_at, end_at)
+      VALUES (${event.id}, 'Session A', 'opening', 'UTC', now(), now() + interval '1 hour')
+      RETURNING id
+    `, "agenda session insert");
+    await sql`UPDATE agenda_sessions SET status = 'archived' WHERE id = ${session.id}`;
+    expect(await sql`SELECT status FROM agenda_sessions WHERE id = ${session.id}`).toEqual([{ status: "archived" }]);
+  });
+
+  it("isolates sessions across events and organizer organizations", async () => {
+    const { orgA, orgB, userA } = await seedTwoTenants();
+    const eventA = await seedEvent(orgA, "event-a");
+    const eventB = await seedEvent(orgB, "event-b");
+    const session = requireReturnedRow(await sql`
+      INSERT INTO agenda_sessions (event_id, title, slug, timezone, start_at, end_at)
+      VALUES (${eventB.id}, 'Session B', 'opening', 'UTC', now(), now() + interval '1 hour')
+      RETURNING id
+    `, "agenda session insert");
+    const rows = await asTenant({ orgId: orgA, userId: userA }, (tx) => tx`SELECT id FROM agenda_sessions`);
+    expect(rows).toHaveLength(0);
+    await expect(asTenant({ orgId: orgA, userId: userA }, (tx) => tx`
+      UPDATE agenda_sessions SET title = 'hijacked' WHERE id = ${session.id}
+    `)).resolves.toMatchObject({ count: 0 });
+    expect(await sql`SELECT id FROM agenda_sessions WHERE event_id = ${eventA.id}`).toHaveLength(0);
+  });
+
+  it("rolls back a session write when its transaction fails", async () => {
+    const { orgA } = await seedTwoTenants();
+    const event = await seedEvent(orgA, "event-a");
+    await expect(sql.begin(async (tx) => {
+      await tx`
+        INSERT INTO agenda_sessions (event_id, title, slug, timezone, start_at, end_at)
+        VALUES (${event.id}, 'Rollback', 'rollback-session', 'UTC', now(), now() + interval '1 hour')
+      `;
+      throw new Error("rollback");
+    })).rejects.toThrow("rollback");
+    expect(await sql`SELECT id FROM agenda_sessions WHERE event_id = ${event.id}`).toHaveLength(0);
+  });
+});
+
+describe("event exhibitor foundation", () => {
+  async function seedEvent(organizationId: string, slug: string) {
+    return requireReturnedRow(await sql`
+      INSERT INTO events (organization_id, name, slug, timezone, start_at, end_at)
+      VALUES (${organizationId}, ${slug}, ${slug}, 'UTC', now(), now() + interval '1 day')
+      RETURNING id
+    `, "event insert");
+  }
+
+  async function seedExhibitorOrganization(slug: string) {
+    return requireReturnedRow(await sql`
+      INSERT INTO organizations (kind, slug, name)
+      VALUES ('exhibitor', ${slug}, ${slug})
+      RETURNING id
+    `, "exhibitor organization insert");
+  }
+
+  it("creates an exhibitor participation and enforces event-local constraints", async () => {
+    const { orgA } = await seedTwoTenants();
+    const event = await seedEvent(orgA, "event-a");
+    const exhibitor = await seedExhibitorOrganization("exhibitor-a");
+    await sql`
+      INSERT INTO event_exhibitors (organization_id, event_id, organizer_organization_id, booth_name, booth_number)
+      VALUES (${exhibitor.id}, ${event.id}, ${orgA}, 'Exhibitor A', 'A-01')
+    `;
+    await expect(sql`
+      INSERT INTO event_exhibitors (organization_id, event_id, organizer_organization_id, booth_name, booth_number)
+      VALUES (${exhibitor.id}, ${event.id}, ${orgA}, 'Duplicate', 'A-02')
+    `).rejects.toThrow();
+    const exhibitorB = await seedExhibitorOrganization("exhibitor-b");
+    await expect(sql`
+      INSERT INTO event_exhibitors (organization_id, event_id, organizer_organization_id, booth_name, booth_number)
+      VALUES (${exhibitorB.id}, ${event.id}, ${orgA}, 'Exhibitor B', 'A-01')
+    `).rejects.toThrow();
+  });
+
+  it("archives an exhibitor without deleting it", async () => {
+    const { orgA } = await seedTwoTenants();
+    const event = await seedEvent(orgA, "event-a");
+    const organization = await seedExhibitorOrganization("exhibitor-a");
+    const exhibitor = requireReturnedRow(await sql`
+      INSERT INTO event_exhibitors (organization_id, event_id, organizer_organization_id, booth_name)
+      VALUES (${organization.id}, ${event.id}, ${orgA}, 'Exhibitor A')
+      RETURNING id
+    `, "event exhibitor insert");
+    await sql`UPDATE event_exhibitors SET status = 'archived' WHERE id = ${exhibitor.id}`;
+    expect(await sql`SELECT status FROM event_exhibitors WHERE id = ${exhibitor.id}`).toEqual([{ status: "archived" }]);
+  });
+
+  it("allows only organizer and exhibitor tenants to look up or mutate the participation", async () => {
+    const { orgA, orgB, userA } = await seedTwoTenants();
+    const event = await seedEvent(orgA, "event-a");
+    const organization = await seedExhibitorOrganization("exhibitor-a");
+    const exhibitor = requireReturnedRow(await sql`
+      INSERT INTO event_exhibitors (organization_id, event_id, organizer_organization_id, booth_name)
+      VALUES (${organization.id}, ${event.id}, ${orgA}, 'Exhibitor A')
+      RETURNING id
+    `, "event exhibitor insert");
+    expect(await asTenant({ orgId: orgA, userId: userA }, (tx) => tx`SELECT id FROM event_exhibitors`)).toEqual([{ id: exhibitor.id }]);
+    expect(await asTenant({ orgId: organization.id, userId: userA }, (tx) => tx`SELECT id FROM event_exhibitors`)).toEqual([{ id: exhibitor.id }]);
+    expect(await asTenant({ orgId: orgB, userId: userA }, (tx) => tx`SELECT id FROM event_exhibitors`)).toHaveLength(0);
+    await expect(asTenant({ orgId: orgB, userId: userA }, (tx) => tx`
+      UPDATE event_exhibitors SET booth_name = 'hijacked' WHERE id = ${exhibitor.id}
+    `)).resolves.toMatchObject({ count: 0 });
+  });
+
+  it("rolls back an exhibitor write when its transaction fails", async () => {
+    const { orgA } = await seedTwoTenants();
+    const event = await seedEvent(orgA, "event-a");
+    const organization = await seedExhibitorOrganization("exhibitor-a");
+    await expect(sql.begin(async (tx) => {
+      await tx`
+        INSERT INTO event_exhibitors (organization_id, event_id, organizer_organization_id, booth_name)
+        VALUES (${organization.id}, ${event.id}, ${orgA}, 'Rollback Exhibitor')
+      `;
+      throw new Error("rollback");
+    })).rejects.toThrow("rollback");
+    expect(await sql`SELECT id FROM event_exhibitors WHERE event_id = ${event.id}`).toHaveLength(0);
+  });
+});
+
+describe("lead form foundation", () => {
+  async function fixture() {
+    const { orgA, orgB, userA } = await seedTwoTenants();
+    const event = requireReturnedRow(await sql`INSERT INTO events (organization_id,name,slug,timezone,start_at,end_at) VALUES (${orgA},'Event','event','UTC',now(),now()+interval '1 day') RETURNING id`, "event insert");
+    const exhibitorOrg = requireReturnedRow(await sql`INSERT INTO organizations (kind,slug,name) VALUES ('exhibitor','lead-form-exhibitor','Lead Form Exhibitor') RETURNING id`, "exhibitor organization insert");
+    const exhibitor = requireReturnedRow(await sql`INSERT INTO event_exhibitors (organization_id,event_id,organizer_organization_id,booth_name) VALUES (${exhibitorOrg.id},${event.id},${orgA},'Booth') RETURNING id`, "event exhibitor insert");
+    return { orgA, orgB, userA, exhibitorOrg: exhibitorOrg.id, exhibitor: exhibitor.id };
+  }
+  it("creates and updates forms and ordered fields", async () => {
+    const f = await fixture();
+    const form = requireReturnedRow(await sql`INSERT INTO lead_forms (event_exhibitor_id,name) VALUES (${f.exhibitor},'Capture') RETURNING id`, "lead form insert");
+    await sql`UPDATE lead_forms SET name='Updated' WHERE id=${form.id}`;
+    await sql`INSERT INTO lead_form_fields (lead_form_id,key,label,type,sort_order,validation) VALUES (${form.id},'email','Email','email',0,'{}'),(${form.id},'notes','Notes','multiline_text',1,'{}')`;
+    await sql`UPDATE lead_form_fields SET sort_order=2 WHERE lead_form_id=${form.id} AND key='notes'`;
+    expect(await sql`SELECT name FROM lead_forms WHERE id=${form.id}`).toEqual([{ name: "Updated" }]);
+    expect(await sql`SELECT key,sort_order FROM lead_form_fields WHERE lead_form_id=${form.id} ORDER BY sort_order`).toEqual([{ key: "email", sort_order: 0 }, { key: "notes", sort_order: 2 }]);
+  });
+  it("enforces duplicate form, key, and order constraints and archives fields/forms", async () => {
+    const f = await fixture(); const form = requireReturnedRow(await sql`INSERT INTO lead_forms (event_exhibitor_id,name) VALUES (${f.exhibitor},'Capture') RETURNING id`, "lead form insert");
+    await expect(sql`INSERT INTO lead_forms (event_exhibitor_id,name) VALUES (${f.exhibitor},'Capture')`).rejects.toThrow();
+    await sql`INSERT INTO lead_form_fields (lead_form_id,key,label,type,sort_order,validation) VALUES (${form.id},'email','Email','email',0,'{}')`;
+    await expect(sql`INSERT INTO lead_form_fields (lead_form_id,key,label,type,sort_order,validation) VALUES (${form.id},'email','Other','text',1,'{}')`).rejects.toThrow();
+    await sql`UPDATE lead_form_fields SET status='archived' WHERE lead_form_id=${form.id}`; await sql`UPDATE lead_forms SET status='archived' WHERE id=${form.id}`;
+    expect(await sql`SELECT status FROM lead_forms WHERE id=${form.id}`).toEqual([{ status: "archived" }]);
+  });
+  it("isolates forms to the exhibitor organization and rolls back failed writes", async () => {
+    const f = await fixture(); const form = requireReturnedRow(await sql`INSERT INTO lead_forms (event_exhibitor_id,name) VALUES (${f.exhibitor},'Capture') RETURNING id`, "lead form insert");
+    expect(await asTenant({orgId:f.exhibitorOrg,userId:f.userA}, tx=>tx`SELECT id FROM lead_forms`)).toEqual([{id:form.id}]);
+    expect(await asTenant({orgId:f.orgA,userId:f.userA}, tx=>tx`SELECT id FROM lead_forms`)).toHaveLength(0);
+    expect(await asTenant({orgId:f.orgB,userId:f.userA}, tx=>tx`SELECT id FROM lead_forms`)).toHaveLength(0);
+    await expect(sql.begin(async tx=>{await tx`INSERT INTO lead_forms (event_exhibitor_id,name) VALUES (${f.exhibitor},'Rollback')`;throw new Error('rollback');})).rejects.toThrow("rollback");
+    expect(await sql`SELECT id FROM lead_forms WHERE event_exhibitor_id=${f.exhibitor} AND name='Rollback'`).toHaveLength(0);
   });
 });
 

@@ -7,8 +7,12 @@ import { baseVitestConfig } from '@concourse/config/vitest/base';
 export default mergeConfig(
   baseVitestConfig,
   defineConfig({
+    resolve: {
+      extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+    },
     test: {
       environment: 'node',
+      include: ['src/**/*.test.ts'],
     },
   }),
 );

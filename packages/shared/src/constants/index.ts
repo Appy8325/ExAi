@@ -22,3 +22,45 @@ export const ROLES = [
 ] as const;
 
 export type Role = (typeof ROLES)[number];
+
+export const ORGANIZATION_ROLES = ['owner', 'admin', 'member'] as const;
+
+export type OrganizationRole = (typeof ORGANIZATION_ROLES)[number];
+
+export function isOrganizationRole(role: string): role is OrganizationRole {
+  return ORGANIZATION_ROLES.includes(role as OrganizationRole);
+}
+
+export function hasOrganizationRole(
+  actual: OrganizationRole,
+  required: OrganizationRole,
+): boolean {
+  return ORGANIZATION_ROLES.indexOf(actual) <= ORGANIZATION_ROLES.indexOf(required);
+}
+
+export const ORGANIZATION_PERMISSIONS = [
+  'organizations:read',
+  'organizations:update',
+  'memberships:read',
+  'memberships:update',
+  'memberships:remove',
+  'memberships:invite',
+  'audit_logs:read',
+] as const;
+
+export type OrganizationPermission = (typeof ORGANIZATION_PERMISSIONS)[number];
+
+const ORGANIZATION_ROLE_PERMISSIONS: Record<
+  OrganizationRole,
+  readonly OrganizationPermission[]
+> = {
+  owner: ORGANIZATION_PERMISSIONS,
+  admin: ORGANIZATION_PERMISSIONS,
+  member: ['organizations:read', 'memberships:read'],
+};
+
+export function organizationPermissions(
+  role: OrganizationRole,
+): readonly OrganizationPermission[] {
+  return ORGANIZATION_ROLE_PERMISSIONS[role];
+}

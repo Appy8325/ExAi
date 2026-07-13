@@ -24,3 +24,5 @@ const queryClient = postgres(connectionString, {
 export const db = drizzle(queryClient, { schema });
 
 export type Database = typeof db;
+
+export { setRlsContext } from './rls-context';

@@ -8,6 +8,10 @@ export const baseVitestConfig = defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    // A workspace may not have tests until its owning milestone is implemented.
+    // Keep `vitest run` successful in that case while still executing every test
+    // discovered in packages that do have coverage.
+    passWithNoTests: true,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
