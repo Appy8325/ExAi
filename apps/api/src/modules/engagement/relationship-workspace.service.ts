@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { RelationshipWorkspaceRepository } from "./relationship-workspace.repository";
+import type { RelationshipWorkspaceRepository } from "./relationship-workspace.repository";
 
 @Injectable()
 export class RelationshipWorkspaceService {

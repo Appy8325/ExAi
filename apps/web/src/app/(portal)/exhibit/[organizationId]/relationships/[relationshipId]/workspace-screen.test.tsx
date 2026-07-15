@@ -17,11 +17,11 @@ const workspace: RelationshipWorkspace = {
 describe("WorkspaceScreen", () => {
   it("renders the projection, timeline, and accessible summary", () => {
     const html = renderToStaticMarkup(<WorkspaceScreen organizationId="organization" workspace={workspace} />);
-    expect(html).toContain("Ada Lovelace"); expect(html).toContain("Visitor QR"); expect(html).toContain("Relationship summary"); expect(html).toContain("Interest");
+    expect(html).toContain("Ada Lovelace"); expect(html).toContain("Visitor QR scan"); expect(html).toContain("Interaction Timeline"); expect(html).toContain("Interest");
   });
   it("masks profile fields without consent", () => {
     const html = renderToStaticMarkup(<WorkspaceScreen organizationId="organization" workspace={{ ...workspace, attendee: { ...workspace.attendee, consentStatus: "not_shared" } }} />);
-    expect(html).toContain("Consent required"); expect(html).not.toContain("ExAi"); expect(html).not.toContain("Engineer");
+    expect(html).toContain("Not shared"); expect(html).not.toContain("ExAi"); expect(html).not.toContain("Engineer");
   });
   it("renders loading and error states accessibly", () => {
     expect(renderToStaticMarkup(<WorkspaceLoading />)).toContain("Loading relationship workspace");

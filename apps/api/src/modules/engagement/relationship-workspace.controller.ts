@@ -3,8 +3,8 @@ import { RequestContextInterceptor } from "../auth/request-context.interceptor";
 import { SupabaseRequestContextGuard, type AuthenticatedRequest } from "../auth/supabase-request-context.guard";
 import { OrganizationAuthorizationGuard } from "../organizations/organization-authorization.guard";
 import { RequireOrganizationPermissions } from "../organizations/organization-permission.decorator";
-import { RelationshipNotesService } from "./relationship-notes.service";
-import { RelationshipWorkspaceService } from "./relationship-workspace.service";
+import type { RelationshipNotesService } from "./relationship-notes.service";
+import type { RelationshipWorkspaceService } from "./relationship-workspace.service";
 
 @Controller("v1/organizations/:organizationId")
 @UseGuards(SupabaseRequestContextGuard, OrganizationAuthorizationGuard)

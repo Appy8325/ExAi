@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
 
-import { PublicExhibitorsService } from "./public-exhibitors.service";
+import type { PublicExhibitorsService } from "./public-exhibitors.service";
 
 @Controller("v1/public")
 export class PublicExhibitorsController {

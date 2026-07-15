@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from "@nestjs/common";
 
-import { PlatformEnrollmentService } from "./platform-enrollment.service";
+import type { PlatformEnrollmentService } from "./platform-enrollment.service";
 
 @Controller("v1/public/booths")
 export class PublicBoothController {

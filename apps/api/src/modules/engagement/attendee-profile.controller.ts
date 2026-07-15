@@ -1,7 +1,8 @@
 import { Body, Controller, Headers, Put, UnauthorizedException } from "@nestjs/common";
 
-import { SupabaseAuthService } from "../auth/supabase-auth.service";
-import { AttendeeProfileService, type UpdateAttendeeProfileInput } from "./attendee-profile.service";
+import type { SupabaseAuthService } from "../auth/supabase-auth.service";
+import type { AttendeeProfileService} from "./attendee-profile.service";
+import { type UpdateAttendeeProfileInput } from "./attendee-profile.service";
 
 @Controller("v1/attendee/profile")
 export class AttendeeProfileController {

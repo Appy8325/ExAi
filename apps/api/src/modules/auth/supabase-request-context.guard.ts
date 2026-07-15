@@ -1,8 +1,9 @@
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import type { CanActivate, ExecutionContext} from "@nestjs/common";
+import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
 import { createClient } from "@supabase/supabase-js";
 import type { RequestContext } from "../../common/request-context";
-import { PermissionResolutionService } from "../organizations/permission-resolution.service";
+import type { PermissionResolutionService } from "../organizations/permission-resolution.service";
 
 export type AuthenticatedRequest = { id?: string; headers: { authorization?: string | string[]; [key: string]: unknown }; params: { organizationId?: string }; requestContext?: RequestContext };
 
