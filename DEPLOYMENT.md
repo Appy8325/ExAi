@@ -368,6 +368,9 @@ pnpm db:migrate:down  # if down method exists
 | Vercel Environment | `NEXT_PUBLIC_*` vars | Vercel Dashboard |
 | Supabase Dashboard | `JWT_SECRET`, `Service Role Key` | Supabase Dashboard |
 
+> **One-shot deployment runbook** (step-by-step, copy-pasteable commands):
+> `DEPLOY_RUNBOOK.md`
+
 ## 11. Related Documents
 
 | Document | Location |
