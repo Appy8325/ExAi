@@ -1,7 +1,13 @@
 import type { ReactNode } from "react";
+import { ConsoleNav } from "./console-nav";
 
-// Future shell: ConsoleShell (docs/13-application-layout.md §1) — Organizer
-// Console for Priya/Marcus, at /org/[orgSlug]/....
 export default function ConsoleLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return (
+    <div className="flex min-h-screen bg-canvas">
+      <ConsoleNav />
+      <main className="flex-1 overflow-auto p-(--mq-space-gutter) sm:p-6 lg:p-8">
+        {children}
+      </main>
+    </div>
+  );
 }
