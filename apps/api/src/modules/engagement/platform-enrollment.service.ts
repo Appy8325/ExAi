@@ -8,6 +8,12 @@ import { LeadSubmissionsService } from "./lead-submissions.service";
 @Injectable()
 export class PlatformEnrollmentService {
   constructor(@Inject(DATABASE_CLIENT) private readonly database: DatabaseClient, private readonly auth: SupabaseAuthService, private readonly relationships: LeadSubmissionsService) {}
+  async findPublicBooth(publicQrToken: string) {
+    const rows = await this.database.execute(sql<{ id:string; company_name:string; booth_name:string; booth_number:string|null; logo_url:string|null; description:string|null; website:string|null; event_slug:string }>`SELECT booth.id, organization.name AS company_name, booth.booth_name, booth.booth_number, booth.logo_url, booth.description, booth.website, events.slug AS event_slug FROM event_exhibitors booth JOIN organizations organization ON organization.id=booth.organization_id JOIN events events ON events.id=booth.event_id WHERE booth.id=${publicQrToken} AND booth.status NOT IN ('archived','withdrawn') LIMIT 1`);
+    const booth = (rows as unknown as { id:string; company_name:string; booth_name:string; booth_number:string|null; logo_url:string|null; description:string|null; website:string|null; event_slug:string }[])[0];
+    if (!booth) throw new NotFoundException("Booth not found.");
+    return { id: booth.id, companyName: booth.company_name, boothName: booth.booth_name, boothNumber: booth.booth_number, logoUrl: booth.logo_url, description: booth.description, website: booth.website, eventSlug: booth.event_slug };
+  }
   async enroll(eventExhibitorId: string, email: string) {
     const normalized = email.trim().toLowerCase(); if (!/^\S+@\S+\.\S+$/.test(normalized)) throw new BadRequestException("A valid email is required.");
     const booth = await this.database.execute(sql<{ organization_id:string }>`SELECT organization_id FROM event_exhibitors WHERE id=${eventExhibitorId} AND status NOT IN ('archived','withdrawn')`);

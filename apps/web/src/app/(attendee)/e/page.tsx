@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 export default function AttendeeRootPage() {
-  return <h1>Attendee App — Milestone 0 shell</h1>;
+  redirect("/e/techexpo-2027");
 }

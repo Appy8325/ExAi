@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { updateSession } from "@/lib/supabase/middleware";
 
-const protectedRoutePrefixes = ["/admin", "/exhibit", "/org"];
+const protectedRoutePrefixes = ["/admin", "/exhibit", "/org", "/e", "/account"];
 
 function isProtectedRoute(pathname: string): boolean {
   return protectedRoutePrefixes.some(

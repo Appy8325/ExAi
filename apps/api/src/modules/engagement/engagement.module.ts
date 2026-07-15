@@ -17,12 +17,37 @@ import { ExhibitorDashboardService } from './exhibitor-dashboard.service';
 import { ExhibitorDashboardController } from './exhibitor-dashboard.controller';
 import { PlatformEnrollmentService } from './platform-enrollment.service';
 import { PublicEnrollmentController } from './public-enrollment.controller';
+import { PublicBoothController } from './public-booth.controller';
+import { AttendeeProfileController } from './attendee-profile.controller';
+import { AttendeeProfileService } from './attendee-profile.service';
+import { PublicExhibitorsController } from './public-exhibitors.controller';
+import { PublicExhibitorsService } from './public-exhibitors.service';
+import { AttendeeRelationshipsController } from './attendee-relationships.controller';
+import { AttendeeRelationshipsService } from './attendee-relationships.service';
 
-/**
- * EngagementModule — owns booth_visits, leads, lead_notes, meetings (docs/18-api-architecture.md §1).
- * Milestone 0 scaffolding only: empty shell module, no providers/controllers wired.
- * Real routes/services land in the milestone that implements this domain
- * (see docs/45-implementation-roadmap.md for the per-module milestone mapping).
- */
-@Module({ imports: [AuthModule, OrganizationsModule], controllers: [RelationshipWorkspaceController, ExhibitorDashboardController, PublicEnrollmentController], providers: [{ provide: DATABASE_CLIENT, useValue: db }, LeadFormsRepository, LeadFormsService, LeadSubmissionsRepository, LeadSubmissionsService, RelationshipNotesRepository, RelationshipNotesService, RelationshipWorkspaceRepository, RelationshipWorkspaceService, ExhibitorDashboardRepository, ExhibitorDashboardService, PlatformEnrollmentService], exports: [LeadFormsService, LeadSubmissionsService, RelationshipNotesService, RelationshipWorkspaceService, ExhibitorDashboardService] })
+@Module({
+  imports: [AuthModule, OrganizationsModule],
+  controllers: [
+    RelationshipWorkspaceController,
+    ExhibitorDashboardController,
+    PublicEnrollmentController,
+    PublicBoothController,
+    AttendeeProfileController,
+    PublicExhibitorsController,
+    AttendeeRelationshipsController,
+  ],
+  providers: [
+    { provide: DATABASE_CLIENT, useValue: db },
+    LeadFormsRepository, LeadFormsService,
+    LeadSubmissionsRepository, LeadSubmissionsService,
+    RelationshipNotesRepository, RelationshipNotesService,
+    RelationshipWorkspaceRepository, RelationshipWorkspaceService,
+    ExhibitorDashboardRepository, ExhibitorDashboardService,
+    PlatformEnrollmentService,
+    AttendeeProfileService,
+    PublicExhibitorsService,
+    AttendeeRelationshipsService,
+  ],
+  exports: [LeadFormsService, LeadSubmissionsService, RelationshipNotesService, RelationshipWorkspaceService, ExhibitorDashboardService],
+})
 export class EngagementModule {}
