@@ -1,0 +1,32 @@
+# Terraform variables for the production environment.
+# Copy this file to `terraform.tfvars` (NEVER commit terraform.tfvars) and fill
+# in real values. Run `terraform apply` from this directory after filling these
+# in and ensuring the S3 backend + DynamoDB lock table exist (see Step 3 of
+# DEPLOY_RUNBOOK.md).
+#
+# Required inputs:
+#   - domain_name        : the FQDN that Route53 will alias to the API ALB
+#   - certificate_arn    : ACM cert in us-east-1 that covers domain_name
+#
+# Authentication:
+#   Terraform authenticates to AWS via the standard AWS provider chain. The CLI
+#   commands in DEPLOY_RUNBOOK.md assume `aws sso login --profile production`
+#   (or `AWS_PROFILE=production aws sts get-caller-identity` succeeds).
+
+domain_name     = "api.exai.app"
+certificate_arn = "arn:aws:acm:us-east-1:<ACCOUNT_ID>:certificate/<CERT_ID>"
+
+# --- Optional overrides ------------------------------------------------------
+# Uncomment and edit to override defaults wired in main.tf:
+#
+# variable "availability_zones" lives in module/network; pass via
+# -var='availability_zones=["us-east-1a","us-east-1b","us-east-1c"]'.
+#
+# Container sizing (defaults match module variables; override per-deployment):
+#   cpu            = 512
+#   memory         = 1024
+#   desired_count  = 2
+#
+# Redis:
+#   node_type          = "cache.t4g.micro"
+#   num_cache_nodes    = 1
