@@ -33,3 +33,18 @@ Desktop.ini
 .idea/
 *.swp
 *.swo
+
+# Local tool artifacts
+$env
+.codex/
+
+# Local environment configuration
+/env.local
+env.local
+
+# Supabase local artifacts
+supabase/.branches/
+supabase/.temp/
+
+# Demo generated artifacts (QR codes)
+demo/qr/
