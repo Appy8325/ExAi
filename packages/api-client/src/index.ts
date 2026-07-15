@@ -12,3 +12,4 @@
  */
 
 export * from "./relationship-workspace";
+export * from "./public-exhibitors";
