@@ -14,7 +14,7 @@ async function Dashboard({ params }: { params: Promise<{ organizationId: string;
   if (!session) return <Message title="Sign in required" detail="Sign in to view your exhibitor dashboard." />;
   try {
     const dashboard = await getExhibitorDashboard({ baseUrl: getApiBaseUrl(), accessToken: session.access_token, fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }) }, organizationId, eventExhibitorId);
-    return <DashboardScreen dashboard={dashboard} />;
+    return <DashboardScreen dashboard={dashboard} organizationId={organizationId} />;
   } catch (error) {
     if (error instanceof ApiError && [401, 403].includes(error.status)) return <Message title="Access denied" detail="This dashboard is unavailable for your current organization." />;
     if (error instanceof ApiError && error.status === 404) return <Message title="Exhibitor not found" detail="This exhibitor is unavailable." />;
