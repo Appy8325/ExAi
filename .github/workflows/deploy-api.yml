@@ -1,6 +1,14 @@
-name: Deploy API
+# [LEGACY] — DEPRECATED in favor of Railway / Render (see DEPLOYMENT.md).
+# This workflow remains on disk for the optional enterprise AWS path
+# (see infra/README.md). Do NOT delete without explicit sign-off.
+# For the recommended deployment: connect the GitHub repo to Railway
+# (root = apps/api) or Render (Root Directory = apps/api). Both auto-deploy
+# on push to master through their GitHub OAuth integration; no GitHub
+# Action is required.
+name: Deploy API (LEGACY AWS)
 
 on:
+  workflow_dispatch: {}
   push:
     branches: [main]
     paths:

@@ -1,4 +1,6 @@
-name: Deploy Web
+# Recommended deploy path for apps/web — pushes changes to Vercel.
+# See DEPLOYMENT.md for the full stack overview.
+name: Deploy Web (Vercel)
 
 on:
   push:

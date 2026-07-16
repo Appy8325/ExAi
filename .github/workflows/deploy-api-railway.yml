@@ -1,0 +1,68 @@
+# Recommended deploy path. Triggers a Railway redeploy of the API service
+# when changes under apps/api/** or packages/** land on master.
+#
+# Authentication:
+#   RAILWAY_TOKEN                - Railway personal-account or project token
+#                                 (https://railway.app/account/tokens)
+#   RAILWAY_API_SERVICE_ID      - Service ID for the API service in your
+#                                 project. Find this in the Railway URL
+#                                 when viewing the service
+#                                 (e.g. https://railway.app/project/<PROJECT_ID>/service/<SERVICE_ID>).
+#
+# What this does:
+#   - Runs the same CI gates (lint/typecheck/test) to catch regressions
+#     before kicking off the Railway redeploy.
+#   - Calls the Railway GraphQL API `serviceRedeploy` mutation to trigger
+#     a fresh build from the current commit.
+name: Deploy API (Railway)
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "apps/api/**"
+      - "packages/**"
+      - ".github/workflows/deploy-api-railway.yml"
+
+jobs:
+  ci:
+    name: CI gates (lint, typecheck, build, test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "9.15.0"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+        env:
+          API_DATABASE_URL: postgresql://postgres:postgres@localhost:54322/postgres
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:3001
+      - run: pnpm test --filter api...
+        env:
+          API_DATABASE_URL: postgresql://postgres:postgres@localhost:54322/postgres
+
+  redeploy:
+    name: Trigger Railway redeploy
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Railway GraphQL API to redeploy the API service
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_API_SERVICE_ID: ${{ secrets.RAILWAY_API_SERVICE_ID }}
+        run: |
+          curl -sS https://backboard.railway.app/graphql/v2 \
+            -H "Authorization: Bearer $RAILWAY_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "{\"query\":\"mutation ServiceRedeploy(\$id: String!) { serviceRedeploy(serviceId: \$id) }\",\"variables\":{\"id\":\"$RAILWAY_API_SERVICE_ID\"}}"
+          echo "Railway redeploy requested for service $RAILWAY_API_SERVICE_ID."

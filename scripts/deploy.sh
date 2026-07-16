@@ -2,13 +2,17 @@
 set -euo pipefail
 
 # =============================================================================
-# ExAi (Concourse) — Deployment Orchestrator
+# ExAi (Concourse) — [LEGACY] AWS Deployment Orchestrator
 # =============================================================================
-# Usage:
+# Use this script ONLY for the AWS / ECS Fargate enterprise path. The
+# recommended Phase-5 stack is Vercel + Supabase Cloud + Railway/Render
+# (see DEPLOYMENT.md). For that stack use DEPLOY_RUNBOOK.md instead.
+#
+# Usage (legacy AWS only):
 #   ./scripts/deploy.sh all            # Deploy everything (API + Worker + Web)
 #   ./scripts/deploy.sh api            # Deploy API only
 #   ./scripts/deploy.sh worker         # Deploy Worker only
-#   ./scripts/deploy.sh web            # Deploy Web only
+#   ./scripts/deploy.sh web            # Deploy Web to Vercel
 #   ./scripts/deploy.sh infra          # Provision/update Terraform infra
 #   ./scripts/deploy.sh migrate        # Run database migrations
 # =============================================================================

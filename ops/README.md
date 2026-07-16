@@ -1,142 +1,124 @@
-# ExAi (Concourse) — Operations Runbook
+# ExAi (Concourse) — Day-2 Operations
 
-Day-2 procedures for a running production deployment.
-
-Status pages and dashboards to keep open during on-call shifts are listed in
-`DEPLOYMENT.md` §7. This document adds the repair / investigation / ad-hoc
-workflows.
+For after the recommended deploy (Vercel + Supabase + Railway/Render) is up.
+For legacy AWS / ECS / Terraform operations, see the AWS cloud console
+directly — no AWS ops documentation is maintained for this stack.
 
 ---
 
 ## Logs
 
-### API (ECS)
+### Web (Vercel)
 
 ```bash
-# Tail live logs
-aws logs tail /ecs/concourse-production-api --follow
-
-# Last 30 minutes
-aws logs tail /ecs/concourse-production-api --since 30m
-
-# With filter
-aws logs tail /ecs/concourse-production-api --filter-pattern "ERROR"
-```
-
-### Worker (ECS)
-
-```bash
-aws logs tail /ecs/concourse-production-worker --follow
-aws logs tail /ecs/concourse-production-worker --since 30m
-```
-
-### Vercel (Web)
-
-```bash
-# Vercel CLI
-vercel logs exai.app --since 30m
-
+cd apps/web
+vercel logs exai.app --since 30m      # last 30 minutes
 # Vercel Dashboard → Analytics → Logs (with live tail)
 ```
 
+### API & Worker (Railway)
+
+```bash
+railway logs --service api
+railway logs --service worker
+railway logs --service api --since 30m
+# Or open the project on https://railway.app → service → Logs
+```
+
+### API & Worker (Render)
+
+- Render Dashboard → Service → Logs tab.
+- Live tail is in the same view.
+
 ### Supabase
 
-- Dashboard → Database → Health
-- Dashboard → Reports → Query Performance + Realtime
+- Dashboard → Database → Health (query performance, replication, history).
+- Dashboard → Logs → Postgres / Auth / Realtime / API.
+- Dashboard → Reports.
 
 ---
 
 ## Rollback
 
-### API / Worker
-
-```bash
-# Find previous task-def revision
-aws ecs describe-task-definition \
-  --task-definition concourse-production-api \
-  --query "taskDefinition.revision"
-
-# Rollback API to previous revision (<REVISION_NUMBER>)
-aws ecs update-service \
-  --cluster concourse-production \
-  --service concourse-production-api \
-  --task-definition concourse-production-api:<PREVIOUS_REVISION> \
-  --force-new-deployment \
-  --region us-east-1
-```
-
-Repeat for `concourse-production-worker` replacing service + task-def names.
-
 ### Web (Vercel)
 
 ```bash
 cd apps/web
-vercel rollback
+vercel rollback       # last promotion
+# Or: Vercel Dashboard → Deployments → ⋯ → Promote to Production
 ```
+
+### API + Worker (Railway)
+
+```bash
+railway rollback --service api
+railway rollback --service worker
+
+# Or: railway.app → service → Deployments → ⋯ → Roll back to this deploy
+```
+
+### API + Worker (Render)
+
+- Dashboard → Service → Deploys → choose a previous deploy → **Roll back**.
 
 ### Database (Supabase)
 
 ```bash
-# Drizzle down migration (when down methods exist)
-API_DATABASE_URL="<supabase-connection-string>" pnpm db:migrate:down
-
-# Supabase backup restore
-#   Dashboard → Database → Backups → Restore (pick point-in-time)
+# Drizzle down migration (only if down() method exists in SQL file):
+API_DATABASE_URL="postgresql://postgres:<PWD>@db.<ref>.supabase.co:6543/postgres?pgbouncer=true" \
+  pnpm db:migrate:down
 ```
+
+Most safety-critical: use Supabase **Point-in-Time Recovery** (Dashboard →
+Database → Backups → Restore).
 
 ---
 
 ## Maintenance
 
-### Supabase project configuration push
+### Run Drizzle migrations
 
 ```bash
-supabase link --project-ref <project-ref>
-supabase push   # applies supabase/production-config.toml
-```
-
-### Run Drizzle migrations in production
-
-```bash
-# Set connection string and run
-API_DATABASE_URL="postgresql://postgres:<password>@db.<ref>.supabase.co:6543/postgres?pgbouncer=true" \
+API_DATABASE_URL="postgresql://postgres:<PWD>@db.<ref>.supabase.co:6543/postgres?pgbouncer=true" \
   pnpm db:migrate
 ```
 
-### Force ECS task recycling
+Then restart the API service (Railway/Render will pick up the DB change
+automatically; if you want a fresh deploy, push a no-op commit or click
+**Redeploy** in the dashboard).
+
+### Supabase project configuration push
 
 ```bash
-# Cycle all API tasks (rolling)
-aws ecs update-service \
-  --cluster concourse-production \
-  --service concourse-production-api \
-  --force-new-deployment \
-  --region us-east-1
-
-# Cycle all worker tasks
-aws ecs update-service \
-  --cluster concourse-production \
-  --service concourse-production-worker \
-  --force-new-deployment \
-  --region us-east-1
+supabase link --project-ref <ref>
+supabase push
 ```
+
+### Force service recycling (stable deploys)
+
+Railway and Render roll new containers on every push. To trigger a
+fresh deploy without code changes:
+
+- Railway: service → **Deploy** tab → **Restart**, or trigger
+  `railway up` again.
+- Render: service → **Manual Deploy** → **Clear build cache & deploy**.
+- Vercel: push an empty commit, or project → Deployments → Redeploy.
 
 ### Secrets rotation
 
-Rotate secrets in AWS Secrets Manager, then force new deployments:
+1. Rotate the secret inside the upstream service (e.g. Anthropic, Voyage,
+   Supabase Dashboard → API → JWT Secret).
+2. Update the env var on **each** consumer:
+   - API service (Railway/Render): Dashboard → Variables → save.
+   - Worker service: same.
+   - Vercel Web: `vercel env rm NAME production && vercel env add NAME production`.
+3. Restart the relevant service.
 
-```bash
-aws secretsmanager update-secret \
-  --secret-id "concourse/production/<VAR_NAME>" \
-  --secret-string "<NEW_VALUE>"
+### Custom domain DNS
 
-# Then cycle the service(s) that consume the secret
-aws ecs update-service \
-  --cluster concourse-production \
-  --service concourse-production-api \
-  --force-new-deployment \
-  --region us-east-1
-```
+`exai.app` (Vercel) and `api.exai.app` (Railway/Render) — DNS records
+live with your registrar. CNAME TTL = 5–15 min; ALIAS / A only where
+CNAME is unsupported at the apex.
 
 ---
 
@@ -145,6 +127,7 @@ aws ecs update-service \
 ```bash
 # API
 curl -v https://api.exai.app/healthz
+curl -v https://api.exai.app/readyz
 
 # Web
 curl -v https://exai.app
@@ -156,50 +139,82 @@ curl -v -X OPTIONS \
   https://api.exai.app/healthz
 ```
 
+For automated verification:
+
+```bash
+bash scripts/verify-production.sh https://api.exai.app https://exai.app
+```
+
 ---
 
 ## DNS & TLS
 
 ```bash
-# Check DNS
+# DNS
 dig +short api.exai.app
 dig +short exai.app
+dig +short www.exai.app
 
-# Verify TLS
-echo | openssl s_client -connect api.exai.app:443 -servername api.exai.app 2>/dev/null | openssl x509 -noout -dates
+# TLS
+echo | openssl s_client -connect api.exai.app:443 -servername api.exai.app \
+  2>/dev/null | openssl x509 -noout -dates -subject
 ```
+
+TLS certs are managed by:
+- Vercel (Web, automatic via domain attach)
+- Railway (API, managed via `railway domain` + automatic on dedicated
+  load balancing, or your own CNAME)
+- Render (API, managed via custom domain feature)
+- Supabase (DB, `*.supabase.co` certificates)
 
 ---
 
-## ECS Service Scaling
+## Scaling knobs
 
-Both services use Fargate launch type with default capacities:
-
-| Service | Default Count | Default CPU | Default Memory |
-|---|---|---|---|
-| concourse-production-api | 2 | 512 | 1024 |
-| concourse-production-worker | 1 | 256 | 512 |
-
-To scale:
-
-```bash
-aws ecs update-service \
-  --cluster concourse-production \
-  --service concourse-production-api \
-  --desired-count <N> \
-  --region us-east-1
-```
-
----
-
-## CloudWatch Dashboards
-
-| Dashboard | Path |
+| Knob | How |
 |---|---|
-| ECS API | CloudWatch → ECS → concourse-production → concourse-production-api |
-| ECS Worker | CloudWatch → ECS → concourse-production → concourse-production-worker |
-| ElastiCache | CloudWatch → ElastiCache → concourse-production-redis |
-| ALB | CloudWatch → Metrics → ApplicationELB → concourse-production-api-alb |
+| API service replicas (Railway) | Service → Settings → **Replicas** (manual scale) |
+| API service memory/CPU (Railway) | Service → Settings → **Resources** → change `API_PORT`-friendly sizes |
+| Redis (Railway) | Add-on → upgrade tier |
+| Worker concurrency | Worker code not yet wired for horizontal scale (one process); run multiple Worker services if needed |
+| Web (Vercel) | Auto-scales by request volume; any pricing plan change is in Project → Settings |
+
+---
+
+## Backup & restore
+
+### Database (Supabase)
+
+- **PITR** (point-in-time recovery) is enabled by default for projects
+  on the Pro plan and above.
+- **Daily backups** can be enabled for free-tier projects.
+
+Restore path: Dashboard → Database → Backups → Restore (Pick any of:
+selective table / logical backup from scheduled snapshot).
+
+### Application state
+
+All mutable application state lives in Postgres + Supabase Storage +
+Postgres-stored Secrets. There is no other persistent layer to back up
+on a per-deployable basis.
+
+---
+
+## When to escalate back to AWS / Terraform
+
+The full enterprise pipeline (`infra/`, `terraform`, ECS Fargate,
+ElastiCache Redis, ALB, Route53 alias, ACM, Secrets Manager IAM)
+remains on disk under `infra/` and `.github/workflows/deploy-*.yml`
+(legacy). You should switch back to it when:
+
+- A customer requires AWS region / residency compliance.
+- You exceed Railway/Render free-tier limits and need dedicated
+  hardware.
+- An SOC2 audit requires AWS account-level controls.
+
+Read `infra/README.md` before any terraform work. The recommended path
+in `DEPLOYMENT.md` is **not** an AWS migration; AWS is one option
+among several at this point.
 
 ---
 
@@ -207,7 +222,8 @@ aws ecs update-service \
 
 | Document | Location |
 |---|---|
-| One-shot deployment runbook | `DEPLOY_RUNBOOK.md` |
-| Architecture overview with component map | `DEPLOYMENT.md` |
-| Post-deploy verification | `scripts/verify-production.sh` |
-| API health endpoint | `apps/api/src/modules/health/health.controller.ts` |
+| Step-by-step deployment | `DEPLOY_RUNBOOK.md` |
+| Architecture overview | `DEPLOYMENT.md` |
+| Production verification | `scripts/verify-production.sh` |
+| Health endpoint | `apps/api/src/modules/health/health.controller.ts` |
+| Worker bootstrap | `apps/worker/src/main.ts` |

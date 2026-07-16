@@ -1,6 +1,12 @@
-name: Deploy Worker
+# [LEGACY] — DEPRECATED in favor of Railway / Render (see DEPLOYMENT.md).
+# Remains on disk for the optional enterprise AWS path (see infra/README.md).
+# For the recommended deployment: connect the GitHub repo to a Railway
+# Worker service (root = apps/worker) or a Render Worker Service. No
+# GitHub Action is required.
+name: Deploy Worker (LEGACY AWS)
 
 on:
+  workflow_dispatch: {}
   push:
     branches: [main]
     paths:

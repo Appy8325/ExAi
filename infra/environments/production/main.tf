@@ -1,3 +1,11 @@
+# ============================================================================
+# [LEGACY] AWS production root module — preserved for future enterprise
+# deployments. The recommended stack as of Phase 5 is Vercel + Supabase Cloud
+# + Railway OR Render (see ../DEPLOYMENT.md and ../DEPLOY_RUNBOOK.md).
+# Do NOT run terraform apply from this directory without explicit sign-off.
+# Compatibility: tested with Terraform >= 1.6 and AWS provider ~> 5.0.
+# See ../LEGACY_DO_NOT_DELETE.md for the full marker.
+# ============================================================================
 terraform {
   required_version = ">= 1.6"
   required_providers {

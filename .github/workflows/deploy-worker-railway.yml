@@ -1,0 +1,50 @@
+# Recommended deploy path. Triggers a Railway redeploy of the Worker
+# service when changes under apps/worker/** or packages/** land on master.
+#
+# Authentication:
+#   RAILWAY_TOKEN                - Railway personal-account or project token.
+#   RAILWAY_WORKER_SERVICE_ID    - Service ID for the Worker service.
+name: Deploy Worker (Railway)
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "apps/worker/**"
+      - "packages/**"
+      - ".github/workflows/deploy-worker-railway.yml"
+
+jobs:
+  ci:
+    name: CI gates (lint, typecheck, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "9.15.0"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+
+  redeploy:
+    name: Trigger Railway redeploy
+    needs: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Railway GraphQL API to redeploy the Worker service
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_WORKER_SERVICE_ID: ${{ secrets.RAILWAY_WORKER_SERVICE_ID }}
+        run: |
+          curl -sS https://backboard.railway.app/graphql/v2 \
+            -H "Authorization: Bearer $RAILWAY_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "{\"query\":\"mutation ServiceRedeploy(\$id: String!) { serviceRedeploy(serviceId: \$id) }\",\"variables\":{\"id\":\"$RAILWAY_WORKER_SERVICE_ID\"}}"
+          echo "Railway redeploy requested for worker services $RAILWAY_WORKER_SERVICE_ID."

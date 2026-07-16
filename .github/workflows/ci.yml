@@ -1,3 +1,19 @@
+# CI — runs on every push to master/main/develop and on PRs to master/main.
+#
+# All deploys (Vercel + Railway/Render) read this status check before
+# promoting changes; required check name: "Lint & Typecheck" (and "Test").
+#
+# Recommended deploy path:
+#   - Vercel for apps/web  -> deploy-web.yml
+#   - Railway / Render for apps/api and apps/worker
+#     (auto-deploy on push via GitHub integration by default; or
+#      deploy-{api,worker}-railway.yml for CI-driven redeploys)
+#
+# The two docker-build jobs at the bottom of this file are portability
+# smoke tests: they verify the apps still produce a valid image so that
+# any future enterprise target (Railway / Render / AWS ECS) can build
+# from apps/api/Dockerfile or apps/worker/Dockerfile unchanged. They do
+# NOT push to any registry.
 name: CI
 
 on:
