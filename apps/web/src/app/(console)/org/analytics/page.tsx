@@ -1,4 +1,4 @@
-import { MetricCard } from "@concourse/ui";
+import { Card, MetricCard } from "@concourse/ui";
 
 const metrics = [
   { label: "Total Attendance", value: "200" },
@@ -16,6 +16,7 @@ const sections = [
       { label: "Checked In", value: "178" },
       { label: "Check-in Rate", value: "89%" },
     ],
+    color: "bg-viz-cat-1",
   },
   {
     title: "Exhibitors",
@@ -23,8 +24,9 @@ const sections = [
     stats: [
       { label: "Total Exhibitors", value: "5" },
       { label: "Active Booths", value: "5" },
-      { label: "Avg. Interactions per Booth", value: "100" },
+      { label: "Avg. Interactions/Booth", value: "100" },
     ],
+    color: "bg-viz-cat-3",
   },
   {
     title: "Relationships",
@@ -34,15 +36,17 @@ const sections = [
       { label: "Avg. per Exhibitor", value: "100" },
       { label: "Notes Added", value: "25" },
     ],
+    color: "bg-viz-cat-4",
   },
   {
     title: "Engagement",
-    description: "Measure overall engagement across all events and touchpoints.",
+    description: "Measure engagement across all events and touchpoints.",
     stats: [
       { label: "Total Interactions", value: "1,500" },
       { label: "Avg. per Attendee", value: "7.5" },
       { label: "Repeat Interactions", value: "320" },
     ],
+    color: "bg-viz-cat-2",
   },
 ];
 
@@ -50,8 +54,9 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold text-primary">Analytics</h1>
-        <p className="mt-1 text-secondary">Event and engagement analytics</p>
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted">Organizer workspace</p>
+        <h1 className="text-2xl font-semibold text-primary mt-1">Analytics</h1>
+        <p className="mt-1 text-sm text-secondary">Event and engagement analytics</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -62,33 +67,47 @@ export default function AnalyticsPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {sections.map((section) => (
-          <section key={section.title} className="rounded-xl border border-strong bg-surface p-6">
-            <h2 className="text-lg font-semibold text-primary">{section.title}</h2>
-            <p className="mt-1 text-sm text-secondary">{section.description}</p>
-            <div className="mt-4 grid grid-cols-3 gap-4">
+          <Card key={section.title}>
+            <div className="flex items-center gap-3">
+              <div className={`h-3 w-3 rounded-full ${section.color}`} />
+              <h2 className="text-lg font-semibold text-primary">{section.title}</h2>
+            </div>
+            <p className="mt-2 text-sm text-secondary">{section.description}</p>
+            <div className="mt-5 grid grid-cols-3 gap-4">
               {section.stats.map((stat) => (
-                <div key={stat.label}>
-                  <p className="text-2xl font-semibold text-primary">{stat.value}</p>
-                  <p className="mt-0.5 text-xs text-muted">{stat.label}</p>
+                <div key={stat.label} className="rounded-lg border border-default bg-sunken/30 p-3">
+                  <p className="text-2xl font-semibold tabular-nums text-primary">{stat.value}</p>
+                  <p className="mt-1 text-xs text-muted">{stat.label}</p>
                 </div>
               ))}
             </div>
-          </section>
+          </Card>
         ))}
       </div>
 
-      <section className="rounded-xl border border-strong bg-surface p-6">
-        <h2 className="text-lg font-semibold text-primary">Engagement Heatmap</h2>
-        <p className="mt-1 text-sm text-secondary">Visual representation of engagement density across event hours and booths.</p>
-        <div className="mt-4 flex h-64 items-center justify-center rounded-lg border border-dashed border-default bg-sunken/30">
-          <div className="text-center">
-            <svg className="mx-auto h-10 w-10 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path d="M4 4v16h16" /><path d="M4 20l4-8 4 4 4-12 4 8" />
-            </svg>
-            <p className="mt-2 text-sm text-muted">Heatmap visualization will appear here once sufficient data is collected.</p>
-          </div>
+      <Card>
+        <h2 className="text-lg font-semibold text-primary">Engagement Timeline</h2>
+        <p className="mt-1 text-sm text-secondary">Engagement density across event hours and booths.</p>
+        <div className="mt-6 grid grid-cols-7 gap-2">
+          {Array.from({ length: 7 }, (_, i) => (
+            <div key={i} className="space-y-1.5">
+              <p className="text-center text-xs text-muted">Day {i + 1}</p>
+              {Array.from({ length: 5 }, (_, j) => {
+                const h = 20 + Math.sin(i * 1.2 + j * 0.7) * 12 + (Math.random() * 8);
+                const colors = ["bg-viz-heat-1", "bg-viz-heat-2", "bg-viz-heat-3", "bg-viz-heat-4", "bg-viz-heat-5"];
+                const ci = Math.min(4, Math.floor((h - 20) / 12));
+                return (
+                  <div
+                    key={j}
+                    className={`h-10 rounded ${colors[ci]}`}
+                    title={`${Math.round(h)} engagements`}
+                  />
+                );
+              })}
+            </div>
+          ))}
         </div>
-      </section>
+      </Card>
     </div>
   );
 }

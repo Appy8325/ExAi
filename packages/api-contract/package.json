@@ -2,11 +2,28 @@
   "name": "@concourse/api-contract",
   "version": "0.1.0",
   "private": true,
-  "description": "Zod\u2192OpenAPI pipes + the committed OpenAPI 3.1 artifact (docs/18-api-architecture.md \u00a72, docs/37-monorepo-and-folder-structure.md \u00a76.5).",
+  "description": "Zod→OpenAPI pipes + the committed OpenAPI 3.1 artifact (docs/18-api-architecture.md §2, docs/37-monorepo-and-folder-structure.md §6.5).",
   "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./openapi/concourse.v1.json": "./openapi/concourse.v1.json"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./openapi/concourse.v1.json": "./openapi/concourse.v1.json",
+    "./src/exhibitor-dashboard": {
+      "types": "./dist/exhibitor-dashboard.d.ts",
+      "default": "./dist/exhibitor-dashboard.js"
+    },
+    "./src/relationship-workspace": {
+      "types": "./dist/relationship-workspace.d.ts",
+      "default": "./dist/relationship-workspace.js"
+    },
+    "./src/public-booth": {
+      "types": "./dist/public-booth.d.ts",
+      "default": "./dist/public-booth.js"
+    }
   },
   "dependencies": {
     "zod": "^3.24.1",
@@ -19,7 +36,7 @@
     "vitest": "^2.1.8"
   },
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsc",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

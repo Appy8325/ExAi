@@ -1,6 +1,6 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 
-import type { PlatformEnrollmentService } from "./platform-enrollment.service";
+import { PlatformEnrollmentService } from "./platform-enrollment.service";
 
 @Controller("v1/public/booths")
 export class PublicBoothController {
@@ -9,5 +9,10 @@ export class PublicBoothController {
   @Get(":publicQrToken")
   find(@Param("publicQrToken") publicQrToken: string) {
     return this.enrollment.findPublicBooth(publicQrToken);
+  }
+
+  @Post(":publicQrToken/enroll")
+  enroll(@Param("publicQrToken") publicQrToken: string, @Body() body: { email: string }) {
+    return this.enrollment.enroll(publicQrToken, body.email);
   }
 }

@@ -2,8 +2,8 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { sql } from "drizzle-orm";
 import { DATABASE_CLIENT, type DatabaseClient } from "../../common/database-client";
 import { Inject } from "@nestjs/common";
-import type { SupabaseAuthService } from "../auth/supabase-auth.service";
-import type { LeadSubmissionsService } from "./lead-submissions.service";
+import { SupabaseAuthService } from "../auth/supabase-auth.service";
+import { LeadSubmissionsService } from "./lead-submissions.service";
 
 @Injectable()
 export class PlatformEnrollmentService {

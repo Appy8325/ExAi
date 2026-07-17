@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+import { useAuthSession } from "@/components/auth/session-provider";
 
 const navItems = [
   { label: "Dashboard", href: "/org", icon: DashboardIcon },
@@ -13,15 +15,27 @@ const navItems = [
 
 export function ConsoleNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, signOut, state } = useAuthSession();
+
+  const displayName = user?.displayName ?? "Organizer";
+  const initials = user?.initials ?? "O";
+  const isSignedIn = user !== null;
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <aside className="flex w-60 flex-col border-r border-default bg-surface">
-      <div className="flex h-14 items-center gap-2 border-b border-default px-4">
+      <Link href="/" className="flex h-14 items-center gap-2 border-b border-default px-4">
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-brand text-sm font-bold text-on-brand">
           E
         </div>
         <span className="text-sm font-semibold text-primary">ExAi</span>
-      </div>
+      </Link>
       <nav className="flex-1 space-y-1 p-3">
         {navItems.map((item) => {
           const active = pathname === item.href || (item.href !== "/org" && pathname.startsWith(item.href));
@@ -31,7 +45,7 @@ export function ConsoleNav() {
               href={item.href}
               className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 active
-                  ? "bg-brand/10 text-brand"
+                  ? "bg-brand-subtle text-brand"
                   : "text-secondary hover:bg-sunken hover:text-primary"
               }`}
             >
@@ -42,15 +56,41 @@ export function ConsoleNav() {
         })}
       </nav>
       <div className="border-t border-default p-3">
-        <div className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-secondary">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sunken text-xs font-medium text-primary">
-            P
+        {state === "loading" ? (
+          <div className="flex items-center gap-3 rounded-md px-3 py-2">
+            <div className="h-7 w-7 animate-pulse rounded-full bg-sunken" />
+            <div className="flex-1 space-y-1">
+              <div className="h-3 w-16 animate-pulse rounded bg-sunken" />
+              <div className="h-2 w-12 animate-pulse rounded bg-sunken" />
+            </div>
           </div>
-          <div className="flex-1 truncate">
-            <p className="text-sm font-medium text-primary">Priya</p>
-            <p className="text-xs text-muted">Organizer</p>
+        ) : isSignedIn ? (
+          <div className="space-y-1">
+            <div className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-secondary">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sunken text-xs font-medium text-primary">
+                {initials}
+              </div>
+              <div className="min-w-0 flex-1 truncate">
+                <p className="truncate text-sm font-medium text-primary">{displayName}</p>
+                <p className="truncate text-xs text-muted">Organizer</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-xs text-secondary hover:bg-sunken hover:text-primary"
+            >
+              Sign out
+            </button>
           </div>
-        </div>
+        ) : (
+          <Link
+            href="/auth"
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-secondary hover:bg-sunken hover:text-primary"
+          >
+            Sign in
+          </Link>
+        )}
       </div>
     </aside>
   );

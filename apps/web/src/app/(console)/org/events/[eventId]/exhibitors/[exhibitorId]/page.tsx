@@ -6,7 +6,7 @@ export default async function ExhibitorProfilePage({
 }: {
   params: Promise<{ eventId: string; exhibitorId: string }>;
 }) {
-  const { eventId, exhibitorId } = await params;
+  const { eventId } = await params;
 
   return (
     <div className="space-y-6">

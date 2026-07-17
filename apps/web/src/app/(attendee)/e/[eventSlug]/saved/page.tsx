@@ -15,7 +15,6 @@ export default function SavedExhibitorsPage({
 }) {
   const { eventSlug } = use(params);
   const [saved, setSaved] = useState<SavedRelationship[]>([]);
-  const [eventId, setEventId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +23,6 @@ export default function SavedExhibitorsPage({
       try {
         const ev = await getPublicEventBySlug({ baseUrl: getApiBaseUrl() }, eventSlug);
         if (cancelled) return;
-        setEventId(ev.id);
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {

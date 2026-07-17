@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { ConfigService } from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
 import { createClient } from "@supabase/supabase-js";
 
 export type SupabaseIdentity = { id: string; email: string };

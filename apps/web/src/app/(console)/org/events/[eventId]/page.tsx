@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card, MetricCard, StatusBadge, EmptyState, Timeline, TimelineItem } from "@concourse/ui";
+import { Card, MetricCard, StatusBadge } from "@concourse/ui";
 
 export default async function EventOverviewPage({
   params,
@@ -8,80 +8,49 @@ export default async function EventOverviewPage({
 }) {
   const { eventId } = await params;
 
-  const event = {
-    name: "Tech Expo 2026",
-    status: "published" as const,
-    startDate: "Mar 15, 2026",
-    endDate: "Mar 17, 2026",
-    venue: "San Francisco Convention Center",
-    exhibitorCount: 0,
-    teamMembers: [{ initials: "P", name: "Priya", role: "Organizer" }],
-  };
-
-  const recentActivity: Array<{ action: string; timestamp: string }> = [];
+  const activityItems = [
+    { action: "Exhibitor Northstar Cloud completed booth setup", timestamp: "2 hours ago" },
+    { action: "Exhibitor Vector Labs submitted collateral", timestamp: "5 hours ago" },
+    { action: "12 new attendee QR scans recorded", timestamp: "1 day ago" },
+  ];
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link href="/org/events" className="text-sm text-secondary hover:text-primary">
-          &larr; Back to events
-        </Link>
-      </div>
+      <Link href="/org/events" className="inline-flex items-center gap-1 text-sm text-secondary hover:text-primary transition-colors">
+        <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M10 4l-4 4 4 4" />
+        </svg>
+        Back to events
+      </Link>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-primary">{event.name}</h1>
+          <h1 className="text-2xl font-semibold text-primary">TechExpo 2027</h1>
           <div className="mt-2 flex items-center gap-3">
-            <StatusBadge tone={event.status === "published" ? "success" : "neutral"}>
-              {event.status}
-            </StatusBadge>
-            <span className="text-sm text-secondary">
-              {event.startDate} &ndash; {event.endDate}
-            </span>
+            <StatusBadge tone="success">Published</StatusBadge>
+            <span className="text-sm text-secondary">May 12–14, 2027 · San Jose Convention Center</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-strong bg-surface px-4 text-sm font-medium text-primary hover:bg-sunken">
+          <button type="button" className="inline-flex h-10 items-center gap-2 rounded-md border border-default bg-surface px-4 text-sm font-medium text-primary hover:bg-sunken transition-colors">
             Edit Event
           </button>
-          <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-strong bg-surface px-4 text-sm font-medium text-primary hover:bg-sunken">
-            Share Event
-          </button>
-          <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-strong bg-surface px-4 text-sm font-medium text-primary hover:bg-sunken">
-            Download QR
+          <button type="button" className="inline-flex h-10 items-center gap-2 rounded-md border border-default bg-surface px-4 text-sm font-medium text-primary hover:bg-sunken transition-colors">
+            Share
           </button>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Exhibitors" value={event.exhibitorCount} />
-        <MetricCard label="Venue" value={event.venue} />
-        <Card className="space-y-1">
-          <p className="text-caption font-medium text-secondary">Team</p>
-          <div className="flex items-center gap-2">
-            {event.teamMembers.map((m) => (
-              <div
-                key={m.name}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-sunken text-xs font-medium text-primary"
-                title={`${m.name} \u2014 ${m.role}`}
-              >
-                {m.initials}
-              </div>
-            ))}
-          </div>
-        </Card>
+        <MetricCard label="Exhibitors" value={5} detail="5 active" />
+        <MetricCard label="Attendees" value={200} detail="178 checked in" />
+        <MetricCard label="Relationships" value={500} detail="Across 5 exhibitors" />
         <Card className="space-y-1">
           <p className="text-caption font-medium text-secondary">Event QR</p>
-          <div className="flex items-center gap-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded border border-strong bg-sunken text-xs text-muted">
-              QR
-            </div>
-            <span className="text-xs text-secondary">Opens exhibitor directory</span>
-          </div>
-          <div className="flex gap-1.5">
-            <button type="button" className="text-xs text-brand hover:underline">Preview</button>
-            <span className="text-xs text-muted">·</span>
-            <button type="button" className="text-xs text-brand hover:underline">Copy link</button>
+          <div className="mt-1 flex items-center gap-3">
+            <span className="inline-flex items-center rounded-md border border-default bg-sunken px-2.5 py-1 text-xs text-secondary">
+              Event directory active
+            </span>
           </div>
         </Card>
       </div>
@@ -89,36 +58,35 @@ export default async function EventOverviewPage({
       <div className="flex flex-wrap items-center gap-3">
         <Link
           href={`/org/events/${eventId}/exhibitors`}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-sm bg-brand px-4 text-sm font-medium text-on-brand hover:bg-brand-hover"
+          className="inline-flex h-10 items-center gap-2 rounded-md bg-brand px-4 text-sm font-medium text-on-brand hover:bg-brand-hover transition-colors"
         >
           View Exhibitors
         </Link>
-        <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-strong bg-surface px-4 text-sm font-medium text-primary hover:bg-sunken">
-          Import Exhibitors
-        </button>
-        <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-sm border border-strong bg-surface px-4 text-sm font-medium text-primary hover:bg-sunken">
-          Add Exhibitor
-        </button>
+        <Link
+          href={`/org/events/${eventId}/documents`}
+          className="inline-flex h-10 items-center gap-2 rounded-md border border-default bg-surface px-4 text-sm font-medium text-primary hover:bg-sunken transition-colors"
+        >
+          Documents
+        </Link>
+        <Link
+          href={`/org/events/${eventId}/reports`}
+          className="inline-flex h-10 items-center gap-2 rounded-md border border-default bg-surface px-4 text-sm font-medium text-primary hover:bg-sunken transition-colors"
+        >
+          Reports
+        </Link>
       </div>
 
       <Card>
         <h2 className="text-lg font-semibold text-primary">Recent Activity</h2>
-        {recentActivity.length === 0 ? (
-          <EmptyState
-            title="No recent activity"
-            description="Activity will appear here as exhibitors interact with the event."
-          />
-        ) : (
-          <div className="mt-4">
-            <Timeline>
-              {recentActivity.map((item, i) => (
-                <TimelineItem key={i} timestamp={item.timestamp}>
-                  <p className="text-sm text-primary">{item.action}</p>
-                </TimelineItem>
-              ))}
-            </Timeline>
-          </div>
-        )}
+        <div className="mt-4 space-y-4 border-l-2 border-default pl-5">
+          {activityItems.map((item, i) => (
+            <div key={i} className="relative">
+              <span aria-hidden className="absolute -left-[1.65rem] top-1.5 flex size-3 items-center justify-center rounded-full border-2 border-surface bg-brand" />
+              <p className="text-sm text-primary">{item.action}</p>
+              <p className="mt-0.5 text-xs text-muted">{item.timestamp}</p>
+            </div>
+          ))}
+        </div>
       </Card>
     </div>
   );

@@ -1,5 +1,5 @@
 import { Body, Controller, Headers, Post } from "@nestjs/common";
-import type { PlatformEnrollmentService } from "./platform-enrollment.service";
+import { PlatformEnrollmentService } from "./platform-enrollment.service";
 @Controller("v1/public/enroll")
 export class PublicEnrollmentController { constructor(private readonly enrollment: PlatformEnrollmentService) {}
   @Post() enroll(@Body() body:{eventExhibitorId:string;email:string}) { return this.enrollment.enroll(body.eventExhibitorId,body.email); }

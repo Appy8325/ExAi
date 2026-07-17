@@ -1,4 +1,4 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import type { RelationshipNotesRepository } from "./relationship-notes.repository";
+import { RelationshipNotesRepository } from "./relationship-notes.repository";
 @Injectable() export class RelationshipNotesService { constructor(private readonly repository:RelationshipNotesRepository){} create(input:{organizationId:string;actorUserId:string;relationshipId:string;body:string}){return this.repository.create({...input,body:body(input.body)});} update(input:{organizationId:string;actorUserId:string;noteId:string;body:string}){return this.repository.update({...input,body:body(input.body)});} archive(input:{organizationId:string;actorUserId:string;noteId:string}){return this.repository.archive(input);} }
 function body(value:string){const normalized=value.trim();if(!normalized)throw new BadRequestException("Note body is required.");return normalized;}

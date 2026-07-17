@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Headers, Param, Post, Query } from "@nestjs/common";
 
-import type { AttendeeRelationshipsService } from "./attendee-relationships.service";
+import { AttendeeRelationshipsService } from "./attendee-relationships.service";
 
 @Controller("v1/attendee/relationships")
 export class AttendeeRelationshipsController {

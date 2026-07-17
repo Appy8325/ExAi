@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 export default function PortalRootPage() {
-  return <h1>Exhibitor Portal — Milestone 0 shell</h1>;
+  redirect("/demo");
 }

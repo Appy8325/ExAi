@@ -83,7 +83,7 @@ export function enrollAtBooth(client: PublicApiClient, boothId: string, email: s
 }
 
 export function updateAttendeeProfile(client: RelationshipWorkspaceClient, body: AttendeeProfileUpdate) {
-  return request<AttendeeProfileUpdate>(client, `/v1/attendee/profile`, { method: "PATCH", body: JSON.stringify(body) });
+  return request<AttendeeProfileUpdate>(client, `/v1/attendee/profile`, { method: "PUT", body: JSON.stringify(body) });
 }
 
 type AttendeeProfileUpdate = {

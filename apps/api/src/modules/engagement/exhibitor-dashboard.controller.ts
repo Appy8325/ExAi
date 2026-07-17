@@ -3,7 +3,7 @@ import { RequestContextInterceptor } from "../auth/request-context.interceptor";
 import { SupabaseRequestContextGuard, type AuthenticatedRequest } from "../auth/supabase-request-context.guard";
 import { OrganizationAuthorizationGuard } from "../organizations/organization-authorization.guard";
 import { RequireOrganizationPermissions } from "../organizations/organization-permission.decorator";
-import type { ExhibitorDashboardService } from "./exhibitor-dashboard.service";
+import { ExhibitorDashboardService } from "./exhibitor-dashboard.service";
 
 @Controller("v1/organizations/:organizationId/exhibitors/:eventExhibitorId/dashboard")
 @UseGuards(SupabaseRequestContextGuard, OrganizationAuthorizationGuard)

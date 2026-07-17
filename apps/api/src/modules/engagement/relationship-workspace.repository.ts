@@ -4,8 +4,6 @@ import { setRlsContext } from "@concourse/database";
 import { DATABASE_CLIENT, type DatabaseClient } from "../../common/database-client";
 import type { RelationshipWorkspace } from "@concourse/api-contract/src/relationship-workspace";
 
-export type { RelationshipWorkspace } from "@concourse/api-contract/src/relationship-workspace";
-
 type WorkspaceRow = { workspace: RelationshipWorkspace };
 
 @Injectable()

@@ -2,20 +2,26 @@
   "name": "@concourse/database",
   "version": "0.1.0",
   "private": true,
-  "description": "Drizzle ORM schema, migrations, and seed data (doc 37 \u00a76.2) against the Supabase-managed Postgres + pgvector connection string (docs/00-foundation.md \u00a714 Amendment A5). Depends only on @concourse/shared per doc 37 \u00a78.",
+  "description": "Drizzle ORM schema, migrations, and seed data (doc 37 §6.2) against the Supabase-managed Postgres + pgvector connection string (docs/00-foundation.md §14 Amendment A5). Depends only on @concourse/shared per doc 37 §8.",
   "license": "UNLICENSED",
-  "main": "./src/client.ts",
-  "types": "./src/client.ts",
+  "main": "./dist/src/client.js",
+  "types": "./dist/src/client.d.ts",
   "exports": {
-    ".": "./src/client.ts",
-    "./schema": "./schema/index.ts"
+    ".": {
+      "types": "./dist/src/client.d.ts",
+      "default": "./dist/src/client.js"
+    },
+    "./schema": {
+      "types": "./dist/schema/index.d.ts",
+      "default": "./dist/schema/index.js"
+    }
   },
   "scripts": {
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "studio": "drizzle-kit studio",
     "seed": "tsx seed/index.ts",
-    "build": "tsc --noEmit",
+    "build": "tsc",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import type { LeadSubmissionsRepository } from "./lead-submissions.repository";
-import type { CreateLeadSubmissionInput } from "./lead-submissions.repository";
+import { LeadSubmissionsRepository, type CreateLeadSubmissionInput } from "./lead-submissions.repository";
 
 @Injectable()
 export class LeadSubmissionsService {

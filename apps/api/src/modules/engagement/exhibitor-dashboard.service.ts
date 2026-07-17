@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { ExhibitorDashboardRepository } from "./exhibitor-dashboard.repository";
+import { ExhibitorDashboardRepository } from "./exhibitor-dashboard.repository";
 
 @Injectable()
 export class ExhibitorDashboardService {
