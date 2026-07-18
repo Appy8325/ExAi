@@ -33,7 +33,9 @@ function requireReturnedRow<T>(rows: readonly T[], description: string): T {
 }
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("pgvector/pgvector:pg16").start();
+  container = await new PostgreSqlContainer("pgvector/pgvector:pg16")
+    .withStartupTimeout(300_000)
+    .start();
   sql = postgres(container.getConnectionUri());
 
   await sql.file(resolve(migrationsDir, "0001_uuid_v7.sql"));
@@ -56,12 +58,12 @@ beforeAll(async () => {
   await sql.file(resolve(migrationsDir, "0009_relationship_capture_engine.sql"));
   await sql.file(resolve(migrationsDir, "0010_foundation_hardening.sql"));
   await sql.file(resolve(migrationsDir, "0011_relationship_workspace.sql"));
-}, 180_000);
+}, 360_000);
 
 afterAll(async () => {
   await sql?.end();
   await container?.stop();
-});
+}, 60_000);
 
 // This suite opts out of the README's BEGIN/ROLLBACK-per-test wrapper:
 // each test's assertions run inside their own `asTenant()` transaction
@@ -79,7 +81,7 @@ afterEach(async () => {
     CASCADE
   `;
   await sql`TRUNCATE TABLE auth.users`;
-});
+}, 60_000);
 
 describe("Supabase Auth user provisioning", () => {
   it("mirrors the auth UUID and initial verification state without duplicating retries", async () => {

@@ -13,7 +13,7 @@ export class LeadSubmissionsRepository {
   create(input: CreateLeadSubmissionInput) {
     return this.database.transaction(async (tx) => {
       await setRlsContext(tx, input.organizationId, input.actorUserId);
-      const [form] = await tx.select({ id: leadForms.id, eventId: eventExhibitors.eventId }).from(leadForms).innerJoin(eventExhibitors, eq(leadForms.eventExhibitorId, eventExhibitors.id)).where(and(eq(leadForms.id, input.leadFormId), eq(leadForms.eventExhibitorId, input.eventExhibitorId), eq(leadForms.status, "active"), eq(eventExhibitors.eventId, input.eventId)));
+      const [form] = await tx.select({ id: leadForms.id, eventId: eventExhibitors.eventId }).from(leadForms).innerJoin(eventExhibitors, eq(leadForms.eventExhibitorId, eventExhibitors.id)).where(and(eq(leadForms.id, input.leadFormId), eq(leadForms.eventExhibitorId, input.eventExhibitorId), eq(leadForms.status, "published"), eq(eventExhibitors.eventId, input.eventId)));
       if (!form) throw new NotFoundException("Lead form not found in event exhibitor scope.");
       const fields = await tx.select().from(leadFormFields).where(and(eq(leadFormFields.leadFormId, input.leadFormId), eq(leadFormFields.status, "active"))).orderBy(asc(leadFormFields.sortOrder));
       validateSubmission(fields, input.responses);

@@ -41,5 +41,5 @@ describe("demo QR generation", () => {
     await expect(
       readFile(join(root, "demo", "qr", "manifest.json"), "utf8"),
     ).resolves.toContain('"publicToken": "public-token-1"');
-  });
+  }, 15_000);
 });

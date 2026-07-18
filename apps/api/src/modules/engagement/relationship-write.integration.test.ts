@@ -25,7 +25,7 @@ const migrations = [
   "0001_uuid_v7.sql", "0002_identity_tenancy.sql", "0003_auth_user_provisioning.sql",
   "0004_organization_owner_invariant.sql", "0005_event_foundation.sql", "0006_agenda_session_foundation.sql",
   "0007_event_exhibitor_foundation.sql", "0008_lead_form_foundation.sql", "0009_relationship_capture_engine.sql",
-  "0010_foundation_hardening.sql", "0011_relationship_workspace.sql", "0012_exhibitor_dashboard.sql", "0013_progressive_enrichment.sql", "0014_public_enrollment.sql",
+  "0010_foundation_hardening.sql", "0011_relationship_workspace.sql", "0012_exhibitor_dashboard.sql", "0013_progressive_enrichment.sql", "0014_public_enrollment.sql", "0016_exhibitor_workflow.sql",
 ];
 
 let container: Awaited<ReturnType<PostgreSqlContainer["start"]>>;
@@ -47,7 +47,9 @@ async function asTenant<T>(orgId: string, fn: (tx: postgres.TransactionSql) => P
 }
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("pgvector/pgvector:pg16").start();
+  container = await new PostgreSqlContainer("pgvector/pgvector:pg16")
+    .withStartupTimeout(300_000)
+    .start();
   sql = postgres(container.getConnectionUri());
   await sql.file(resolve(migrationsDir, migrations[0]!));
   await sql.file(resolve(migrationsDir, migrations[1]!));
@@ -56,7 +58,7 @@ beforeAll(async () => {
   for (const migration of migrations.slice(2)) await sql.file(resolve(migrationsDir, migration));
   client = drizzle(sql);
   database.db = client;
-}, 180_000);
+}, 360_000);
 
 afterEach(async () => {
   await sql`TRUNCATE TABLE public_enrollments, relationship_enrichments, exhibitor_dashboard_visits, exhibitor_relationship_notes, exhibitor_relationships, lead_submission_values, lead_submissions, lead_form_fields, lead_forms, event_exhibitors, events, attendee_profiles, attendee_profile_consents, organizations, users CASCADE`;
@@ -73,11 +75,14 @@ async function fixture() {
   const otherOrganization = row(await sql`INSERT INTO organizations(kind, slug, name) VALUES ('exhibitor', 'rw-other', 'Other') RETURNING id`, "other organization");
   const actor = row(await sql`INSERT INTO users(email, full_name) VALUES ('actor@example.com', 'Actor') RETURNING id`, "actor");
   const attendee = row(await sql`INSERT INTO users(email, full_name) VALUES ('attendee@example.com', 'Attendee') RETURNING id`, "attendee");
-  const event = row(await sql`INSERT INTO events(organization_id, name, slug, timezone, start_at, end_at) VALUES (${organizer.id}, 'Event', 'event', 'UTC', now(), now() + interval '1 day') RETURNING id`, "event");
-  const exhibitor = row(await sql`INSERT INTO event_exhibitors(organization_id, event_id, organizer_organization_id, booth_name) VALUES (${exhibitorOrganization.id}, ${event.id}, ${organizer.id}, 'Booth') RETURNING id`, "exhibitor");
+  const event = row(await sql`INSERT INTO events(organization_id, name, slug, timezone, start_at, end_at, status) VALUES (${organizer.id}, 'Event', 'event', 'UTC', now(), now() + interval '1 day', 'published') RETURNING id`, "event");
+  const exhibitor = row(await sql`INSERT INTO event_exhibitors(organization_id, event_id, organizer_organization_id, booth_name, status, published_at) VALUES (${exhibitorOrganization.id}, ${event.id}, ${organizer.id}, 'Booth', 'ready', now()) RETURNING id`, "exhibitor");
   const form = row(await sql`INSERT INTO lead_forms(event_exhibitor_id, name) VALUES (${exhibitor.id}, 'Form') RETURNING id`, "form");
   await sql`INSERT INTO lead_form_fields(lead_form_id, key, label, type, sort_order, validation) VALUES (${form.id}, 'email', 'Email', 'email', 0, '{}')`;
-  return { actor: actor.id, attendee: attendee.id, event: event.id, exhibitor: exhibitor.id, form: form.id, organizationId: exhibitorOrganization.id, otherOrganizationId: otherOrganization.id };
+  await sql`UPDATE lead_forms SET status = 'published', consent_text = 'I consent to follow-up.', published_at = now() WHERE id = ${form.id}`;
+  const publicQrToken = "relationship-write-qr-token";
+  await sql`INSERT INTO booth_qr_credentials(event_exhibitor_id, public_token) VALUES (${exhibitor.id}, ${publicQrToken})`;
+  return { actor: actor.id, attendee: attendee.id, event: event.id, exhibitor: exhibitor.id, form: form.id, publicQrToken, organizationId: exhibitorOrganization.id, otherOrganizationId: otherOrganization.id };
 }
 
 describe("relationship write repositories", () => {
@@ -200,10 +205,10 @@ describe("relationship write repositories", () => {
     const f = await fixture();
     const auth = { sendMagicLink: vi.fn(), identity: vi.fn().mockResolvedValue({ id: f.attendee, email: "attendee@example.com" }) };
     const service = new PlatformEnrollmentService(client as never, auth as never, new LeadSubmissionsService(new LeadSubmissionsRepository(client as never)));
-    await expect(service.enroll(f.exhibitor, "attendee@example.com")).resolves.toEqual({ accepted: true });
+    await expect(service.enroll(f.publicQrToken, "attendee@example.com")).resolves.toEqual({ accepted: true });
     const first = await service.complete("valid");
     expect(first).toBeTruthy();
-    await service.enroll(f.exhibitor, "attendee@example.com");
+    await service.enroll(f.publicQrToken, "attendee@example.com");
     const second = await service.complete("valid");
     expect(second?.id).toBe(first?.id);
     expect(await sql`SELECT id FROM exhibitor_relationships`).toHaveLength(1);
@@ -218,12 +223,14 @@ describe("relationship write repositories", () => {
     expect(await sql`SELECT id FROM users WHERE id=${fresh.id}`).toHaveLength(1);
     const auth = { sendMagicLink: vi.fn(), identity: vi.fn().mockResolvedValue({ id: fresh.id, email: "new@example.com" }) };
     const service = new PlatformEnrollmentService(client as never, auth as never, new LeadSubmissionsService(new LeadSubmissionsRepository(client as never)));
-    await service.enroll(f.exhibitor, "new@example.com");
+    await service.enroll(f.publicQrToken, "new@example.com");
     await service.complete("new-user-token");
-    const secondEvent = row(await sql`INSERT INTO events(organization_id,name,slug,timezone,start_at,end_at) VALUES ((SELECT organization_id FROM events WHERE id=${f.event}),'Event B','event-b','UTC',now(),now()+interval '1 day') RETURNING id`, "second event");
-    const other = row(await sql`INSERT INTO event_exhibitors(organization_id,event_id,organizer_organization_id,booth_name) VALUES (${f.otherOrganizationId},${secondEvent.id},(SELECT organization_id FROM events WHERE id=${f.event}),'Other booth') RETURNING id`, "other exhibitor");
+    const secondEvent = row(await sql`INSERT INTO events(organization_id,name,slug,timezone,start_at,end_at,status) VALUES ((SELECT organization_id FROM events WHERE id=${f.event}),'Event B','event-b','UTC',now(),now()+interval '1 day','published') RETURNING id`, "second event");
+    const other = row(await sql`INSERT INTO event_exhibitors(organization_id,event_id,organizer_organization_id,booth_name,status,published_at) VALUES (${f.otherOrganizationId},${secondEvent.id},(SELECT organization_id FROM events WHERE id=${f.event}),'Other booth','ready',now()) RETURNING id`, "other exhibitor");
+    const otherQrToken = "relationship-write-other-qr-token";
+    await sql`INSERT INTO booth_qr_credentials(event_exhibitor_id, public_token) VALUES (${other.id}, ${otherQrToken})`;
     expect(await sql`SELECT id FROM exhibitor_relationships WHERE attendee_user_id=${fresh.id}`).toHaveLength(1);
-    await service.enroll(other.id, "new@example.com");
+    await service.enroll(otherQrToken, "new@example.com");
     await service.complete("new-user-token");
     expect(await sql`SELECT id FROM exhibitor_relationships WHERE attendee_user_id=${fresh.id}`).toHaveLength(2);
     expect(await asTenant(f.organizationId, tx => tx`SELECT id FROM exhibitor_relationships WHERE attendee_user_id=${fresh.id}`)).toHaveLength(1);

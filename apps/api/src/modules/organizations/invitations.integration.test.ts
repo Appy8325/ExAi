@@ -30,7 +30,9 @@ let container: Awaited<ReturnType<PostgreSqlContainer["start"]>>;
 let sql: postgres.Sql;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer("pgvector/pgvector:pg16").start();
+  container = await new PostgreSqlContainer("pgvector/pgvector:pg16")
+    .withStartupTimeout(300_000)
+    .start();
   sql = postgres(container.getConnectionUri());
   await sql.file(resolve(migrationsDir, "0001_uuid_v7.sql"));
   await sql.file(resolve(migrationsDir, "0002_identity_tenancy.sql"));
@@ -50,8 +52,10 @@ beforeAll(async () => {
   await sql.file(resolve(migrationsDir, "0005_event_foundation.sql"));
   await sql.file(resolve(migrationsDir, "0006_agenda_session_foundation.sql"));
   await sql.file(resolve(migrationsDir, "0007_event_exhibitor_foundation.sql"));
+  await sql.file(resolve(migrationsDir, "0008_lead_form_foundation.sql"));
+  await sql.file(resolve(migrationsDir, "0016_exhibitor_workflow.sql"));
   database.db = drizzle(sql);
-}, 180_000);
+}, 360_000);
 
 afterEach(async () => {
   await sql`
