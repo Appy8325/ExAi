@@ -16,7 +16,7 @@ async function resolveDemoIds(apiBase: string): Promise<DemoIds> {
     const exhibitors = await getEventExhibitors({ baseUrl: apiBase }, event.id);
     const northstar = exhibitors.find((e) => /northstar/i.test(e.companyName));
     return {
-      organizationId: northstar?.id,
+      organizationId: northstar?.organizationId,
       eventExhibitorId: northstar?.id,
     };
   } catch {
