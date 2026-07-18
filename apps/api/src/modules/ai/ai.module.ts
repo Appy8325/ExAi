@@ -1,10 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module } from "@nestjs/common";
+import { AiGenerationService } from "@concourse/ai";
 
 /**
  * AiModule — owns ai_conversations, ai_messages (mount point for packages/ai, docs/21-ai-architecture.md) (docs/18-api-architecture.md §1).
- * Milestone 0 scaffolding only: empty shell module, no providers/controllers wired.
- * Real routes/services land in the milestone that implements this domain
- * (see docs/45-implementation-roadmap.md for the per-module milestone mapping).
+ * Provider-backed services are registered here and consumed by feature modules.
  */
-@Module({})
+@Module({
+  providers: [AiGenerationService],
+  exports: [AiGenerationService],
+})
 export class AiModule {}

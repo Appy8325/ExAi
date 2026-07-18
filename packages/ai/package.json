@@ -2,10 +2,15 @@
   "name": "@concourse/ai",
   "version": "0.1.0",
   "private": true,
-  "description": "AiModule \u2014 the sole boundary to Claude/Voyage (docs/21-ai-architecture.md \u00a71). Only this package may declare @anthropic-ai/sdk or voyageai (doc 37 \u00a78 rule R5).",
+  "description": "AiModule \u2014 the sole boundary to configured AI providers (docs/21-ai-architecture.md \u00a71).",
   "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",
@@ -20,7 +25,7 @@
     "vitest": "^2.1.8"
   },
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsc",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
