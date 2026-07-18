@@ -12,7 +12,7 @@ export class PublicBoothController {
   }
 
   @Post(":publicQrToken/enroll")
-  enroll(@Param("publicQrToken") publicQrToken: string, @Body() body: { email: string }) {
-    return this.enrollment.enroll(publicQrToken, body.email);
+  enroll(@Param("publicQrToken") publicQrToken: string, @Body() body?: { email?: unknown }) {
+    return this.enrollment.enroll(publicQrToken, body?.email);
   }
 }

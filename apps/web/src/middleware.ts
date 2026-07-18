@@ -2,10 +2,10 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { updateSession } from "@/lib/supabase/middleware";
 
-const protectedRoutePrefixes = ["/admin", "/exhibit", "/org", "/e", "/account"];
+const protectedRoutePrefixes = ["/admin", "/exhibit", "/org", "/account"];
 
 function isProtectedRoute(pathname: string): boolean {
-  return protectedRoutePrefixes.some(
+  return /\/e\/[^/]+\/saved(?:\/|$)/.test(pathname) || protectedRoutePrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }

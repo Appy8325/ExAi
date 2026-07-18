@@ -130,12 +130,6 @@ export default function AttendeeProfilePage() {
         </p>
       </section>
 
-      <section className="rounded-xl border border-default bg-surface p-4">
-        <h2 className="text-title-sm font-semibold text-primary">Preferences</h2>
-        <p className="mt-1 text-body-sm text-secondary">
-          Notification and communication preferences coming soon.
-        </p>
-      </section>
     </div>
   );
 }

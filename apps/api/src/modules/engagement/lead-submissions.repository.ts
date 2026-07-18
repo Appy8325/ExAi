@@ -39,8 +39,9 @@ const [created] = await tx.insert(leadSubmissions).values({ eventId: input.event
   ensureRelationship(input: { organizationId: string; actorUserId: string; eventExhibitorId: string; attendeeUserId: string }) {
     return this.database.transaction(async tx => {
       await setRlsContext(tx, input.organizationId, input.actorUserId);
-      const [created] = await tx.insert(exhibitorRelationships).values({ eventExhibitorId: input.eventExhibitorId, attendeeUserId: input.attendeeUserId }).onConflictDoNothing({ target: [exhibitorRelationships.eventExhibitorId, exhibitorRelationships.attendeeUserId] }).returning();
-      return created ?? (await tx.select({ id: exhibitorRelationships.id }).from(exhibitorRelationships).where(and(eq(exhibitorRelationships.eventExhibitorId, input.eventExhibitorId), eq(exhibitorRelationships.attendeeUserId, input.attendeeUserId))))[0];
+      const projection = { id: exhibitorRelationships.id, eventExhibitorId: exhibitorRelationships.eventExhibitorId };
+      const [created] = await tx.insert(exhibitorRelationships).values({ eventExhibitorId: input.eventExhibitorId, attendeeUserId: input.attendeeUserId }).onConflictDoNothing({ target: [exhibitorRelationships.eventExhibitorId, exhibitorRelationships.attendeeUserId] }).returning(projection);
+      return created ?? (await tx.select(projection).from(exhibitorRelationships).where(and(eq(exhibitorRelationships.eventExhibitorId, input.eventExhibitorId), eq(exhibitorRelationships.attendeeUserId, input.attendeeUserId))))[0];
     });
   }
 

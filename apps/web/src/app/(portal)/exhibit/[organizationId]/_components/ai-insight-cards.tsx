@@ -24,18 +24,15 @@ export function AiInsightCards({ dashboard }: { dashboard: ExhibitorDashboard })
   );
 }
 
-export function AiPlaceholderCard({ title, description }: { title: string; description: string }) {
+export function AiRecommendationCard({ title, value, description }: { title: string; value: string; description: string }) {
   return (
     <div className="rounded-xl border border-default bg-surface p-5">
       <div className="flex items-center gap-2">
         <AiDot />
         <h3 className="text-body font-semibold text-primary">{title}</h3>
       </div>
+      <p className="mt-3 text-title font-semibold tabular-nums text-primary">{value}</p>
       <p className="mt-2 text-body-sm text-muted">{description}</p>
-      <div className="mt-4 flex items-center gap-2 text-caption text-status-ai-text">
-        <span className="inline-block size-1.5 rounded-full bg-status-ai" />
-        AI-powered insight
-      </div>
     </div>
   );
 }

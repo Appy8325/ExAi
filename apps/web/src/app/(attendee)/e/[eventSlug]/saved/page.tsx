@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { getPublicEventBySlug, getSavedRelationships } from "@concourse/api-client";
 import type { SavedRelationship } from "@concourse/api-client";
@@ -83,10 +84,13 @@ export default function SavedExhibitorsPage({
             className="flex items-center gap-4 rounded-xl border border-default bg-surface p-4 transition-all hover:border-strong hover:shadow-2"
           >
             {item.exhibitor.logoUrl ? (
-              <img
+              <Image
                 alt={`${item.exhibitor.companyName} logo`}
                 className="h-12 w-12 flex-shrink-0 rounded-lg border border-default object-contain"
+                height={48}
                 src={item.exhibitor.logoUrl}
+                unoptimized
+                width={48}
               />
             ) : (
               <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-brand-subtle text-title-sm font-semibold text-brand">

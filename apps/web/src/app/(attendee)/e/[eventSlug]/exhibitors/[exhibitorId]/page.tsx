@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   getEventExhibitor,
@@ -100,10 +101,13 @@ export default function ExhibitorProfilePage({
       <div className="relative h-48 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-100 to-sky-100">
         {exhibitor.logoUrl && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/5">
-            <img
+            <Image
               alt={`${exhibitor.companyName} logo`}
               className="h-20 w-20 rounded-2xl border-2 border-white/80 object-contain bg-white shadow-3"
+              height={80}
               src={exhibitor.logoUrl}
+              unoptimized
+              width={80}
             />
           </div>
         )}
@@ -191,31 +195,10 @@ export default function ExhibitorProfilePage({
         </a>
       )}
 
-      <section className="grid grid-cols-1 gap-3">
-        <div className="rounded-xl border border-default bg-surface p-4">
-          <h3 className="text-body-sm font-medium text-muted">Products</h3>
-          <p className="mt-1 text-body text-secondary">
-            Product information coming soon.
-          </p>
-        </div>
-        <div className="rounded-xl border border-default bg-surface p-4">
-          <h3 className="text-body-sm font-medium text-muted">Services</h3>
-          <p className="mt-1 text-body text-secondary">
-            Service details coming soon.
-          </p>
-        </div>
-        <div className="rounded-xl border border-default bg-surface p-4">
-          <h3 className="text-body-sm font-medium text-muted">Resources</h3>
-          <p className="mt-1 text-body text-secondary">
-            Brochures and downloads coming soon.
-          </p>
-        </div>
-      </section>
-
       <div className="space-y-3 pt-2">
         <Link href={`/e/${eventSlug}/exhibitors/${exhibitorId}/insights`}>
           <Button className="min-h-12 w-full text-body font-semibold">
-            Get Personalized Insights
+            View booth briefing
           </Button>
         </Link>
         <Button
@@ -225,13 +208,6 @@ export default function ExhibitorProfilePage({
           disabled={saving}
         >
           {saved ? "Saved" : "Connect with Exhibitor"}
-        </Button>
-        <Button
-          className="min-h-12 w-full text-body font-medium"
-          variant="ghost"
-          disabled
-        >
-          Book Meeting (Coming Soon)
         </Button>
       </div>
     </div>

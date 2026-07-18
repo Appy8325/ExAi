@@ -4,177 +4,57 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { getEventExhibitor, getPublicEventBySlug } from "@concourse/api-client";
 import type { PublicExhibitor } from "@concourse/api-client";
-import { Button, Skeleton } from "@concourse/ui";
+import { Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 
-export default function InsightsPage({
-  params,
-}: {
-  params: Promise<{ eventSlug: string; exhibitorId: string }>;
-}) {
+export default function ExhibitorBriefingPage({ params }: { params: Promise<{ eventSlug: string; exhibitorId: string }> }) {
   const { eventSlug, exhibitorId } = use(params);
   const [exhibitor, setExhibitor] = useState<PublicExhibitor | null>(null);
   const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [insightsGenerated, setInsightsGenerated] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
-        const ev = await getPublicEventBySlug({ baseUrl: getApiBaseUrl() }, eventSlug);
-        if (cancelled) return;
-        const ex = await getEventExhibitor({ baseUrl: getApiBaseUrl() }, ev.id, exhibitorId);
-        if (cancelled) return;
-        setExhibitor(ex);
-      } catch { /* ignore */ }
-      if (!cancelled) setLoading(false);
+        const event = await getPublicEventBySlug({ baseUrl: getApiBaseUrl() }, eventSlug);
+        const result = await getEventExhibitor({ baseUrl: getApiBaseUrl() }, event.id, exhibitorId);
+        if (!cancelled) setExhibitor(result);
+      } catch {
+        // The unavailable state below handles API and network failures.
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-    load();
+    void load();
     return () => { cancelled = true; };
   }, [eventSlug, exhibitorId]);
 
-  const generate = () => {
-    setGenerating(true);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setGenerating(false);
-        setInsightsGenerated(true);
-      });
-    });
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-32 w-full rounded-2xl" />
-        <Skeleton className="h-24 w-full rounded-xl" />
-      </div>
-    );
-  }
-
-  const company = exhibitor?.companyName ?? "this exhibitor";
+  if (loading) return <div className="space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-32 w-full rounded-2xl" /></div>;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Link
-          href={`/e/${eventSlug}/exhibitors/${exhibitorId}`}
-          className="flex h-8 w-8 items-center justify-center rounded-full border border-default text-muted transition-colors hover:border-strong hover:text-primary"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </Link>
-        <div>
-          <p className="text-body-sm text-muted">AI Insights</p>
-          <h1 className="text-title font-semibold text-primary">{company}</h1>
-        </div>
-      </div>
+      <header className="flex items-center gap-3">
+        <Link href={`/e/${eventSlug}/exhibitors/${exhibitorId}`} aria-label="Back to exhibitor" className="flex h-8 w-8 items-center justify-center rounded-full border border-default text-muted hover:border-strong hover:text-primary">&larr;</Link>
+        <div><p className="text-body-sm text-muted">Exhibitor briefing</p><h1 className="text-title font-semibold text-primary">{exhibitor?.companyName ?? "Unavailable"}</h1></div>
+      </header>
 
-      {!insightsGenerated && !generating && (
-        <div className="space-y-6">
-          <div className="rounded-2xl border border-status-ai-border bg-gradient-to-br from-status-ai-subtle to-surface p-6 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-status-ai-subtle">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-status-ai-text">
-                <path d="M12 2l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" />
-              </svg>
-            </div>
-            <h2 className="text-title font-semibold text-primary">Personalized Insights</h2>
-            <p className="mt-2 text-body text-secondary">
-              Discover why this exhibitor matches your profile, what to ask, and recommended next steps.
-            </p>
-            <Button className="mt-6 min-h-12 w-full text-body font-semibold" onClick={generate}>
-              Generate My Insights
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <PlaceholderCard title="Match Score" description="Profile compatibility metrics" />
-            <PlaceholderCard title="Talking Points" description="Conversation starters based on mutual interests" />
-          </div>
-        </div>
-      )}
-
-      {generating && (
-        <div className="flex flex-col items-center justify-center py-16">
-          <div className="mb-6 h-12 w-12 animate-spin rounded-full border-4 border-status-ai-border border-t-status-ai-text" />
-          <p className="text-body text-secondary">Generating your personalized insights...</p>
-        </div>
-      )}
-
-      {insightsGenerated && (
+      {exhibitor ? (
         <div className="space-y-4">
-          <InsightSection
-            title="Why this exhibitor matches you"
-            items={[
-              `Your interest in ${exhibitor?.description?.split(" ").slice(0, 3).join(" ") ?? "technology"} aligns with ${company}'s product suite`,
-              `Your industry experience matches ${company}'s target market`,
-              "Recent attendees with similar profiles found high value conversations",
-            ]}
-          />
-          <InsightSection
-            title="Recommended conversations"
-            items={[
-              "Ask about their approach to enterprise scalability",
-              "Discuss integration patterns with existing tech stacks",
-              "Explore their roadmap for AI-powered features",
-            ]}
-          />
-          <InsightSection
-            title="Products likely to interest you"
-            items={[
-              "Core platform — infrastructure management",
-              "Analytics suite — real-time intelligence",
-              "Developer APIs — extensible framework",
-            ]}
-          />
-          <InsightSection
-            title="Questions you should ask"
-            items={[
-              "What's your typical implementation timeline?",
-              "How do you handle data residency requirements?",
-              "Can you share a relevant customer success story?",
-            ]}
-          />
-          <InsightSection
-            title="Suggested next steps"
-            items={[
-              `Visit ${company}'s booth for a personalized demo`,
-              "Save this exhibitor to your shortlist",
-              "Prepare your questions before the meeting",
-            ]}
-          />
+          <BriefingSection title="What they offer" items={[
+            exhibitor.description ?? `${exhibitor.companyName} has not published a description.`,
+            `Find them at ${exhibitor.boothName}${exhibitor.boothNumber ? `, booth ${exhibitor.boothNumber}` : ""}.`,
+          ]} />
+          <BriefingSection title="Ways to connect" items={[
+            exhibitor.website ? `Product details: ${exhibitor.website}` : "Visit the booth for product details.",
+            exhibitor.contactEmail ? `Email: ${exhibitor.contactEmail}` : "Ask the booth team for a direct contact.",
+            exhibitor.contactPhone ? `Phone: ${exhibitor.contactPhone}` : "Save this exhibitor to follow up after the event.",
+          ]} />
         </div>
-      )}
+      ) : <p className="rounded-xl border border-default bg-surface p-5 text-body text-secondary">This exhibitor briefing could not be loaded.</p>}
     </div>
   );
 }
 
-function InsightSection({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div className="rounded-xl border border-status-ai-border bg-gradient-to-br from-status-ai-subtle/50 to-surface p-5">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="flex size-5 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-bold text-status-ai-text">AI</span>
-        <h3 className="text-body font-semibold text-primary">{title}</h3>
-      </div>
-      <ul className="space-y-2">
-        {items.map((item, i) => (
-          <li key={i} className="flex items-start gap-2 text-body-sm text-secondary">
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-status-ai-text" />
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function PlaceholderCard({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-default bg-surface/50 p-4 text-center">
-      <h3 className="text-body-sm font-semibold text-muted">{title}</h3>
-      <p className="mt-1 text-caption text-muted">{description}</p>
-    </div>
-  );
+function BriefingSection({ title, items }: { title: string; items: string[] }) {
+  return <section className="rounded-xl border border-status-ai-border bg-gradient-to-br from-status-ai-subtle/50 to-surface p-5"><h2 className="text-body font-semibold text-primary">{title}</h2><ul className="mt-3 space-y-2">{items.map((item) => <li key={item} className="flex items-start gap-2 text-body-sm text-secondary"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-status-ai-text" />{item}</li>)}</ul></section>;
 }

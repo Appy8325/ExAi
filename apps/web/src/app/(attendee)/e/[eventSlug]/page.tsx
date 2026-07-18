@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   getPublicEventBySlug,
@@ -198,10 +199,13 @@ function ExhibitorCard({
       }`}
     >
       {exhibitor.logoUrl ? (
-        <img
+        <Image
           alt={`${exhibitor.companyName} logo`}
           className="h-12 w-12 flex-shrink-0 rounded-lg border border-default object-contain"
+          height={48}
           src={exhibitor.logoUrl}
+          unoptimized
+          width={48}
         />
       ) : (
         <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-brand-subtle text-title-sm font-semibold text-brand">

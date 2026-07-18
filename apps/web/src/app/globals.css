@@ -1,2 +1,72 @@
 @import "tailwindcss";
 @import "@concourse/ui/styles.css";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    text-rendering: geometricPrecision;
+  }
+
+  body {
+    background:
+      radial-gradient(
+        circle at 16% -10%,
+        rgb(99 102 241 / 0.1),
+        transparent 30rem
+      ),
+      var(--mq-bg-canvas);
+  }
+
+  ::selection {
+    background: rgb(99 102 241 / 0.22);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(79 70 229 / 0.85);
+    outline-offset: 3px;
+  }
+}
+
+@layer utilities {
+  .shadow-premium {
+    box-shadow:
+      0 24px 70px rgb(15 23 42 / 0.14),
+      0 1px 0 rgb(255 255 255 / 0.7) inset;
+  }
+
+  .focus-premium {
+    outline: none;
+  }
+
+  .focus-premium:focus-visible {
+    box-shadow:
+      0 0 0 4px rgb(99 102 241 / 0.18),
+      0 0 0 1px rgb(79 70 229 / 0.65);
+  }
+
+  .animate-fade-up {
+    animation: fade-up 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

@@ -1,7 +1,8 @@
 import type { ExhibitorDashboard } from "@concourse/api-client";
-import { AiPlaceholderCard } from "../_components/ai-insight-cards";
+import { AiRecommendationCard } from "../_components/ai-insight-cards";
 
 export function AiInsightsScreen({ dashboard, organizationId: _organizationId }: { dashboard: ExhibitorDashboard; organizationId?: string }) {
+  const topOpportunity = dashboard.attention.find((item) => item.attendeeName)?.attendeeName ?? "No named attendee yet";
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
       <div>
@@ -30,29 +31,30 @@ export function AiInsightsScreen({ dashboard, organizationId: _organizationId }:
       </section>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <AiPlaceholderCard
+        <AiRecommendationCard
           title="Top Opportunities"
-          description="High-value leads showing strong buying intent based on engagement patterns and profile completeness."
+          value={topOpportunity}
+          description={`${dashboard.attention.length} relationships currently need attention.`}
         />
-        <AiPlaceholderCard
+        <AiRecommendationCard
           title="Buying Intent Signals"
-          description="Companies demonstrating purchase readiness through repeated visits and detailed profile submissions."
+          value={String(dashboard.pipeline.returning)}
+          description="Returning booth visitors, derived from repeat interactions."
         />
-        <AiPlaceholderCard
+        <AiRecommendationCard
           title="Recommended Follow-ups"
-          description="Prioritized list of attendees that need follow-up attention based on recency and engagement level."
+          value={String(dashboard.pipeline.needsFollowUp)}
+          description="Active relationships without a follow-up note."
         />
-        <AiPlaceholderCard
-          title="Suggested Introductions"
-          description="Attendees who would benefit from being connected with your team members based on shared interests."
+        <AiRecommendationCard
+          title="Profile Readiness"
+          value={`${dashboard.performance.profileCompletion}%`}
+          description="Average attendee profile completion across captured relationships."
         />
-        <AiPlaceholderCard
-          title="High-Value Attendees"
-          description="Premium profiles with complete data, relevant industry fit, and demonstrated engagement history."
-        />
-        <AiPlaceholderCard
+        <AiRecommendationCard
           title="Knowledge Updates"
-          description="Recent changes and enrichment events that have been applied to your relationship profiles."
+          value={String(dashboard.intelligenceFeed.items.length)}
+          description="Recent profile enrichment events available to your team."
         />
       </div>
     </div>
