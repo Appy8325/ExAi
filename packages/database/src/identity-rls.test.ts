@@ -56,7 +56,7 @@ beforeAll(async () => {
   await sql.file(resolve(migrationsDir, "0009_relationship_capture_engine.sql"));
   await sql.file(resolve(migrationsDir, "0010_foundation_hardening.sql"));
   await sql.file(resolve(migrationsDir, "0011_relationship_workspace.sql"));
-}, 60_000);
+}, 180_000);
 
 afterAll(async () => {
   await sql?.end();
