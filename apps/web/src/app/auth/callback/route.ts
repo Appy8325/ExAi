@@ -14,10 +14,15 @@ export async function GET(request: NextRequest) {
   const errorDescription = url.searchParams.get("error_description");
 
   const redirectTarget = errorDescription
-    ? buildAuthUrl(request.nextUrl.origin, { error_description: errorDescription, next: fallback })
+    ? buildAuthUrl(request.nextUrl.origin, {
+        error_description: errorDescription,
+        next: fallback,
+      })
     : fallback;
 
-  const response = NextResponse.redirect(new URL(redirectTarget, request.nextUrl.origin));
+  const response = NextResponse.redirect(
+    new URL(redirectTarget, request.nextUrl.origin),
+  );
   await persistSession(request, response, code, tokenHash, type);
 
   return response;
@@ -61,13 +66,41 @@ async function persistSession(
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) return;
+    await completeInvitation(request, supabase);
     await completeEnrollment(request, response, supabase);
     return;
   }
 
   if (tokenHash && type) {
-    await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as never });
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type: type as never,
+    });
+    if (!error) {
+      await completeInvitation(request, supabase);
+      await completeEnrollment(request, response, supabase);
+    }
   }
+}
+
+async function completeInvitation(
+  request: NextRequest,
+  supabase: ReturnType<typeof createServerClient>,
+) {
+  const invitation = request.nextUrl.searchParams.get("invitation");
+  if (!invitation) return;
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) return;
+  await fetch(`${getApiBaseUrl()}/v1/organizer/invitations/accept`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ token: invitation }),
+    cache: "no-store",
+  });
 }
 
 async function completeEnrollment(
@@ -79,18 +112,26 @@ async function completeEnrollment(
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
     if (!token) return;
-    const completion = await fetch(`${getApiBaseUrl()}/v1/public/enroll/complete`, {
-      method: "POST",
-      headers: { authorization: `Bearer ${token}` },
-      cache: "no-store",
-    });
+    const completion = await fetch(
+      `${getApiBaseUrl()}/v1/public/enroll/complete`,
+      {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` },
+        cache: "no-store",
+      },
+    );
     if (!completion.ok) return;
 
-    const relationship = (await completion.json()) as { eventExhibitorId?: string };
+    const relationship = (await completion.json()) as {
+      eventExhibitorId?: string;
+    };
     if (relationship.eventExhibitorId) {
       response.headers.set(
         "location",
-        new URL(`/visit/${relationship.eventExhibitorId}?connected=1`, request.nextUrl.origin).toString(),
+        new URL(
+          `/visit/${relationship.eventExhibitorId}?connected=1`,
+          request.nextUrl.origin,
+        ).toString(),
       );
     }
   } catch {
