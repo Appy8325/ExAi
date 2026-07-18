@@ -1,4 +1,8 @@
-import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from "@nestjs/common";
 import { db, setRlsContext } from "@concourse/database";
 import { events, organizations } from "@concourse/database/schema";
 import { and, eq, ne } from "drizzle-orm";
@@ -22,6 +26,9 @@ export interface UpdateEventRecord {
   timezone?: string;
   startAt?: Date;
   endAt?: Date;
+  privacyPolicyUrl?: string | null;
+  logoUrl?: string | null;
+  primaryColor?: string;
 }
 
 @Injectable()
@@ -37,7 +44,9 @@ export class EventsRepository {
       });
     } catch (error) {
       if (isUniqueViolation(error)) {
-        throw new ConflictException("Event slug is already in use for this organization.");
+        throw new ConflictException(
+          "Event slug is already in use for this organization.",
+        );
       }
       throw error;
     }
@@ -46,9 +55,15 @@ export class EventsRepository {
   async findById(organizationId: string, eventId: string, actorUserId: string) {
     return db.transaction(async (tx) => {
       await setRlsContext(tx, organizationId, actorUserId);
-      const [event] = await tx.select().from(events).where(
-        and(eq(events.id, eventId), eq(events.organizationId, organizationId)),
-      );
+      const [event] = await tx
+        .select()
+        .from(events)
+        .where(
+          and(
+            eq(events.id, eventId),
+            eq(events.organizationId, organizationId),
+          ),
+        );
       return event;
     });
   }
@@ -63,9 +78,11 @@ export class EventsRepository {
         ne(events.status, "archived"),
       ];
       if (input.slug) conditions.push(eq(events.status, "draft"));
-      const [event] = await tx.update(events).set({ ...values, updatedAt: new Date() }).where(
-        and(...conditions),
-      ).returning();
+      const [event] = await tx
+        .update(events)
+        .set({ ...values, updatedAt: new Date() })
+        .where(and(...conditions))
+        .returning();
       return event;
     });
   }
@@ -73,13 +90,35 @@ export class EventsRepository {
   async archive(organizationId: string, eventId: string, actorUserId: string) {
     return db.transaction(async (tx) => {
       await setRlsContext(tx, organizationId, actorUserId);
-      const [event] = await tx.update(events).set({ status: "archived", updatedAt: new Date() }).where(
-        and(
-          eq(events.id, eventId),
-          eq(events.organizationId, organizationId),
-          ne(events.status, "archived"),
-        ),
-      ).returning();
+      const [event] = await tx
+        .update(events)
+        .set({ status: "archived", updatedAt: new Date() })
+        .where(
+          and(
+            eq(events.id, eventId),
+            eq(events.organizationId, organizationId),
+            ne(events.status, "archived"),
+          ),
+        )
+        .returning();
+      return event;
+    });
+  }
+
+  async publish(organizationId: string, eventId: string, actorUserId: string) {
+    return db.transaction(async (tx) => {
+      await setRlsContext(tx, organizationId, actorUserId);
+      const [event] = await tx
+        .update(events)
+        .set({ status: "published", updatedAt: new Date() })
+        .where(
+          and(
+            eq(events.id, eventId),
+            eq(events.organizationId, organizationId),
+            eq(events.status, "draft"),
+          ),
+        )
+        .returning();
       return event;
     });
   }
@@ -88,20 +127,33 @@ export class EventsRepository {
     tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
     organizationId: string,
   ) {
-    const [organization] = await tx.select({ kind: organizations.kind }).from(organizations).where(
-      eq(organizations.id, organizationId),
-    );
+    const [organization] = await tx
+      .select({ kind: organizations.kind })
+      .from(organizations)
+      .where(eq(organizations.id, organizationId));
     if (!organization || organization.kind !== "organizer") {
-      throw new BadRequestException("Events must belong to an organizer organization.");
+      throw new BadRequestException(
+        "Events must belong to an organizer organization.",
+      );
     }
   }
 }
 
 function withoutIdentity(input: UpdateEventRecord) {
-  const { organizationId: _organizationId, actorUserId: _actorUserId, eventId: _eventId, ...values } = input;
+  const {
+    organizationId: _organizationId,
+    actorUserId: _actorUserId,
+    eventId: _eventId,
+    ...values
+  } = input;
   return values;
 }
 
 function isUniqueViolation(error: unknown): error is { code: string } {
-  return typeof error === "object" && error !== null && "code" in error && error.code === "23505";
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "23505"
+  );
 }

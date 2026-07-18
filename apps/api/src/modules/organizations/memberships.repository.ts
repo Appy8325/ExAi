@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
 import { db, setRlsContext } from "@concourse/database";
-import { organizationMemberships } from "@concourse/database/schema";
+import { organizationMemberships, users } from "@concourse/database/schema";
 
 export type MembershipStatus = "pending" | "active";
 
@@ -23,13 +23,7 @@ export class MembershipsRepository {
         input.organizationId,
         input.actorUserId ?? input.userId,
       );
-      const {
-        organizationId,
-        userId,
-        role,
-        status,
-        invitedByUserId,
-      } = input;
+      const { organizationId, userId, role, status, invitedByUserId } = input;
       const [created] = await tx
         .insert(organizationMemberships)
         .values({ organizationId, userId, role, status, invitedByUserId })
@@ -73,6 +67,25 @@ export class MembershipsRepository {
       .select()
       .from(organizationMemberships)
       .where(eq(organizationMemberships.userId, userId));
+  }
+
+  listWithUsers(organizationId: string, actorUserId: string) {
+    return db.transaction(async (tx) => {
+      await setRlsContext(tx, organizationId, actorUserId);
+      return tx
+        .select({
+          id: organizationMemberships.id,
+          userId: organizationMemberships.userId,
+          email: users.email,
+          fullName: users.fullName,
+          role: organizationMemberships.role,
+          status: organizationMemberships.status,
+          joinedAt: organizationMemberships.joinedAt,
+        })
+        .from(organizationMemberships)
+        .innerJoin(users, eq(users.id, organizationMemberships.userId))
+        .where(eq(organizationMemberships.organizationId, organizationId));
+    });
   }
 
   async findByOrganizationAndUser(organizationId: string, userId: string) {

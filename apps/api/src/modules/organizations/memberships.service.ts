@@ -52,6 +52,13 @@ export class MembershipsService {
     return this.membershipsRepository.findByUserId(userId);
   }
 
+  listWithUsers(organizationId: string, actorUserId: string) {
+    return this.membershipsRepository.listWithUsers(
+      organizationId,
+      actorUserId,
+    );
+  }
+
   async activate(organizationId: string, userId: string, actorUserId = userId) {
     const membership = await this.membershipsRepository.activate(
       organizationId,

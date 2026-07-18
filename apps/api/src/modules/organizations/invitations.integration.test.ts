@@ -1,5 +1,13 @@
 import { resolve } from "node:path";
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
@@ -13,7 +21,10 @@ vi.mock("@concourse/database", () => database);
 
 import { hashInvitationToken, InvitationsService } from "./invitations.service";
 
-const migrationsDir = resolve(__dirname, "../../../../../packages/database/migrations");
+const migrationsDir = resolve(
+  __dirname,
+  "../../../../../packages/database/migrations",
+);
 
 let container: Awaited<ReturnType<PostgreSqlContainer["start"]>>;
 let sql: postgres.Sql;
@@ -33,7 +44,9 @@ beforeAll(async () => {
     )
   `;
   await sql.file(resolve(migrationsDir, "0003_auth_user_provisioning.sql"));
-  await sql.file(resolve(migrationsDir, "0004_organization_owner_invariant.sql"));
+  await sql.file(
+    resolve(migrationsDir, "0004_organization_owner_invariant.sql"),
+  );
   database.db = drizzle(sql);
 }, 60_000);
 
@@ -73,12 +86,17 @@ async function seedInvitationTarget() {
     INSERT INTO organization_memberships (organization_id, user_id, role)
     VALUES (${organization.id}, ${owner.id}, 'owner')
   `;
-  return { organizationId: organization.id, ownerId: owner.id, recipientId: recipient.id };
+  return {
+    organizationId: organization.id,
+    ownerId: owner.id,
+    recipientId: recipient.id,
+  };
 }
 
 describe("organization invitation acceptance integration", () => {
   it("transitions the pending membership to active and replays safely", async () => {
-    const { organizationId, ownerId, recipientId } = await seedInvitationTarget();
+    const { organizationId, ownerId, recipientId } =
+      await seedInvitationTarget();
     const service = new InvitationsService();
     const invitation = await service.createOrganizationInvitation({
       organizationId,
@@ -92,10 +110,14 @@ describe("organization invitation acceptance integration", () => {
     `;
     expect(pending).toEqual([{ status: "pending" }]);
 
-    await expect(service.accept({ token: invitation.token, userId: recipientId })).resolves.toMatchObject({
+    await expect(
+      service.accept({ token: invitation.token, userId: recipientId }),
+    ).resolves.toMatchObject({
       status: "accepted",
     });
-    await expect(service.accept({ token: invitation.token, userId: recipientId })).resolves.toMatchObject({
+    await expect(
+      service.accept({ token: invitation.token, userId: recipientId }),
+    ).resolves.toMatchObject({
       status: "accepted",
     });
 
@@ -106,8 +128,9 @@ describe("organization invitation acceptance integration", () => {
     expect(membership).toEqual([{ status: "active" }]);
   });
 
-  it("rolls back token consumption when the pending membership is missing", async () => {
-    const { organizationId, ownerId, recipientId } = await seedInvitationTarget();
+  it("creates the membership when the invitee signs up after invitation", async () => {
+    const { organizationId, ownerId, recipientId } =
+      await seedInvitationTarget();
     const service = new InvitationsService();
     const invitation = await service.createOrganizationInvitation({
       organizationId,
@@ -119,17 +142,27 @@ describe("organization invitation acceptance integration", () => {
       WHERE organization_id = ${organizationId} AND user_id = ${recipientId}
     `;
 
-    await expect(service.accept({ token: invitation.token, userId: recipientId })).rejects.toThrow();
+    await expect(
+      service.accept({ token: invitation.token, userId: recipientId }),
+    ).resolves.toMatchObject({
+      status: "accepted",
+    });
 
     const [token] = await sql`
       SELECT used_at FROM auth_tokens
       WHERE token_hash = ${hashInvitationToken(invitation.token)}
     `;
-    expect(token).toMatchObject({ used_at: null });
+    expect(token?.used_at).toBeInstanceOf(Date);
+    const memberships = await sql`
+      SELECT status FROM organization_memberships
+      WHERE organization_id = ${organizationId} AND user_id = ${recipientId}
+    `;
+    expect(memberships).toEqual([{ status: "active" }]);
   });
 
   it("accepts concurrent claims once without duplicating the membership", async () => {
-    const { organizationId, ownerId, recipientId } = await seedInvitationTarget();
+    const { organizationId, ownerId, recipientId } =
+      await seedInvitationTarget();
     const service = new InvitationsService();
     const invitation = await service.createOrganizationInvitation({
       organizationId,

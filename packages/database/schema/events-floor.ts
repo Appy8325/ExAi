@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm";
-import { check, index, integer, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  check,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 import { organizations } from "./identity";
 
@@ -17,9 +26,16 @@ export const events = pgTable(
     timezone: text("timezone").notNull(),
     startAt: timestamp("start_at", { withTimezone: true }).notNull(),
     endAt: timestamp("end_at", { withTimezone: true }).notNull(),
+    privacyPolicyUrl: text("privacy_policy_url"),
+    logoUrl: text("logo_url"),
+    primaryColor: text("primary_color").notNull().default("#4f46e5"),
     status: text("status").notNull().default("draft"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => ({
     organizationSlugUnique: uniqueIndex("events_organization_slug_key").on(
@@ -34,7 +50,14 @@ export const events = pgTable(
       "events_status_check",
       sql`${table.status} IN ('draft','published','live','completed','archived')`,
     ),
-    dateRangeCheck: check("events_date_range_check", sql`${table.endAt} > ${table.startAt}`),
+    dateRangeCheck: check(
+      "events_date_range_check",
+      sql`${table.endAt} > ${table.startAt}`,
+    ),
+    primaryColorCheck: check(
+      "events_primary_color_check",
+      sql`${table.primaryColor} ~ '^#[0-9a-fA-F]{6}$'`,
+    ),
   }),
 );
 
@@ -54,12 +77,22 @@ export const agendaSessions = pgTable(
     room: text("room"),
     capacity: integer("capacity"),
     status: text("status").notNull().default("draft"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => ({
-    eventSlugUnique: uniqueIndex("agenda_sessions_event_slug_key").on(table.eventId, table.slug),
-    eventStartIdx: index("agenda_sessions_event_start_at_idx").on(table.eventId, table.startAt),
+    eventSlugUnique: uniqueIndex("agenda_sessions_event_slug_key").on(
+      table.eventId,
+      table.slug,
+    ),
+    eventStartIdx: index("agenda_sessions_event_start_at_idx").on(
+      table.eventId,
+      table.startAt,
+    ),
     statusCheck: check(
       "agenda_sessions_status_check",
       sql`${table.status} IN ('draft','published','archived')`,

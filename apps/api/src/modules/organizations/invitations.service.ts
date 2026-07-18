@@ -1,9 +1,10 @@
 import { createHash, randomBytes } from "node:crypto";
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, isNull } from "drizzle-orm";
 import { db, setRlsContext } from "@concourse/database";
 import {
   authTokens,
+  events,
   organizationMemberships,
   users,
 } from "@concourse/database/schema";
@@ -11,9 +12,7 @@ import {
 const INVITATION_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
 export type DeferredInvitationType =
-  | "event_staff"
-  | "event_exhibitor_claim"
-  | "exhibitor_staff";
+  "event_staff" | "event_exhibitor_claim" | "exhibitor_staff";
 
 export type InvitationPayload =
   | {
@@ -24,7 +23,14 @@ export type InvitationPayload =
       invitedByUserId?: string;
     }
   | {
-      type: DeferredInvitationType;
+      type: "event_exhibitor_claim";
+      eventId: string;
+      email: string;
+      companyName: string;
+      invitedByUserId?: string;
+    }
+  | {
+      type: Exclude<DeferredInvitationType, "event_exhibitor_claim">;
       eventId?: string;
       eventExhibitorId?: string;
       role?: "admin" | "staff" | "rep";
@@ -40,6 +46,15 @@ export interface CreateOrganizationInvitationInput {
   expiresAt?: Date;
 }
 
+export interface CreateEventExhibitorInvitationInput {
+  organizationId: string;
+  eventId: string;
+  email: string;
+  companyName: string;
+  invitedByUserId: string;
+  expiresAt?: Date;
+}
+
 export function hashInvitationToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
@@ -48,7 +63,9 @@ export function normalizeInvitationEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-export function isInvitationPayload(value: unknown): value is InvitationPayload {
+export function isInvitationPayload(
+  value: unknown,
+): value is InvitationPayload {
   if (!value || typeof value !== "object" || !("type" in value)) {
     return false;
   }
@@ -60,11 +77,14 @@ export function isInvitationPayload(value: unknown): value is InvitationPayload 
       typeof payload.email === "string"
     );
   }
-  return (
-    payload.type === "event_staff" ||
-    payload.type === "event_exhibitor_claim" ||
-    payload.type === "exhibitor_staff"
-  );
+  if (payload.type === "event_exhibitor_claim") {
+    return (
+      typeof payload.eventId === "string" &&
+      typeof payload.email === "string" &&
+      typeof payload.companyName === "string"
+    );
+  }
+  return payload.type === "event_staff" || payload.type === "exhibitor_staff";
 }
 
 @Injectable()
@@ -72,7 +92,8 @@ export class InvitationsService {
   async createOrganizationInvitation(input: CreateOrganizationInvitationInput) {
     const email = normalizeInvitationEmail(input.email);
     const role = input.role ?? "member";
-    const expiresAt = input.expiresAt ?? new Date(Date.now() + INVITATION_TTL_MS);
+    const expiresAt =
+      input.expiresAt ?? new Date(Date.now() + INVITATION_TTL_MS);
     if (!email || !email.includes("@")) {
       throw new BadRequestException("Invitation email is invalid.");
     }
@@ -80,7 +101,9 @@ export class InvitationsService {
       throw new BadRequestException("Invitation role is invalid.");
     }
     if (expiresAt <= new Date()) {
-      throw new BadRequestException("Invitation expiration must be in the future.");
+      throw new BadRequestException(
+        "Invitation expiration must be in the future.",
+      );
     }
 
     const token = randomBytes(32).toString("base64url");
@@ -95,43 +118,52 @@ export class InvitationsService {
             ? eq(users.id, input.invitedUserId)
             : eq(users.email, email),
         );
-      if (!recipient || normalizeInvitationEmail(recipient.email) !== email) {
+      if (recipient && normalizeInvitationEmail(recipient.email) !== email) {
         throw new BadRequestException(
-          "Invitation recipient must be an existing user with this email.",
+          "Invitation recipient does not match this email.",
         );
       }
 
-      const [createdMembership] = await tx
-        .insert(organizationMemberships)
-        .values({
-          organizationId: input.organizationId,
-          userId: recipient.id,
-          role,
-          status: "pending",
-          invitedByUserId: input.invitedByUserId,
-        })
-        .onConflictDoNothing({
-          target: [
-            organizationMemberships.organizationId,
-            organizationMemberships.userId,
-          ],
-        })
-        .returning();
+      if (recipient) {
+        const [createdMembership] = await tx
+          .insert(organizationMemberships)
+          .values({
+            organizationId: input.organizationId,
+            userId: recipient.id,
+            role,
+            status: "pending",
+            invitedByUserId: input.invitedByUserId,
+          })
+          .onConflictDoNothing({
+            target: [
+              organizationMemberships.organizationId,
+              organizationMemberships.userId,
+            ],
+          })
+          .returning();
 
-      if (!createdMembership) {
-        const [membership] = await tx
-          .select()
-          .from(organizationMemberships)
-          .where(
-            and(
-              eq(organizationMemberships.organizationId, input.organizationId),
-              eq(organizationMemberships.userId, recipient.id),
-            ),
-          );
-        if (!membership || membership.status !== "pending" || membership.role !== role) {
-          throw new BadRequestException(
-            "Invitation recipient already has an incompatible membership.",
-          );
+        if (!createdMembership) {
+          const [membership] = await tx
+            .select()
+            .from(organizationMemberships)
+            .where(
+              and(
+                eq(
+                  organizationMemberships.organizationId,
+                  input.organizationId,
+                ),
+                eq(organizationMemberships.userId, recipient.id),
+              ),
+            );
+          if (
+            !membership ||
+            membership.status !== "pending" ||
+            membership.role !== role
+          ) {
+            throw new BadRequestException(
+              "Invitation recipient already has an incompatible membership.",
+            );
+          }
         }
       }
 
@@ -139,7 +171,7 @@ export class InvitationsService {
         kind: "invite",
         tokenHash: hashInvitationToken(token),
         organizationId: input.organizationId,
-        userId: recipient.id,
+        userId: recipient?.id,
         expiresAt,
         payload: {
           type: "organization_membership",
@@ -150,6 +182,102 @@ export class InvitationsService {
         },
       });
       return { token, expiresAt };
+    });
+  }
+
+  async createEventExhibitorInvitation(
+    input: CreateEventExhibitorInvitationInput,
+  ) {
+    const email = normalizeInvitationEmail(input.email);
+    const companyName = input.companyName.trim();
+    const expiresAt =
+      input.expiresAt ?? new Date(Date.now() + INVITATION_TTL_MS);
+    if (!email || !email.includes("@")) {
+      throw new BadRequestException("Invitation email is invalid.");
+    }
+    if (!companyName) {
+      throw new BadRequestException("Company name is required.");
+    }
+    if (expiresAt <= new Date()) {
+      throw new BadRequestException(
+        "Invitation expiration must be in the future.",
+      );
+    }
+
+    const token = randomBytes(32).toString("base64url");
+    return db.transaction(async (tx) => {
+      await setRlsContext(tx, input.organizationId, input.invitedByUserId);
+      const [event] = await tx
+        .select({ id: events.id })
+        .from(events)
+        .where(
+          and(
+            eq(events.id, input.eventId),
+            eq(events.organizationId, input.organizationId),
+          ),
+        );
+      if (!event) throw new BadRequestException("Event was not found.");
+
+      await tx.insert(authTokens).values({
+        kind: "invite",
+        tokenHash: hashInvitationToken(token),
+        organizationId: input.organizationId,
+        eventId: input.eventId,
+        expiresAt,
+        payload: {
+          type: "event_exhibitor_claim",
+          eventId: input.eventId,
+          email,
+          companyName,
+          invitedByUserId: input.invitedByUserId,
+        },
+      });
+      return { token, expiresAt };
+    });
+  }
+
+  async listEventExhibitorInvitations(
+    organizationId: string,
+    eventId: string,
+    actorUserId: string,
+  ) {
+    return db.transaction(async (tx) => {
+      await setRlsContext(tx, organizationId, actorUserId);
+      const invitations = await tx
+        .select()
+        .from(authTokens)
+        .where(
+          and(
+            eq(authTokens.organizationId, organizationId),
+            eq(authTokens.eventId, eventId),
+            eq(authTokens.kind, "invite"),
+          ),
+        )
+        .orderBy(desc(authTokens.createdAt));
+      return invitations.flatMap((invitation) => {
+        const payload = invitation.payload;
+        if (
+          !isInvitationPayload(payload) ||
+          payload.type !== "event_exhibitor_claim"
+        ) {
+          return [];
+        }
+        return [
+          {
+            id: invitation.id,
+            email: payload.email,
+            companyName: payload.companyName,
+            expiresAt: invitation.expiresAt,
+            status: invitation.revokedAt
+              ? "revoked"
+              : invitation.usedAt
+                ? "accepted"
+                : invitation.expiresAt <= new Date()
+                  ? "expired"
+                  : "sent",
+          },
+        ];
+      });
     });
   }
 
@@ -174,7 +302,12 @@ export class InvitationsService {
       const [invitation] = await tx
         .select()
         .from(authTokens)
-        .where(and(eq(authTokens.tokenHash, tokenHash), eq(authTokens.kind, "invite")));
+        .where(
+          and(
+            eq(authTokens.tokenHash, tokenHash),
+            eq(authTokens.kind, "invite"),
+          ),
+        );
       if (!invitation) {
         throw new BadRequestException("Invitation is invalid or expired.");
       }
@@ -192,7 +325,10 @@ export class InvitationsService {
           .from(organizationMemberships)
           .where(
             and(
-              eq(organizationMemberships.organizationId, payload.organizationId),
+              eq(
+                organizationMemberships.organizationId,
+                payload.organizationId,
+              ),
               eq(organizationMemberships.userId, input.userId),
             ),
           );
@@ -202,7 +338,10 @@ export class InvitationsService {
         return { status: "accepted" as const, membership };
       };
 
-      const [user] = await tx.select().from(users).where(eq(users.id, input.userId));
+      const [user] = await tx
+        .select()
+        .from(users)
+        .where(eq(users.id, input.userId));
       if (!user || normalizeInvitationEmail(user.email) !== payload.email) {
         throw new BadRequestException("Invitation is not valid for this user.");
       }
@@ -234,25 +373,32 @@ export class InvitationsService {
         throw new BadRequestException("Invitation is invalid or expired.");
       }
 
-      const [activated] = await tx
-        .update(organizationMemberships)
-        .set({ status: "active", updatedAt: new Date() })
-        .where(
-          and(
-            eq(organizationMemberships.organizationId, payload.organizationId),
-            eq(organizationMemberships.userId, input.userId),
-            eq(organizationMemberships.status, "pending"),
-          ),
-        )
+      const [membership] = await tx
+        .insert(organizationMemberships)
+        .values({
+          organizationId: payload.organizationId,
+          userId: input.userId,
+          role: payload.role,
+          status: "active",
+          invitedByUserId: payload.invitedByUserId,
+        })
+        .onConflictDoUpdate({
+          target: [
+            organizationMemberships.organizationId,
+            organizationMemberships.userId,
+          ],
+          set: { status: "active", role: payload.role, updatedAt: new Date() },
+        })
         .returning();
-      if (activated) {
-        return { status: "accepted" as const, membership: activated };
-      }
-      return acceptedMembership();
+      if (!membership)
+        throw new BadRequestException("Invitation acceptance is incomplete.");
+      return { status: "accepted" as const, membership };
     });
   }
 
-  private validateInvitation(invitation: typeof authTokens.$inferSelect | undefined) {
+  private validateInvitation(
+    invitation: typeof authTokens.$inferSelect | undefined,
+  ) {
     if (
       !invitation ||
       invitation.kind !== "invite" ||
