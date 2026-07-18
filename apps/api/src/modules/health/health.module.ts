@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { HealthController } from './health.controller';
+import { db } from '@concourse/database';
+import { DATABASE_CLIENT } from '../../common/database-client';
 
 /**
  * HealthModule — owns /healthz, /readyz (docs/18-api-architecture.md §1).
@@ -10,5 +12,6 @@ import { HealthController } from './health.controller';
  */
 @Module({
   controllers: [HealthController],
+  providers: [{ provide: DATABASE_CLIENT, useValue: db }],
 })
 export class HealthModule {}

@@ -19,6 +19,7 @@ const queryClient = postgres(connectionString, {
   // Pooled — one postgres.js connection pool per process, per Drizzle's
   // own recommended usage with postgres-js.
   max: 10,
+  prepare: false,
 });
 
 export const db = drizzle(queryClient, { schema });

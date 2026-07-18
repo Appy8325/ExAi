@@ -1,4 +1,5 @@
 import config from '@concourse/config/eslint/next';
+import next from '@next/eslint-plugin-next';
 
 export default [
   {
@@ -14,4 +15,13 @@ export default [
     ],
   },
   ...config,
+  {
+    // Include this config file so Next's build-time detector can see the plugin.
+    files: ['**/*.{ts,tsx,js,jsx,mjs}'],
+    plugins: { '@next/next': next },
+    rules: {
+      ...next.configs.recommended.rules,
+      ...next.configs['core-web-vitals'].rules,
+    },
+  },
 ];

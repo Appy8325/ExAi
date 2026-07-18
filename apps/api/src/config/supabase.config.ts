@@ -10,4 +10,5 @@ export default registerAs('supabase', () => ({
   url: process.env.API_SUPABASE_URL,
   serviceRoleKey: process.env.API_SUPABASE_SERVICE_ROLE_KEY,
   jwtSecret: process.env.API_SUPABASE_JWT_SECRET,
+  publicWebOrigin: process.env.API_PUBLIC_WEB_ORIGIN,
 }));

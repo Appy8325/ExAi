@@ -5,17 +5,17 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
-    "api#openapi:emit": {
+    "@concourse/api-client#build": {
       "dependsOn": ["^build"],
-      "outputs": ["packages/api-contract/openapi/**"]
+      "outputs": []
     },
-    "api-client#build": {
-      "dependsOn": ["^build", "api#openapi:emit"],
-      "outputs": ["dist/**"]
-    },
+    "@concourse/ai#build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "@concourse/flags#build": { "dependsOn": ["^build"], "outputs": [] },
+    "@concourse/notifications#build": { "dependsOn": ["^build"], "outputs": [] },
+    "@concourse/ui#build": { "dependsOn": ["^build"], "outputs": [] },
     "lint": { "dependsOn": ["^build"] },
     "typecheck": { "dependsOn": ["^build"] },
-    "test": { "dependsOn": ["build"], "outputs": ["coverage/**"] },
+    "test": { "dependsOn": ["build"] },
     "test:integration": { "dependsOn": ["build"], "cache": false },
     "e2e": { "dependsOn": ["build"], "cache": false },
     "clean": { "cache": false },

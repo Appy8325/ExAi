@@ -1,4 +1,6 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Inject, ServiceUnavailableException } from '@nestjs/common';
+import { sql } from 'drizzle-orm';
+import { DATABASE_CLIENT, type DatabaseClient } from '../../common/database-client';
 
 /**
  * HealthController — /healthz, /readyz (unauthenticated, ALB-internal),
@@ -12,13 +14,20 @@ import { Controller, Get } from '@nestjs/common';
  */
 @Controller()
 export class HealthController {
+  constructor(@Inject(DATABASE_CLIENT) private readonly database: DatabaseClient) {}
+
   @Get('healthz')
   healthz(): { status: 'ok' } {
     return { status: 'ok' };
   }
 
   @Get('readyz')
-  readyz(): { status: 'ok' } {
-    return { status: 'ok' };
+  async readyz(): Promise<{ status: 'ok' }> {
+    try {
+      await this.database.execute(sql`SELECT 1`);
+      return { status: 'ok' };
+    } catch {
+      throw new ServiceUnavailableException('Database is unavailable.');
+    }
   }
 }

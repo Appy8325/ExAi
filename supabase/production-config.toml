@@ -28,7 +28,6 @@ site_url = "https://exai.app"
 additional_redirect_urls = ["https://exai.app/auth/callback"]
 jwt_expiry = 3600
 enable_signup = true
-enable_confirmations = false
 
 [auth.email]
 enable_signup = true

@@ -1,4 +1,5 @@
 node_modules
+**/node_modules
 .git
 .gitignore
 *.md
@@ -7,7 +8,13 @@ node_modules
 .env.*
 !.env.example
 .turbo
+**/.turbo
 .next
+**/.next
 coverage
+**/coverage
 dist
+**/dist
+*.log
+**/*.log
 node_modules

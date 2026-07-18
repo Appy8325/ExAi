@@ -6,7 +6,7 @@ FROM base AS deps
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/worker/package.json apps/worker/
 COPY packages/ packages/
-RUN pnpm install --frozen-lockfile --filter worker... --include-workspace-root
+RUN pnpm install --frozen-lockfile --filter worker... --filter "./packages/**" --include-workspace-root
 
 FROM deps AS builder
 COPY . .

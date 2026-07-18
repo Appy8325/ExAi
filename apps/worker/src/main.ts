@@ -12,8 +12,11 @@ import { Redis } from 'ioredis';
  * `new Worker(queueName, handler, { connection })` once its real handler
  * lands in a later milestone.
  */
+const redisUrl = process.env.WORKER_REDIS_URL ?? (process.env.NODE_ENV === 'production' ? undefined : 'redis://localhost:6379');
+if (!redisUrl) throw new Error('WORKER_REDIS_URL is required.');
+
 export const connection = new Redis(
-  process.env.WORKER_REDIS_URL ?? 'redis://localhost:6379',
+  redisUrl,
   { maxRetriesPerRequest: null },
 );
 
