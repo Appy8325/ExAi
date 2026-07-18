@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import postgres from "postgres";
@@ -10,6 +11,7 @@ type LocalConfig = {
   dbUrl: string;
   serviceRoleKey: string;
   anonKey: string;
+  writeLocalEnvironment: boolean;
 };
 
 const attendeeNames = [
@@ -58,13 +60,13 @@ async function main() {
     const organizer = await authUser(
       sql,
       config,
-      "organizer@techexpo.local",
+      process.env.DEMO_ORGANIZER_EMAIL ?? "organizer@techexpo.local",
       "Olivia Grant",
     );
     const exhibitorUser = await authUser(
       sql,
       config,
-      "exhibitor@techexpo.local",
+      process.env.DEMO_EXHIBITOR_EMAIL ?? "exhibitor@techexpo.local",
       "Elena Park",
     );
     const attendees = [] as Array<{ id: string; email: string }>;
@@ -92,16 +94,29 @@ async function main() {
         );
         await tx`INSERT INTO organization_memberships(organization_id,user_id,role,status) VALUES (${org.id},${exhibitorUser.id},'owner','active') ON CONFLICT (organization_id,user_id) DO NOTHING`;
         const booth = one(
-          await tx`INSERT INTO event_exhibitors(organization_id,event_id,organizer_organization_id,booth_name,booth_number,description,status) VALUES (${org.id},${event.id},${organizerOrg.id},${name},${number},${description},'ready') ON CONFLICT (event_id,organization_id) DO UPDATE SET booth_name=EXCLUDED.booth_name,booth_number=EXCLUDED.booth_number,description=EXCLUDED.description,status='ready' RETURNING id,booth_name,booth_number`,
+          await tx`INSERT INTO event_exhibitors(organization_id,event_id,organizer_organization_id,booth_name,booth_number,description,website,contact_email,status,published_at) VALUES (${org.id},${event.id},${organizerOrg.id},${name},${number},${description},${`https://${slug}.example.com`},${`hello@${slug}.example.com`},'ready',now()) ON CONFLICT (event_id,organization_id) DO UPDATE SET booth_name=EXCLUDED.booth_name,booth_number=EXCLUDED.booth_number,description=EXCLUDED.description,website=EXCLUDED.website,contact_email=EXCLUDED.contact_email,status='ready',published_at=now() RETURNING id,booth_name,booth_number`,
         );
         const form = one(
-          await tx`INSERT INTO lead_forms(event_exhibitor_id,name,is_default,status) VALUES (${booth.id},'Connect at TechExpo',true,'active') ON CONFLICT (event_exhibitor_id,name) DO UPDATE SET is_default=true,status='active' RETURNING id`,
+          await tx`INSERT INTO lead_forms(event_exhibitor_id,name,consent_text,version,is_default,status) VALUES (${booth.id},'Connect at TechExpo','I agree to share my submitted information with this exhibitor.',1,true,'draft') ON CONFLICT (event_exhibitor_id,name,version) DO UPDATE SET is_default=true RETURNING id,status`,
         );
-        const field = one(
-          await tx`INSERT INTO lead_form_fields(lead_form_id,key,label,type,required,sort_order,validation,status) VALUES (${form.id},'email','Work email','email',true,0,'{}','active') ON CONFLICT (lead_form_id,key) DO UPDATE SET status='active' RETURNING id`,
-        );
+        const existingField =
+          await tx`SELECT id FROM lead_form_fields WHERE lead_form_id=${form.id} AND key='email'`;
+        const field = existingField.length
+          ? one(existingField)
+          : one(
+              await tx`INSERT INTO lead_form_fields(lead_form_id,key,label,type,required,sort_order,validation,status) VALUES (${form.id},'email','Work email','email',true,0,'{}','active') RETURNING id`,
+            );
+        if (form.status === "draft") {
+          await tx`INSERT INTO lead_form_fields(lead_form_id,key,label,type,required,sort_order,validation,status) VALUES (${form.id},'consent','I agree to be contacted','consent_checkbox',true,1,'{}','active') ON CONFLICT (lead_form_id,key) DO NOTHING`;
+          await tx`UPDATE lead_forms SET status='published',published_at=now() WHERE id=${form.id}`;
+        }
+        const publicToken = createHash("sha256")
+          .update(`demo-booth:${booth.id}`)
+          .digest("base64url");
+        await tx`INSERT INTO booth_qr_credentials(event_exhibitor_id,public_token,active) VALUES (${booth.id},${publicToken},true) ON CONFLICT (public_token) DO UPDATE SET active=true,revoked_at=NULL`;
         const demoBooth: DemoBooth = {
           id: booth.id,
+          publicToken,
           name: booth.booth_name,
           number: booth.booth_number ?? number,
           organizationId: org.id,
@@ -139,7 +154,7 @@ async function main() {
       return booths;
     });
     await generateDemoQrCodes(booths);
-    await writeLocalEnvironment(config);
+    if (config.writeLocalEnvironment) await writeLocalEnvironment(config);
   } finally {
     await sql.end();
   }
@@ -149,25 +164,42 @@ async function main() {
 }
 
 function localConfig(): LocalConfig {
+  const configuredApiUrl = process.env.API_SUPABASE_URL;
+  const configuredDbUrl = process.env.API_DATABASE_URL;
+  const configuredServiceRoleKey = process.env.API_SUPABASE_SERVICE_ROLE_KEY;
+  const configuredAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.SUPABASE_ANON_KEY;
+  if (
+    configuredApiUrl &&
+    configuredDbUrl &&
+    configuredServiceRoleKey &&
+    configuredAnonKey
+  ) {
+    return {
+      apiUrl: configuredApiUrl,
+      dbUrl: configuredDbUrl,
+      serviceRoleKey: configuredServiceRoleKey,
+      anonKey: configuredAnonKey,
+      writeLocalEnvironment: false,
+    };
+  }
+
   let output: string;
 
-if (process.platform === "win32") {
-  output = execFileSync(
-    "cmd.exe",
-    ["/c", "npx", "supabase", "status", "-o", "env"],
-    {
+  if (process.platform === "win32") {
+    output = execFileSync(
+      "cmd.exe",
+      ["/c", "npx", "supabase", "status", "-o", "env"],
+      {
+        encoding: "utf8",
+      },
+    );
+  } else {
+    output = execFileSync("npx", ["supabase", "status", "-o", "env"], {
       encoding: "utf8",
-    },
-  );
-} else {
-  output = execFileSync(
-    "npx",
-    ["supabase", "status", "-o", "env"],
-    {
-      encoding: "utf8",
-    },
-  );
-};
+    });
+  }
   const env = Object.fromEntries(
     output
       .split(/\r?\n/)
@@ -181,7 +213,13 @@ if (process.platform === "win32") {
   const anonKey = env.ANON_KEY ?? env.SUPABASE_ANON_KEY;
   if (!apiUrl || !dbUrl || !serviceRoleKey || !anonKey)
     throw new Error("Start local Supabase before running the demo seed.");
-  return { apiUrl, dbUrl, serviceRoleKey, anonKey };
+  return {
+    apiUrl,
+    dbUrl,
+    serviceRoleKey,
+    anonKey,
+    writeLocalEnvironment: true,
+  };
 }
 
 async function authUser(

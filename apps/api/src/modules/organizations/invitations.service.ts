@@ -1,13 +1,17 @@
 import { createHash, randomBytes } from "node:crypto";
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { and, desc, eq, gt, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import { db, setRlsContext } from "@concourse/database";
 import {
   authTokens,
+  eventExhibitors,
   events,
   organizationMemberships,
+  organizations,
   users,
 } from "@concourse/database/schema";
+
+import { organizationSlug } from "./organizations.service";
 
 const INVITATION_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -28,6 +32,8 @@ export type InvitationPayload =
       email: string;
       companyName: string;
       invitedByUserId?: string;
+      exhibitorOrganizationId?: string;
+      eventExhibitorId?: string;
     }
   | {
       type: Exclude<DeferredInvitationType, "event_exhibitor_claim">;
@@ -313,30 +319,12 @@ export class InvitationsService {
       }
       const payload = this.validateInvitation(invitation);
 
-      if (payload.type !== "organization_membership") {
+      if (
+        payload.type !== "organization_membership" &&
+        payload.type !== "event_exhibitor_claim"
+      ) {
         return { status: "not_supported" as const, type: payload.type };
       }
-
-      await setRlsContext(tx, payload.organizationId, input.userId);
-
-      const acceptedMembership = async () => {
-        const [membership] = await tx
-          .select()
-          .from(organizationMemberships)
-          .where(
-            and(
-              eq(
-                organizationMemberships.organizationId,
-                payload.organizationId,
-              ),
-              eq(organizationMemberships.userId, input.userId),
-            ),
-          );
-        if (!membership || membership.status !== "active") {
-          throw new BadRequestException("Invitation acceptance is incomplete.");
-        }
-        return { status: "accepted" as const, membership };
-      };
 
       const [user] = await tx
         .select()
@@ -347,7 +335,7 @@ export class InvitationsService {
       }
 
       if (invitation.usedAt) {
-        return acceptedMembership();
+        return acceptedInvitation(tx, payload, input.userId);
       }
 
       const [consumed] = await tx
@@ -368,11 +356,36 @@ export class InvitationsService {
           .from(authTokens)
           .where(eq(authTokens.id, invitation.id));
         if (current?.usedAt) {
-          return acceptedMembership();
+          return acceptedInvitation(
+            tx,
+            this.validateInvitation(current),
+            input.userId,
+          );
         }
         throw new BadRequestException("Invitation is invalid or expired.");
       }
 
+      if (payload.type === "event_exhibitor_claim") {
+        const accepted = await acceptEventExhibitor(
+          tx,
+          invitation,
+          payload,
+          input.userId,
+        );
+        await tx
+          .update(authTokens)
+          .set({
+            payload: {
+              ...payload,
+              exhibitorOrganizationId: accepted.organizationId,
+              eventExhibitorId: accepted.eventExhibitorId,
+            },
+          })
+          .where(eq(authTokens.id, invitation.id));
+        return accepted;
+      }
+
+      await setRlsContext(tx, payload.organizationId, input.userId);
       const [membership] = await tx
         .insert(organizationMemberships)
         .values({
@@ -410,4 +423,168 @@ export class InvitationsService {
     }
     return invitation.payload;
   }
+}
+
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+type EventClaim = Extract<InvitationPayload, { type: "event_exhibitor_claim" }>;
+
+async function acceptedInvitation(
+  tx: Transaction,
+  payload: InvitationPayload,
+  userId: string,
+) {
+  if (payload.type === "organization_membership") {
+    await setRlsContext(tx, payload.organizationId, userId);
+    const [membership] = await tx
+      .select()
+      .from(organizationMemberships)
+      .where(
+        and(
+          eq(organizationMemberships.organizationId, payload.organizationId),
+          eq(organizationMemberships.userId, userId),
+        ),
+      );
+    if (!membership || membership.status !== "active") {
+      throw new BadRequestException("Invitation acceptance is incomplete.");
+    }
+    return { status: "accepted" as const, type: payload.type, membership };
+  }
+  if (
+    payload.type !== "event_exhibitor_claim" ||
+    !payload.exhibitorOrganizationId ||
+    !payload.eventExhibitorId
+  ) {
+    throw new BadRequestException("Invitation acceptance is incomplete.");
+  }
+  await setRlsContext(tx, payload.exhibitorOrganizationId, userId);
+  const [membership] = await tx
+    .select({ id: organizationMemberships.id })
+    .from(organizationMemberships)
+    .where(
+      and(
+        eq(
+          organizationMemberships.organizationId,
+          payload.exhibitorOrganizationId,
+        ),
+        eq(organizationMemberships.userId, userId),
+        eq(organizationMemberships.status, "active"),
+      ),
+    );
+  const [participation] = await tx
+    .select({ id: eventExhibitors.id })
+    .from(eventExhibitors)
+    .where(
+      and(
+        eq(eventExhibitors.id, payload.eventExhibitorId),
+        eq(eventExhibitors.organizationId, payload.exhibitorOrganizationId),
+      ),
+    );
+  if (!membership || !participation) {
+    throw new BadRequestException("Invitation acceptance is incomplete.");
+  }
+  return eventClaimResult(
+    payload.exhibitorOrganizationId,
+    payload.eventExhibitorId,
+  );
+}
+
+async function acceptEventExhibitor(
+  tx: Transaction,
+  invitation: typeof authTokens.$inferSelect,
+  payload: EventClaim,
+  userId: string,
+) {
+  const [existingOrganization] = await tx
+    .select({ id: organizations.id })
+    .from(organizations)
+    .innerJoin(
+      organizationMemberships,
+      eq(organizationMemberships.organizationId, organizations.id),
+    )
+    .where(
+      and(
+        eq(organizations.kind, "exhibitor"),
+        eq(organizationMemberships.userId, userId),
+        eq(organizationMemberships.status, "active"),
+        sql`lower(${organizations.name}) = ${payload.companyName.toLowerCase()}`,
+      ),
+    )
+    .limit(1);
+
+  let organizationId = existingOrganization?.id;
+  if (!organizationId) {
+    const [generated] = await tx.execute<{ id: string }>(
+      sql`SELECT concourse.uuid_generate_v7() AS id`,
+    );
+    if (!generated)
+      throw new Error("Organization ID generation returned no row.");
+    organizationId = generated.id;
+    const candidate = organizationSlug(payload.companyName);
+    const baseSlug =
+      candidate.length >= 3 ? candidate : `exhibitor-${candidate || "company"}`;
+    const [conflict] = await tx
+      .select({ id: organizations.id })
+      .from(organizations)
+      .where(eq(organizations.slug, baseSlug));
+    const suffix = invitation.id.replaceAll("-", "").slice(-8);
+    const slug = conflict
+      ? `${baseSlug.slice(0, 54).replace(/-+$/, "")}-${suffix}`
+      : baseSlug;
+
+    await setRlsContext(tx, organizationId, userId);
+    await tx.insert(organizations).values({
+      id: organizationId,
+      kind: "exhibitor",
+      name: payload.companyName,
+      slug,
+    });
+    await tx.insert(organizationMemberships).values({
+      organizationId,
+      userId,
+      role: "owner",
+      status: "active",
+      invitedByUserId: payload.invitedByUserId,
+    });
+  } else {
+    await setRlsContext(tx, organizationId, userId);
+  }
+
+  const [created] = await tx
+    .insert(eventExhibitors)
+    .values({
+      organizationId,
+      organizerOrganizationId: invitation.organizationId!,
+      eventId: payload.eventId,
+      boothName: payload.companyName,
+      contactEmail: payload.email,
+      status: "accepted",
+    })
+    .onConflictDoNothing({
+      target: [eventExhibitors.eventId, eventExhibitors.organizationId],
+    })
+    .returning({ id: eventExhibitors.id });
+  const [existing] = created
+    ? [created]
+    : await tx
+        .select({ id: eventExhibitors.id })
+        .from(eventExhibitors)
+        .where(
+          and(
+            eq(eventExhibitors.eventId, payload.eventId),
+            eq(eventExhibitors.organizationId, organizationId),
+          ),
+        );
+  if (!existing)
+    throw new Error("Event participation creation returned no row.");
+  return eventClaimResult(organizationId, existing.id);
+}
+
+function eventClaimResult(organizationId: string, eventExhibitorId: string) {
+  return {
+    status: "accepted" as const,
+    type: "event_exhibitor_claim" as const,
+    organizationId,
+    eventExhibitorId,
+    redirectTo: `/exhibit/${organizationId}/settings?eeId=${eventExhibitorId}`,
+  };
 }

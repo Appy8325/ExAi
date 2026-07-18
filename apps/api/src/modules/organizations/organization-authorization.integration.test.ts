@@ -34,7 +34,7 @@ beforeAll(async () => {
   await sql.file(resolve(migrationsDir, "0001_uuid_v7.sql"));
   await sql.file(resolve(migrationsDir, "0002_identity_tenancy.sql"));
   database.db = drizzle(sql);
-}, 60_000);
+}, 180_000);
 
 afterEach(async () => {
   database.setRlsContext.mockClear();

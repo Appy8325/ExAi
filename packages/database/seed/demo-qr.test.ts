@@ -23,6 +23,7 @@ describe("demo QR generation", () => {
       [
         {
           id: "booth-1",
+          publicToken: "public-token-1",
           name: "Northstar Cloud",
           number: "A-101",
           organizationId: "org-1",
@@ -37,5 +38,8 @@ describe("demo QR generation", () => {
     await expect(
       readFile(join(root, "demo", "qr", "manifest.json"), "utf8"),
     ).resolves.toContain('"id": "booth-1"');
+    await expect(
+      readFile(join(root, "demo", "qr", "manifest.json"), "utf8"),
+    ).resolves.toContain('"publicToken": "public-token-1"');
   });
 });

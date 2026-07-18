@@ -11,11 +11,12 @@ const booth = {
   logoUrl: null,
   description: "Relationship intelligence",
   website: null,
+  eventSlug: "techexpo-2027",
 };
 
 describe("BoothExperience", () => {
   it("renders the mobile-first public booth and connect action", () => {
-    const html = renderToStaticMarkup(<BoothExperience booth={booth} connected={false} />);
+    const html = renderToStaticMarkup(<BoothExperience booth={booth} publicQrToken="qr-token" connected={false} />);
 
     expect(html).toContain("Acme");
     expect(html).toContain("Products &amp; services");
@@ -23,7 +24,7 @@ describe("BoothExperience", () => {
   });
 
   it("shows the accessible profile and consent step after enrollment", () => {
-    const html = renderToStaticMarkup(<BoothExperience booth={booth} connected />);
+    const html = renderToStaticMarkup(<BoothExperience booth={booth} publicQrToken="qr-token" connected />);
 
     expect(html).toContain("Complete your profile");
     expect(html).toContain('name="shareProfileWithExhibitors"');

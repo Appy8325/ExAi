@@ -4,6 +4,7 @@ import { DATABASE_CLIENT, type DatabaseClient } from "../../common/database-clie
 
 type ExhibitorRow = {
   id: string;
+  organization_id: string;
   company_name: string;
   booth_name: string;
   booth_number: string | null;
@@ -36,13 +37,14 @@ export class PublicExhibitorsService {
 
   async listExhibitors(eventId: string, search?: string) {
     let query = sql<ExhibitorRow>`
-      SELECT booth.id, organization.name AS company_name, booth.booth_name,
+      SELECT booth.id, booth.organization_id, organization.name AS company_name, booth.booth_name,
         booth.booth_number, booth.logo_url, booth.description, booth.website,
         booth.social_links, booth.contact_email, booth.contact_phone
       FROM event_exhibitors booth
       JOIN organizations organization ON organization.id = booth.organization_id
       WHERE booth.event_id = ${eventId}
-        AND booth.status NOT IN ('archived','withdrawn')
+        AND booth.status = 'ready'
+        AND EXISTS (SELECT 1 FROM events event WHERE event.id = booth.event_id AND event.status IN ('published','live'))
     `;
     if (search?.trim()) {
       const term = `%${search.trim()}%`;
@@ -58,14 +60,15 @@ export class PublicExhibitorsService {
   async findExhibitor(eventId: string, exhibitorId: string) {
     const rows = await this.database.execute(
       sql<ExhibitorRow>`
-        SELECT booth.id, organization.name AS company_name, booth.booth_name,
+        SELECT booth.id, booth.organization_id, organization.name AS company_name, booth.booth_name,
           booth.booth_number, booth.logo_url, booth.description, booth.website,
           booth.social_links, booth.contact_email, booth.contact_phone
         FROM event_exhibitors booth
         JOIN organizations organization ON organization.id = booth.organization_id
         WHERE booth.event_id = ${eventId}
           AND booth.id = ${exhibitorId}
-          AND booth.status NOT IN ('archived','withdrawn')
+          AND booth.status = 'ready'
+          AND EXISTS (SELECT 1 FROM events event WHERE event.id = booth.event_id AND event.status IN ('published','live'))
         LIMIT 1
       `,
     );
@@ -78,6 +81,7 @@ export class PublicExhibitorsService {
 function exhibitorRow(row: ExhibitorRow) {
   return {
     id: row.id,
+    organizationId: row.organization_id,
     companyName: row.company_name,
     boothName: row.booth_name,
     boothNumber: row.booth_number,

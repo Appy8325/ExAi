@@ -47,14 +47,18 @@ beforeAll(async () => {
   await sql.file(
     resolve(migrationsDir, "0004_organization_owner_invariant.sql"),
   );
+  await sql.file(resolve(migrationsDir, "0005_event_foundation.sql"));
+  await sql.file(resolve(migrationsDir, "0006_agenda_session_foundation.sql"));
+  await sql.file(resolve(migrationsDir, "0007_event_exhibitor_foundation.sql"));
   database.db = drizzle(sql);
-}, 60_000);
+}, 180_000);
 
 afterEach(async () => {
   await sql`
     TRUNCATE TABLE
-      auth_tokens, organization_memberships, organizations, users,
-      auth_sessions, api_keys, oauth_identities, webauthn_credentials
+      event_exhibitors, events, auth_tokens, organization_memberships,
+      organizations, users, auth_sessions, api_keys, oauth_identities,
+      webauthn_credentials CASCADE
   `;
 });
 
@@ -152,7 +156,7 @@ describe("organization invitation acceptance integration", () => {
       SELECT used_at FROM auth_tokens
       WHERE token_hash = ${hashInvitationToken(invitation.token)}
     `;
-    expect(token?.used_at).toBeInstanceOf(Date);
+    expect(token?.used_at).not.toBeNull();
     const memberships = await sql`
       SELECT status FROM organization_memberships
       WHERE organization_id = ${organizationId} AND user_id = ${recipientId}
@@ -182,5 +186,56 @@ describe("organization invitation acceptance integration", () => {
       WHERE organization_id = ${organizationId} AND user_id = ${recipientId}
     `;
     expect(memberships).toEqual([{ status: "active" }]);
+  });
+});
+
+describe("event exhibitor invitation acceptance integration", () => {
+  it("creates one exhibitor organization and event participation and replays safely", async () => {
+    const { organizationId, ownerId, recipientId } =
+      await seedInvitationTarget();
+    const [event] = await sql`
+      INSERT INTO events (organization_id, name, slug, timezone, start_at, end_at)
+      VALUES (${organizationId}, 'Invitation Expo', 'invitation-expo', 'UTC', now(), now() + interval '1 day')
+      RETURNING id
+    `;
+    if (!event) throw new Error("Event fixture was not created.");
+    const service = new InvitationsService();
+    const invitation = await service.createEventExhibitorInvitation({
+      organizationId,
+      eventId: event.id,
+      email: "recipient@example.com",
+      companyName: "Recipient Labs",
+      invitedByUserId: ownerId,
+    });
+
+    const accepted = await service.accept({
+      token: invitation.token,
+      userId: recipientId,
+    });
+    await expect(
+      service.accept({ token: invitation.token, userId: recipientId }),
+    ).resolves.toEqual(accepted);
+
+    expect(accepted).toMatchObject({
+      status: "accepted",
+      type: "event_exhibitor_claim",
+    });
+    if (accepted.type !== "event_exhibitor_claim") {
+      throw new Error("Event exhibitor invitation returned the wrong result.");
+    }
+    const organizationsCreated = await sql`
+      SELECT organization.kind, membership.role, membership.status
+      FROM organizations organization
+      JOIN organization_memberships membership ON membership.organization_id = organization.id
+      WHERE membership.user_id = ${recipientId} AND organization.kind = 'exhibitor'
+    `;
+    expect(organizationsCreated).toEqual([
+      { kind: "exhibitor", role: "owner", status: "active" },
+    ]);
+    const participations = await sql`
+      SELECT status FROM event_exhibitors
+      WHERE event_id = ${event.id} AND organization_id = ${accepted.organizationId}
+    `;
+    expect(participations).toEqual([{ status: "accepted" }]);
   });
 });

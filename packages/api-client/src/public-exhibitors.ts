@@ -145,12 +145,12 @@ export function unsaveExhibitor(
 
 export function enrollAtBooth(
   client: PublicApiClient,
-  boothId: string,
+  publicQrToken: string,
   email: string,
 ) {
   return publicRequest<{ id: string }>(
     client,
-    `/v1/public/booths/${encodeURIComponent(boothId)}/enroll`,
+    `/v1/public/booths/${encodeURIComponent(publicQrToken)}/enroll`,
     {
       method: "POST",
       body: JSON.stringify({ email }),

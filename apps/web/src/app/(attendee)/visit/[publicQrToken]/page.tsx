@@ -15,7 +15,7 @@ async function Booth({ params, searchParams }: { params: Promise<{ publicQrToken
   const [{ publicQrToken }, { connected }] = await Promise.all([params, searchParams]);
   try {
     const booth = await getPublicBooth({ baseUrl: getApiBaseUrl() }, publicQrToken);
-    return <BoothExperience booth={booth} connected={connected === "1"} />;
+    return <BoothExperience booth={booth} publicQrToken={publicQrToken} connected={connected === "1"} />;
   } catch (error) {
     const unavailable = error instanceof ApiError && error.status === 404;
     return <main className="mx-auto min-h-screen max-w-(--mq-attendee-content-max) bg-canvas px-gutter py-section"><EmptyState description={unavailable ? "This QR code is no longer active." : "Check your connection and try again."} title={unavailable ? "Booth unavailable" : "Unable to load this booth"} /></main>;

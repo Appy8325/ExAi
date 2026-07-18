@@ -14,6 +14,7 @@ describe("PlatformEnrollmentService public booth projection", () => {
           logo_url: "https://assets.example/logo.png",
           description: "Relationship intelligence",
           website: "https://acme.example",
+          event_slug: "techexpo-2027",
         },
       ]),
     };
@@ -27,6 +28,7 @@ describe("PlatformEnrollmentService public booth projection", () => {
       logoUrl: "https://assets.example/logo.png",
       description: "Relationship intelligence",
       website: "https://acme.example",
+      eventSlug: "techexpo-2027",
     });
   });
 

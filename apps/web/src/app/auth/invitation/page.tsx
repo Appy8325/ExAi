@@ -65,7 +65,8 @@ export default function InvitationCallbackPage() {
           );
         }
 
-        const next = params.get("next");
+        const accepted = (await response.json()) as { redirectTo?: string };
+        const next = accepted.redirectTo ?? params.get("next");
         if (!cancelled) router.replace(isLocalPath(next) ? next : "/demo");
       } catch (cause) {
         if (!cancelled) {

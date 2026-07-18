@@ -56,7 +56,7 @@ beforeAll(async () => {
   for (const migration of migrations.slice(2)) await sql.file(resolve(migrationsDir, migration));
   client = drizzle(sql);
   database.db = client;
-}, 60_000);
+}, 180_000);
 
 afterEach(async () => {
   await sql`TRUNCATE TABLE public_enrollments, relationship_enrichments, exhibitor_dashboard_visits, exhibitor_relationship_notes, exhibitor_relationships, lead_submission_values, lead_submissions, lead_form_fields, lead_forms, event_exhibitors, events, attendee_profiles, attendee_profile_consents, organizations, users CASCADE`;

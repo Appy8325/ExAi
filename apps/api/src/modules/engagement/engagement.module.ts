@@ -31,6 +31,12 @@ import {
   OrganizerBootstrapController,
   OrganizerManagementController,
 } from "./organizer-management.controller";
+import {
+  ExhibitorBootstrapController,
+  ExhibitorWorkspaceController,
+} from "./exhibitor-workspace.controller";
+import { ExhibitorWorkspaceRepository } from "./exhibitor-workspace.repository";
+import { ExhibitorWorkspaceService } from "./exhibitor-workspace.service";
 
 @Module({
   imports: [AuthModule, OrganizationsModule, EventsModule],
@@ -45,6 +51,8 @@ import {
     OrganizerOverviewController,
     OrganizerBootstrapController,
     OrganizerManagementController,
+    ExhibitorBootstrapController,
+    ExhibitorWorkspaceController,
   ],
   providers: [
     { provide: DATABASE_CLIENT, useValue: db },
@@ -63,6 +71,8 @@ import {
     PublicExhibitorsService,
     AttendeeRelationshipsService,
     OrganizerOverviewService,
+    ExhibitorWorkspaceRepository,
+    ExhibitorWorkspaceService,
   ],
   exports: [
     LeadFormsService,

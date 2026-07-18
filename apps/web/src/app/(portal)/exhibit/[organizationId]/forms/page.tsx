@@ -1,7 +1,7 @@
-import { KnowledgeSources } from "../exhibitor-forms";
+import { LeadFormEditor } from "../exhibitor-forms";
 import { loadExhibitorWorkspace } from "@/lib/exhibitor";
 
-export default async function DocumentsPage({
+export default async function LeadFormsPage({
   params,
   searchParams,
 }: {
@@ -27,16 +27,13 @@ export default async function DocumentsPage({
         <p className="text-sm font-medium text-secondary">
           {workspace.event.name}
         </p>
-        <h1 className="mt-1 text-2xl font-semibold text-primary">
-          Company knowledge
-        </h1>
+        <h1 className="mt-1 text-2xl font-semibold text-primary">Lead form</h1>
         <p className="mt-2 text-sm text-secondary">
-          Upload PDFs, brochures, presentations, FAQs, pricing, or register a
-          public website. Files stay private while security and indexing are
-          pending.
+          Published versions are immutable. Saving changes after publication
+          creates a new draft version.
         </p>
       </header>
-      <KnowledgeSources workspace={workspace} />
+      <LeadFormEditor workspace={workspace} />
     </main>
   );
 }

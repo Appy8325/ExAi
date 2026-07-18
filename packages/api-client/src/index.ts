@@ -13,3 +13,4 @@
 
 export * from "./relationship-workspace";
 export * from "./public-exhibitors";
+export * from "./exhibitor-workspace";

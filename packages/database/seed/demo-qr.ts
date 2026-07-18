@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 
 export type DemoBooth = {
   id: string;
+  publicToken: string;
   name: string;
   number: string;
   organizationId: string;
@@ -23,7 +24,7 @@ export async function generateDemoQrCodes(
           folder,
           `booth-${booth.number.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.png`,
         ),
-        `http://localhost:3000/visit/${booth.id}`,
+        `http://localhost:3000/visit/${booth.publicToken}`,
         { width: 640, margin: 2 },
       ),
     ),

@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useParams, useRouter } from "next/navigation";
+import {
+  usePathname,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 import { useAuthSession } from "@/components/auth/session-provider";
 
@@ -9,21 +14,23 @@ const nav = [
   { label: "Dashboard", href: "", icon: "grid" },
   { label: "Attendees", href: "/attendees", icon: "users" },
   { label: "AI Insights", href: "/ai-insights", icon: "sparkle" },
-  { label: "Documents", href: "/documents", icon: "file" },
-  { label: "Team", href: "/team", icon: "team" },
-  { label: "Settings", href: "/settings", icon: "gear" },
+  { label: "Knowledge", href: "/documents", icon: "file" },
+  { label: "Lead form", href: "/forms", icon: "team" },
+  { label: "Booth QR", href: "/qr", icon: "qr" },
+  { label: "Booth settings", href: "/settings", icon: "gear" },
 ] as const;
 
 export function Sidebar() {
   const pathname = usePathname();
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, signOut, state } = useAuthSession();
 
   const orgId = params.organizationId as string;
   const base = `/exhibit/${orgId}`;
   const match = pathname.match(/\/exhibit\/[^/]+\/dashboard\/([^/]+)/);
-  const eeId = match?.[1];
+  const eeId = match?.[1] ?? searchParams.get("eeId") ?? undefined;
 
   const items = nav.map((item) => {
     if (item.label === "Dashboard") {
@@ -47,7 +54,10 @@ export function Sidebar() {
 
   return (
     <aside className="flex w-60 flex-col border-r border-default bg-surface">
-      <Link href="/" className="flex h-14 items-center gap-2 border-b border-default px-4">
+      <Link
+        href="/"
+        className="flex h-14 items-center gap-2 border-b border-default px-4"
+      >
         <div className="flex size-7 items-center justify-center rounded-md bg-brand text-sm font-bold text-on-brand">
           E
         </div>
@@ -115,18 +125,115 @@ function Icon({ name }: { name: string }) {
   const cls = "size-4 shrink-0";
   switch (name) {
     case "grid":
-      return <svg className={cls} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1.5" y="1.5" width="5" height="5" rx="1" /><rect x="9.5" y="1.5" width="5" height="5" rx="1" /><rect x="1.5" y="9.5" width="5" height="5" rx="1" /><rect x="9.5" y="9.5" width="5" height="5" rx="1" /></svg>;
+      return (
+        <svg
+          className={cls}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <rect x="1.5" y="1.5" width="5" height="5" rx="1" />
+          <rect x="9.5" y="1.5" width="5" height="5" rx="1" />
+          <rect x="1.5" y="9.5" width="5" height="5" rx="1" />
+          <rect x="9.5" y="9.5" width="5" height="5" rx="1" />
+        </svg>
+      );
     case "users":
-      return <svg className={cls} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="6" cy="4" r="3" /><path d="M1 14c0-3.3 2.2-6 5-6s5 2.7 5 6" /><circle cx="11" cy="4" r="2.5" /><path d="M11 9c2.3 0 4 1.3 4 5" /></svg>;
+      return (
+        <svg
+          className={cls}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <circle cx="6" cy="4" r="3" />
+          <path d="M1 14c0-3.3 2.2-6 5-6s5 2.7 5 6" />
+          <circle cx="11" cy="4" r="2.5" />
+          <path d="M11 9c2.3 0 4 1.3 4 5" />
+        </svg>
+      );
     case "sparkle":
-      return <svg className={cls} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 1.5l1.5 3.5 3.5 1.5-3.5 1.5L8 11.5 6.5 8 3 6.5l3.5-1.5L8 1.5z" /><path d="M12 11l.7 1.3 1.3.7-1.3.7L12 14l-.7-1.3-1.3-.7 1.3-.7L12 11z" /></svg>;
+      return (
+        <svg
+          className={cls}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <path d="M8 1.5l1.5 3.5 3.5 1.5-3.5 1.5L8 11.5 6.5 8 3 6.5l3.5-1.5L8 1.5z" />
+          <path d="M12 11l.7 1.3 1.3.7-1.3.7L12 14l-.7-1.3-1.3-.7 1.3-.7L12 11z" />
+        </svg>
+      );
     case "file":
-      return <svg className={cls} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 1.5h5.5L13 5v9.5a1 1 0 01-1 1H4a1 1 0 01-1-1v-12a1 1 0 011-1z" /><path d="M9.5 1.5V5h3.5" /></svg>;
+      return (
+        <svg
+          className={cls}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <path d="M4 1.5h5.5L13 5v9.5a1 1 0 01-1 1H4a1 1 0 01-1-1v-12a1 1 0 011-1z" />
+          <path d="M9.5 1.5V5h3.5" />
+        </svg>
+      );
     case "team":
-      return <svg className={cls} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="5" cy="4.5" r="2.5" /><path d="M1 13.5c0-2.2 1.8-4 4-4s4 1.8 4 4" /><circle cx="11" cy="4.5" r="2" /><path d="M11 9.5c1.9 0 4 1.3 4 4" /></svg>;
+      return (
+        <svg
+          className={cls}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <circle cx="5" cy="4.5" r="2.5" />
+          <path d="M1 13.5c0-2.2 1.8-4 4-4s4 1.8 4 4" />
+          <circle cx="11" cy="4.5" r="2" />
+          <path d="M11 9.5c1.9 0 4 1.3 4 4" />
+        </svg>
+      );
     case "gear":
-      return <svg className={cls} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="8" cy="8" r="2.5" /><path d="M8 1.5v2M8 12.5v2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M1.5 8h2M12.5 8h2M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" /></svg>;
+      return (
+        <svg
+          className={cls}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <circle cx="8" cy="8" r="2.5" />
+          <path d="M8 1.5v2M8 12.5v2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M1.5 8h2M12.5 8h2M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" />
+        </svg>
+      );
+    case "qr":
+      return (
+        <svg
+          className={cls}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <rect x="1.5" y="1.5" width="5" height="5" />
+          <rect x="9.5" y="1.5" width="5" height="5" />
+          <rect x="1.5" y="9.5" width="5" height="5" />
+          <path d="M10 10h1v1h-1zM13 10h1v4h-1zM10 13h2v1h-2z" />
+        </svg>
+      );
     default:
-      return <svg className={cls} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="8" cy="8" r="3" /></svg>;
+      return (
+        <svg
+          className={cls}
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        >
+          <circle cx="8" cy="8" r="3" />
+        </svg>
+      );
   }
 }

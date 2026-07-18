@@ -1,7 +1,7 @@
-import { KnowledgeSources } from "../exhibitor-forms";
+import { QrPanel } from "../exhibitor-forms";
 import { loadExhibitorWorkspace } from "@/lib/exhibitor";
 
-export default async function DocumentsPage({
+export default async function QrPage({
   params,
   searchParams,
 }: {
@@ -27,16 +27,9 @@ export default async function DocumentsPage({
         <p className="text-sm font-medium text-secondary">
           {workspace.event.name}
         </p>
-        <h1 className="mt-1 text-2xl font-semibold text-primary">
-          Company knowledge
-        </h1>
-        <p className="mt-2 text-sm text-secondary">
-          Upload PDFs, brochures, presentations, FAQs, pricing, or register a
-          public website. Files stay private while security and indexing are
-          pending.
-        </p>
+        <h1 className="mt-1 text-2xl font-semibold text-primary">Booth QR</h1>
       </header>
-      <KnowledgeSources workspace={workspace} />
+      <QrPanel workspace={workspace} />
     </main>
   );
 }

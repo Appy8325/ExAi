@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import type { FormEvent } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ApiError, enrollAtBooth, updateAttendeeProfile } from "@concourse/api-client";
 import type { PublicBooth } from "@concourse/api-client";
@@ -12,7 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 
 type Step = "landing" | "email" | "sent" | "profile" | "success";
 
-export function BoothExperience({ booth, connected }: { booth: PublicBooth & { eventSlug?: string }; connected: boolean }) {
+export function BoothExperience({ booth, publicQrToken, connected }: { booth: PublicBooth & { eventSlug?: string }; publicQrToken: string; connected: boolean }) {
   const [step, setStep] = useState<Step>(connected ? "profile" : "landing");
   const [error, setError] = useState<string>();
   const [pending, startTransition] = useTransition();
@@ -24,7 +25,7 @@ export function BoothExperience({ booth, connected }: { booth: PublicBooth & { e
     setError(undefined);
     startTransition(async () => {
       try {
-        await enrollAtBooth({ baseUrl: getApiBaseUrl() }, booth.id, email);
+        await enrollAtBooth({ baseUrl: getApiBaseUrl() }, publicQrToken, email);
         setStep("sent");
       } catch (cause) {
         setError(cause instanceof ApiError && cause.status === 404 ? "This booth is no longer available." : "We could not send your Magic Link. Please try again.");
@@ -80,7 +81,15 @@ function BoothHeader({ booth }: { booth: PublicBooth }) {
   return (
     <header className="space-y-4">
       {booth.logoUrl ? (
-        <img alt={`${booth.companyName} logo`} className="h-16 w-16 rounded-md border border-default object-contain" decoding="async" fetchPriority="high" src={booth.logoUrl} />
+        <Image
+          alt={`${booth.companyName} logo`}
+          className="h-16 w-16 rounded-md border border-default object-contain"
+          height={64}
+          priority
+          src={booth.logoUrl}
+          unoptimized
+          width={64}
+        />
       ) : (
         <div aria-hidden="true" className="flex h-16 w-16 items-center justify-center rounded-md bg-brand text-title font-semibold text-on-brand">{initials}</div>
       )}

@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@concourse/config": "workspace:*",
+    "@next/eslint-plugin-next": "^15.5.20",
     "@playwright/test": "^1.49.1",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/react": "^19.0.0",
