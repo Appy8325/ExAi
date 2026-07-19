@@ -40,6 +40,7 @@ import { ExhibitorWorkspaceRepository } from "./exhibitor-workspace.repository";
 import { ExhibitorWorkspaceService } from "./exhibitor-workspace.service";
 import { LeadIntelligenceService } from "./lead-intelligence.service";
 import { OrganizerReportingService } from "./organizer-reporting.service";
+import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor";
 
 @Module({
   imports: [AuthModule, OrganizationsModule, EventsModule, AiModule],
@@ -78,6 +79,7 @@ import { OrganizerReportingService } from "./organizer-reporting.service";
     OrganizerReportingService,
     ExhibitorWorkspaceRepository,
     ExhibitorWorkspaceService,
+    { provide: TaskExecutor, useClass: DeploymentTaskExecutor },
   ],
   exports: [
     LeadFormsService,

@@ -1,5 +1,7 @@
 # ExAi deployment guide
 
+> **TODO before public production release:** re-enable ClamAV malware scanning. The Vercel-only waiver in `MVP_SECURITY_WAIVER.md` is restricted to demonstrations and controlled pilots.
+
 This guide deploys the working demo as three services:
 
 - `apps/web`: Next.js on Vercel

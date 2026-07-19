@@ -8,6 +8,8 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { createClient } from "@supabase/supabase-js";
 import QRCode from "qrcode";
+import { validateKnowledgeUpload } from "@concourse/ai/knowledge/security";
+import { TaskExecutor } from "../../common/task-executor";
 
 import {
   ExhibitorWorkspaceRepository,
@@ -33,23 +35,12 @@ const FIELD_TYPES = new Set([
   "checkbox",
   "consent_checkbox",
 ]);
-const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
-const CONTENT_TYPES: Record<string, ReadonlySet<string>> = {
-  pdf: new Set(["application/pdf"]),
-  brochure: new Set(["application/pdf"]),
-  presentation: new Set([
-    "application/pdf",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  ]),
-  faq: new Set(["application/pdf", "text/plain"]),
-  pricing: new Set(["application/pdf", "text/plain"]),
-};
-
 @Injectable()
 export class ExhibitorWorkspaceService {
   constructor(
     private readonly repository: ExhibitorWorkspaceRepository,
     private readonly config: ConfigService,
+    private readonly taskExecutor: TaskExecutor,
   ) {}
 
   async overview(userId: string) {
@@ -148,24 +139,16 @@ export class ExhibitorWorkspaceService {
       });
       if (!source)
         throw new NotFoundException("Exhibitor workspace not found.");
+      await this.taskExecutor.execute({ type: "knowledge.ingest", sourceId: source.id });
       return { source, upload: null };
     }
 
     const filename = safeFilename(input.filename);
     const contentType = input.contentType?.trim().toLowerCase() ?? "";
-    if (!CONTENT_TYPES[sourceType]?.has(contentType)) {
-      throw new BadRequestException(
-        "File type is not supported for this source.",
-      );
-    }
-    if (
-      !Number.isInteger(input.byteSize) ||
-      input.byteSize! <= 0 ||
-      input.byteSize! > MAX_UPLOAD_BYTES
-    ) {
-      throw new BadRequestException(
-        "File size must be between 1 byte and 25 MB.",
-      );
+    try {
+      validateKnowledgeUpload({ sourceType, filename, contentType, byteSize: input.byteSize ?? 0 });
+    } catch (cause) {
+      throw new BadRequestException(cause instanceof Error ? cause.message : "Invalid upload.");
     }
     const created = await this.repository.createFileSource({
       organizationId: input.organizationId,
@@ -231,12 +214,14 @@ export class ExhibitorWorkspaceService {
         "Uploaded file content type does not match.",
       );
     }
-    return this.repository.completeFileSource(
+    const completed = await this.repository.completeFileSource(
       organizationId,
       sourceId,
       source.fileId,
       actorUserId,
     );
+    await this.taskExecutor.execute({ type: "knowledge.ingest", sourceId });
+    return completed;
   }
 
   async removeSource(
@@ -280,6 +265,7 @@ export class ExhibitorWorkspaceService {
       actorUserId,
     );
     if (!source) throw new NotFoundException("Failed source not found.");
+    await this.taskExecutor.execute({ type: "knowledge.ingest", sourceId: source.id });
     return source;
   }
 

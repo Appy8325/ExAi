@@ -9,6 +9,23 @@ import type { NextConfig } from "next";
 // / Service-Worker-Allowed headers this config would need to add are deferred
 // to a later milestone — not implemented here.
 const nextConfig: NextConfig = {
+  serverExternalPackages: [
+    "api",
+    "@nestjs/common",
+    "@nestjs/config",
+    "@nestjs/core",
+    "@nestjs/platform-fastify",
+    "@napi-rs/canvas",
+    "fastify",
+    "pdf-parse",
+  ],
+  webpack(config, { isServer }) {
+    if (isServer) {
+      config.resolve.alias["@nestjs/websockets/socket-module"] = false;
+      config.resolve.alias["@nestjs/microservices/microservices-module"] = false;
+    }
+    return config;
+  },
   // headers: async () => [
   //   // Placeholder: once the service worker ships, add a headers() entry here
   //   // scoping `Service-Worker-Allowed: /` and appropriate cache-control for

@@ -11,6 +11,7 @@ function service(repository: Record<string, unknown> = {}) {
         key === "supabase.publicWebOrigin" ? "https://app.example.com" : undefined,
       ),
     } as never,
+    { execute: vi.fn() } as never,
   );
 }
 

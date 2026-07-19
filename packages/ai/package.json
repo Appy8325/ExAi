@@ -6,16 +6,32 @@
   "license": "UNLICENSED",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "knowledge": ["dist/knowledge/index.d.ts"],
+      "knowledge/security": ["dist/knowledge/upload-security.d.ts"]
+    }
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./knowledge": {
+      "types": "./dist/knowledge/index.d.ts",
+      "default": "./dist/knowledge/index.js"
+    },
+    "./knowledge/security": {
+      "types": "./dist/knowledge/upload-security.d.ts",
+      "default": "./dist/knowledge/upload-security.js"
     }
   },
   "dependencies": {
     "@concourse/database": "workspace:*",
     "@concourse/shared": "workspace:*",
-    "drizzle-orm": "^0.38.2"
+    "drizzle-orm": "^0.38.2",
+    "fflate": "0.8.3",
+    "pdf-parse": "2.4.5"
   },
   "devDependencies": {
     "@concourse/config": "workspace:*",
@@ -25,7 +41,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "lint": "eslint .",
+    "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   }
