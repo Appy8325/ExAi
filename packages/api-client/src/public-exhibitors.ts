@@ -112,6 +112,45 @@ export type OrganizerOverview = {
   }>;
 };
 
+export type OrganizerAnalytics = {
+  organizationId: string;
+  event: { id: string; name: string; status: string; timezone: string };
+  generatedAt: string;
+  traffic: {
+    capturedVisits: number;
+    uniqueVisitors: number;
+    returningVisitors: number;
+  };
+  conversions: { leads: number; conversionRate: number };
+  engagement: {
+    repeatEngagementRate: number;
+    averageInteractions: number;
+    analyzedLeads: number;
+  };
+  booths: Array<{
+    id: string;
+    name: string;
+    boothNumber: string | null;
+    visits: number;
+    leads: number;
+    uniqueVisitors: number;
+    conversionRate: number;
+    heat: number;
+  }>;
+  industries: Array<{ name: string; count: number }>;
+  topics: Array<{ name: string; count: number }>;
+};
+
+export type OrganizerReport = {
+  id: string;
+  eventId: string;
+  status: "processing" | "complete" | "failed";
+  content: string | null;
+  generatedAt: string | null;
+  model: string | null;
+  metricsSnapshot: OrganizerAnalytics;
+};
+
 export function getPublicEventBySlug(client: PublicApiClient, slug: string) {
   return publicRequest<PublicEvent>(
     client,
@@ -248,6 +287,38 @@ export function updateAttendeeProfile(
 
 export function getOrganizerOverview(client: RelationshipWorkspaceClient) {
   return request<OrganizerOverview>(client, "/v1/organizer/overview");
+}
+
+export function getOrganizerAnalytics(
+  client: RelationshipWorkspaceClient,
+  eventId: string,
+) {
+  return request<OrganizerAnalytics>(
+    client,
+    `/v1/organizer/events/${encodeURIComponent(eventId)}/analytics`,
+  );
+}
+
+export function getOrganizerReport(
+  client: RelationshipWorkspaceClient,
+  eventId: string,
+) {
+  return request<OrganizerReport | null>(
+    client,
+    `/v1/organizer/events/${encodeURIComponent(eventId)}/report`,
+  );
+}
+
+export function generateOrganizerReport(
+  client: RelationshipWorkspaceClient,
+  eventId: string,
+  idempotencyKey: string,
+) {
+  return request<OrganizerReport>(
+    client,
+    `/v1/organizer/events/${encodeURIComponent(eventId)}/report`,
+    { method: "POST", headers: { "idempotency-key": idempotencyKey } },
+  );
 }
 
 type AttendeeProfileUpdate = {

@@ -39,6 +39,7 @@ import {
 import { ExhibitorWorkspaceRepository } from "./exhibitor-workspace.repository";
 import { ExhibitorWorkspaceService } from "./exhibitor-workspace.service";
 import { LeadIntelligenceService } from "./lead-intelligence.service";
+import { OrganizerReportingService } from "./organizer-reporting.service";
 
 @Module({
   imports: [AuthModule, OrganizationsModule, EventsModule, AiModule],
@@ -74,6 +75,7 @@ import { LeadIntelligenceService } from "./lead-intelligence.service";
     PublicExhibitorsService,
     AttendeeRelationshipsService,
     OrganizerOverviewService,
+    OrganizerReportingService,
     ExhibitorWorkspaceRepository,
     ExhibitorWorkspaceService,
   ],

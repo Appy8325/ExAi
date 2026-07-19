@@ -13,7 +13,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { eventExhibitors } from "./exhibitor";
 import { events } from "./events-floor";
-import { users } from "./identity";
+import { organizations, users } from "./identity";
 const uuidv7 = sql`concourse.uuid_generate_v7()`;
 export const leadForms = pgTable(
   "lead_forms",
@@ -222,6 +222,47 @@ export const leadIntelligence = pgTable(
     confidenceCheck: check(
       "lead_intelligence_confidence_check",
       sql`${t.confidence} IS NULL OR ${t.confidence} BETWEEN 0 AND 100`,
+    ),
+  }),
+);
+export const organizerReports = pgTable(
+  "organizer_reports",
+  {
+    id: uuid("id").primaryKey().default(uuidv7),
+    eventId: uuid("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    organizerOrganizationId: uuid("organizer_organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    generatedByUserId: uuid("generated_by_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    idempotencyKey: text("idempotency_key").notNull(),
+    status: text("status").notNull().default("processing"),
+    content: text("content"),
+    metricsSnapshot: jsonb("metrics_snapshot").notNull().default({}),
+    model: text("model"),
+    errorMessage: text("error_message"),
+    generatedAt: timestamp("generated_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    idempotencyUnique: uniqueIndex(
+      "organizer_reports_event_idempotency_key",
+    ).on(t.eventId, t.idempotencyKey),
+    eventGeneratedIdx: index("organizer_reports_event_generated_idx").on(
+      t.eventId,
+      t.generatedAt,
+    ),
+    statusCheck: check(
+      "organizer_reports_status_check",
+      sql`${t.status} IN ('processing','complete','failed')`,
     ),
   }),
 );

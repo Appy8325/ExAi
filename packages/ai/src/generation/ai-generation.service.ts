@@ -70,7 +70,8 @@ export class AiGenerationService {
         temperature: 0.2,
         max_tokens: 2048,
       }),
-      signal: AbortSignal.timeout(30_000),
+      // Hosted reasoning models can exceed 30 seconds during cold starts.
+      signal: AbortSignal.timeout(120_000),
     });
     const payload = (await response.json()) as NvidiaChatCompletion;
 
