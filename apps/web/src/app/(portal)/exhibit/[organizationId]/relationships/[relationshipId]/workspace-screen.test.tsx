@@ -11,13 +11,14 @@ const workspace: RelationshipWorkspace = {
   attendee: { id: "attendee", name: "Ada Lovelace", company: "ExAi", title: "Engineer", industry: "Technology", contact: { email: "ada@example.com", linkedInUrl: null }, profileCompleteness: 80, consentStatus: "shared" },
   relationship: { id: "relationship", eventExhibitorId: "exhibitor", status: "active", firstInteractionAt: "2026-01-01T10:00:00.000Z", latestInteractionAt: "2026-01-02T10:00:00.000Z", interactionCount: 1, hasPotentialDuplicate: false, updatedAt: "2026-01-02T10:00:00.000Z" },
   timeline: [{ id: "submission", submittedAt: "2026-01-02T10:00:00.000Z", interactionSource: "visitor_qr", potentialDuplicate: false, form: { id: "form", name: "Demo", description: null }, values: [{ fieldId: "field", value: "Interested", field: { label: "Interest" } }] }],
+  intelligence: { status: "complete", leadScore: 85, buyingIntent: "high", summary: "Ada is evaluating the product.", topicsDiscussed: ["Product"], followUpRecommendation: "Book a demo.", suggestedEmail: "Thanks for visiting.", confidence: 90, completedAt: "2026-01-02T10:00:01.000Z" },
   notes: [], summary: { interactionCount: 1, lastActivityAt: "2026-01-02T10:00:00.000Z", noteCount: 0, profileCompleteness: 80 },
 };
 
 describe("WorkspaceScreen", () => {
   it("renders the projection, timeline, and accessible summary", () => {
     const html = renderToStaticMarkup(<WorkspaceScreen organizationId="organization" workspace={workspace} />);
-    expect(html).toContain("Ada Lovelace"); expect(html).toContain("Visitor QR scan"); expect(html).toContain("Interaction Timeline"); expect(html).toContain("Interest");
+    expect(html).toContain("Ada Lovelace"); expect(html).toContain("Visitor QR scan"); expect(html).toContain("Interaction Timeline"); expect(html).toContain("Ada is evaluating the product.");
   });
   it("masks profile fields without consent", () => {
     const html = renderToStaticMarkup(<WorkspaceScreen organizationId="organization" workspace={{ ...workspace, attendee: { ...workspace.attendee, consentStatus: "not_shared" } }} />);

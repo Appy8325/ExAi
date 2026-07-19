@@ -6,7 +6,7 @@ export function WorkspaceScreen({ workspace, organizationId }: { workspace: Rela
   const shared = workspace.attendee.consentStatus === "shared";
   const attendee = workspace.attendee;
   const rel = workspace.relationship;
-  const score = computeScore(workspace);
+  const score = workspace.intelligence?.leadScore ?? computeScore(workspace);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
@@ -63,13 +63,15 @@ export function WorkspaceScreen({ workspace, organizationId }: { workspace: Rela
       <div className="rounded-xl border border-default bg-sunken p-4">
         <div className="flex items-center gap-2">
           <span className="inline-flex size-5 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] text-status-ai-text">AI</span>
-          <p className="text-body-sm font-medium text-primary">AI Summary</p>
+          <p className="text-body-sm font-medium text-primary">Lead Intelligence</p>
         </div>
-        <p className="mt-2 text-body-sm text-secondary">
-          {shared
-            ? `${attendee.name ?? "This attendee"} has ${rel.interactionCount} interaction(s), ${workspace.summary.noteCount} note(s), and a ${attendee.profileCompleteness}% complete profile. ${attendee.industry ? `Industry: ${attendee.industry}.` : ""} ${rel.status === "active" ? "Relationship is active." : rel.status === "new" ? "Recently engaged." : ""}`
-            : "Profile consent not yet provided. AI summary available once attendee shares their profile."}
-        </p>
+        {workspace.intelligence?.status === "complete" ? <div className="mt-2 space-y-3 text-body-sm text-secondary">
+          <p>{workspace.intelligence.summary}</p>
+          <p><strong className="text-primary">Buying intent:</strong> {workspace.intelligence.buyingIntent?.replaceAll("_", " ")} · {workspace.intelligence.confidence}% confidence</p>
+          {workspace.intelligence.topicsDiscussed.length > 0 && <p><strong className="text-primary">Topics:</strong> {workspace.intelligence.topicsDiscussed.join(", ")}</p>}
+          <p><strong className="text-primary">Recommended follow-up:</strong> {workspace.intelligence.followUpRecommendation}</p>
+          <details><summary className="cursor-pointer font-medium text-primary">Suggested email</summary><p className="mt-2 whitespace-pre-wrap">{workspace.intelligence.suggestedEmail}</p></details>
+        </div> : <p className="mt-2 text-body-sm text-secondary">{workspace.intelligence?.status === "failed" ? "AI analysis is temporarily unavailable. The captured lead and raw timeline remain available." : "Lead intelligence is processing."}</p>}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">

@@ -38,6 +38,7 @@ import {
 } from "./exhibitor-workspace.controller";
 import { ExhibitorWorkspaceRepository } from "./exhibitor-workspace.repository";
 import { ExhibitorWorkspaceService } from "./exhibitor-workspace.service";
+import { LeadIntelligenceService } from "./lead-intelligence.service";
 
 @Module({
   imports: [AuthModule, OrganizationsModule, EventsModule, AiModule],
@@ -61,6 +62,7 @@ import { ExhibitorWorkspaceService } from "./exhibitor-workspace.service";
     LeadFormsService,
     LeadSubmissionsRepository,
     LeadSubmissionsService,
+    LeadIntelligenceService,
     RelationshipNotesRepository,
     RelationshipNotesService,
     RelationshipWorkspaceRepository,

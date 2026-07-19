@@ -169,6 +169,62 @@ export const leadSubmissionValues = pgTable(
     ),
   }),
 );
+export const leadIntelligence = pgTable(
+  "lead_intelligence",
+  {
+    id: uuid("id").primaryKey().default(uuidv7),
+    leadSubmissionId: uuid("lead_submission_id")
+      .notNull()
+      .references(() => leadSubmissions.id, { onDelete: "cascade" }),
+    eventExhibitorId: uuid("event_exhibitor_id")
+      .notNull()
+      .references(() => eventExhibitors.id, { onDelete: "cascade" }),
+    status: text("status").notNull().default("processing"),
+    leadScore: integer("lead_score"),
+    buyingIntent: text("buying_intent"),
+    summary: text("summary"),
+    topicsDiscussed: jsonb("topics_discussed").notNull().default([]),
+    followUpRecommendation: text("follow_up_recommendation"),
+    suggestedEmail: text("suggested_email"),
+    evidenceIds: jsonb("evidence_ids").notNull().default([]),
+    confidence: integer("confidence"),
+    model: text("model"),
+    promptId: text("prompt_id").notNull().default("lead.intelligence.v1"),
+    errorMessage: text("error_message"),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    submissionUnique: uniqueIndex("lead_intelligence_submission_key").on(
+      t.leadSubmissionId,
+    ),
+    exhibitorStatusIdx: index("lead_intelligence_exhibitor_status_idx").on(
+      t.eventExhibitorId,
+      t.status,
+    ),
+    statusCheck: check(
+      "lead_intelligence_status_check",
+      sql`${t.status} IN ('processing','complete','failed','not_available')`,
+    ),
+    scoreCheck: check(
+      "lead_intelligence_score_check",
+      sql`${t.leadScore} IS NULL OR ${t.leadScore} BETWEEN 0 AND 100`,
+    ),
+    intentCheck: check(
+      "lead_intelligence_intent_check",
+      sql`${t.buyingIntent} IS NULL OR ${t.buyingIntent} IN ('high','evaluating','browsing','not_relevant')`,
+    ),
+    confidenceCheck: check(
+      "lead_intelligence_confidence_check",
+      sql`${t.confidence} IS NULL OR ${t.confidence} BETWEEN 0 AND 100`,
+    ),
+  }),
+);
 export const exhibitorRelationships = pgTable(
   "exhibitor_relationships",
   {

@@ -1,16 +1,25 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { sql } from "drizzle-orm";
 import { setRlsContext } from "@concourse/database";
-import { DATABASE_CLIENT, type DatabaseClient } from "../../common/database-client";
+import {
+  DATABASE_CLIENT,
+  type DatabaseClient,
+} from "../../common/database-client";
 import type { RelationshipWorkspace } from "@concourse/api-contract/src/relationship-workspace";
 
 type WorkspaceRow = { workspace: RelationshipWorkspace };
 
 @Injectable()
 export class RelationshipWorkspaceRepository {
-  constructor(@Inject(DATABASE_CLIENT) private readonly database: DatabaseClient) {}
+  constructor(
+    @Inject(DATABASE_CLIENT) private readonly database: DatabaseClient,
+  ) {}
 
-  async find(input: { organizationId: string; actorUserId: string; relationshipId: string }) {
+  async find(input: {
+    organizationId: string;
+    actorUserId: string;
+    relationshipId: string;
+  }) {
     return this.database.transaction(async (tx) => {
       await setRlsContext(tx, input.organizationId, input.actorUserId);
       const rows = await tx.execute(sql<WorkspaceRow>`
@@ -58,6 +67,20 @@ export class RelationshipWorkspaceRepository {
             FROM exhibitor_relationship_notes note
             WHERE note.relationship_id = relationship.id AND note.status = 'active'
           ), '[]'::jsonb),
+          'intelligence', (
+            SELECT jsonb_build_object(
+              'status', intelligence.status, 'leadScore', intelligence.lead_score,
+              'buyingIntent', intelligence.buying_intent, 'summary', intelligence.summary,
+              'topicsDiscussed', intelligence.topics_discussed,
+              'followUpRecommendation', intelligence.follow_up_recommendation,
+              'suggestedEmail', intelligence.suggested_email,
+              'confidence', intelligence.confidence, 'completedAt', intelligence.completed_at
+            )
+            FROM lead_intelligence intelligence
+            JOIN lead_submissions submission ON submission.id = intelligence.lead_submission_id
+            WHERE submission.relationship_id = relationship.id
+            ORDER BY intelligence.created_at DESC LIMIT 1
+          ),
           'summary', jsonb_build_object(
             'interactionCount', relationship.interaction_count, 'lastActivityAt', relationship.latest_interaction_at,
             'noteCount', (SELECT count(*)::int FROM exhibitor_relationship_notes note WHERE note.relationship_id = relationship.id AND note.status = 'active'),
