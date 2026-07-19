@@ -204,7 +204,7 @@ describe("relationship write repositories", () => {
   it("enrolls authenticated attendees through the real relationship engine without cross-booth access", async () => {
     const f = await fixture();
     const auth = { sendMagicLink: vi.fn(), identity: vi.fn().mockResolvedValue({ id: f.attendee, email: "attendee@example.com" }) };
-    const service = new PlatformEnrollmentService(client as never, auth as never, new LeadSubmissionsService(new LeadSubmissionsRepository(client as never)));
+    const service = new PlatformEnrollmentService(client as never, auth as never, new LeadSubmissionsService(new LeadSubmissionsRepository(client as never)), {} as never, {} as never, {} as never, {} as never);
     await expect(service.enroll(f.publicQrToken, "attendee@example.com")).resolves.toEqual({ accepted: true });
     const first = await service.complete("valid");
     expect(first).toBeTruthy();
@@ -222,7 +222,7 @@ describe("relationship write repositories", () => {
     const fresh = row(await sql`INSERT INTO auth.users(id,email,email_confirmed_at) VALUES (concourse.uuid_generate_v7(),'new@example.com',now()) RETURNING id`, "new auth user");
     expect(await sql`SELECT id FROM users WHERE id=${fresh.id}`).toHaveLength(1);
     const auth = { sendMagicLink: vi.fn(), identity: vi.fn().mockResolvedValue({ id: fresh.id, email: "new@example.com" }) };
-    const service = new PlatformEnrollmentService(client as never, auth as never, new LeadSubmissionsService(new LeadSubmissionsRepository(client as never)));
+    const service = new PlatformEnrollmentService(client as never, auth as never, new LeadSubmissionsService(new LeadSubmissionsRepository(client as never)), {} as never, {} as never, {} as never, {} as never);
     await service.enroll(f.publicQrToken, "new@example.com");
     await service.complete("new-user-token");
     const secondEvent = row(await sql`INSERT INTO events(organization_id,name,slug,timezone,start_at,end_at,status) VALUES ((SELECT organization_id FROM events WHERE id=${f.event}),'Event B','event-b','UTC',now(),now()+interval '1 day','published') RETURNING id`, "second event");

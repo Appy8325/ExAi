@@ -5,20 +5,33 @@ import { PlatformEnrollmentService } from "./platform-enrollment.service";
 describe("PlatformEnrollmentService public booth projection", () => {
   it("returns only the public booth fields for a live booth", async () => {
     const database = {
-      execute: vi.fn().mockResolvedValue([
-        {
-          id: "booth-id",
-          company_name: "Acme",
-          booth_name: "Acme Pavilion",
-          booth_number: "A-01",
-          logo_url: "https://assets.example/logo.png",
-          description: "Relationship intelligence",
-          website: "https://acme.example",
-          event_slug: "techexpo-2027",
-        },
-      ]),
+      execute: vi
+        .fn()
+        .mockResolvedValueOnce([
+          {
+            id: "booth-id",
+            company_name: "Acme",
+            booth_name: "Acme Pavilion",
+            booth_number: "A-01",
+            logo_url: "https://assets.example/logo.png",
+            description: "Relationship intelligence",
+            website: "https://acme.example",
+            event_slug: "techexpo-2027",
+            privacy_policy_url: "https://acme.example/privacy",
+          },
+        ])
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]),
     };
-    const service = new PlatformEnrollmentService(database as never, {} as never, {} as never);
+    const service = new PlatformEnrollmentService(
+      database as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+    );
 
     await expect(service.findPublicBooth("booth-id")).resolves.toEqual({
       id: "booth-id",
@@ -29,6 +42,9 @@ describe("PlatformEnrollmentService public booth projection", () => {
       description: "Relationship intelligence",
       website: "https://acme.example",
       eventSlug: "techexpo-2027",
+      privacyPolicyUrl: "https://acme.example/privacy",
+      resources: [],
+      leadForm: null,
     });
   });
 
@@ -37,8 +53,14 @@ describe("PlatformEnrollmentService public booth projection", () => {
       { execute: vi.fn().mockResolvedValue([]) } as never,
       {} as never,
       {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
     );
 
-    await expect(service.findPublicBooth("missing")).rejects.toThrow("Booth not found");
+    await expect(service.findPublicBooth("missing")).rejects.toThrow(
+      "Booth not found",
+    );
   });
 });

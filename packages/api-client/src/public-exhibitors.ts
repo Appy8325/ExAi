@@ -12,6 +12,44 @@ export type PublicBooth = {
   description: string | null;
   website: string | null;
   eventSlug: string;
+  privacyPolicyUrl: string | null;
+  resources: Array<{
+    id: string;
+    title: string;
+    sourceType: string;
+    href: string;
+    external: boolean;
+  }>;
+  leadForm: null | {
+    name: string;
+    description: string | null;
+    consentText: string | null;
+    fields: Array<{
+      key: string;
+      label: string;
+      type: string;
+      required: boolean;
+      placeholder: string | null;
+      helpText: string | null;
+      validation: unknown;
+    }>;
+  };
+};
+
+export type BoothChatResponse = {
+  answer: string;
+  citations: Array<{
+    marker: string;
+    documentId: string;
+    title: string;
+    href: string;
+  }>;
+};
+
+export type BoothSubmissionResponse = {
+  submissionId: string;
+  accepted: boolean;
+  recommendations: Array<{ title: string; reason: string }>;
 };
 
 export type PublicEvent = {
@@ -154,6 +192,46 @@ export function enrollAtBooth(
     {
       method: "POST",
       body: JSON.stringify({ email }),
+    },
+  );
+}
+
+export function getDemoBoothQr(
+  client: PublicApiClient,
+  eventId: string,
+  exhibitorId: string,
+) {
+  return publicRequest<{ publicQrToken: string }>(
+    client,
+    `/v1/public/events/${encodeURIComponent(eventId)}/exhibitors/${encodeURIComponent(exhibitorId)}/demo-qr`,
+  );
+}
+
+export function chatAtBooth(
+  client: PublicApiClient,
+  publicQrToken: string,
+  question: string,
+) {
+  return publicRequest<BoothChatResponse>(
+    client,
+    `/v1/public/booths/${encodeURIComponent(publicQrToken)}/chat`,
+    { method: "POST", body: JSON.stringify({ question }) },
+  );
+}
+
+export function submitBoothLead(
+  client: RelationshipWorkspaceClient,
+  publicQrToken: string,
+  idempotencyKey: string,
+  responses: Record<string, unknown>,
+) {
+  return request<BoothSubmissionResponse>(
+    client,
+    `/v1/public/booths/${encodeURIComponent(publicQrToken)}/submissions`,
+    {
+      method: "POST",
+      headers: { "idempotency-key": idempotencyKey },
+      body: JSON.stringify({ responses }),
     },
   );
 }

@@ -123,13 +123,13 @@ async function completeEnrollment(
     if (!completion.ok) return;
 
     const relationship = (await completion.json()) as {
-      eventExhibitorId?: string;
+      publicQrToken?: string;
     };
-    if (relationship.eventExhibitorId) {
+    if (relationship.publicQrToken) {
       response.headers.set(
         "location",
         new URL(
-          `/visit/${relationship.eventExhibitorId}?connected=1`,
+          `/visit/${encodeURIComponent(relationship.publicQrToken)}?connected=1`,
           request.nextUrl.origin,
         ).toString(),
       );

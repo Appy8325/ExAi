@@ -27,6 +27,7 @@ import { AttendeeRelationshipsService } from "./attendee-relationships.service";
 import { OrganizerOverviewController } from "./organizer-overview.controller";
 import { OrganizerOverviewService } from "./organizer-overview.service";
 import { EventsModule } from "../events/events.module";
+import { AiModule } from "../ai/ai.module";
 import {
   OrganizerBootstrapController,
   OrganizerManagementController,
@@ -39,7 +40,7 @@ import { ExhibitorWorkspaceRepository } from "./exhibitor-workspace.repository";
 import { ExhibitorWorkspaceService } from "./exhibitor-workspace.service";
 
 @Module({
-  imports: [AuthModule, OrganizationsModule, EventsModule],
+  imports: [AuthModule, OrganizationsModule, EventsModule, AiModule],
   controllers: [
     RelationshipWorkspaceController,
     ExhibitorDashboardController,

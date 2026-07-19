@@ -12,12 +12,26 @@ export class PublicExhibitorsController {
   }
 
   @Get("events/:eventId/exhibitors")
-  listExhibitors(@Param("eventId") eventId: string, @Query("search") search?: string) {
+  listExhibitors(
+    @Param("eventId") eventId: string,
+    @Query("search") search?: string,
+  ) {
     return this.exhibitors.listExhibitors(eventId, search);
   }
 
   @Get("events/:eventId/exhibitors/:exhibitorId")
-  findExhibitor(@Param("eventId") eventId: string, @Param("exhibitorId") exhibitorId: string) {
+  findExhibitor(
+    @Param("eventId") eventId: string,
+    @Param("exhibitorId") exhibitorId: string,
+  ) {
     return this.exhibitors.findExhibitor(eventId, exhibitorId);
+  }
+
+  @Get("events/:eventId/exhibitors/:exhibitorId/demo-qr")
+  findDemoQr(
+    @Param("eventId") eventId: string,
+    @Param("exhibitorId") exhibitorId: string,
+  ) {
+    return this.exhibitors.findDemoQr(eventId, exhibitorId);
   }
 }

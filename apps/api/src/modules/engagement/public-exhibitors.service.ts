@@ -1,6 +1,9 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { sql } from "drizzle-orm";
-import { DATABASE_CLIENT, type DatabaseClient } from "../../common/database-client";
+import {
+  DATABASE_CLIENT,
+  type DatabaseClient,
+} from "../../common/database-client";
 
 type ExhibitorRow = {
   id: string;
@@ -24,7 +27,9 @@ type EventRow = {
 
 @Injectable()
 export class PublicExhibitorsService {
-  constructor(@Inject(DATABASE_CLIENT) private readonly database: DatabaseClient) {}
+  constructor(
+    @Inject(DATABASE_CLIENT) private readonly database: DatabaseClient,
+  ) {}
 
   async findEventBySlug(slug: string) {
     const rows = await this.database.execute(
@@ -75,6 +80,23 @@ export class PublicExhibitorsService {
     const row = (rows as unknown as ExhibitorRow[])[0];
     if (!row) throw new NotFoundException("Exhibitor not found.");
     return exhibitorRow(row);
+  }
+
+  async findDemoQr(eventId: string, exhibitorId: string) {
+    const rows = await this.database.execute(sql<{ public_token: string }>`
+      SELECT credential.public_token
+      FROM booth_qr_credentials credential
+      JOIN event_exhibitors booth ON booth.id = credential.event_exhibitor_id
+      JOIN events event ON event.id = booth.event_id
+      WHERE booth.event_id = ${eventId} AND booth.id = ${exhibitorId}
+        AND booth.status = 'ready' AND event.status IN ('published','live')
+        AND credential.active
+      ORDER BY credential.created_at DESC LIMIT 1
+    `);
+    const token = (rows as unknown as Array<{ public_token: string }>)[0]
+      ?.public_token;
+    if (!token) throw new NotFoundException("Active booth QR not found.");
+    return { publicQrToken: token };
   }
 }
 

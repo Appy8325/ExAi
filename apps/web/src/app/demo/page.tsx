@@ -1,23 +1,38 @@
 import Link from "next/link";
 
 import { getApiBaseUrl } from "@/lib/api/config";
-import { getPublicEventBySlug, getEventExhibitors } from "@concourse/api-client";
+import {
+  getDemoBoothQr,
+  getPublicEventBySlug,
+  getEventExhibitors,
+} from "@concourse/api-client";
 
 import { UserMenu } from "@/components/auth/user-menu";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-type DemoIds = { organizationId?: string; eventExhibitorId?: string };
+type DemoIds = {
+  organizationId?: string;
+  eventExhibitorId?: string;
+  publicQrToken?: string;
+};
 
 async function resolveDemoIds(apiBase: string): Promise<DemoIds> {
   try {
-    const event = await getPublicEventBySlug({ baseUrl: apiBase }, "techexpo-2027");
+    const event = await getPublicEventBySlug(
+      { baseUrl: apiBase },
+      "techexpo-2027",
+    );
     const exhibitors = await getEventExhibitors({ baseUrl: apiBase }, event.id);
     const northstar = exhibitors.find((e) => /northstar/i.test(e.companyName));
+    const qr = northstar
+      ? await getDemoBoothQr({ baseUrl: apiBase }, event.id, northstar.id)
+      : undefined;
     return {
       organizationId: northstar?.organizationId,
       eventExhibitorId: northstar?.id,
+      publicQrToken: qr?.publicQrToken,
     };
   } catch {
     return {};
@@ -26,11 +41,13 @@ async function resolveDemoIds(apiBase: string): Promise<DemoIds> {
 
 export default async function DemoPage() {
   const apiBase = getApiBaseUrl();
-  const { organizationId, eventExhibitorId } = await resolveDemoIds(apiBase);
+  const { organizationId, eventExhibitorId, publicQrToken } =
+    await resolveDemoIds(apiBase);
 
-  const dashboardParams = organizationId && eventExhibitorId
-    ? `/exhibit/${organizationId}/dashboard/${eventExhibitorId}`
-    : null;
+  const dashboardParams =
+    organizationId && eventExhibitorId
+      ? `/exhibit/${organizationId}/dashboard/${eventExhibitorId}`
+      : null;
   const attendeesQs = eventExhibitorId ? `?eeId=${eventExhibitorId}` : "";
   const aiInsightsQs = eventExhibitorId ? `?eeId=${eventExhibitorId}` : "";
   const documentsQs = eventExhibitorId ? `?eeId=${eventExhibitorId}` : "";
@@ -91,9 +108,18 @@ export default async function DemoPage() {
               { label: "Dashboard", href: dashboardParams ?? "/org/events" },
               ...(organizationId && eventExhibitorId
                 ? [
-                    { label: "Attendees", href: `/exhibit/${organizationId}/attendees${attendeesQs}` },
-                    { label: "AI Insights", href: `/exhibit/${organizationId}/ai-insights${aiInsightsQs}` },
-                    { label: "Documents", href: `/exhibit/${organizationId}/documents${documentsQs}` },
+                    {
+                      label: "Attendees",
+                      href: `/exhibit/${organizationId}/attendees${attendeesQs}`,
+                    },
+                    {
+                      label: "AI Insights",
+                      href: `/exhibit/${organizationId}/ai-insights${aiInsightsQs}`,
+                    },
+                    {
+                      label: "Documents",
+                      href: `/exhibit/${organizationId}/documents${documentsQs}`,
+                    },
                   ]
                 : [{ label: "Events", href: "/org/events" }]),
             ]}
@@ -108,8 +134,8 @@ export default async function DemoPage() {
             ring="ring-violet-500/20"
             links={[
               { label: "Browse exhibitors", href: "/e/techexpo-2027" },
-              ...(eventExhibitorId
-                ? [{ label: "QR booth", href: `/visit/${eventExhibitorId}` }]
+              ...(publicQrToken
+                ? [{ label: "QR booth", href: `/visit/${publicQrToken}` }]
                 : []),
               { label: "Saved exhibitors", href: "/e/techexpo-2027/saved" },
               { label: "Profile", href: "/account/profile" },
@@ -124,8 +150,8 @@ export default async function DemoPage() {
             Best experienced when signed in.{" "}
             <Link href="/auth" className="text-brand hover:underline">
               Sign in
-            </Link>
-            {" "}to connect with exhibitors and build real relationships.
+            </Link>{" "}
+            to connect with exhibitors and build real relationships.
           </p>
         </div>
       </div>
@@ -151,10 +177,14 @@ function RoleCard({
   primaryLabel: string;
 }) {
   return (
-    <div className={`group rounded-2xl border border-default bg-surface p-6 shadow-1 transition-all hover:shadow-2 hover:ring-2 ${ring}`}>
+    <div
+      className={`group rounded-2xl border border-default bg-surface p-6 shadow-1 transition-all hover:shadow-2 hover:ring-2 ${ring}`}
+    >
       <div className={`mb-4 h-2 w-16 rounded-full bg-gradient-to-r ${color}`} />
       <h2 className="text-xl font-semibold text-primary">{role}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-secondary">{description}</p>
+      <p className="mt-2 text-sm leading-relaxed text-secondary">
+        {description}
+      </p>
       <ul className="mt-5 space-y-2">
         {links.map(({ label, href }) => (
           <li key={label}>
@@ -163,7 +193,13 @@ function RoleCard({
               className="flex items-center justify-between rounded-lg border border-default bg-sunken/50 px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-sunken hover:text-brand"
             >
               {label}
-              <svg className="size-3.5 text-muted" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                className="size-3.5 text-muted"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M6 4l4 4-4 4" />
               </svg>
             </Link>

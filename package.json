@@ -24,7 +24,8 @@
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "db:migrate": "corepack pnpm --filter @concourse/database migrate",
-    "db:seed": "corepack pnpm --filter @concourse/database seed"
+    "db:seed": "corepack pnpm --filter @concourse/database seed",
+    "db:seed:demo": "corepack pnpm --filter @concourse/database seed"
   },
   "devDependencies": {
     "@concourse/config": "workspace:*",

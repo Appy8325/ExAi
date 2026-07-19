@@ -17,6 +17,7 @@ export interface RetrievalPrincipal {
 }
 
 export interface RetrievalOptions {
+  eventExhibitorId?: string;
   maxHops?: number;
   filters?: Record<string, unknown>;
   topK?: number;
@@ -58,12 +59,20 @@ export class RetrievalService {
       FROM kb_chunks chunk
       JOIN kb_documents document ON document.id = chunk.kb_document_id
       JOIN kb_sources source ON source.id = document.kb_source_id
-      WHERE chunk.event_id = ${eventId} AND chunk.visibility = 'public'
+      WHERE chunk.event_id = ${eventId}
+        AND chunk.visibility = 'public'
+        AND (${opts?.eventExhibitorId ?? null}::uuid IS NULL OR source.event_exhibitor_id = ${opts?.eventExhibitorId ?? null}::uuid)
       ORDER BY chunk.embedding <=> ${vector}::vector
       LIMIT ${topK}
     `)) as unknown as Array<{
-      document_id: string; chunk_id: string; content: string; score: number;
-      source_type: string; title: string; source_url: string | null; file_id: string | null;
+      document_id: string;
+      chunk_id: string;
+      content: string;
+      score: number;
+      source_type: string;
+      title: string;
+      source_url: string | null;
+      file_id: string | null;
     }>;
     return rows.map((row) => ({
       documentId: row.document_id,
