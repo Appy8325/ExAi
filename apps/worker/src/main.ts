@@ -20,9 +20,11 @@ export const connection = new Redis(
   { maxRetriesPerRequest: null },
 );
 
-function main(): void {
+async function main(): Promise<void> {
   // eslint-disable-next-line no-console
-  console.log('[worker] starting — Milestone 0 scaffolding, no consumers wired yet');
+  console.log('[worker] starting knowledge ingestion consumer');
+
+  await import('./queues/kb-ingest.consumer');
 
   // Queue consumers, scheduled repeatable jobs, and the outbox relay each
   // register themselves here once their real bodies land (docs/27 §5-§7):
@@ -39,4 +41,4 @@ function main(): void {
   //   import './outbox-relay/outbox-relay';
 }
 
-main();
+void main();

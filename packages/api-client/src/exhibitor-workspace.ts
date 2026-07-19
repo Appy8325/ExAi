@@ -47,6 +47,8 @@ export type ExhibitorWorkspace = {
     fileStatus: string | null;
     contentType: string | null;
     byteSize: number | null;
+    errorMessage: string | null;
+    attemptCount: number;
   }>;
   leadForm: {
     id: string;
@@ -139,6 +141,19 @@ export function removeExhibitorSource(
     client,
     `${base(organizationId, eventExhibitorId)}/sources/${encodeURIComponent(sourceId)}`,
     { method: "DELETE" },
+  );
+}
+
+export function retryExhibitorSource(
+  client: RelationshipWorkspaceClient,
+  organizationId: string,
+  eventExhibitorId: string,
+  sourceId: string,
+) {
+  return request(
+    client,
+    `${base(organizationId, eventExhibitorId)}/sources/${encodeURIComponent(sourceId)}/retry`,
+    { method: "POST" },
   );
 }
 

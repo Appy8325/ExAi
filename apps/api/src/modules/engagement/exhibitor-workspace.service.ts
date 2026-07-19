@@ -39,7 +39,6 @@ const CONTENT_TYPES: Record<string, ReadonlySet<string>> = {
   brochure: new Set(["application/pdf"]),
   presentation: new Set([
     "application/pdf",
-    "application/vnd.ms-powerpoint",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ]),
   faq: new Set(["application/pdf", "text/plain"]),
@@ -266,6 +265,22 @@ export class ExhibitorWorkspaceService {
     );
     if (!removed) throw new NotFoundException("Source not found.");
     return { removed: true };
+  }
+
+  async retrySource(
+    organizationId: string,
+    eventExhibitorId: string,
+    sourceId: string,
+    actorUserId: string,
+  ) {
+    const source = await this.repository.retrySource(
+      organizationId,
+      eventExhibitorId,
+      sourceId,
+      actorUserId,
+    );
+    if (!source) throw new NotFoundException("Failed source not found.");
+    return source;
   }
 
   async saveLeadForm(input: {

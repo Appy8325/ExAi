@@ -51,6 +51,8 @@ export type ExhibitorWorkspace = {
     fileStatus: string | null;
     contentType: string | null;
     byteSize: number | null;
+    errorMessage: string | null;
+    attemptCount: number;
   }>;
   leadForm: {
     id: string;
@@ -124,7 +126,8 @@ export class ExhibitorWorkspaceRepository {
             SELECT jsonb_agg(jsonb_build_object(
               'id', source.id, 'sourceType', source.source_type, 'title', source.title,
               'sourceUrl', source.source_url, 'status', source.status,
-              'fileStatus', file.status, 'contentType', file.content_type, 'byteSize', file.byte_size
+              'fileStatus', file.status, 'contentType', file.content_type, 'byteSize', file.byte_size,
+              'errorMessage', source.error_message, 'attemptCount', source.attempt_count
             ) ORDER BY source.created_at DESC)
             FROM kb_sources source LEFT JOIN files file ON file.id = source.file_id
             WHERE source.event_exhibitor_id = booth.id
@@ -383,6 +386,28 @@ export class ExhibitorWorkspaceRepository {
         .returning({ fileId: kbSources.fileId });
       if (source?.fileId)
         await tx.delete(files).where(eq(files.id, source.fileId));
+      return source;
+    });
+  }
+
+  async retrySource(
+    organizationId: string,
+    eventExhibitorId: string,
+    sourceId: string,
+    actorUserId: string,
+  ) {
+    return this.database.transaction(async (tx) => {
+      await setRlsContext(tx, organizationId, actorUserId);
+      const [source] = await tx
+        .update(kbSources)
+        .set({ status: "pending", errorMessage: null, attemptCount: 0, updatedAt: new Date() })
+        .where(and(
+          eq(kbSources.id, sourceId),
+          eq(kbSources.eventExhibitorId, eventExhibitorId),
+          eq(kbSources.ownerOrganizationId, organizationId),
+          eq(kbSources.status, "failed"),
+        ))
+        .returning();
       return source;
     });
   }

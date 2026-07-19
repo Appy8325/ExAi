@@ -1,5 +1,6 @@
-import { Worker } from 'bullmq';
+import { Queue, Worker } from 'bullmq';
 import { connection } from '../main';
+import { ingestSource, pendingSourceIds } from '../knowledge/ingest';
 
 /**
  * kb-ingest queue consumer (docs/27-background-jobs-architecture.md §5.3).
@@ -9,8 +10,23 @@ import { connection } from '../main';
  */
 export const kbIngestWorker = new Worker(
   'kb-ingest',
-  async (_job) => {
-    throw new Error('not implemented');
+  async (job) => {
+    await ingestSource(String(job.data.sourceId));
   },
-  { connection },
+  { connection, concurrency: 2 },
 );
+
+const queue = new Queue('kb-ingest', { connection });
+
+async function enqueuePending() {
+  for (const source of await pendingSourceIds()) {
+    await queue.add('ingest', { sourceId: source.id }, {
+      jobId: source.id, attempts: 3, backoff: { type: 'exponential', delay: 2_000 },
+      removeOnComplete: true, removeOnFail: 100,
+    });
+  }
+}
+
+void enqueuePending();
+setInterval(() => void enqueuePending().catch((error) =>
+  console.error('[worker] knowledge poll failed', error)), 5_000).unref();

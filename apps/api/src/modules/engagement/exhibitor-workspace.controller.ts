@@ -166,6 +166,22 @@ export class ExhibitorWorkspaceController {
     );
   }
 
+  @Post("sources/:sourceId/retry")
+  @RequireOrganizationPermissions("organizations:update")
+  retrySource(
+    @Param("organizationId") organizationId: string,
+    @Param("eventExhibitorId") eventExhibitorId: string,
+    @Param("sourceId") sourceId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.workspace.retrySource(
+      organizationId,
+      eventExhibitorId,
+      sourceId,
+      actor(request),
+    );
+  }
+
   @Put("lead-form")
   @RequireOrganizationPermissions("organizations:update")
   saveLeadForm(

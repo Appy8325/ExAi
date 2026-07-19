@@ -13,10 +13,9 @@
     }
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.32.0",
-    "voyageai": "^0.0.3",
     "@concourse/database": "workspace:*",
-    "@concourse/shared": "workspace:*"
+    "@concourse/shared": "workspace:*",
+    "drizzle-orm": "^0.38.2"
   },
   "devDependencies": {
     "@concourse/config": "workspace:*",

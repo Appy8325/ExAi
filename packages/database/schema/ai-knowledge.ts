@@ -2,10 +2,14 @@ import { sql } from "drizzle-orm";
 import {
   check,
   index,
+  integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
+  vector,
 } from "drizzle-orm/pg-core";
 
 import { events } from "./events-floor";
@@ -39,6 +43,12 @@ export const kbSources = pgTable(
       onDelete: "set null",
     }),
     status: text("status").notNull().default("pending"),
+    errorMessage: text("error_message"),
+    attemptCount: integer("attempt_count").notNull().default(0),
+    contentHash: text("content_hash"),
+    processingStartedAt: timestamp("processing_started_at", {
+      withTimezone: true,
+    }),
     lastIngestedAt: timestamp("last_ingested_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
@@ -78,13 +88,49 @@ export const kbSources = pgTable(
 // ai_usage_events, ...), implemented in a later milestone. Minimal
 // placeholder table demonstrating the pattern only — pgvector columns
 // land with the real KB ingestion milestone, not here.
-export const kbChunks = pgTable("kb_chunks", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const kbDocuments = pgTable(
+  "kb_documents",
+  {
+    id: uuid("id").primaryKey().default(uuidv7),
+    kbSourceId: uuid("kb_source_id").notNull().references(() => kbSources.id, { onDelete: "cascade" }),
+    eventId: uuid("event_id").notNull(),
+    organizerOrganizationId: uuid("organizer_organization_id").notNull(),
+    ownerOrganizationId: uuid("owner_organization_id").notNull(),
+    title: text("title").notNull(),
+    rawText: text("raw_text"),
+    status: text("status").notNull().default("pending"),
+    quarantineReason: text("quarantine_reason"),
+    indexedAt: timestamp("indexed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    sourceIdx: index("kb_documents_source_id_idx").on(table.kbSourceId),
+    eventStatusIdx: index("kb_documents_event_status_idx").on(table.eventId, table.status),
+    statusCheck: check("kb_documents_status_check", sql`${table.status} IN ('pending','processing','indexed','quarantined','failed')`),
+  }),
+);
+
+export const kbChunks = pgTable(
+  "kb_chunks",
+  {
+    id: uuid("id").primaryKey().default(uuidv7),
+    kbDocumentId: uuid("kb_document_id").notNull().references(() => kbDocuments.id, { onDelete: "cascade" }),
+    eventId: uuid("event_id").notNull(),
+    organizerOrganizationId: uuid("organizer_organization_id").notNull(),
+    ownerOrganizationId: uuid("owner_organization_id").notNull(),
+    chunkIndex: integer("chunk_index").notNull(),
+    content: text("content").notNull(),
+    embedding: vector("embedding", { dimensions: 1024 }).notNull(),
+    tokenCount: integer("token_count").notNull(),
+    visibility: text("visibility").notNull().default("public"),
+    metadata: jsonb("metadata").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    documentChunkUnique: uniqueIndex("kb_chunks_document_chunk_key").on(table.kbDocumentId, table.chunkIndex),
+    eventVisibilityIdx: index("kb_chunks_event_visibility_idx").on(table.eventId, table.visibility),
+    visibilityCheck: check("kb_chunks_visibility_check", sql`${table.visibility} IN ('public','exhibitor_internal','organizer_internal')`),
+  }),
+);

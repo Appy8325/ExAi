@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import postgres from "postgres";
 
@@ -57,6 +57,7 @@ async function main() {
   const config = localConfig();
   const sql = postgres(config.dbUrl);
   try {
+    const knowledgeUploads: Array<{ fileId: string; sourceId: string; storageKey: string; content: string }> = [];
     const organizer = await authUser(
       sql,
       config,
@@ -96,6 +97,35 @@ async function main() {
         const booth = one(
           await tx`INSERT INTO event_exhibitors(organization_id,event_id,organizer_organization_id,booth_name,booth_number,description,website,contact_email,status,published_at) VALUES (${org.id},${event.id},${organizerOrg.id},${name},${number},${description},${`https://${slug}.example.com`},${`hello@${slug}.example.com`},'ready',now()) ON CONFLICT (event_id,organization_id) DO UPDATE SET booth_name=EXCLUDED.booth_name,booth_number=EXCLUDED.booth_number,description=EXCLUDED.description,website=EXCLUDED.website,contact_email=EXCLUDED.contact_email,status='ready',published_at=now() RETURNING id,booth_name,booth_number`,
         );
+        const knowledgeTitle = `${name} company knowledge`;
+        const knowledge = one(await tx`
+          SELECT source.id AS source_id, source.file_id, file.storage_key
+          FROM kb_sources source JOIN files file ON file.id = source.file_id
+          WHERE source.event_exhibitor_id = ${booth.id} AND source.title = ${knowledgeTitle}
+          LIMIT 1
+        `.then((rows) => rows.length ? rows : tx`
+          WITH generated AS (SELECT concourse.uuid_generate_v7() AS id),
+          inserted_file AS (
+            INSERT INTO files(id, organization_id, uploaded_by_user_id, purpose, storage_key,
+              content_type, byte_size, status)
+            SELECT id, ${org.id}, ${exhibitorUser.id}, 'kb_document',
+              ${`org/${org.id}/kb_document/`} || id || '/company-knowledge.txt',
+              'text/plain', 1, 'pending' FROM generated RETURNING id, storage_key
+          )
+          INSERT INTO kb_sources(event_id, event_exhibitor_id, organizer_organization_id,
+            owner_organization_id, kind, source_type, title, file_id, status)
+          SELECT ${event.id}, ${booth.id}, ${organizerOrg.id}, ${org.id}, 'uploaded_document',
+            'faq', ${knowledgeTitle}, id, 'processing' FROM inserted_file
+          RETURNING id AS source_id, file_id,
+            (SELECT storage_key FROM inserted_file) AS storage_key
+        `));
+        const knowledgeContent = `${name}\nBooth ${number}\n${description}\n\nProducts and services are available for enterprise teams. Contact ${`hello@${slug}.example.com`} for pricing and implementation guidance. Booth staff answer product, security, integration, and deployment questions throughout TechExpo 2027.`;
+        knowledgeUploads.push({
+          fileId: knowledge.file_id,
+          sourceId: knowledge.source_id,
+          storageKey: knowledge.storage_key,
+          content: knowledgeContent,
+        });
         const form = one(
           await tx`INSERT INTO lead_forms(event_exhibitor_id,name,consent_text,version,is_default,status) VALUES (${booth.id},'Connect at TechExpo','I agree to share my submitted information with this exhibitor.',1,true,'draft') ON CONFLICT (event_exhibitor_id,name,version) DO UPDATE SET is_default=true RETURNING id,status`,
         );
@@ -153,6 +183,24 @@ async function main() {
       }
       return booths;
     });
+    for (const upload of knowledgeUploads) {
+      const response = await fetch(
+        `${config.apiUrl}/storage/v1/object/uploads/${upload.storageKey}`,
+        {
+          method: "POST",
+          headers: {
+            ...authHeaders(config),
+            "content-type": "text/plain",
+            "x-upsert": "true",
+          },
+          body: upload.content,
+        },
+      );
+      if (!response.ok)
+        throw new Error(`Could not seed knowledge file: ${await response.text()}`);
+      await sql`UPDATE files SET byte_size = ${Buffer.byteLength(upload.content)}, status = 'scanning', updated_at = now() WHERE id = ${upload.fileId}`;
+      await sql`UPDATE kb_sources SET status = 'pending', attempt_count = 0, error_message = NULL, updated_at = now() WHERE id = ${upload.sourceId}`;
+    }
     await generateDemoQrCodes(booths);
     if (config.writeLocalEnvironment) await writeLocalEnvironment(config);
   } finally {
@@ -266,6 +314,16 @@ async function writeLocalEnvironment(config: LocalConfig) {
   await writeFile(
     resolve(root, "apps/web/.env.local"),
     `NEXT_PUBLIC_SUPABASE_URL=${config.apiUrl}\nNEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${config.anonKey}\nNEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:3001\n`,
+  );
+  const workerPath = resolve(root, "apps/worker/.env");
+  const currentWorker = await readFile(workerPath, "utf8").catch(() => "");
+  const aiVariables = currentWorker
+    .split(/\r?\n/)
+    .filter((line) => line.startsWith("NVIDIA_"))
+    .join("\n");
+  await writeFile(
+    workerPath,
+    `WORKER_DATABASE_URL=${config.dbUrl}\nWORKER_REDIS_URL=redis://127.0.0.1:6379\nWORKER_SUPABASE_URL=${config.apiUrl}\nWORKER_SUPABASE_SERVICE_ROLE_KEY=${config.serviceRoleKey}\nWORKER_CLAMAV_HOST=127.0.0.1\nWORKER_CLAMAV_PORT=3310\n${aiVariables}${aiVariables ? "\n" : ""}`,
   );
 }
 

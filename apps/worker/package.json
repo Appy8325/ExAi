@@ -2,28 +2,33 @@
   "name": "worker",
   "version": "0.1.0",
   "private": true,
-  "description": "Concourse Node 22 + BullMQ 5 worker deployable \u2014 the one worker service running every queue consumer, scheduled job, and the outbox relay. Unscoped name per docs/37-monorepo-and-folder-structure.md \u00a76: apps are deploy targets, never imported by name.",
+  "description": "Concourse Node 22 + BullMQ 5 worker deployable — the one worker service running every queue consumer, scheduled job, and the outbox relay. Unscoped name per docs/37-monorepo-and-folder-structure.md §6: apps are deploy targets, never imported by name.",
   "license": "UNLICENSED",
   "scripts": {
     "dev": "node --env-file-if-exists=.env ./node_modules/tsx/dist/cli.mjs watch src/main.ts",
     "build": "tsc",
+    "test": "node --env-file-if-exists=.env ./node_modules/vitest/vitest.mjs run",
     "start": "node --env-file-if-exists=.env dist/main.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "bullmq": "^5.34.5",
-    "ioredis": "5.10.1",
     "@concourse/ai": "workspace:*",
     "@concourse/database": "workspace:*",
-    "@concourse/shared": "workspace:*",
+    "@concourse/flags": "workspace:*",
     "@concourse/notifications": "workspace:*",
-    "@concourse/flags": "workspace:*"
+    "@concourse/shared": "workspace:*",
+    "bullmq": "^5.34.5",
+    "drizzle-orm": "^0.38.2",
+    "fflate": "0.8.3",
+    "ioredis": "5.10.1",
+    "pdf-parse": "2.4.5"
   },
   "devDependencies": {
     "@concourse/config": "workspace:*",
-    "typescript": "^5.7.2",
+    "eslint": "^9.17.0",
     "tsx": "^4.19.2",
-    "eslint": "^9.17.0"
+    "typescript": "^5.7.2",
+    "vitest": "2.1.9"
   }
 }

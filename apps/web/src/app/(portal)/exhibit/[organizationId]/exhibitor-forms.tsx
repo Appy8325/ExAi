@@ -10,6 +10,7 @@ import {
   publishExhibitorBooth,
   publishExhibitorLeadForm,
   removeExhibitorSource,
+  retryExhibitorSource,
   saveExhibitorLeadForm,
   updateExhibitorBooth,
   type ExhibitorLeadField,
@@ -287,7 +288,7 @@ export function KnowledgeSources({
               name="file"
               type="file"
               accept={
-                sourceType === "presentation" ? ".pdf,.ppt,.pptx" : ".pdf,.txt"
+                sourceType === "presentation" ? ".pdf,.pptx" : ".pdf,.txt"
               }
               required
             />
@@ -319,29 +320,36 @@ export function KnowledgeSources({
                       ? "security scan pending"
                       : source.status.replaceAll("_", " ")}
                   </p>
+                  {source.errorMessage ? (
+                    <p className="mt-1 max-w-xl text-xs text-status-danger-text">
+                      {source.errorMessage}
+                    </p>
+                  ) : null}
                 </div>
-                <button
-                  className="text-sm text-status-danger-text hover:underline"
-                  disabled={pending}
-                  onClick={() =>
-                    startTransition(async () => {
+                <div className="flex gap-3">
+                  {source.status === "failed" ? (
+                    <button className="text-sm text-brand hover:underline" disabled={pending}
+                      onClick={() => startTransition(async () => {
+                        try {
+                          await retryExhibitorSource(await apiClient(), workspace.organization.id,
+                            workspace.booth.id, source.id);
+                          router.refresh();
+                        } catch (cause) { setNotice(errorMessage(cause)); }
+                      })} type="button">Retry</button>
+                  ) : null}
+                  <button
+                    className="text-sm text-status-danger-text hover:underline"
+                    disabled={pending}
+                    onClick={() => startTransition(async () => {
                       try {
-                        await removeExhibitorSource(
-                          await apiClient(),
-                          workspace.organization.id,
-                          workspace.booth.id,
-                          source.id,
-                        );
+                        await removeExhibitorSource(await apiClient(), workspace.organization.id,
+                          workspace.booth.id, source.id);
                         router.refresh();
-                      } catch (cause) {
-                        setNotice(errorMessage(cause));
-                      }
-                    })
-                  }
-                  type="button"
-                >
-                  Remove
-                </button>
+                      } catch (cause) { setNotice(errorMessage(cause)); }
+                    })}
+                    type="button"
+                  >Remove</button>
+                </div>
               </li>
             ))}
           </ul>

@@ -20,7 +20,7 @@ All model calls — Claude generation/classification, Voyage embeddings and rera
 |---|---|---|
 | `AiGenerationService` | `generate(req)`, `stream(req)` | Long-form/structured generation on `claude-fable-5` |
 | `AiClassificationService` | `classify(req)`, `extract(req)` | High-volume structured tasks on `claude-haiku-4-5` |
-| `AiEmbeddingService` | `embedDocuments(texts)`, `embedQuery(text)`, `rerank(query, docs)` | Voyage `voyage-3.5` / `rerank-2.5` (consumed by [22-rag-architecture.md](22-rag-architecture.md)) |
+| `AiEmbeddingService` | `embedDocuments(texts)`, `embedQuery(text)` | NVIDIA NIM `nvidia/nv-embedqa-e5-v5` (consumed by [22-rag-architecture.md](22-rag-architecture.md)) |
 | `RetrievalService` | `search(principal, eventId, query, opts)` | Hybrid retrieval; contract owned by doc 22 |
 | `AiBudgetService` | `checkAndReserve(scope, feature)`, `record(usage)` | Pre-flight budget checks + metering (§6) |
 | `AiGuardrailService` | `screenInput(...)`, `screenOutput(...)`, `screenDocument(...)` | §7 |

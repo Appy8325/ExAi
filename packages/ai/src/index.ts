@@ -25,7 +25,6 @@ export type {
 export { AiEmbeddingService } from "./embedding/ai-embedding.service";
 export type {
   EmbeddingVector,
-  RerankedDocument,
 } from "./embedding/ai-embedding.service";
 
 export { RetrievalService } from "./retrieval/retrieval.service";
