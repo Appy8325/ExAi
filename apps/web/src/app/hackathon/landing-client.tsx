@@ -20,14 +20,44 @@ function getGradient(industry: string): string {
   return industryGradients[industry] ?? "from-brand/60 to-brand/40";
 }
 
+function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const [display, setDisplay] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    const duration = 1500;
+    const start = performance.now();
+    const step = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.floor(eased * value));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [value]);
+
+  return (
+    <span ref={ref}>
+      {display}{suffix}
+    </span>
+  );
+}
+
+const JOURNEY_STEPS = [
+  { step: 1, title: "Welcome", description: "Scan the event QR to enter the exhibition hall." },
+  { step: 2, title: "Browse", description: "Explore exhibitors by industry, name, or keyword." },
+  { step: 3, title: "Ask AI", description: "Chat with an AI assistant at any booth." },
+  { step: 4, title: "Connect", description: "Share your details with exhibitors you like." },
+  { step: 5, title: "Discover", description: "Get tailored recommendations based on your interests." },
+];
+
 function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
   return (
-    <Link
-      href={
-        exhibitor.publicQrToken ? `/visit/${exhibitor.publicQrToken}` : "#"
-      }
-      className="group relative overflow-hidden rounded-2xl border border-default bg-surface shadow-1 transition-all duration-300 hover:shadow-premium hover:-translate-y-1"
-    >
+    <div className="group relative overflow-hidden rounded-2xl border border-default bg-surface shadow-1 transition-all duration-300 hover:shadow-premium hover:-translate-y-1">
       <div
         className={`h-28 bg-gradient-to-br ${getGradient(exhibitor.industry)} p-5`}
       >
@@ -52,14 +82,46 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
         <p className="mt-3 line-clamp-2 text-sm text-secondary leading-relaxed">
           {exhibitor.tagline}
         </p>
-        <div className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-brand opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          Visit Booth
-          <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M6 4l4 4-4 4" />
-          </svg>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {exhibitor.publicQrToken ? (
+            <Link
+              href={`/visit/${exhibitor.publicQrToken}`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand-subtle px-3.5 py-2 text-sm font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
+            >
+              <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M8 3v10M3 8h10" />
+              </svg>
+              Visit Booth
+            </Link>
+          ) : null}
+
+          {exhibitor.publicQrToken ? (
+            <Link
+              href={`/visit/${exhibitor.publicQrToken}`}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+            >
+              <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 5v3l2 2" />
+              </svg>
+              Ask AI
+            </Link>
+          ) : null}
+
+          <a
+            href={exhibitor.website || `https://${exhibitor.companyName.toLowerCase().replace(/[^a-z0-9]/g, "")}.com`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+          >
+            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 2h8v8M8 8l6-6M2 8v6h6" />
+            </svg>
+            Website
+          </a>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -111,6 +173,21 @@ export function HackathonLandingClient({
           className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-brand/[0.07] via-brand/[0.03] to-transparent"
         />
 
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 size-full opacity-[0.04]"
+          width="100%"
+          height="100%"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <pattern id="hero-grid" width="64" height="64" patternUnits="userSpaceOnUse">
+              <path d="M 64 0 L 0 0 0 64" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hero-grid)" />
+        </svg>
+
         <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
           <span className="size-1.5 rounded-full bg-brand animate-pulse" />
           AI Native Trade Show
@@ -143,7 +220,7 @@ export function HackathonLandingClient({
           </svg>
         </button>
 
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted">
           <span className="inline-flex items-center gap-1.5">
             <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M8 1C5.2 1 3 3.2 3 6c0 3.5 5 9 5 9s5-5.5 5-9c0-2.8-2.2-5-5-5z" />
@@ -167,29 +244,41 @@ export function HackathonLandingClient({
             {count} Featured Exhibitors
           </span>
         </div>
+
+        <div className="mt-16 grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-5">
+          {JOURNEY_STEPS.map((item) => (
+            <div key={item.step} className="rounded-xl border border-default/50 bg-surface/60 p-4 text-center backdrop-blur-sm">
+              <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-bold text-on-brand">
+                {item.step}
+              </span>
+              <p className="mt-2 text-sm font-semibold text-primary">{item.title}</p>
+              <p className="mt-1 text-xs text-muted leading-relaxed">{item.description}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="border-t border-default/50 bg-sunken/40">
         <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 sm:py-16">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             <div className="rounded-xl border border-default bg-surface p-4 text-center">
-              <p className="text-2xl font-bold text-primary">{count}</p>
+              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={count} /></p>
               <p className="mt-1 text-xs text-muted">Featured Exhibitors</p>
             </div>
             <div className="rounded-xl border border-default bg-surface p-4 text-center">
-              <p className="text-2xl font-bold text-primary">18,500+</p>
+              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={18500} suffix="+" /></p>
               <p className="mt-1 text-xs text-muted">Attendees</p>
             </div>
             <div className="rounded-xl border border-default bg-surface p-4 text-center">
-              <p className="text-2xl font-bold text-primary">25</p>
+              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={25} /></p>
               <p className="mt-1 text-xs text-muted">Countries Represented</p>
             </div>
             <div className="rounded-xl border border-default bg-surface p-4 text-center">
-              <p className="text-2xl font-bold text-primary">10</p>
+              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={10} /></p>
               <p className="mt-1 text-xs text-muted">AI Assistants</p>
             </div>
             <div className="rounded-xl border border-default bg-surface p-4 text-center sm:col-span-3 lg:col-span-1">
-              <p className="text-2xl font-bold text-primary">80+</p>
+              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={80} suffix="+" /></p>
               <p className="mt-1 text-xs text-muted">Sessions</p>
             </div>
           </div>

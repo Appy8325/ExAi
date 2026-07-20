@@ -239,18 +239,84 @@ function Resources({ booth }: { booth: PublicBooth }) {
   );
 }
 
-const GENERIC_SUGGESTIONS = [
-  "What are your flagship products?",
-  "Which industries do you serve?",
-  "What makes your solution different?",
-  "How can I contact your sales team?",
-];
+const COMPANY_QUESTIONS: Record<string, string[]> = {
+  Microsoft: [
+    "What is Microsoft Copilot and how does it work?",
+    "How does Azure compare to other cloud platforms?",
+    "What's included in Microsoft 365 for enterprise?",
+    "How can developers use GitHub Copilot?",
+  ],
+  Apple: [
+    "What's new in the latest iPhone?",
+    "How does Apple Vision Pro work for developers?",
+    "What are Apple's privacy features?",
+    "How does Apple Silicon performance compare?",
+  ],
+  Google: [
+    "What is Google Gemini and how does it work?",
+    "How does Google Cloud Platform differentiate?",
+    "What's new in Android for developers?",
+    "How does Google Workspace AI help productivity?",
+  ],
+  NVIDIA: [
+    "What are the latest GeForce GPUs for gaming?",
+    "How does CUDA enable AI acceleration?",
+    "What is NVIDIA Omniverse for digital twins?",
+    "How do DGX systems support AI training?",
+  ],
+  Cisco: [
+    "What is Cisco Meraki cloud networking?",
+    "How does Cisco Secure Firewall protect networks?",
+    "What's new in Webex for collaboration?",
+    "How does ThousandEyes monitor internet performance?",
+  ],
+  IBM: [
+    "What is watsonx and how does it help enterprises?",
+    "How does IBM Quantum compute work?",
+    "What are IBM Granite foundation models?",
+    "How does Red Hat OpenShift integrate with IBM Cloud?",
+  ],
+  Intel: [
+    "What's new in Intel Core Ultra processors?",
+    "How do Gaudi AI accelerators compare to GPUs?",
+    "What is Intel vPro for enterprise devices?",
+    "How does Intel Foundry Services work?",
+  ],
+  Salesforce: [
+    "What is Salesforce Einstein AI?",
+    "How does Data Cloud unify customer data?",
+    "What's the difference between Sales and Service Cloud?",
+    "How does Slack integrate with Salesforce?",
+  ],
+  Adobe: [
+    "What is Adobe Firefly generative AI?",
+    "How does Adobe Experience Cloud help marketers?",
+    "What's new in Creative Cloud apps?",
+    "How does Adobe Acrobat AI Assistant work?",
+  ],
+  Siemens: [
+    "What is the Siemens Xcelerator platform?",
+    "How does Teamcenter PLM manage product data?",
+    "What is Siemens Industrial Edge computing?",
+    "How does Siemens support sustainable manufacturing?",
+  ],
+};
+
+function getCompanyQuestions(companyName: string): string[] {
+  return COMPANY_QUESTIONS[companyName] ?? [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What makes your solution different?",
+    "How can I contact your sales team?",
+  ];
+}
 
 function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; companyName: string }) {
   const [answer, setAnswer] = useState<BoothChatResponse>();
   const [error, setError] = useState<string>();
   const [pending, startTransition] = useTransition();
   const [question, setQuestion] = useState("");
+  const suggestions = getCompanyQuestions(companyName);
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const q = question.trim();
@@ -305,7 +371,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
-        {GENERIC_SUGGESTIONS.map((s) => (
+        {suggestions.map((s) => (
           <button
             key={s}
             type="button"
