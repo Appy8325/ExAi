@@ -328,7 +328,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
     <section className="space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
       <div>
         <h3 className="text-sm font-semibold text-gray-900">AI Assistant</h3>
-        <p className="text-xs text-gray-500">Ask about {companyName}'s products and services</p>
+        <p className="text-xs text-gray-500">Ask about {companyName}&apos;s products and services</p>
       </div>
 
       <div className="space-y-3 max-h-64 overflow-y-auto">
