@@ -82,6 +82,18 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
         <p className="mt-3 line-clamp-2 text-sm text-secondary leading-relaxed">
           {exhibitor.tagline}
         </p>
+        {exhibitor.products && exhibitor.products.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {exhibitor.products.slice(0, 3).map((product) => (
+              <span key={product} className="rounded-full border border-default bg-sunken/40 px-2 py-0.5 text-[10px] text-secondary">
+                {product}
+              </span>
+            ))}
+            {exhibitor.products.length > 3 && (
+              <span className="text-[10px] text-muted">+{exhibitor.products.length - 3} more</span>
+            )}
+          </div>
+        )}
         <div className="mt-4 flex flex-wrap gap-2">
           {exhibitor.publicQrToken ? (
             <Link
@@ -190,7 +202,7 @@ export function HackathonLandingClient({
 
         <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
           <span className="size-1.5 rounded-full bg-brand animate-pulse" />
-          AI Native Trade Show
+          TechExpo 2027
         </span>
 
         <h1 className="mt-8 text-5xl font-bold tracking-tight text-primary sm:text-6xl lg:text-7xl">
@@ -205,8 +217,7 @@ export function HackathonLandingClient({
         </p>
 
         <p className="mx-auto mt-4 max-w-xl text-sm text-muted leading-relaxed">
-          A fully interactive demonstration of how organizers, exhibitors and
-          attendees use ExAi to transform event engagement.
+          Discover how AI transforms organizer, exhibitor and attendee engagement.
         </p>
 
         <button
@@ -245,22 +256,26 @@ export function HackathonLandingClient({
           </span>
         </div>
 
-        <div className="mt-16 grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-5">
-          <div className="col-span-1 sm:col-span-5">
-            <p className="text-sm font-medium text-secondary">New here? Follow this journey:</p>
+        <div className="mt-16 w-full max-w-3xl">
+          <div className="mb-6 text-center">
+            <span className="text-2xl">👋</span>
+            <h2 className="mt-2 text-xl font-semibold text-primary">Welcome to TechExpo 2027</h2>
+            <p className="mt-1 text-sm text-secondary">New here? Follow this journey.</p>
           </div>
-          {JOURNEY_STEPS.map((item) => (
-            <div key={item.step} className="rounded-xl border border-default/50 bg-surface/60 p-4 text-center backdrop-blur-sm">
-              <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-bold text-on-brand">
-                {item.step}
-              </span>
-              <p className="mt-2 text-sm font-semibold text-primary">{item.title}</p>
-              <p className="mt-1 text-xs text-muted leading-relaxed">{item.description}</p>
-            </div>
-          ))}
-          <div className="col-span-1 sm:col-span-5 text-center">
-            <p className="text-xs text-muted">Estimated time: 2–3 minutes</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
+            {JOURNEY_STEPS.map((item) => (
+              <div key={item.step} className="rounded-xl border border-default/50 bg-surface/60 p-4 text-center backdrop-blur-sm transition-all hover:border-brand/30 hover:shadow-sm">
+                <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-bold text-on-brand">
+                  {item.step}
+                </span>
+                <p className="mt-2 text-sm font-medium text-primary">{item.title}</p>
+                <p className="mt-1 text-xs text-muted leading-relaxed">{item.description}</p>
+              </div>
+            ))}
           </div>
+          <p className="mt-6 text-center text-sm text-muted">
+            <span className="font-medium">Estimated time:</span> 2–3 minutes
+          </p>
         </div>
 
         <button

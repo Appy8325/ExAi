@@ -12,7 +12,7 @@ import {
   updateAttendeeProfile,
 } from "@concourse/api-client";
 import type { BoothChatResponse, PublicBooth } from "@concourse/api-client";
-import { Button, Card, Input, StatusBadge, AiChatBubble, AiTypingIndicator, AiChat, AiSuggestedQuestions } from "@concourse/ui";
+import { Button, Card, Input, StatusBadge } from "@concourse/ui";
 
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
