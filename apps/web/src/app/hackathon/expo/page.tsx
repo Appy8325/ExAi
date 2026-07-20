@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { getPublicShowcase } from "@concourse/api-client";
@@ -6,10 +7,6 @@ import { ShowcaseClient } from "@/app/showcase/showcase-client";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-function boothQrFilename(boothNumber: string): string {
-  return boothNumber.replace(/[^a-z0-9]/gi, "-").toLowerCase();
-}
 
 export default async function HackathonExpoPage() {
   const apiBase = getApiBaseUrl();
@@ -30,7 +27,7 @@ export default async function HackathonExpoPage() {
               href="/hackathon"
               className="rounded-lg border border-default bg-surface px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
             >
-              About
+              Event
             </Link>
             <Link
               href="/demo"
@@ -39,7 +36,7 @@ export default async function HackathonExpoPage() {
               Demo
             </Link>
             <span className="rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
-              Expo
+              Expo Floor
             </span>
           </div>
         </div>
@@ -49,15 +46,32 @@ export default async function HackathonExpoPage() {
         <div className="space-y-3 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
             <span className="size-1.5 rounded-full bg-brand" />
-            TechExpo 2027 — Exhibitor Showcase
+            TechExpo 2027 — Expo Floor
           </span>
           <h1 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
             Discover the future of technology
           </h1>
           <p className="mx-auto max-w-2xl text-base text-secondary">
-            Walk the expo floor from here. Open any booth, scan the QR, and
-            experience AI-powered lead intelligence in action.
+            Browse exhibitors, open any booth, and experience AI-powered product
+            intelligence — all from a single scan.
           </p>
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <div className="inline-flex items-center gap-3 rounded-xl border border-default bg-surface px-4 py-3 shadow-1">
+            <Image
+              src="/demo/qr/event-entrance.png"
+              alt="Event entrance QR code"
+              width={64}
+              height={64}
+              className="rounded-lg border border-default"
+              unoptimized
+            />
+            <div className="text-left text-xs">
+              <p className="font-medium text-primary">Event Entrance</p>
+              <p className="text-muted mt-0.5">Scan to enter TechExpo 2027</p>
+            </div>
+          </div>
         </div>
 
         {!exhibitors ? (
@@ -67,14 +81,7 @@ export default async function HackathonExpoPage() {
             against a running Supabase project.
           </section>
         ) : (
-          <ShowcaseClient
-            exhibitors={exhibitors.map((e) => ({
-              ...e,
-              boothQrImage: e.boothNumber
-                ? `/demo/qr/booth-${boothQrFilename(e.boothNumber)}.png`
-                : null,
-            }))}
-          />
+          <ShowcaseClient exhibitors={exhibitors} />
         )}
       </div>
     </main>

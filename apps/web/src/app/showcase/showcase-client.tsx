@@ -26,20 +26,16 @@ type ShowcaseExhibitorCard = {
   products: string[];
   brochureUrl: string;
   publicQrToken: string | null;
-  boothQrImage: string | null;
 };
 
 const industryColors: Record<string, string> = {
-  "Robotics & Automation": "from-indigo-500 to-purple-600",
-  "Artificial Intelligence": "from-violet-500 to-fuchsia-600",
-  Biotechnology: "from-emerald-500 to-teal-600",
-  "Defense & Aerospace": "from-amber-600 to-orange-600",
-  "Clean Energy": "from-green-500 to-emerald-600",
-  "Smart Infrastructure": "from-cyan-500 to-blue-600",
-  "Logistics & Supply Chain": "from-sky-500 to-indigo-600",
-  "Data & Analytics": "from-pink-500 to-rose-600",
-  Cybersecurity: "from-red-600 to-rose-700",
-  "Industrial Manufacturing": "from-slate-600 to-gray-700",
+  Technology: "from-blue-600 to-indigo-600",
+  "Cloud Computing": "from-orange-500 to-amber-600",
+  "Semiconductors & AI": "from-green-600 to-emerald-600",
+  "Enterprise Software": "from-sky-500 to-blue-600",
+  Software: "from-red-500 to-rose-600",
+  "Technology & Consulting": "from-indigo-500 to-purple-600",
+  "Automotive & Energy": "from-red-600 to-orange-600",
 };
 
 function getGradient(industry: string): string {
@@ -140,13 +136,12 @@ function ExhibitorCard({
   exhibitor: ShowcaseExhibitorCard;
 }) {
   const [productsOpen, setProductsOpen] = useState(false);
-  const [qrOpen, setQrOpen] = useState(false);
 
   const gradient = getGradient(exhibitor.industry);
 
   return (
     <>
-      <div className="group relative overflow-hidden rounded-2xl border border-default bg-surface shadow-1 transition-all hover:shadow-2">
+      <div className="group relative overflow-hidden rounded-2xl border border-default bg-surface shadow-1 transition-all hover:shadow-premium hover:-translate-y-0.5">
         <div
           className={`h-24 bg-gradient-to-br ${gradient} p-5`}
         >
@@ -187,21 +182,6 @@ function ExhibitorCard({
               </Link>
             ) : null}
 
-            <button
-              type="button"
-              onClick={() => setQrOpen(true)}
-              disabled={!exhibitor.boothQrImage && !exhibitor.publicQrToken}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary disabled:opacity-40"
-            >
-              <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="1" y="1" width="6" height="6" rx="1" />
-                <rect x="9" y="1" width="6" height="6" rx="1" />
-                <rect x="1" y="9" width="6" height="6" rx="1" />
-                <rect x="9" y="9" width="6" height="6" rx="1" />
-              </svg>
-              Show QR
-            </button>
-
             {exhibitor.products.length > 0 ? (
               <button
                 type="button"
@@ -237,46 +217,6 @@ function ExhibitorCard({
             <button
               type="button"
               className="mt-6 rounded-lg border border-default bg-surface px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-sunken"
-            >
-              Close
-            </button>
-          </DialogClose>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
-        <DialogContent className="max-w-xs">
-          <DialogTitle className="text-center text-lg font-semibold text-primary">
-            {exhibitor.companyName}
-          </DialogTitle>
-          <p className="mt-1 text-center text-xs text-muted">
-            Booth {exhibitor.boothNumber ?? "\u2014"}
-          </p>
-          <div className="mt-4 flex justify-center">
-            {exhibitor.boothQrImage ? (
-              <img
-                src={exhibitor.boothQrImage}
-                alt={`QR code for ${exhibitor.companyName}`}
-                className="size-48 rounded-xl border border-default"
-              />
-            ) : (
-              <div className="flex size-48 items-center justify-center rounded-xl border border-dashed border-default bg-surface text-xs text-muted">
-                QR not available
-              </div>
-            )}
-          </div>
-          <p className="mt-3 text-center text-xs text-muted">
-            Scan to open the booth page
-          </p>
-          {exhibitor.publicQrToken ? (
-            <p className="mt-2 truncate rounded-lg border border-default bg-surface px-3 py-2 text-center font-mono text-[11px] text-muted">
-              /visit/{exhibitor.publicQrToken.slice(0, 16)}...
-            </p>
-          ) : null}
-          <DialogClose asChild>
-            <button
-              type="button"
-              className="mt-4 w-full rounded-lg border border-default bg-surface px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-sunken"
             >
               Close
             </button>
