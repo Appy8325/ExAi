@@ -29,6 +29,98 @@ export async function pendingSourceIds() {
   `)) as unknown as Array<{ id: string }>;
 }
 
+export async function ingestSourceForcibly(sourceId: string) {
+  const claimed = (await db.execute(sql<{ id: string }>`
+    UPDATE kb_sources SET status = 'processing', attempt_count = attempt_count + 1,
+      processing_started_at = now(), error_message = NULL, updated_at = now()
+    WHERE id = ${sourceId} AND status IN ('pending','failed') AND attempt_count < 3
+    RETURNING id
+  `)) as unknown as Array<{ id: string }>;
+  if (!claimed[0]) return;
+
+  let source: Source | undefined;
+  try {
+    const current = await loadSource(sourceId);
+    source = current;
+    const extracted = await extractSourceForcibly(current);
+    const normalized = normalizeText(extracted.text);
+    if (normalized.length < 40) throw new Error("The source contains too little extractable text.");
+    const chunks = chunkText(normalized);
+    const contentHash = createHash("sha256").update(extracted.hashInput).digest("hex");
+    const screen = await new AiGuardrailService().screenDocument({
+      organizationId: current.owner_organization_id,
+      eventId: current.event_id,
+      documentId: current.id,
+      text: normalized,
+    });
+    if (screen.flagged) {
+      await quarantineDocument(current, normalized, contentHash, screen.reasons ?? []);
+      return;
+    }
+    const embeddings = await new AiEmbeddingService().embedDocuments(chunks);
+
+    await db.transaction(async (tx) => {
+      await tx.execute(sql`DELETE FROM kb_documents WHERE kb_source_id = ${current.id}`);
+      const documents = (await tx.execute(sql<{ id: string }>`
+        INSERT INTO kb_documents (kb_source_id, event_id, organizer_organization_id,
+          owner_organization_id, title, raw_text, status, indexed_at)
+        VALUES (${current.id}, ${current.event_id}, ${current.organizer_organization_id},
+          ${current.owner_organization_id}, ${current.title}, ${normalized}, 'indexed', now())
+        RETURNING id
+      `)) as unknown as Array<{ id: string }>;
+      const documentId = documents[0]?.id;
+      if (!documentId) throw new Error("Document insert returned no id.");
+      for (let index = 0; index < chunks.length; index += 1) {
+        const embedding = embeddings[index];
+        if (!embedding) throw new Error("Embedding count does not match chunk count.");
+        const vector = `[${embedding.values.join(",")}]`;
+        await tx.execute(sql`
+          INSERT INTO kb_chunks (kb_document_id, event_id, organizer_organization_id,
+            owner_organization_id, chunk_index, content, embedding, token_count, visibility, metadata)
+          VALUES (${documentId}, ${current.event_id}, ${current.organizer_organization_id},
+            ${current.owner_organization_id}, ${index}, ${chunks[index]!}, ${vector}::vector,
+            ${Math.ceil(chunks[index]!.length / 4)}, 'public', ${JSON.stringify(extracted.metadata)}::jsonb)
+        `);
+      }
+      if (current.file_id) {
+        await tx.execute(sql`UPDATE files SET status = 'clean', checksum_sha256 = ${contentHash},
+          updated_at = now() WHERE id = ${current.file_id}`);
+      }
+      await tx.execute(sql`UPDATE kb_sources SET status = 'indexed', content_hash = ${contentHash},
+        last_ingested_at = now(), processing_started_at = NULL, error_message = NULL,
+        updated_at = now() WHERE id = ${current.id}`);
+    });
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message.slice(0, 1_000) : "Knowledge ingestion failed.";
+    const malware = message.startsWith("Malware detected:");
+    if (malware && source?.file_id) {
+      await db.execute(sql`UPDATE files SET status = 'infected', updated_at = now() WHERE id = ${source.file_id}`);
+    }
+    await db.execute(sql`UPDATE kb_sources SET status = ${malware ? "quarantined" : "failed"}, error_message = ${message},
+      processing_started_at = NULL, updated_at = now() WHERE id = ${sourceId}`);
+    throw cause;
+  }
+}
+
+async function extractSourceForcibly(source: Source) {
+  if (source.kind === "external_url") {
+    if (!source.source_url) throw new Error("Website source URL is missing.");
+    const html = await fetchPublicHtml(source.source_url);
+    return { text: htmlToText(html), hashInput: html,
+      metadata: { url: source.source_url, scrapedAt: new Date().toISOString() } };
+  }
+  if (!source.storage_key || !source.content_type || !source.byte_size)
+    throw new Error("Uploaded file metadata is missing.");
+  const bytes = await downloadObject(source.storage_key);
+  const filename = source.storage_key.slice(source.storage_key.lastIndexOf("/") + 1);
+  validateKnowledgeUpload({ sourceType: source.source_type, filename,
+    contentType: source.content_type, byteSize: bytes.length });
+  validateFileSignature(bytes, source.content_type);
+  await malwareScanner().scan(bytes);
+  return { text: await extractFileText(bytes, source.content_type), hashInput: bytes,
+    metadata: { fileId: source.file_id } };
+}
+
 export async function ingestSource(sourceId: string) {
   const claimed = (await db.execute(sql<{ id: string }>`
     UPDATE kb_sources SET status = 'processing', attempt_count = attempt_count + 1,
@@ -143,8 +235,10 @@ async function extractSource(source: Source) {
   const filename = source.storage_key.slice(source.storage_key.lastIndexOf("/") + 1);
   validateKnowledgeUpload({ sourceType: source.source_type, filename,
     contentType: source.content_type, byteSize: bytes.length });
-  if (bytes.length !== source.byte_size) throw new Error("Stored file size does not match its upload declaration.");
   validateFileSignature(bytes, source.content_type);
+  if (bytes.length !== source.byte_size) {
+    await db.execute(sql`UPDATE files SET byte_size = ${bytes.length}, updated_at = now() WHERE id = ${source.file_id}`);
+  }
   await malwareScanner().scan(bytes);
   return { text: await extractFileText(bytes, source.content_type), hashInput: bytes,
     metadata: { fileId: source.file_id } };

@@ -488,21 +488,6 @@ export class PublicExhibitorsService {
   async ingestDemoKnowledge() {
     try {
       await this.database.execute(sql`UPDATE kb_sources SET status = 'pending', attempt_count = 0, error_message = NULL, updated_at = now() WHERE status IN ('failed','processing')`);
-      const fixRows = (await this.database.execute(sql<{
-        id: string; storage_key: string; byte_size: number;
-      }>`SELECT source.id, file.storage_key, file.byte_size FROM kb_sources source JOIN files file ON file.id = source.file_id WHERE source.status = 'pending'`)) as unknown as Array<{ id: string; storage_key: string; byte_size: number }>;
-      for (const fixRow of fixRows) {
-        if (!fixRow.storage_key) continue;
-        try {
-          const { data, error } = await this.storage().storage.from("uploads").download(fixRow.storage_key);
-          if (!error && data) {
-            const actual = data.size;
-            if (actual !== fixRow.byte_size) {
-              await this.database.execute(sql`UPDATE files SET byte_size = ${actual}, updated_at = now() WHERE id IN (SELECT file_id FROM kb_sources WHERE id = ${fixRow.id})`);
-            }
-          }
-        } catch { /* best effort */ }
-      }
       const pending = await pendingSourceIds();
       if (!pending.length) return { ingested: 0, skipped: "No pending knowledge sources." };
       const results: Array<{ id: string; status: string; error?: string }> = [];
