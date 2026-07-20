@@ -105,7 +105,7 @@ export function BoothExperience({
     <main className="mx-auto min-h-screen max-w-(--mq-attendee-content-max) bg-canvas px-gutter py-section text-primary">
       <Card className="space-y-6">
         <BoothHeader booth={booth} />
-        <BoothChat publicQrToken={publicQrToken} />
+        <BoothChat publicQrToken={publicQrToken} companyName={booth.companyName} />
         <Resources booth={booth} />
         {step === "landing" ? (
           <Landing booth={booth} onConnect={() => setStep("email")} />
@@ -239,15 +239,22 @@ function Resources({ booth }: { booth: PublicBooth }) {
   );
 }
 
-function BoothChat({ publicQrToken }: { publicQrToken: string }) {
+const GENERIC_SUGGESTIONS = [
+  "What are your flagship products?",
+  "Which industries do you serve?",
+  "What makes your solution different?",
+  "How can I contact your sales team?",
+];
+
+function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; companyName: string }) {
   const [answer, setAnswer] = useState<BoothChatResponse>();
   const [error, setError] = useState<string>();
   const [pending, startTransition] = useTransition();
+  const [question, setQuestion] = useState("");
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const question = String(
-      new FormData(event.currentTarget).get("question") ?? "",
-    );
+    const q = question.trim();
+    if (!q) return;
     setError(undefined);
     startTransition(async () => {
       try {
@@ -255,7 +262,26 @@ function BoothChat({ publicQrToken }: { publicQrToken: string }) {
           await chatAtBooth(
             { baseUrl: getApiBaseUrl() },
             publicQrToken,
-            question,
+            q,
+          ),
+        );
+      } catch {
+        setError(
+          "The AI assistant could not answer right now. You can still review the published resources.",
+        );
+      }
+    });
+  };
+  const askQuestion = (q: string) => {
+    setQuestion(q);
+    setError(undefined);
+    startTransition(async () => {
+      try {
+        setAnswer(
+          await chatAtBooth(
+            { baseUrl: getApiBaseUrl() },
+            publicQrToken,
+            q,
           ),
         );
       } catch {
@@ -272,19 +298,34 @@ function BoothChat({ publicQrToken }: { publicQrToken: string }) {
     >
       <div>
         <h2 className="text-title font-semibold text-primary" id="assistant-heading">
-          Company AI Assistant
+          {companyName} AI Assistant
         </h2>
         <p className="mt-1 text-body text-secondary">
           Ask anything about this exhibitor&rsquo;s products, services, and booth details.
         </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {GENERIC_SUGGESTIONS.map((s) => (
+          <button
+            key={s}
+            type="button"
+            disabled={pending}
+            onClick={() => askQuestion(s)}
+            className="rounded-lg border border-brand/20 bg-white px-3 py-1.5 text-body-sm text-brand transition-colors hover:bg-brand hover:text-on-brand disabled:opacity-50"
+          >
+            {s}
+          </button>
+        ))}
       </div>
       <form className="flex gap-2" onSubmit={submit}>
         <Input
           aria-label="Question for the company AI"
           maxLength={1000}
           name="question"
-          placeholder="E.g. What products do you offer?"
+          placeholder="Ask a question..."
           required
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
         />
         <Button disabled={pending} type="submit">
           {pending ? "Asking…" : "Ask"}

@@ -30,12 +30,13 @@ type ShowcaseExhibitorCard = {
 
 const industryColors: Record<string, string> = {
   Technology: "from-blue-600 to-indigo-600",
-  "Cloud Computing": "from-orange-500 to-amber-600",
   "Semiconductors & AI": "from-green-600 to-emerald-600",
+  "Networking & Security": "from-cyan-500 to-teal-600",
   "Enterprise Software": "from-sky-500 to-blue-600",
   Software: "from-red-500 to-rose-600",
   "Technology & Consulting": "from-indigo-500 to-purple-600",
-  "Automotive & Energy": "from-red-600 to-orange-600",
+  Semiconductors: "from-amber-500 to-orange-600",
+  "Industrial Technology": "from-slate-600 to-gray-700",
 };
 
 function getGradient(industry: string): string {

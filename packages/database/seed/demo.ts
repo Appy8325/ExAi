@@ -46,114 +46,114 @@ type ExhibitorSeed = {
 
 const exhibitors: ExhibitorSeed[] = [
   {
-    name: "Northstar Robotics",
+    name: "Microsoft",
     booth: "A-101",
-    tagline: "Autonomous navigation for the next industrial frontier.",
-    industry: "Robotics & Automation",
-    description: "Northstar Robotics builds autonomous mobile robots (AMRs) for warehouse, logistics, and manufacturing environments. Their fleet orchestration platform enables zero-downtime material handling with real-time obstacle avoidance and dynamic path planning.",
-    products: ["Nova AMR Platform", "FleetOS Orchestrator", "StarSight LIDAR Suite", "Northstar Safety Shield", "Analytics Dashboard"],
-    brochureUrl: "https://northstar-robotics.example.com/brochure-2027.pdf",
-    phone: "+1-555-0101",
-    socialLinks: { linkedin: "https://linkedin.com/company/northstar-robotics", twitter: "https://twitter.com/northstarrobotics" },
+    tagline: "Empowering every person and every organization on the planet to achieve more.",
+    industry: "Technology",
+    description: "Microsoft is a multinational technology company that develops, licenses, and supports software, services, devices, and solutions. Its products include Microsoft 365, Azure cloud services, Dynamics 365, LinkedIn, GitHub, and the Microsoft Copilot AI assistant. Microsoft is headquartered in Redmond, Washington.",
+    products: ["Microsoft 365", "Microsoft Azure", "Microsoft Copilot", "Microsoft Teams", "GitHub Copilot", "Dynamics 365", "LinkedIn", "Windows 11", "Visual Studio"],
+    brochureUrl: "https://www.microsoft.com/en-us/microsoft-365",
+    phone: "+1-800-642-7676",
+    socialLinks: { linkedin: "https://linkedin.com/company/microsoft", twitter: "https://twitter.com/Microsoft", website: "https://www.microsoft.com" },
   },
   {
-    name: "QuantumForge AI",
+    name: "Apple",
     booth: "A-102",
-    tagline: "Enterprise AI that delivers measurable outcomes.",
-    industry: "Artificial Intelligence",
-    description: "QuantumForge AI provides enterprise-grade machine learning infrastructure and pre-trained models for computer vision, NLP, and predictive analytics. Their no-code MLOps platform lets teams deploy models in minutes, not months.",
-    products: ["ForgeML Platform", "VisionAI Suite", "NLP Studio", "Predict Engine", "Model Monitor"],
-    brochureUrl: "https://quantumforge-ai.example.com/brochure-2027.pdf",
-    phone: "+1-555-0102",
-    socialLinks: { linkedin: "https://linkedin.com/company/quantumforge-ai", twitter: "https://twitter.com/quantumforgeai" },
+    tagline: "Think different.",
+    industry: "Technology",
+    description: "Apple designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories. Its product lineup includes iPhone, Mac, iPad, Apple Watch, AirPods, Apple Vision Pro, and services such as Apple Music, iCloud, the App Store, and Apple Pay. Apple is headquartered in Cupertino, California.",
+    products: ["iPhone", "Mac", "iPad", "Apple Watch", "Apple Vision Pro", "AirPods", "Apple Music", "iCloud", "App Store", "Apple Pay"],
+    brochureUrl: "https://www.apple.com",
+    phone: "+1-800-275-2273",
+    socialLinks: { linkedin: "https://linkedin.com/company/apple", twitter: "https://twitter.com/Apple", website: "https://www.apple.com" },
   },
   {
-    name: "Helix BioSystems",
+    name: "Google",
     booth: "A-103",
-    tagline: "Bioinformatics tools powering the next generation of therapeutics.",
-    industry: "Biotechnology",
-    description: "Helix BioSystems develops cloud-based bioinformatics platforms for genomics research, drug discovery, and clinical trials. Their pipeline accelerates target identification through AI-driven protein folding and molecular simulation.",
-    products: ["Helix Genomics Cloud", "Molecule Designer", "TrialTrack Clinical Suite", "ProteinFold AI", "Lab Integration Gateway"],
-    brochureUrl: "https://helix-biosystems.example.com/brochure-2027.pdf",
-    phone: "+1-555-0103",
-    socialLinks: { linkedin: "https://linkedin.com/company/helix-biosystems", twitter: "https://twitter.com/helixbiosystems" },
+    tagline: "Organize the world's information and make it universally accessible and useful.",
+    industry: "Technology",
+    description: "Google is a multinational technology company specializing in internet-related services and products. Its offerings include Google Search, Google Cloud Platform, Android, YouTube, Google Workspace, Google Maps, Google Gemini AI, and Google Pixel hardware. Google is headquartered in Mountain View, California and is a subsidiary of Alphabet Inc.",
+    products: ["Google Cloud Platform", "Google Workspace", "Android", "YouTube", "Google Search", "Google Maps", "Google Gemini", "Google Pixel", "Chrome", "TensorFlow"],
+    brochureUrl: "https://cloud.google.com",
+    phone: "+1-650-253-0000",
+    socialLinks: { linkedin: "https://linkedin.com/company/google", twitter: "https://twitter.com/Google", website: "https://www.google.com" },
   },
   {
-    name: "AeroSense Technologies",
+    name: "NVIDIA",
     booth: "A-104",
-    tagline: "Next-generation sensor fusion for autonomous systems.",
-    industry: "Defense & Aerospace",
-    description: "AeroSense Technologies delivers advanced sensor fusion, electronic warfare, and ISR (Intelligence, Surveillance, Reconnaissance) solutions for defense and commercial aerospace. Their modular architecture supports rapid integration across air, land, and sea platforms.",
-    products: ["SensorFusion Core", "AeroVision EO/IR", "SpectrumGuard EW Suite", "Tactical Data Link", "Mission Planning Console"],
-    brochureUrl: "https://aerosense-tech.example.com/brochure-2027.pdf",
-    phone: "+1-555-0104",
-    socialLinks: { linkedin: "https://linkedin.com/company/aerosense-tech" },
+    tagline: "The world leader in accelerated computing.",
+    industry: "Semiconductors & AI",
+    description: "NVIDIA is a multinational technology company that designs graphics processing units (GPUs) for gaming, professional visualization, data centers, and automotive markets. Its CUDA platform enables parallel computing and its AI platforms include DGX systems, NVIDIA AI Enterprise, Omniverse, and the DRIVE platform for autonomous vehicles. NVIDIA is headquartered in Santa Clara, California.",
+    products: ["GeForce GPUs", "CUDA", "NVIDIA AI Enterprise", "DGX Systems", "NVIDIA Omniverse", "NVIDIA DRIVE", "NVIDIA Clara", "NVIDIA Jetson", "NVIDIA Spectrum"],
+    brochureUrl: "https://www.nvidia.com/en-us/data-center/",
+    phone: "+1-408-486-2000",
+    socialLinks: { linkedin: "https://linkedin.com/company/nvidia", twitter: "https://twitter.com/nvidia", website: "https://www.nvidia.com" },
   },
   {
-    name: "Lumina Energy",
-    booth: "A-105",
-    tagline: "Clean energy intelligence for a sustainable grid.",
-    industry: "Clean Energy",
-    description: "Lumina Energy provides AI-driven energy management and grid optimization software for utilities, renewables, and commercial facilities. Their platform predicts demand, optimizes storage, and reduces carbon footprint across distributed energy networks.",
-    products: ["GridMind Platform", "SolarForecast AI", "Storage Optimizer", "CarbonTrack Suite", "Demand Response Engine"],
-    brochureUrl: "https://lumina-energy.example.com/brochure-2027.pdf",
-    phone: "+1-555-0105",
-    socialLinks: { linkedin: "https://linkedin.com/company/lumina-energy", twitter: "https://twitter.com/luminaenergy" },
+    name: "Cisco",
+    booth: "B-101",
+    tagline: "Powering an inclusive future by connecting everything, innovating everywhere.",
+    industry: "Networking & Security",
+    description: "Cisco is a multinational technology conglomerate that develops, manufactures, and sells networking hardware, software, telecommunications equipment, and cybersecurity solutions. Its product portfolio includes Cisco Catalyst and Nexus switching, Cisco ISR/ASR routing, Cisco Secure Firewall and Duo Security, Cisco Meraki cloud-managed IT, Webex collaboration, AppDynamics observability, and ThousandEyes internet monitoring. Cisco is headquartered in San Jose, California.",
+    products: ["Cisco Catalyst Switches", "Cisco Secure Firewall", "Cisco Meraki", "Webex", "Cisco AppDynamics", "Cisco ThousandEyes", "Cisco ISR Routers", "Cisco DNA Center", "Cisco Duo Security"],
+    brochureUrl: "https://www.cisco.com",
+    phone: "+1-800-553-6387",
+    socialLinks: { linkedin: "https://linkedin.com/company/cisco", twitter: "https://twitter.com/Cisco", website: "https://www.cisco.com" },
   },
   {
-    name: "GreenGrid Solutions",
-    booth: "A-106",
-    tagline: "Smart infrastructure monitoring for the built environment.",
-    industry: "Smart Infrastructure",
-    description: "GreenGrid Solutions builds IoT-based structural health monitoring and smart building management systems. Their sensor arrays and analytics platform help facility managers reduce energy consumption, predict maintenance needs, and extend asset lifecycles.",
-    products: ["GridSense IoT Platform", "Structural Health Monitor", "Energy Optimizer", "Predictive Maintenance Engine", "Facility Command Center"],
-    brochureUrl: "https://greengrid-solutions.example.com/brochure-2027.pdf",
-    phone: "+1-555-0106",
-    socialLinks: { linkedin: "https://linkedin.com/company/greengrid-solutions" },
+    name: "IBM",
+    booth: "B-102",
+    tagline: "Be essential.",
+    industry: "Technology & Consulting",
+    description: "IBM is a multinational technology and consulting company providing hybrid cloud, AI, and consulting services. Its products include IBM watsonx AI platform, IBM Cloud, Red Hat OpenShift, IBM Qiskit for quantum computing, IBM SPSS for statistical analysis, and IBM Granite open-source AI models. IBM is headquartered in Armonk, New York and operates in over 175 countries.",
+    products: ["IBM watsonx", "IBM Cloud", "Red Hat OpenShift", "IBM Qiskit", "IBM SPSS", "IBM Granite", "IBM Consulting", "IBM Security", "IBM Maximo"],
+    brochureUrl: "https://www.ibm.com/watsonx",
+    phone: "+1-800-426-4968",
+    socialLinks: { linkedin: "https://linkedin.com/company/ibm", twitter: "https://twitter.com/IBM", website: "https://www.ibm.com" },
   },
   {
-    name: "Atlas Logistics",
-    booth: "A-107",
-    tagline: "Intelligent supply chain orchestration from dock to door.",
-    industry: "Logistics & Supply Chain",
-    description: "Atlas Logistics delivers end-to-end supply chain visibility and warehouse optimization software. Their AI-powered platform coordinates inventory, labor, and transportation in real time, reducing operational costs by up to 30%.",
-    products: ["Atlas WMS", "RouteOptimizer AI", "Inventory Command Center", "Carrier Connect", "Supply Chain Twin"],
-    brochureUrl: "https://atlas-logistics.example.com/brochure-2027.pdf",
-    phone: "+1-555-0107",
-    socialLinks: { linkedin: "https://linkedin.com/company/atlas-logistics", twitter: "https://twitter.com/atlaslogistics" },
+    name: "Intel",
+    booth: "B-103",
+    tagline: "Creating world-changing technology that enriches the lives of every person on earth.",
+    industry: "Semiconductors",
+    description: "Intel is a multinational technology company that designs and manufactures central processing units (CPUs), graphics processing units (GPUs), field-programmable gate arrays (FPGAs), and other semiconductor products. Its product lines include Intel Core processors for consumer devices, Intel Xeon for data centers, Intel Arc GPUs, Intel vPro for business, and Gaudi AI accelerators. Intel is headquartered in Santa Clara, California.",
+    products: ["Intel Core Processors", "Intel Xeon Processors", "Intel Arc GPUs", "Intel Iris Xe Graphics", "Intel vPro", "Intel Gaudi AI Accelerators", "Intel FPGAs", "Intel Optane Memory", "Intel Ethernet Adapters"],
+    brochureUrl: "https://www.intel.com",
+    phone: "+1-408-765-8080",
+    socialLinks: { linkedin: "https://linkedin.com/company/intel", twitter: "https://twitter.com/Intel", website: "https://www.intel.com" },
   },
   {
-    name: "OmniVision Analytics",
-    booth: "A-108",
-    tagline: "See your data differently. Act with clarity.",
-    industry: "Data & Analytics",
-    description: "OmniVision Analytics provides a unified data intelligence platform that connects silos, surfaces insights, and drives decision-making. Their natural-language query engine lets anyone ask questions of their data without writing SQL.",
-    products: ["OmniViz Platform", "AskData NLQ Engine", "SmartDashboard", "Data Catalog", "Predictive Studio"],
-    brochureUrl: "https://omnivision-analytics.example.com/brochure-2027.pdf",
-    phone: "+1-555-0108",
-    socialLinks: { linkedin: "https://linkedin.com/company/omnivision-analytics" },
+    name: "Salesforce",
+    booth: "C-101",
+    tagline: "The world's #1 AI CRM.",
+    industry: "Enterprise Software",
+    description: "Salesforce is a cloud-based software company that provides customer relationship management (CRM) solutions and enterprise applications. Its platform includes Sales Cloud, Service Cloud, Marketing Cloud, Commerce Cloud, Tableau for analytics, MuleSoft for integration, Slack for collaboration, and Einstein AI. Salesforce is headquartered in San Francisco, California.",
+    products: ["Sales Cloud", "Service Cloud", "Marketing Cloud", "Einstein AI", "Tableau", "MuleSoft", "Slack", "Commerce Cloud", "Data Cloud"],
+    brochureUrl: "https://www.salesforce.com/products/",
+    phone: "+1-800-667-6389",
+    socialLinks: { linkedin: "https://linkedin.com/company/salesforce", twitter: "https://twitter.com/salesforce", website: "https://www.salesforce.com" },
   },
   {
-    name: "Vertex Cyber",
-    booth: "A-109",
-    tagline: "Zero-trust security for the AI era.",
-    industry: "Cybersecurity",
-    description: "Vertex Cyber offers a comprehensive zero-trust security platform encompassing endpoint detection, identity threat detection, cloud security posture management, and AI-driven SOC automation.",
-    products: ["Vertex Zero-Trust Core", "EndpointShield", "CloudGuard CSPM", "Identity Threat Detection", "SOC Orchestrator"],
-    brochureUrl: "https://vertex-cyber.example.com/brochure-2027.pdf",
-    phone: "+1-555-0109",
-    socialLinks: { linkedin: "https://linkedin.com/company/vertex-cyber", twitter: "https://twitter.com/vertexcyber" },
+    name: "Adobe",
+    booth: "C-102",
+    tagline: "Creativity for all.",
+    industry: "Software",
+    description: "Adobe is a multinational software company known for its creative, marketing, and document management solutions. Products include Photoshop, Illustrator, Premiere Pro, After Effects, Acrobat, Adobe Express, Adobe Firefly generative AI, and the Adobe Experience Cloud for digital marketing. Adobe is headquartered in San Jose, California.",
+    products: ["Adobe Photoshop", "Adobe Illustrator", "Adobe Premiere Pro", "Adobe Acrobat", "Adobe Firefly", "Adobe Express", "Adobe Experience Cloud", "Adobe Stock", "Adobe Fonts"],
+    brochureUrl: "https://www.adobe.com/creativecloud.html",
+    phone: "+1-800-833-6687",
+    socialLinks: { linkedin: "https://linkedin.com/company/adobe", twitter: "https://twitter.com/Adobe", website: "https://www.adobe.com" },
   },
   {
-    name: "Nexa Manufacturing",
-    booth: "A-110",
-    tagline: "Digital twin manufacturing for Industry 4.0.",
-    industry: "Industrial Manufacturing",
-    description: "Nexa Manufacturing provides digital twin and MES (Manufacturing Execution System) software that brings real-time visibility to production floors. Their platform integrates with existing PLCs and ERP systems to optimize throughput, quality, and predictive maintenance.",
-    products: ["Nexa MES Platform", "Digital Twin Builder", "QualityGuard AI", "OEE Dashboard", "PLC Integration Hub"],
-    brochureUrl: "https://nexa-manufacturing.example.com/brochure-2027.pdf",
-    phone: "+1-555-0110",
-    socialLinks: { linkedin: "https://linkedin.com/company/nexa-manufacturing" },
+    name: "Siemens",
+    booth: "D-101",
+    tagline: "Technology for life. Transforming the everyday through sustainable infrastructure and industry.",
+    industry: "Industrial Technology",
+    description: "Siemens is a multinational technology conglomerate focused on industry, infrastructure, transport, and healthcare. Its business areas include Digital Industries (industrial automation and software), Smart Infrastructure (building automation and energy management), and Siemens Mobility (rail and road transport). Key products include the Siemens Xcelerator digital platform, SIMATIC automation systems, NX software, and Teamcenter PLM. Siemens is headquartered in Munich, Germany.",
+    products: ["Siemens Xcelerator", "SIMATIC Automation", "NX Software", "Teamcenter", "Siemens Industrial Edge", "SICAM", "Desigo CC", "Siemens Mobility", "Siemens Healthineers"],
+    brochureUrl: "https://www.siemens.com",
+    phone: "+49 69 797-0",
+    socialLinks: { linkedin: "https://linkedin.com/company/siemens", twitter: "https://twitter.com/Siemens", website: "https://www.siemens.com" },
   },
 ];
 
@@ -242,11 +242,9 @@ About: ${description}
 Products:
 ${products.map((p) => `- ${p}`).join("\n")}
 
-Contact: hello@${slug}.example.com | ${phone}
-Website: https://${slug}.example.com
-Brochure: ${brochureUrl}
+Official website: ${brochureUrl}
 
-Booth staff can answer questions about products, pricing, integrations, security, deployment, and customer references throughout TechExpo 2027.`;
+Booth staff can answer questions about products, features, industry applications, and technology roadmap throughout TechExpo 2027.`;
         knowledgeUploads.push({
           fileId: overview.file_id,
           sourceId: overview.source_id,
@@ -280,22 +278,19 @@ Booth staff can answer questions about products, pricing, integrations, security
           fileId: faq.file_id,
           sourceId: faq.source_id,
           storageKey: faq.storage_key,
-          content: `${name} — Frequently Asked Questions
+          content: `${name} — Product Information
 
-Q: What industries do you serve?
-A: ${name} primarily serves the ${industry} sector, with additional solutions for adjacent verticals. Our platform is customizable for enterprise requirements.
+${name} offers the following products and services:
 
-Q: What makes your solution unique?
-A: ${tagline} Our approach combines cutting-edge AI with deep domain expertise to deliver measurable outcomes for our customers.
+${products.map((p) => `- ${p}`).join("\n")}
 
-Q: What integrations do you support?
-A: ${name} integrates with major enterprise platforms including Salesforce, SAP, Oracle, Microsoft Dynamics, AWS, Azure, and Google Cloud. REST API and GraphQL endpoints are available for custom integrations.
+Industry: ${industry}
 
-Q: What is your deployment model?
-A: We offer both SaaS (cloud-hosted) and on-premises deployment options. Enterprise customers can choose hybrid deployments that keep sensitive data on-premises while leveraging cloud AI capabilities.
+${description}
 
-Q: What security certifications do you hold?
-A: ${name} is SOC 2 Type II certified, ISO 27001 certified, and GDPR compliant. We undergo annual penetration testing and maintain a dedicated security team.`,
+For detailed product specifications, pricing, and availability, visit the official website: ${brochureUrl}
+
+Booth staff can answer questions about these products, their features, and industry applications during TechExpo 2027.`,
         });
 
         const brochureTitle = `${name} product brochure`;
@@ -335,12 +330,8 @@ ${products.map((p) => `  • ${p}`).join("\n")}
 
 ${description}
 
-Our enterprise solutions start at $15,000/year for small teams, with custom pricing for enterprise deployments. Schedule a demo at our booth or visit https://${slug}.example.com/demo.
+Official website: ${brochureUrl}
 
-Download the full brochure: ${brochureUrl}
-
-Contact hello@${slug}.example.com for inquiries.
-Phone: ${phone}
 Social: ${Object.entries(socialLinks).map(([k, v]) => `${k}: ${v}`).join(", ")}`,
         });
         const form = one(

@@ -17,10 +17,6 @@ export default async function HackathonLandingPage() {
 
   return (
     <main className="min-h-screen bg-canvas text-primary">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[700px] bg-gradient-to-b from-brand/10 via-brand/5 to-transparent"
-      />
 
       <header className="sticky top-0 z-40 border-b border-default/50 bg-canvas/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 sm:px-10">
