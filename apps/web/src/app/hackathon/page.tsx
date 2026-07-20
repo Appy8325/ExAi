@@ -7,6 +7,25 @@ import { HackathonLandingClient } from "./landing-client";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function SkeletonSection() {
+  return (
+    <div className="mx-auto max-w-7xl px-6 sm:px-10">
+      <div className="flex min-h-[85vh] flex-col items-center justify-center text-center">
+        <div className="h-5 w-40 animate-pulse rounded-full bg-sunken" />
+        <div className="mt-8 h-16 w-3/4 animate-pulse rounded-xl bg-sunken sm:h-20" />
+        <div className="mt-6 h-6 w-1/2 animate-pulse rounded-lg bg-sunken" />
+        <div className="mt-4 h-4 w-2/3 animate-pulse rounded-lg bg-sunken" />
+        <div className="mt-10 h-14 w-56 animate-pulse rounded-2xl bg-sunken" />
+        <div className="mt-16 flex gap-8">
+          <div className="h-4 w-44 animate-pulse rounded-lg bg-sunken" />
+          <div className="h-4 w-28 animate-pulse rounded-lg bg-sunken" />
+          <div className="h-4 w-36 animate-pulse rounded-lg bg-sunken" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function HackathonLandingPage() {
   const apiBase = getApiBaseUrl();
   const exhibitors = await getPublicShowcase({ baseUrl: apiBase }).catch(() => null);
@@ -17,7 +36,6 @@ export default async function HackathonLandingPage() {
 
   return (
     <main className="min-h-screen bg-canvas text-primary">
-
       <header className="sticky top-0 z-40 border-b border-default/50 bg-canvas/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 sm:px-10">
           <Link href="/" className="flex items-center gap-2">
@@ -41,11 +59,7 @@ export default async function HackathonLandingPage() {
       </header>
 
       {!exhibitors ? (
-        <section className="mx-auto mt-12 max-w-4xl rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
-          The showcase endpoint is unavailable right now. Run{" "}
-          <code className="rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>{" "}
-          against a running Supabase project.
-        </section>
+        <SkeletonSection />
       ) : (
         <HackathonLandingClient
           exhibitors={exhibitors}

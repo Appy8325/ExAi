@@ -179,9 +179,34 @@ function ExhibitorCard({
                 <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M8 3v10M3 8h10" />
                 </svg>
-                Open Booth
+                Visit Booth
               </Link>
             ) : null}
+
+            {exhibitor.publicQrToken ? (
+              <Link
+                href={`/visit/${exhibitor.publicQrToken}`}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+              >
+                <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="8" cy="8" r="6" />
+                  <path d="M8 5v3l2 2" />
+                </svg>
+                Ask AI
+              </Link>
+            ) : null}
+
+            <a
+              href={exhibitor.website || `https://${exhibitor.companyName.toLowerCase().replace(/[^a-z0-9]/g, "")}.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+            >
+              <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 2h8v8M8 8l6-6M2 8v6h6" />
+              </svg>
+              Website
+            </a>
 
             {exhibitor.products.length > 0 ? (
               <button
