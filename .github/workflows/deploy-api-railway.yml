@@ -19,7 +19,7 @@ name: Deploy API (Railway)
 on:
   workflow_dispatch: {}
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - "apps/api/**"
       - "packages/**"

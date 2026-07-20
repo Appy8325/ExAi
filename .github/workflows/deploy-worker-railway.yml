@@ -9,7 +9,7 @@ name: Deploy Worker (Railway)
 on:
   workflow_dispatch: {}
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - "apps/worker/**"
       - "packages/**"
