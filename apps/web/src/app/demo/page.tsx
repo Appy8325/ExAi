@@ -38,9 +38,17 @@ export default async function DemoPage() {
               ExAi
             </span>
           </Link>
-          <span className="rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
-            Read-only demo
-          </span>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/showcase"
+              className="rounded-lg border border-brand/30 bg-brand-subtle px-3 py-1.5 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
+            >
+              Expo Showcase
+            </Link>
+            <span className="rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
+              Read-only demo
+            </span>
+          </div>
         </div>
       </header>
 

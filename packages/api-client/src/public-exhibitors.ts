@@ -438,6 +438,30 @@ async function request<T>(
   return response.json() as Promise<T>;
 }
 
+export type ShowcaseExhibitor = {
+  id: string;
+  companyName: string;
+  boothName: string;
+  boothNumber: string | null;
+  industry: string;
+  tagline: string;
+  description: string;
+  logoUrl: string | null;
+  website: string;
+  contactEmail: string;
+  contactPhone: string | null;
+  socialLinks: Record<string, string>;
+  products: string[];
+  brochureUrl: string;
+  publicQrToken: string | null;
+};
+
+export const SHOWCASE_EVENT_SLUG = "techexpo-2027";
+
+export function getPublicShowcase(client: PublicApiClient) {
+  return publicRequest<ShowcaseExhibitor[]>(client, "/v1/public/showcase");
+}
+
 async function publicRequest<T>(
   client: PublicApiClient,
   path: string,

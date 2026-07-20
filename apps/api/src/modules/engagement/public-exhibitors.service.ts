@@ -1,9 +1,12 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { createClient } from "@supabase/supabase-js";
 import { sql } from "drizzle-orm";
 import {
   DATABASE_CLIENT,
   type DatabaseClient,
 } from "../../common/database-client";
+import { pendingSourceIds, ingestSource } from "@concourse/ai/knowledge";
 
 type ExhibitorRow = {
   id: string;
@@ -29,6 +32,7 @@ type EventRow = {
 export class PublicExhibitorsService {
   constructor(
     @Inject(DATABASE_CLIENT) private readonly database: DatabaseClient,
+    private readonly config: ConfigService,
   ) {}
 
   async findEventBySlug(slug: string) {
@@ -480,6 +484,260 @@ export class PublicExhibitorsService {
       demoAccounts: accounts,
     };
   }
+
+  async ingestDemoKnowledge() {
+    const pending = await pendingSourceIds();
+    if (!pending.length) return { ingested: 0, skipped: "No pending knowledge sources." };
+    const results: Array<{ id: string; status: string; error?: string }> = [];
+    for (const { id } of pending) {
+      try {
+        await ingestSource(id);
+        results.push({ id, status: "ingested" });
+      } catch (cause) {
+        results.push({ id, status: "failed", error: cause instanceof Error ? cause.message.slice(0, 200) : String(cause) });
+      }
+    }
+    return {
+      ingested: results.filter((r) => r.status === "ingested").length,
+      failed: results.filter((r) => r.status === "failed").length,
+      results,
+    };
+  }
+
+  async listShowcase() {
+    const rows = (await this.database.execute(`
+      SELECT booth.id, org.name AS company_name, booth.booth_name, booth.booth_number,
+        booth.description, booth.website, booth.contact_email, booth.contact_phone,
+        booth.social_links, credential.public_token
+      FROM event_exhibitors booth
+      JOIN organizations org ON org.id = booth.organization_id
+      LEFT JOIN LATERAL (
+        SELECT qr.public_token
+        FROM booth_qr_credentials qr
+        WHERE qr.event_exhibitor_id = booth.id AND qr.active
+        ORDER BY qr.created_at DESC LIMIT 1
+      ) credential ON true
+      WHERE booth.status = 'ready'
+        AND EXISTS (SELECT 1 FROM events ev WHERE ev.id = booth.event_id AND ev.status IN ('published','live'))
+      ORDER BY org.name ASC
+    `)) as unknown as Array<{
+      id: string;
+      company_name: string;
+      booth_name: string;
+      booth_number: string | null;
+      description: string | null;
+      website: string | null;
+      contact_email: string | null;
+      contact_phone: string | null;
+      social_links: Record<string, string> | null;
+      public_token: string | null;
+    }>;
+
+    const result: Array<{
+      id: string;
+      companyName: string;
+      boothName: string;
+      boothNumber: string | null;
+      industry: string;
+      tagline: string;
+      description: string;
+      logoUrl: string | null;
+      website: string;
+      contactEmail: string;
+      contactPhone: string | null;
+      socialLinks: Record<string, string>;
+      products: string[];
+      brochureUrl: string;
+      publicQrToken: string | null;
+    }> = [];
+
+    for (const row of rows) {
+      const booth = await this.findPublicBooth(row.public_token ?? "");
+      const description = row.description ?? "";
+      const overviewSections = description.split("\n");
+      const industry = findByPrefix(overviewSections, "Industry:");
+      const tagline = findByPrefix(overviewSections, "Tagline:");
+
+      let products: string[] = [];
+      let brochureUrl = "";
+      if (booth) {
+        for (const resource of booth.resources) {
+          if (resource.sourceType === "faq" && resource.title.includes("overview")) {
+            const firstKb = resource;
+            const browse = await this.resourceContent(row.public_token ?? "", firstKb.id).catch(() => "");
+            if (browse) {
+              const productSection = browse.split("Products:")[1];
+              if (productSection) {
+                products = productSection
+                  .split("\n")
+                  .filter((l) => l.trim().startsWith("-"))
+                  .map((l) => l.replace(/^-\s*/, "").trim());
+              }
+              const foundIndustry = findByPrefix(browse.split("\n"), "Industry:");
+              const foundTagline = findByPrefix(browse.split("\n"), "Tagline:");
+              if (foundIndustry && !industry) {
+                products = [industry || foundIndustry]; // fallback
+              }
+            }
+          }
+          if (resource.sourceType === "brochure") {
+            brochureUrl = resource.href;
+          }
+        }
+      }
+
+      result.push({
+        id: row.id,
+        companyName: row.company_name,
+        boothName: row.booth_name,
+        boothNumber: row.booth_number,
+        industry: industry ?? "General",
+        tagline: tagline ?? row.company_name,
+        description: description || row.company_name,
+        logoUrl: null,
+        website: row.website ?? `https://${row.company_name.toLowerCase().replace(/[^a-z0-9]/g, "-")}.example.com`,
+        contactEmail: row.contact_email ?? "",
+        contactPhone: row.contact_phone,
+        socialLinks: (row.social_links ?? {}) as Record<string, string>,
+        brochureUrl: brochureUrl || "#",
+        products: products.length > 0 ? products : ["Enterprise platform"],
+        publicQrToken: row.public_token,
+      });
+    }
+
+    return result;
+  }
+
+  private async findPublicBooth(publicQrToken: string) {
+    if (!publicQrToken) return null;
+    const rows = await this.database.execute(sql<{
+      id: string;
+      company_name: string;
+      booth_name: string;
+      booth_number: string | null;
+      logo_url: string | null;
+      description: string | null;
+      website: string | null;
+      event_slug: string;
+      privacy_policy_url: string | null;
+    }>`
+      SELECT booth.id, organization.name AS company_name, booth.booth_name,
+        booth.booth_number, booth.logo_url, booth.description, booth.website,
+        event.slug AS event_slug, event.privacy_policy_url
+      FROM booth_qr_credentials credential
+      JOIN event_exhibitors booth ON booth.id = credential.event_exhibitor_id
+      JOIN organizations organization ON organization.id = booth.organization_id
+      JOIN events event ON event.id = booth.event_id
+      WHERE credential.public_token = ${publicQrToken} AND credential.active
+        AND booth.status = 'ready' AND event.status IN ('published','live')
+      LIMIT 1
+    `);
+    const booth = (
+      rows as unknown as Array<{
+        id: string;
+        company_name: string;
+        booth_name: string;
+        booth_number: string | null;
+        logo_url: string | null;
+        description: string | null;
+        website: string | null;
+        event_slug: string;
+        privacy_policy_url: string | null;
+      }>
+    )[0];
+    if (!booth) return null;
+
+    const [resourceRows] = await Promise.all([
+      this.database.execute(sql<{
+        id: string;
+        title: string;
+        source_type: string;
+        source_url: string | null;
+        file_id: string | null;
+      }>`
+        SELECT id, title, source_type, source_url, file_id
+        FROM kb_sources
+        WHERE event_exhibitor_id = ${booth.id} AND status = 'indexed'
+        ORDER BY created_at DESC
+      `),
+    ]);
+    const resources = (
+      resourceRows as unknown as Array<{
+        id: string;
+        title: string;
+        source_type: string;
+        source_url: string | null;
+        file_id: string | null;
+      }>
+    ).map((resource) => ({
+      id: resource.id,
+      title: resource.title,
+      sourceType: resource.source_type,
+      href:
+        resource.source_url ??
+        `/v1/public/booths/${encodeURIComponent(publicQrToken)}/resources/${resource.id}`,
+      external: Boolean(resource.source_url),
+    }));
+    return { booth, resources };
+  }
+
+  private async resourceContent(publicQrToken: string, sourceId: string) {
+    const booth = await this.scope(publicQrToken);
+    const rows = await this.database.execute(sql<{ storage_key: string; raw_text: string | null }>`
+      SELECT file.storage_key, doc.raw_text
+      FROM kb_sources source
+      JOIN files file ON file.id = source.file_id
+      LEFT JOIN kb_documents doc ON doc.kb_source_id = source.id
+      WHERE source.id = ${sourceId} AND source.event_exhibitor_id = ${booth.id}
+        AND source.status = 'indexed'
+      LIMIT 1
+    `);
+    const row = (rows as unknown as Array<{ storage_key: string; raw_text: string | null }>)[0];
+    if (row?.raw_text) return row.raw_text;
+    if (row?.storage_key) {
+      const { data, error } = await this.storage()
+        .storage.from("uploads")
+        .createSignedUrl(row.storage_key, 60);
+      if (!error && data?.signedUrl) {
+        const response = await fetch(data.signedUrl);
+        if (response.ok) return response.text();
+      }
+    }
+    return "";
+  }
+
+  private async scope(publicQrToken: string): Promise<{ id: string; event_id: string; organization_id: string; public_token: string }> {
+    const rows = await this.database.execute(sql<{ id: string; event_id: string; organization_id: string; public_token: string }>`
+      SELECT booth.id, booth.event_id, booth.organization_id, credential.public_token
+      FROM booth_qr_credentials credential
+      JOIN event_exhibitors booth ON booth.id = credential.event_exhibitor_id
+      JOIN events event ON event.id = booth.event_id
+      WHERE credential.public_token = ${publicQrToken} AND credential.active
+        AND booth.status = 'ready' AND event.status IN ('published','live') LIMIT 1
+    `);
+    const booth = (rows as unknown as Array<{ id: string; event_id: string; organization_id: string; public_token: string }>)[0];
+    if (!booth) throw new NotFoundException("Booth not found.");
+    return booth;
+  }
+
+  private storage() {
+    const url = this.config.get<string>("supabase.url");
+    const key = this.config.get<string>("supabase.serviceRoleKey");
+    if (!url || !key) throw new Error("Supabase configuration is missing.");
+    return createClient(url, key, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  }
+}
+
+function findByPrefix(lines: string[], prefix: string): string | null {
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith(prefix)) {
+      return trimmed.slice(prefix.length).trim();
+    }
+  }
+  return null;
 }
 
 function exhibitorRow(row: ExhibitorRow) {

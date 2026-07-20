@@ -31,21 +31,131 @@ const titles = [
   "Operations Manager",
   "Revenue Architect",
 ];
-const exhibitors = [
-  ["Northstar Cloud", "A-101", "Cloud infrastructure that teams can trust."],
-  ["Vector Labs", "A-102", "Developer tools for faster, safer releases."],
-  [
-    "Signal Forge",
-    "A-103",
-    "Real-time customer intelligence for product teams.",
-  ],
-  [
-    "Atlas Systems",
-    "A-104",
-    "Modern operations software for ambitious companies.",
-  ],
-  ["Brightline AI", "A-105", "Practical AI workflows for revenue teams."],
-] as const;
+
+type ExhibitorSeed = {
+  name: string;
+  booth: string;
+  tagline: string;
+  industry: string;
+  description: string;
+  products: string[];
+  brochureUrl: string;
+  phone: string;
+  socialLinks: Record<string, string>;
+};
+
+const exhibitors: ExhibitorSeed[] = [
+  {
+    name: "Northstar Robotics",
+    booth: "A-101",
+    tagline: "Autonomous navigation for the next industrial frontier.",
+    industry: "Robotics & Automation",
+    description: "Northstar Robotics builds autonomous mobile robots (AMRs) for warehouse, logistics, and manufacturing environments. Their fleet orchestration platform enables zero-downtime material handling with real-time obstacle avoidance and dynamic path planning.",
+    products: ["Nova AMR Platform", "FleetOS Orchestrator", "StarSight LIDAR Suite", "Northstar Safety Shield", "Analytics Dashboard"],
+    brochureUrl: "https://northstar-robotics.example.com/brochure-2027.pdf",
+    phone: "+1-555-0101",
+    socialLinks: { linkedin: "https://linkedin.com/company/northstar-robotics", twitter: "https://twitter.com/northstarrobotics" },
+  },
+  {
+    name: "QuantumForge AI",
+    booth: "A-102",
+    tagline: "Enterprise AI that delivers measurable outcomes.",
+    industry: "Artificial Intelligence",
+    description: "QuantumForge AI provides enterprise-grade machine learning infrastructure and pre-trained models for computer vision, NLP, and predictive analytics. Their no-code MLOps platform lets teams deploy models in minutes, not months.",
+    products: ["ForgeML Platform", "VisionAI Suite", "NLP Studio", "Predict Engine", "Model Monitor"],
+    brochureUrl: "https://quantumforge-ai.example.com/brochure-2027.pdf",
+    phone: "+1-555-0102",
+    socialLinks: { linkedin: "https://linkedin.com/company/quantumforge-ai", twitter: "https://twitter.com/quantumforgeai" },
+  },
+  {
+    name: "Helix BioSystems",
+    booth: "A-103",
+    tagline: "Bioinformatics tools powering the next generation of therapeutics.",
+    industry: "Biotechnology",
+    description: "Helix BioSystems develops cloud-based bioinformatics platforms for genomics research, drug discovery, and clinical trials. Their pipeline accelerates target identification through AI-driven protein folding and molecular simulation.",
+    products: ["Helix Genomics Cloud", "Molecule Designer", "TrialTrack Clinical Suite", "ProteinFold AI", "Lab Integration Gateway"],
+    brochureUrl: "https://helix-biosystems.example.com/brochure-2027.pdf",
+    phone: "+1-555-0103",
+    socialLinks: { linkedin: "https://linkedin.com/company/helix-biosystems", twitter: "https://twitter.com/helixbiosystems" },
+  },
+  {
+    name: "AeroSense Technologies",
+    booth: "A-104",
+    tagline: "Next-generation sensor fusion for autonomous systems.",
+    industry: "Defense & Aerospace",
+    description: "AeroSense Technologies delivers advanced sensor fusion, electronic warfare, and ISR (Intelligence, Surveillance, Reconnaissance) solutions for defense and commercial aerospace. Their modular architecture supports rapid integration across air, land, and sea platforms.",
+    products: ["SensorFusion Core", "AeroVision EO/IR", "SpectrumGuard EW Suite", "Tactical Data Link", "Mission Planning Console"],
+    brochureUrl: "https://aerosense-tech.example.com/brochure-2027.pdf",
+    phone: "+1-555-0104",
+    socialLinks: { linkedin: "https://linkedin.com/company/aerosense-tech" },
+  },
+  {
+    name: "Lumina Energy",
+    booth: "A-105",
+    tagline: "Clean energy intelligence for a sustainable grid.",
+    industry: "Clean Energy",
+    description: "Lumina Energy provides AI-driven energy management and grid optimization software for utilities, renewables, and commercial facilities. Their platform predicts demand, optimizes storage, and reduces carbon footprint across distributed energy networks.",
+    products: ["GridMind Platform", "SolarForecast AI", "Storage Optimizer", "CarbonTrack Suite", "Demand Response Engine"],
+    brochureUrl: "https://lumina-energy.example.com/brochure-2027.pdf",
+    phone: "+1-555-0105",
+    socialLinks: { linkedin: "https://linkedin.com/company/lumina-energy", twitter: "https://twitter.com/luminaenergy" },
+  },
+  {
+    name: "GreenGrid Solutions",
+    booth: "A-106",
+    tagline: "Smart infrastructure monitoring for the built environment.",
+    industry: "Smart Infrastructure",
+    description: "GreenGrid Solutions builds IoT-based structural health monitoring and smart building management systems. Their sensor arrays and analytics platform help facility managers reduce energy consumption, predict maintenance needs, and extend asset lifecycles.",
+    products: ["GridSense IoT Platform", "Structural Health Monitor", "Energy Optimizer", "Predictive Maintenance Engine", "Facility Command Center"],
+    brochureUrl: "https://greengrid-solutions.example.com/brochure-2027.pdf",
+    phone: "+1-555-0106",
+    socialLinks: { linkedin: "https://linkedin.com/company/greengrid-solutions" },
+  },
+  {
+    name: "Atlas Logistics",
+    booth: "A-107",
+    tagline: "Intelligent supply chain orchestration from dock to door.",
+    industry: "Logistics & Supply Chain",
+    description: "Atlas Logistics delivers end-to-end supply chain visibility and warehouse optimization software. Their AI-powered platform coordinates inventory, labor, and transportation in real time, reducing operational costs by up to 30%.",
+    products: ["Atlas WMS", "RouteOptimizer AI", "Inventory Command Center", "Carrier Connect", "Supply Chain Twin"],
+    brochureUrl: "https://atlas-logistics.example.com/brochure-2027.pdf",
+    phone: "+1-555-0107",
+    socialLinks: { linkedin: "https://linkedin.com/company/atlas-logistics", twitter: "https://twitter.com/atlaslogistics" },
+  },
+  {
+    name: "OmniVision Analytics",
+    booth: "A-108",
+    tagline: "See your data differently. Act with clarity.",
+    industry: "Data & Analytics",
+    description: "OmniVision Analytics provides a unified data intelligence platform that connects silos, surfaces insights, and drives decision-making. Their natural-language query engine lets anyone ask questions of their data without writing SQL.",
+    products: ["OmniViz Platform", "AskData NLQ Engine", "SmartDashboard", "Data Catalog", "Predictive Studio"],
+    brochureUrl: "https://omnivision-analytics.example.com/brochure-2027.pdf",
+    phone: "+1-555-0108",
+    socialLinks: { linkedin: "https://linkedin.com/company/omnivision-analytics" },
+  },
+  {
+    name: "Vertex Cyber",
+    booth: "A-109",
+    tagline: "Zero-trust security for the AI era.",
+    industry: "Cybersecurity",
+    description: "Vertex Cyber offers a comprehensive zero-trust security platform encompassing endpoint detection, identity threat detection, cloud security posture management, and AI-driven SOC automation.",
+    products: ["Vertex Zero-Trust Core", "EndpointShield", "CloudGuard CSPM", "Identity Threat Detection", "SOC Orchestrator"],
+    brochureUrl: "https://vertex-cyber.example.com/brochure-2027.pdf",
+    phone: "+1-555-0109",
+    socialLinks: { linkedin: "https://linkedin.com/company/vertex-cyber", twitter: "https://twitter.com/vertexcyber" },
+  },
+  {
+    name: "Nexa Manufacturing",
+    booth: "A-110",
+    tagline: "Digital twin manufacturing for Industry 4.0.",
+    industry: "Industrial Manufacturing",
+    description: "Nexa Manufacturing provides digital twin and MES (Manufacturing Execution System) software that brings real-time visibility to production floors. Their platform integrates with existing PLCs and ERP systems to optimize throughput, quality, and predictive maintenance.",
+    products: ["Nexa MES Platform", "Digital Twin Builder", "QualityGuard AI", "OEE Dashboard", "PLC Integration Hub"],
+    brochureUrl: "https://nexa-manufacturing.example.com/brochure-2027.pdf",
+    phone: "+1-555-0110",
+    socialLinks: { linkedin: "https://linkedin.com/company/nexa-manufacturing" },
+  },
+];
 
 function one<T>(rows: readonly T[]): T {
   const value = rows[0];
@@ -85,7 +195,8 @@ async function main() {
         await tx`INSERT INTO events(organization_id,name,slug,timezone,start_at,end_at,status) VALUES (${organizerOrg.id},'TechExpo 2027','techexpo-2027','America/Los_Angeles','2027-05-12T16:00:00Z','2027-05-15T01:00:00Z','published') ON CONFLICT (organization_id,slug) DO UPDATE SET name=EXCLUDED.name RETURNING id`,
       );
       const booths: DemoBooth[] = [];
-      for (const [name, number, description] of exhibitors) {
+      for (const exhibitor of exhibitors) {
+        const { name, booth: number, tagline, industry, description, products, brochureUrl, phone, socialLinks } = exhibitor;
         const slug = name
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
@@ -94,14 +205,16 @@ async function main() {
           await tx`INSERT INTO organizations(kind,slug,name) VALUES ('exhibitor',${slug},${name}) ON CONFLICT (slug) DO UPDATE SET name=EXCLUDED.name RETURNING id`,
         );
         await tx`INSERT INTO organization_memberships(organization_id,user_id,role,status) VALUES (${org.id},${exhibitorUser.id},'owner','active') ON CONFLICT (organization_id,user_id) DO NOTHING`;
+        const socialLinksJson = JSON.stringify(socialLinks);
         const booth = one(
-          await tx`INSERT INTO event_exhibitors(organization_id,event_id,organizer_organization_id,booth_name,booth_number,description,website,contact_email,status,published_at) VALUES (${org.id},${event.id},${organizerOrg.id},${name},${number},${description},${`https://${slug}.example.com`},${`hello@${slug}.example.com`},'ready',now()) ON CONFLICT (event_id,organization_id) DO UPDATE SET booth_name=EXCLUDED.booth_name,booth_number=EXCLUDED.booth_number,description=EXCLUDED.description,website=EXCLUDED.website,contact_email=EXCLUDED.contact_email,status='ready',published_at=now() RETURNING id,booth_name,booth_number`,
+          await tx`INSERT INTO event_exhibitors(organization_id,event_id,organizer_organization_id,booth_name,booth_number,description,website,contact_email,contact_phone,social_links,status,published_at) VALUES (${org.id},${event.id},${organizerOrg.id},${name},${number},${description},${`https://${slug}.example.com`},${`hello@${slug}.example.com`},${phone},${socialLinksJson}::jsonb,'ready',now()) ON CONFLICT (event_id,organization_id) DO UPDATE SET booth_name=EXCLUDED.booth_name,booth_number=EXCLUDED.booth_number,description=EXCLUDED.description,website=EXCLUDED.website,contact_email=EXCLUDED.contact_email,contact_phone=EXCLUDED.contact_phone,social_links=EXCLUDED.social_links,status='ready',published_at=now() RETURNING id,booth_name,booth_number`,
         );
-        const knowledgeTitle = `${name} company knowledge`;
-        const knowledge = one(await tx`
+
+        const overviewTitle = `${name} company overview`;
+        const overview = one(await tx`
           SELECT source.id AS source_id, source.file_id, file.storage_key
           FROM kb_sources source JOIN files file ON file.id = source.file_id
-          WHERE source.event_exhibitor_id = ${booth.id} AND source.title = ${knowledgeTitle}
+          WHERE source.event_exhibitor_id = ${booth.id} AND source.title = ${overviewTitle}
           LIMIT 1
         `.then((rows) => rows.length ? rows : tx`
           WITH generated AS (SELECT concourse.uuid_generate_v7() AS id),
@@ -109,22 +222,126 @@ async function main() {
             INSERT INTO files(id, organization_id, uploaded_by_user_id, purpose, storage_key,
               content_type, byte_size, status)
             SELECT id, ${org.id}, ${exhibitorUser.id}, 'kb_document',
-              ${`org/${org.id}/kb_document/`} || id || '/company-knowledge.txt',
+              ${`org/${org.id}/kb_document/`} || id || '/company-overview.txt',
               'text/plain', 1, 'pending' FROM generated RETURNING id, storage_key
           )
           INSERT INTO kb_sources(event_id, event_exhibitor_id, organizer_organization_id,
             owner_organization_id, kind, source_type, title, file_id, status)
           SELECT ${event.id}, ${booth.id}, ${organizerOrg.id}, ${org.id}, 'uploaded_document',
-            'faq', ${knowledgeTitle}, id, 'processing' FROM inserted_file
+            'faq', ${overviewTitle}, id, 'processing' FROM inserted_file
           RETURNING id AS source_id, file_id,
             (SELECT storage_key FROM inserted_file) AS storage_key
         `));
-        const knowledgeContent = `${name}\nBooth ${number}\n${description}\n\nProducts and services are available for enterprise teams. Contact ${`hello@${slug}.example.com`} for pricing and implementation guidance. Booth staff answer product, security, integration, and deployment questions throughout TechExpo 2027.`;
+        const overviewContent = `Company: ${name}
+Industry: ${industry}
+Booth: ${number}
+Tagline: ${tagline}
+
+About: ${description}
+
+Products:
+${products.map((p) => `- ${p}`).join("\n")}
+
+Contact: hello@${slug}.example.com | ${phone}
+Website: https://${slug}.example.com
+Brochure: ${brochureUrl}
+
+Booth staff can answer questions about products, pricing, integrations, security, deployment, and customer references throughout TechExpo 2027.`;
         knowledgeUploads.push({
-          fileId: knowledge.file_id,
-          sourceId: knowledge.source_id,
-          storageKey: knowledge.storage_key,
-          content: knowledgeContent,
+          fileId: overview.file_id,
+          sourceId: overview.source_id,
+          storageKey: overview.storage_key,
+          content: overviewContent,
+        });
+
+        const faqTitle = `${name} FAQ & integrations`;
+        const faq = one(await tx`
+          SELECT source.id AS source_id, source.file_id, file.storage_key
+          FROM kb_sources source JOIN files file ON file.id = source.file_id
+          WHERE source.event_exhibitor_id = ${booth.id} AND source.title = ${faqTitle}
+          LIMIT 1
+        `.then((rows) => rows.length ? rows : tx`
+          WITH generated AS (SELECT concourse.uuid_generate_v7() AS id),
+          inserted_file AS (
+            INSERT INTO files(id, organization_id, uploaded_by_user_id, purpose, storage_key,
+              content_type, byte_size, status)
+            SELECT id, ${org.id}, ${exhibitorUser.id}, 'kb_document',
+              ${`org/${org.id}/kb_document/`} || id || '/faq-integrations.txt',
+              'text/plain', 1, 'pending' FROM generated RETURNING id, storage_key
+          )
+          INSERT INTO kb_sources(event_id, event_exhibitor_id, organizer_organization_id,
+            owner_organization_id, kind, source_type, title, file_id, status)
+          SELECT ${event.id}, ${booth.id}, ${organizerOrg.id}, ${org.id}, 'uploaded_document',
+            'faq', ${faqTitle}, id, 'processing' FROM inserted_file
+          RETURNING id AS source_id, file_id,
+            (SELECT storage_key FROM inserted_file) AS storage_key
+        `));
+        knowledgeUploads.push({
+          fileId: faq.file_id,
+          sourceId: faq.source_id,
+          storageKey: faq.storage_key,
+          content: `${name} — Frequently Asked Questions
+
+Q: What industries do you serve?
+A: ${name} primarily serves the ${industry} sector, with additional solutions for adjacent verticals. Our platform is customizable for enterprise requirements.
+
+Q: What makes your solution unique?
+A: ${tagline} Our approach combines cutting-edge AI with deep domain expertise to deliver measurable outcomes for our customers.
+
+Q: What integrations do you support?
+A: ${name} integrates with major enterprise platforms including Salesforce, SAP, Oracle, Microsoft Dynamics, AWS, Azure, and Google Cloud. REST API and GraphQL endpoints are available for custom integrations.
+
+Q: What is your deployment model?
+A: We offer both SaaS (cloud-hosted) and on-premises deployment options. Enterprise customers can choose hybrid deployments that keep sensitive data on-premises while leveraging cloud AI capabilities.
+
+Q: What security certifications do you hold?
+A: ${name} is SOC 2 Type II certified, ISO 27001 certified, and GDPR compliant. We undergo annual penetration testing and maintain a dedicated security team.`,
+        });
+
+        const brochureTitle = `${name} product brochure`;
+        const brochure = one(await tx`
+          SELECT source.id AS source_id, source.file_id, file.storage_key
+          FROM kb_sources source JOIN files file ON file.id = source.file_id
+          WHERE source.event_exhibitor_id = ${booth.id} AND source.title = ${brochureTitle}
+          LIMIT 1
+        `.then((rows) => rows.length ? rows : tx`
+          WITH generated AS (SELECT concourse.uuid_generate_v7() AS id),
+          inserted_file AS (
+            INSERT INTO files(id, organization_id, uploaded_by_user_id, purpose, storage_key,
+              content_type, byte_size, status)
+            SELECT id, ${org.id}, ${exhibitorUser.id}, 'kb_document',
+              ${`org/${org.id}/kb_document/`} || id || '/brochure.txt',
+              'text/plain', 1, 'pending' FROM generated RETURNING id, storage_key
+          )
+          INSERT INTO kb_sources(event_id, event_exhibitor_id, organizer_organization_id,
+            owner_organization_id, kind, source_type, title, file_id, status)
+          SELECT ${event.id}, ${booth.id}, ${organizerOrg.id}, ${org.id}, 'uploaded_document',
+            'brochure', ${brochureTitle}, id, 'processing' FROM inserted_file
+          RETURNING id AS source_id, file_id,
+            (SELECT storage_key FROM inserted_file) AS storage_key
+        `));
+        knowledgeUploads.push({
+          fileId: brochure.file_id,
+          sourceId: brochure.source_id,
+          storageKey: brochure.storage_key,
+          content: `${name} — Product Brochure
+
+Company: ${name}
+Industry: ${industry}
+Booth: ${number}
+
+Products:
+${products.map((p) => `  • ${p}`).join("\n")}
+
+${description}
+
+Our enterprise solutions start at $15,000/year for small teams, with custom pricing for enterprise deployments. Schedule a demo at our booth or visit https://${slug}.example.com/demo.
+
+Download the full brochure: ${brochureUrl}
+
+Contact hello@${slug}.example.com for inquiries.
+Phone: ${phone}
+Social: ${Object.entries(socialLinks).map(([k, v]) => `${k}: ${v}`).join(", ")}`,
         });
         const form = one(
           await tx`INSERT INTO lead_forms(event_exhibitor_id,name,consent_text,version,is_default,status) VALUES (${booth.id},'Connect at TechExpo','I agree to share my submitted information with this exhibitor.',1,true,'draft') ON CONFLICT (event_exhibitor_id,name,version) DO UPDATE SET is_default=true RETURNING id,status`,
@@ -207,7 +424,7 @@ async function main() {
     await sql.end();
   }
   process.stdout.write(
-    "Demo seed complete: TechExpo 2027, 5 booths, 200 attendees, and 500 relationships.\n",
+    `Demo seed complete: TechExpo 2027, ${exhibitors.length} booths, 200 attendees, and ${exhibitors.length * 100} relationships.\n`,
   );
 }
 

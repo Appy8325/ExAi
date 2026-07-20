@@ -18,6 +18,7 @@ import { ExhibitorDashboardController } from "./exhibitor-dashboard.controller";
 import { PlatformEnrollmentService } from "./platform-enrollment.service";
 import { PublicEnrollmentController } from "./public-enrollment.controller";
 import { PublicBoothController } from "./public-booth.controller";
+import { PublicShowcaseController } from "./public-showcase.controller";
 import { AttendeeProfileController } from "./attendee-profile.controller";
 import { AttendeeProfileService } from "./attendee-profile.service";
 import { PublicExhibitorsController } from "./public-exhibitors.controller";
@@ -50,6 +51,7 @@ import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor
     ExhibitorDashboardController,
     PublicEnrollmentController,
     PublicBoothController,
+    PublicShowcaseController,
     AttendeeProfileController,
     PublicExhibitorsController,
     PublicDemoController,
