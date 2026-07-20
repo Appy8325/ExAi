@@ -489,6 +489,37 @@ export class PublicExhibitorsService {
     const pending = await pendingSourceIds();
     if (!pending.length) return { ingested: 0, skipped: "No pending knowledge sources." };
     const results: Array<{ id: string; status: string; error?: string }> = [];
+    const ids = pending.map((p) => p.id);
+    const rows = (await this.database.execute(sql<{
+      id: string; storage_key: string; byte_size: number;
+    }>`
+      SELECT source.id, file.storage_key, file.byte_size
+      FROM kb_sources source
+      JOIN files file ON file.id = source.file_id
+      WHERE source.id = ANY(${ids}::uuid[])
+    `)) as unknown as Array<{ id: string; storage_key: string; byte_size: number }>;
+    const fixPromises = rows.map(async (row) => {
+      if (!row.storage_key) return;
+      try {
+        const url = this.config.get<string>("supabase.url");
+        const key = this.config.get<string>("supabase.serviceRoleKey");
+        if (!url || !key) return;
+        const encodedPath = row.storage_key.split("/").map(encodeURIComponent).join("/");
+        const response = await fetch(
+          `${url.replace(/\/+$/, "")}/storage/v1/object/authenticated/uploads/${encodedPath}`,
+          { headers: { Authorization: `Bearer ${key}`, apikey: key }, signal: AbortSignal.timeout(10_000) },
+        );
+        if (!response.ok) return;
+        const bytes = Buffer.from(await response.arrayBuffer());
+        if (bytes.length !== row.byte_size) {
+          await this.database.execute(sql`
+            UPDATE files SET byte_size = ${bytes.length}, updated_at = now()
+            WHERE id IN (SELECT file_id FROM kb_sources WHERE id = ${row.id})
+          `);
+        }
+      } catch { /* best effort */ }
+    });
+    await Promise.all(fixPromises);
     for (const { id } of pending) {
       try {
         await ingestSource(id);
