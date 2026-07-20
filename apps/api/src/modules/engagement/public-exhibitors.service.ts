@@ -487,7 +487,7 @@ export class PublicExhibitorsService {
 
   async ingestDemoKnowledge() {
     try {
-      await this.database.execute(sql`UPDATE kb_sources SET status = 'pending', attempt_count = 0, error_message = NULL, updated_at = now() WHERE status IN ('failed','processing')`);
+      await this.database.execute(sql`UPDATE kb_sources SET status = 'pending', attempt_count = 0, error_message = NULL, updated_at = now() WHERE status NOT IN ('indexed','quarantined')`);
       const pending = await pendingSourceIds();
       if (!pending.length) return { ingested: 0, skipped: "No pending knowledge sources." };
       const results: Array<{ id: string; status: string; error?: string }> = [];
