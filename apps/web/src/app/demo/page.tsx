@@ -6,9 +6,7 @@ import {
 } from "@concourse/api-client";
 
 import { getApiBaseUrl } from "@/lib/api/config";
-import { UserMenu } from "@/components/auth/user-menu";
 import { CopyButton } from "./copy-button";
-import { DemoSignInForm } from "./demo-sign-in-form";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -37,7 +35,9 @@ export default async function DemoPage() {
               ExAi
             </span>
           </Link>
-          <UserMenu />
+          <span className="rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
+            Read-only demo
+          </span>
         </div>
       </header>
 
@@ -77,7 +77,6 @@ export default async function DemoPage() {
 
 function RoleBoard({ overview }: { overview: PublicDemoOverview }) {
   const firstOrganizer = overview.organizers[0];
-  const firstEvent = overview.events[0];
   const firstBooth =
     overview.events
       .flatMap((event) => event.exhibitors.map((booth) => ({ event, booth })))
@@ -93,56 +92,35 @@ function RoleBoard({ overview }: { overview: PublicDemoOverview }) {
         />
         {firstOrganizer ? (
           <div className="grid gap-4 md:grid-cols-2">
-            {overview.organizers.map((organizer) => (
-              <DataCard
-                key={organizer.id}
-                title={organizer.name}
-                subtitle={`/${organizer.slug}`}
-                tone="indigo"
-                links={
-                  firstEvent
-                    ? [
-                        {
-                          label: "Open organizer dashboard",
-                          href: `/org`,
-                          primary: true,
-                        },
-                        {
-                          label: "Open events list",
-                          href: `/org/events`,
-                        },
-                        {
-                          label: "Open analytics",
-                          href: `/org/analytics`,
-                        },
-                        {
-                          label: "Users & invitations",
-                          href: `/org/users`,
-                        },
-                        {
-                          label: "Open settings",
-                          href: `/org/settings`,
-                        },
-                        ...overview.events
-                          .filter(
-                            (event) =>
-                              event.organizerOrganizationId === organizer.id,
-                          )
-                          .map((event) => ({
-                            label: `Event reports — ${event.name}`,
-                            href: `/org/events/${event.id}/reports`,
+            {overview.organizers.map((organizer) => {
+              const orgEvents = overview.events.filter(
+                (e) => e.organizerOrganizationId === organizer.id,
+              );
+              const firstOrgEvent = orgEvents[0];
+              return (
+                <DataCard
+                  key={organizer.id}
+                  title={organizer.name}
+                  subtitle={`/${organizer.slug}`}
+                  tone="indigo"
+                  links={
+                    firstOrgEvent
+                      ? [
+                          {
+                            label: `Open event — ${firstOrgEvent.name}`,
+                            href: `/demo/event/${firstOrgEvent.slug}`,
+                            primary: true,
+                          },
+                          ...orgEvents.slice(1).map((ev) => ({
+                            label: `Open event — ${ev.name}`,
+                            href: `/demo/event/${ev.slug}`,
                           })),
-                      ]
-                    : [
-                        {
-                          label: "Open organizer dashboard",
-                          href: `/org`,
-                          primary: true,
-                        },
-                      ]
-                }
-              />
-            ))}
+                        ]
+                      : []
+                  }
+                />
+              );
+            })}
           </div>
         ) : (
           <EmptyHint>
@@ -178,25 +156,9 @@ function RoleBoard({ overview }: { overview: PublicDemoOverview }) {
                 tone="sky"
                 links={[
                   {
-                    label: "Public event directory",
-                    href: `/e/${event.slug}`,
+                    label: "Event exhibitors",
+                    href: `/demo/event/${event.slug}`,
                     primary: true,
-                  },
-                  {
-                    label: "Saved exhibitors",
-                    href: `/e/${event.slug}/saved`,
-                  },
-                  {
-                    label: "Organizer event console",
-                    href: event.id ? `/org/events/${event.id}` : `/org/events`,
-                  },
-                  {
-                    label: "Event settings",
-                    href: event.id ? `/org/events/${event.id}/settings` : `/org/events`,
-                  },
-                  {
-                    label: "Event reports",
-                    href: event.id ? `/org/events/${event.id}/reports` : `/org/events`,
                   },
                 ]}
               />
@@ -217,6 +179,9 @@ function RoleBoard({ overview }: { overview: PublicDemoOverview }) {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {overview.exhibitorOrganizations.map((exhibitor) => {
               const firstParticipation = exhibitor.events[0];
+              const eventForBooth = overview.events.find(
+                (e) => e.id === firstParticipation?.eventId,
+              );
               return (
                 <DataCard
                   key={exhibitor.id}
@@ -238,38 +203,18 @@ function RoleBoard({ overview }: { overview: PublicDemoOverview }) {
                     firstParticipation
                       ? [
                           {
-                            label: "Open exhibitor dashboard",
-                            href: `/exhibit/${exhibitor.id}/dashboard/${firstParticipation.eventExhibitorId}`,
+                            label: "View booth details",
+                            href: `/demo/exhibitor/${firstParticipation.eventExhibitorId}`,
                             primary: true,
                           },
-                          {
-                            label: "Booth settings",
-                            href: `/exhibit/${exhibitor.id}/settings?eeId=${firstParticipation.eventExhibitorId}`,
-                          },
-                          {
-                            label: "Documents (knowledge)",
-                            href: `/exhibit/${exhibitor.id}/documents?eeId=${firstParticipation.eventExhibitorId}`,
-                          },
-                          {
-                            label: "Lead form",
-                            href: `/exhibit/${exhibitor.id}/forms?eeId=${firstParticipation.eventExhibitorId}`,
-                          },
-                          {
-                            label: "QR credential",
-                            href: `/exhibit/${exhibitor.id}/qr?eeId=${firstParticipation.eventExhibitorId}`,
-                          },
-                          {
-                            label: "Attendees pipeline",
-                            href: `/exhibit/${exhibitor.id}/attendees?eeId=${firstParticipation.eventExhibitorId}`,
-                          },
-                          {
-                            label: "AI insights",
-                            href: `/exhibit/${exhibitor.id}/ai-insights?eeId=${firstParticipation.eventExhibitorId}`,
-                          },
-                          {
-                            label: "Team",
-                            href: `/exhibit/${exhibitor.id}/team`,
-                          },
+                          ...(eventForBooth
+                            ? [
+                                {
+                                  label: `View ${eventForBooth.name}`,
+                                  href: `/demo/event/${eventForBooth.slug}`,
+                                },
+                              ]
+                            : []),
                         ]
                       : []
                   }
@@ -308,14 +253,14 @@ function RoleBoard({ overview }: { overview: PublicDemoOverview }) {
                             primary: true,
                           },
                           {
-                            label: "Open booth entry on event page",
-                            href: `/e/${event.slug}/exhibitors/${booth.id}`,
+                            label: "View booth details",
+                            href: `/demo/exhibitor/${booth.id}`,
                           },
                         ]
                       : [
                           {
-                            label: "Open booth entry on event page",
-                            href: `/e/${event.slug}/exhibitors/${booth.id}`,
+                            label: "View booth details",
+                            href: `/demo/exhibitor/${booth.id}`,
                           },
                         ]
                   }
@@ -350,13 +295,9 @@ function RoleBoard({ overview }: { overview: PublicDemoOverview }) {
                 tone="amber"
                 links={[
                   {
-                    label: "Open relationship workspace",
-                    href: `/exhibit/${relationship.organizationId}/relationships/${relationship.id}`,
+                    label: "View exhibitor booth",
+                    href: `/demo/exhibitor/${relationship.eventExhibitorId}`,
                     primary: true,
-                  },
-                  {
-                    label: "Exhibitor dashboard",
-                    href: `/exhibit/${relationship.organizationId}/dashboard/${relationship.eventExhibitorId}`,
                   },
                 ]}
               />
@@ -371,15 +312,6 @@ function RoleBoard({ overview }: { overview: PublicDemoOverview }) {
             to create them.
           </EmptyHint>
         )}
-      </section>
-
-      <section>
-        <SectionHeader
-          eyebrow="Sign in"
-          title="Demo accounts"
-          description="Enter any email below to receive a Magic Link. The link lands you in the role-specific workspace."
-        />
-        <DemoSignInForm accounts={overview.demoAccounts} />
       </section>
 
       {firstBooth ? (
