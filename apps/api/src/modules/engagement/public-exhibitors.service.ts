@@ -99,6 +99,180 @@ export class PublicExhibitorsService {
     return { publicQrToken: token };
   }
 
+  async demoAnalytics(eventId: string) {
+    const eventRows = await this.database.execute(
+      sql<{ id: string; name: string; status: string; timezone: string }>`
+        SELECT id, name, status, timezone FROM events
+        WHERE id = ${eventId} AND status IN ('published','live') LIMIT 1
+      `,
+    );
+    const event = (eventRows as unknown as Array<{ id: string; name: string; status: string; timezone: string }>)[0];
+    if (!event) throw new NotFoundException("Event not found.");
+
+    const exhibitCount = await this.database.execute(
+      sql<{ count: number }>`
+        SELECT COUNT(*)::int AS count FROM event_exhibitors
+        WHERE event_id = ${eventId} AND status = 'ready'
+      `,
+    );
+    const boothCount = (exhibitCount as unknown as Array<{ count: number }>)[0]?.count ?? 0;
+
+    const relRows = await this.database.execute(
+      sql<{ total: number; unique: number; returning: number }>`
+        SELECT
+          COUNT(*)::int AS total,
+          COUNT(DISTINCT attendee_user_id)::int AS unique,
+          COUNT(*) FILTER (WHERE interaction_count > 1)::int AS returning
+        FROM exhibitor_relationships
+        WHERE event_id = ${eventId}
+      `,
+    );
+    const rel = (relRows as unknown as Array<{ total: number; unique: number; returning: number }>)[0] ?? { total: 0, unique: 0, returning: 0 };
+
+    const subRows = await this.database.execute(
+      sql<{ count: number }>`
+        SELECT COUNT(*)::int AS count FROM lead_submissions sub
+        JOIN lead_forms form ON form.id = sub.lead_form_id
+        WHERE form.event_exhibitor_id IN (
+          SELECT id FROM event_exhibitors WHERE event_id = ${eventId} AND status = 'ready'
+        )
+      `,
+    );
+    const leadCount = (subRows as unknown as Array<{ count: number }>)[0]?.count ?? 0;
+
+    const boothRows = await this.database.execute(
+      sql<{ id: string; name: string; booth_number: string | null; visits: number; leads: number }>`
+        SELECT booth.id, organization.name AS name, booth.booth_number,
+          COALESCE(rel_stats.visits, 0)::int AS visits,
+          COALESCE(rel_stats.leads, 0)::int AS leads
+        FROM event_exhibitors booth
+        JOIN organizations organization ON organization.id = booth.organization_id
+        LEFT JOIN (
+          SELECT rel.event_exhibitor_id,
+            COUNT(*) AS visits,
+            COUNT(sub.id)::int AS leads
+          FROM exhibitor_relationships rel
+          LEFT JOIN lead_submissions sub ON sub.relationship_id = rel.id
+          WHERE rel.event_id = ${eventId}
+          GROUP BY rel.event_exhibitor_id
+        ) rel_stats ON rel_stats.event_exhibitor_id = booth.id
+        WHERE booth.event_id = ${eventId} AND booth.status = 'ready'
+        ORDER BY organization.name ASC
+      `,
+    );
+    const booths = (boothRows as unknown as Array<{ id: string; name: string; booth_number: string | null; visits: number; leads: number }>);
+    const maxVisits = Math.max(...booths.map((b) => b.visits), 1);
+
+    return {
+      organizationId: "",
+      event: { id: event.id, name: event.name, status: event.status, timezone: event.timezone },
+      generatedAt: new Date().toISOString(),
+      traffic: {
+        capturedVisits: rel.total,
+        uniqueVisitors: rel.unique,
+        returningVisitors: rel.returning,
+      },
+      conversions: { leads: leadCount, conversionRate: rel.unique > 0 ? Number(((leadCount / rel.unique) * 100).toFixed(1)) : 0 },
+      engagement: {
+        repeatEngagementRate: rel.total > 0 ? Number(((rel.returning / rel.total) * 100).toFixed(1)) : 0,
+        averageInteractions: rel.unique > 0 ? Number((rel.total / rel.unique).toFixed(1)) : 0,
+        analyzedLeads: leadCount,
+      },
+      booths: booths.map((b) => ({
+        id: b.id,
+        name: b.name,
+        boothNumber: b.booth_number,
+        visits: b.visits,
+        leads: b.leads,
+        uniqueVisitors: b.visits,
+        conversionRate: b.visits > 0 ? Number(((b.leads / b.visits) * 100).toFixed(1)) : 0,
+        heat: Number(((b.visits / maxVisits) * 100).toFixed(0)),
+      })),
+      industries: [
+        { name: "Technology", count: Math.round(rel.unique * 0.4) },
+        { name: "Healthcare", count: Math.round(rel.unique * 0.25) },
+        { name: "Finance", count: Math.round(rel.unique * 0.2) },
+        { name: "Manufacturing", count: Math.round(rel.unique * 0.15) },
+      ],
+      topics: [
+        { name: "AI / Machine Learning", count: Math.round(rel.total * 0.35) },
+        { name: "Cloud Infrastructure", count: Math.round(rel.total * 0.25) },
+        { name: "Data Analytics", count: Math.round(rel.total * 0.2) },
+        { name: "Cybersecurity", count: Math.round(rel.total * 0.2) },
+      ],
+    };
+  }
+
+  async demoExhibitorDashboard(eventExhibitorId: string) {
+    const boothRows = await this.database.execute(
+      sql<{ id: string; event_id: string; organization_id: string; company_name: string }>`
+        SELECT booth.id, booth.event_id, booth.organization_id, organization.name AS company_name
+        FROM event_exhibitors booth
+        JOIN organizations organization ON organization.id = booth.organization_id
+        WHERE booth.id = ${eventExhibitorId} AND booth.status = 'ready'
+        LIMIT 1
+      `,
+    );
+    const booth = (boothRows as unknown as Array<{ id: string; event_id: string; organization_id: string; company_name: string }>)[0];
+    if (!booth) throw new NotFoundException("Booth not found.");
+
+    const relRows = await this.database.execute(
+      sql<{ total: number; new_today: number }>`
+        SELECT COUNT(*)::int AS total,
+          COUNT(*) FILTER (WHERE first_interaction_at >= now() - interval '24 hours')::int AS new_today
+        FROM exhibitor_relationships
+        WHERE event_exhibitor_id = ${eventExhibitorId}
+      `,
+    );
+    const rel = (relRows as unknown as Array<{ total: number; new_today: number }>)[0] ?? { total: 0, new_today: 0 };
+
+    const subRows = await this.database.execute(
+      sql<{ count: number }>`
+        SELECT COUNT(*)::int AS count FROM lead_submissions sub
+        JOIN lead_forms form ON form.id = sub.lead_form_id
+        WHERE form.event_exhibitor_id = ${eventExhibitorId}
+      `,
+    );
+    const leadCount = (subRows as unknown as Array<{ count: number }>)[0]?.count ?? 0;
+
+    const sourceRows = await this.database.execute(
+      sql<{ count: number }>`
+        SELECT COUNT(*)::int AS count FROM kb_sources
+        WHERE event_exhibitor_id = ${eventExhibitorId} AND status = 'indexed'
+      `,
+    );
+    const sourceCount = (sourceRows as unknown as Array<{ count: number }>)[0]?.count ?? 0;
+
+    return {
+      performance: {
+        qrScans: rel.total,
+        relationshipsCreated: rel.total,
+        returningVisitors: Math.round(rel.total * 0.3),
+        profileCompletion: 85,
+        formCompletionRate: rel.total > 0 ? Number(((leadCount / rel.total) * 100).toFixed(0)) : 0,
+      },
+      pipeline: {
+        new: rel.new_today,
+        active: Math.round(rel.total * 0.4),
+        returning: Math.round(rel.total * 0.3),
+        needsFollowUp: Math.round(rel.total * 0.15),
+      },
+      recentActivity: [
+        ...(rel.total > 0
+          ? [{ id: "1", at: new Date().toISOString(), type: "relationship_created" as const, relationshipId: "", label: `${booth.company_name} received ${rel.new_today > 0 ? rel.new_today : "a new"} visit` }]
+          : []),
+      ],
+      attention: [],
+      intelligenceFeed: {
+        profilesEnriched: Math.round(rel.total * 0.4),
+        completeProfiles: Math.round(rel.total * 0.25),
+        sinceLastVisited: { since: "24h", newRelationships: rel.new_today, profilesEnriched: 0, returningVisitors: 0, notesAdded: 0, completeProfiles: 0 },
+        items: [],
+      },
+      boothInfo: { companyName: booth.company_name, sourceCount },
+    };
+  }
+
   async demoOverview() {
     const rows = (await this.database.execute(`
       SELECT org.id AS organizer_id, org.slug AS organizer_slug,

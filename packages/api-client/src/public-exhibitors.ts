@@ -289,8 +289,54 @@ export type PublicDemoOverview = {
   }>;
 };
 
+export type PublicDemoAnalytics = {
+  organizationId: string;
+  event: { id: string; name: string; status: string; timezone: string };
+  generatedAt: string;
+  traffic: { capturedVisits: number; uniqueVisitors: number; returningVisitors: number };
+  conversions: { leads: number; conversionRate: number };
+  engagement: { repeatEngagementRate: number; averageInteractions: number; analyzedLeads: number };
+  booths: Array<{
+    id: string; name: string; boothNumber: string | null;
+    visits: number; leads: number; uniqueVisitors: number;
+    conversionRate: number; heat: number;
+  }>;
+  industries: Array<{ name: string; count: number }>;
+  topics: Array<{ name: string; count: number }>;
+};
+
+export type PublicDemoExhibitorDashboard = {
+  performance: {
+    qrScans: number; relationshipsCreated: number; returningVisitors: number;
+    profileCompletion: number; formCompletionRate: number;
+  };
+  pipeline: { new: number; active: number; returning: number; needsFollowUp: number };
+  recentActivity: Array<{ id: string; at: string; type: string; relationshipId: string; label: string }>;
+  attention: Array<{ relationshipId: string; attendeeName: string; reasons: string[] }>;
+  intelligenceFeed: {
+    profilesEnriched: number; completeProfiles: number;
+    sinceLastVisited: { since: string; newRelationships: number; profilesEnriched: number; returningVisitors: number; notesAdded: number; completeProfiles: number };
+    items: Array<{ id: string; at: string; label: string }>;
+  };
+  boothInfo: { companyName: string; sourceCount: number };
+};
+
 export function getPublicDemoOverview(client: PublicApiClient) {
   return publicRequest<PublicDemoOverview>(client, "/v1/public/demo");
+}
+
+export function getPublicDemoAnalytics(client: PublicApiClient, eventId: string) {
+  return publicRequest<PublicDemoAnalytics>(
+    client,
+    `/v1/public/demo/analytics/${encodeURIComponent(eventId)}`,
+  );
+}
+
+export function getPublicDemoExhibitorDashboard(client: PublicApiClient, eventExhibitorId: string) {
+  return publicRequest<PublicDemoExhibitorDashboard>(
+    client,
+    `/v1/public/demo/exhibitor/${encodeURIComponent(eventExhibitorId)}/dashboard`,
+  );
 }
 
 export function chatAtBooth(

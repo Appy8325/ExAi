@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Param, NotFoundException } from "@nestjs/common";
 
 import { PublicExhibitorsService } from "./public-exhibitors.service";
 
@@ -9,5 +9,15 @@ export class PublicDemoController {
   @Get()
   overview() {
     return this.exhibitors.demoOverview();
+  }
+
+  @Get("analytics/:eventId")
+  analytics(@Param("eventId") eventId: string) {
+    return this.exhibitors.demoAnalytics(eventId);
+  }
+
+  @Get("exhibitor/:eventExhibitorId/dashboard")
+  exhibitorDashboard(@Param("eventExhibitorId") eventExhibitorId: string) {
+    return this.exhibitors.demoExhibitorDashboard(eventExhibitorId);
   }
 }

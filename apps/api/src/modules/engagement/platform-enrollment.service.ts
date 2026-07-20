@@ -209,12 +209,46 @@ export class PlatformEnrollmentService {
       text,
       { topK: 6, eventExhibitorId: booth.id },
     );
-    if (!chunks.length)
-      return {
-        answer:
-          "I do not have enough published company information to answer that yet.",
-        citations: [],
-      };
+    if (!chunks.length) {
+      const boothData = await this.findPublicBooth(publicQrToken);
+      const fallbackParts: string[] = [];
+      if (boothData.description) fallbackParts.push(boothData.description);
+      if (boothData.website) fallbackParts.push(`Website: ${boothData.website}`);
+      if (boothData.resources.length) {
+        fallbackParts.push(
+          `Published resources: ${boothData.resources.map((r) => r.title).join(", ")}`,
+        );
+      }
+      if (!fallbackParts.length)
+        return {
+          answer:
+            "I do not have enough published company information to answer that yet.",
+          citations: [],
+        };
+      const fallbackResult = await this.generation
+        .generate({
+          promptId: "attendee.booth_chat.v1",
+          organizationId: booth.organization_id,
+          eventId: booth.event_id,
+          input: {
+            instruction:
+              "Answer the attendee's question using only the published company information below. If the information is insufficient to answer, say so. Do not invent details.",
+            question: text,
+            evidence: fallbackParts.map((part, index) => ({
+              marker: `[${index + 1}]`,
+              text: part,
+            })),
+          },
+        })
+        .catch(() => null);
+      if (!fallbackResult)
+        return {
+          answer:
+            "I could not produce an answer right now. Please review the published resources instead.",
+          citations: [],
+        };
+      return { answer: fallbackResult.text, citations: [] };
+    }
     const result = await this.generation.generate({
       promptId: "attendee.booth_chat.v1",
       organizationId: booth.organization_id,

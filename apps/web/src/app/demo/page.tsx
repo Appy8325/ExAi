@@ -6,7 +6,6 @@ import {
 } from "@concourse/api-client";
 
 import { getApiBaseUrl } from "@/lib/api/config";
-import { CopyButton } from "./copy-button";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -22,6 +21,10 @@ async function loadDemoOverview(apiBase: string): Promise<PublicDemoOverview | n
 export default async function DemoPage() {
   const apiBase = getApiBaseUrl();
   const overview = await loadDemoOverview(apiBase);
+
+  const firstEvent = overview?.events[0];
+  const exhibitors = overview?.events.flatMap((e) => e.exhibitors) ?? [];
+  const relationships = overview?.relationships ?? [];
 
   return (
     <main className="min-h-screen bg-canvas text-primary">
@@ -43,405 +46,128 @@ export default async function DemoPage() {
 
       <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 sm:py-16">
         <div className="space-y-3 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
-            <span className="size-1.5 rounded-full bg-brand animate-pulse" />
-            Hackathon single entry point
-          </span>
           <h1 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
             Experience ExAi
           </h1>
           <p className="mx-auto max-w-2xl text-base text-secondary">
-            Every entity in the demo environment is discoverable below. Judges
-            never need to copy a UUID — open any link directly.
+            Explore the platform from the perspective of each user. Every page is
+            read-only and requires no login.
           </p>
         </div>
 
         {!overview ? (
           <section className="mt-12 rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
-            The public demo discovery endpoint is unavailable right now. The
-            repository seed runs through{" "}
-            <code className="rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>{" "}
-            against a Supabase project whose{" "}
-            <code className="rounded bg-surface px-1.5 py-0.5">
-              API_DATABASE_URL
-            </code>{" "}
-            and service role key are configured in the Vercel environment.
+            The public demo discovery endpoint is unavailable right now. Run
+            <code className="mx-1 rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>
+            against a Supabase project with credentials configured in Vercel.
           </section>
         ) : null}
 
-        {overview ? <RoleBoard overview={overview} /> : null}
+        {overview ? (
+          <div className="mt-12 space-y-8">
+            <PersonaCard
+              title="Organizer"
+              description="Manage events, exhibitors, and gain insights from AI-powered analytics, heatmaps, and reports."
+              href="/demo/organizer"
+              tone="indigo"
+              stats={[
+                { label: "Events", value: overview.events.length },
+                { label: "Exhibitors", value: exhibitors.length },
+                { label: "Relationships", value: relationships.length },
+              ]}
+            />
+            <PersonaCard
+              title="Exhibitor"
+              description="Manage your booth profile, knowledge base, lead forms, and track attendee engagement."
+              href="/demo/exhibitor"
+              tone="emerald"
+              stats={[
+                { label: "Organizations", value: overview.exhibitorOrganizations.length },
+                { label: "Active booths", value: exhibitors.length },
+                { label: "Relationships", value: relationships.length },
+              ]}
+            />
+            <PersonaCard
+              title="Attendee"
+              description="Browse the exhibitor directory, search companies, visit booths, and ask the AI assistant."
+              href="/demo/attendee"
+              tone="violet"
+              stats={
+                firstEvent
+                  ? [
+                      { label: "Exhibitors", value: firstEvent.exhibitors.length },
+                      { label: "Event", value: firstEvent.name },
+                    ]
+                  : undefined
+              }
+            />
+          </div>
+        ) : null}
+
+        {overview ? (
+          <p className="mt-8 text-center text-xs text-muted">
+            Powered by{" "}
+            <span className="font-medium text-primary">ExAi</span> &middot;
+            Read-only showcase
+          </p>
+        ) : null}
       </div>
     </main>
   );
 }
 
-function RoleBoard({ overview }: { overview: PublicDemoOverview }) {
-  const firstOrganizer = overview.organizers[0];
-  const firstBooth =
-    overview.events
-      .flatMap((event) => event.exhibitors.map((booth) => ({ event, booth })))
-      .find(({ booth }) => booth.publicQrToken) ?? null;
-
-  return (
-    <div className="mt-12 space-y-10">
-      <section>
-        <SectionHeader
-          eyebrow="Step 1 — Organizer"
-          title="Pick the organizer organization"
-          description="Start with the tenant that owns the event. The organizer dashboard, analytics, and reporting live behind the published event."
-        />
-        {firstOrganizer ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            {overview.organizers.map((organizer) => {
-              const orgEvents = overview.events.filter(
-                (e) => e.organizerOrganizationId === organizer.id,
-              );
-              const firstOrgEvent = orgEvents[0];
-              return (
-                <DataCard
-                  key={organizer.id}
-                  title={organizer.name}
-                  subtitle={`/${organizer.slug}`}
-                  tone="indigo"
-                  links={
-                    firstOrgEvent
-                      ? [
-                          {
-                            label: `Open event — ${firstOrgEvent.name}`,
-                            href: `/demo/event/${firstOrgEvent.slug}`,
-                            primary: true,
-                          },
-                          ...orgEvents.slice(1).map((ev) => ({
-                            label: `Open event — ${ev.name}`,
-                            href: `/demo/event/${ev.slug}`,
-                          })),
-                        ]
-                      : []
-                  }
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <EmptyHint>
-            No published organizers are seeded. Run{" "}
-            <code className="rounded bg-sunken px-1.5 py-0.5">
-              pnpm db:seed:demo
-            </code>{" "}
-            to create TechExpo Events.
-          </EmptyHint>
-        )}
-      </section>
-
-      <section>
-        <SectionHeader
-          eyebrow="Step 2 — Event"
-          title="Open the live event"
-          description="Events belong to one organizer organization and surface everything attendees see — exhibitor directory, AI answers, and lead capture."
-        />
-        {overview.events.length ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            {overview.events.map((event) => (
-              <DataCard
-                key={event.id}
-                title={event.name}
-                subtitle={
-                  <span className="flex flex-wrap gap-2">
-                    <span className="rounded bg-sunken px-2 py-0.5 font-mono text-xs">
-                      {event.status}
-                    </span>
-                    <span>{formatRange(event.startAt, event.timezone)}</span>
-                  </span>
-                }
-                tone="sky"
-                links={[
-                  {
-                    label: "Event exhibitors",
-                    href: `/demo/event/${event.slug}`,
-                    primary: true,
-                  },
-                ]}
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyHint>No published event is available yet.</EmptyHint>
-        )}
-      </section>
-
-      <section>
-        <SectionHeader
-          eyebrow="Step 3 — Exhibitors"
-          title="Open any exhibitor organization"
-          description="Each exhibitor org spans one published booth experience per event. Their dashboard, documents, lead forms, and QR live here."
-        />
-        {overview.exhibitorOrganizations.length ? (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {overview.exhibitorOrganizations.map((exhibitor) => {
-              const firstParticipation = exhibitor.events[0];
-              const eventForBooth = overview.events.find(
-                (e) => e.id === firstParticipation?.eventId,
-              );
-              return (
-                <DataCard
-                  key={exhibitor.id}
-                  title={exhibitor.name}
-                  subtitle={
-                    firstParticipation ? (
-                      <span>
-                        Booth at{" "}
-                        <code className="rounded bg-sunken px-1.5 py-0.5">
-                          /{firstParticipation.eventSlug}
-                        </code>
-                      </span>
-                    ) : (
-                      <span>No active booth</span>
-                    )
-                  }
-                  tone="emerald"
-                  links={
-                    firstParticipation
-                      ? [
-                          {
-                            label: "View booth details",
-                            href: `/demo/exhibitor/${firstParticipation.eventExhibitorId}`,
-                            primary: true,
-                          },
-                          ...(eventForBooth
-                            ? [
-                                {
-                                  label: `View ${eventForBooth.name}`,
-                                  href: `/demo/event/${eventForBooth.slug}`,
-                                },
-                              ]
-                            : []),
-                        ]
-                      : []
-                  }
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <EmptyHint>
-            No exhibitor organizations have joined an event yet.
-          </EmptyHint>
-        )}
-      </section>
-
-      <section>
-        <SectionHeader
-          eyebrow="Step 4 — Booth QR & public booth"
-          title="Scan a booth QR (or open the page directly)"
-          description="Each booth has its own opaque public token. Use these on a phone to point the camera at any token."
-        />
-        {overview.events.length ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            {overview.events.flatMap((event) =>
-              event.exhibitors.map((booth) => (
-                <DataCard
-                  key={`${event.id}-${booth.id}`}
-                  title={`${booth.companyName} · Booth ${booth.boothNumber ?? "—"}`}
-                  subtitle={`${event.name} → ${booth.boothName}`}
-                  tone="violet"
-                  links={
-                    booth.publicQrToken
-                      ? [
-                          {
-                            label: "Open public booth page",
-                            href: `/visit/${booth.publicQrToken}`,
-                            primary: true,
-                          },
-                          {
-                            label: "View booth details",
-                            href: `/demo/exhibitor/${booth.id}`,
-                          },
-                        ]
-                      : [
-                          {
-                            label: "View booth details",
-                            href: `/demo/exhibitor/${booth.id}`,
-                          },
-                        ]
-                  }
-                  token={booth.publicQrToken}
-                  tokenPrefix="/visit/"
-                />
-              )),
-            )}
-          </div>
-        ) : (
-          <EmptyHint>No booths are ready.</EmptyHint>
-        )}
-      </section>
-
-      <section>
-        <SectionHeader
-          eyebrow="Step 5 — Relationship workspace"
-          title="Open a live exhibitor–attendee relationship"
-          description="Each scan plus lead submission creates a durable relationship. Open one to see the full workspace: timeline, notes, AI intelligence."
-        />
-        {overview.relationships.length ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            {overview.relationships.slice(0, 10).map((relationship) => (
-              <DataCard
-                key={relationship.id}
-                title={`Relationship ${relationship.id.slice(0, 8)}…`}
-                subtitle={
-                  relationship.attendeeEmail
-                    ? `Attendee ${relationship.attendeeEmail}`
-                    : "Anonymous attendee"
-                }
-                tone="amber"
-                links={[
-                  {
-                    label: "View exhibitor booth",
-                    href: `/demo/exhibitor/${relationship.eventExhibitorId}`,
-                    primary: true,
-                  },
-                ]}
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyHint>
-            No relationships are seeded. Run{" "}
-            <code className="rounded bg-sunken px-1.5 py-0.5">
-              pnpm db:seed:demo
-            </code>{" "}
-            to create them.
-          </EmptyHint>
-        )}
-      </section>
-
-      {firstBooth ? (
-        <p className="text-center text-xs text-muted">
-          Quick start shortcut — open the demo booth at{" "}
-          <Link
-            className="text-link underline"
-            href={`/visit/${firstBooth.booth.publicQrToken ?? ""}`}
-          >
-            /visit/{firstBooth.booth.publicQrToken?.slice(0, 12) ?? ""}…
-          </Link>
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-function SectionHeader({
-  eyebrow,
+function PersonaCard({
   title,
   description,
+  href,
+  tone,
+  stats,
 }: {
-  eyebrow: string;
   title: string;
   description: string;
+  href: string;
+  tone: "indigo" | "emerald" | "violet";
+  stats?: Array<{ label: string; value: string | number }>;
 }) {
-  return (
-    <div className="mb-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
-        {eyebrow}
-      </p>
-      <h2 className="mt-1 text-xl font-semibold text-primary sm:text-2xl">
-        {title}
-      </h2>
-      <p className="mt-1 max-w-3xl text-sm text-secondary">{description}</p>
-    </div>
-  );
-}
+  const border = {
+    indigo: "border-indigo-500/20 hover:ring-indigo-500/30",
+    emerald: "border-emerald-500/20 hover:ring-emerald-500/30",
+    violet: "border-violet-500/20 hover:ring-violet-500/30",
+  }[tone];
+  const badge = {
+    indigo: "bg-indigo-100 text-indigo-700",
+    emerald: "bg-emerald-100 text-emerald-700",
+    violet: "bg-violet-100 text-violet-700",
+  }[tone];
 
-function DataCard({
-  title,
-  subtitle,
-  links,
-  tone,
-  token,
-  tokenPrefix,
-}: {
-  title: string;
-  subtitle: React.ReactNode;
-  links: Array<{ label: string; href: string; primary?: boolean }>;
-  tone: "indigo" | "emerald" | "violet" | "amber" | "sky";
-  token?: string | null;
-  tokenPrefix?: string;
-}) {
-  const accent = toneRing(tone);
   return (
-    <div
-      className={`group rounded-2xl border border-default bg-surface p-5 shadow-1 transition-all hover:shadow-2 hover:ring-2 ${accent}`}
+    <Link
+      href={href}
+      className={`group block rounded-2xl border-2 ${border} bg-surface p-6 shadow-1 transition-all hover:shadow-2 hover:ring-2 sm:p-8`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="truncate text-base font-semibold text-primary">
-            {title}
-          </h3>
-          <div className="mt-1 text-sm text-secondary">{subtitle}</div>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3">
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${badge}`}>
+              {title}
+            </span>
+            <svg className="size-4 text-muted transition-transform group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 4l4 4-4 4" />
+            </svg>
+          </div>
+          <p className="mt-3 text-base text-secondary">{description}</p>
         </div>
-        {token ? (
-          <div className="flex items-center gap-2 rounded-lg border border-default bg-sunken/60 px-3 py-1.5 font-mono text-xs text-secondary">
-            <span className="truncate">{tokenPrefix ?? ""}{token}</span>
-            <CopyButton className="h-7 px-2 text-[11px] font-medium text-secondary hover:text-primary" text={token} />
+        {stats ? (
+          <div className="flex gap-4 sm:gap-6">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-xl font-bold tabular-nums text-primary">{stat.value}</p>
+                <p className="text-xs text-muted">{stat.label}</p>
+              </div>
+            ))}
           </div>
         ) : null}
       </div>
-      <ul className="mt-4 space-y-2">
-        {links.map((link) => (
-          <li key={`${link.label}-${link.href}`}>
-            <Link
-              href={link.href}
-              className={
-                link.primary
-                  ? "flex items-center justify-between rounded-lg border border-brand/30 bg-brand-subtle px-3 py-2 text-sm font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
-                  : "flex items-center justify-between rounded-lg border border-default bg-sunken/50 px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-sunken hover:text-brand"
-              }
-            >
-              {link.label}
-              <svg
-                className="size-3.5 text-muted"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M6 4l4 4-4 4" />
-              </svg>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    </Link>
   );
-}
-
-function EmptyHint({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-default bg-surface p-6 text-sm text-secondary">
-      {children}
-    </div>
-  );
-}
-
-function toneRing(tone: "indigo" | "emerald" | "violet" | "amber" | "sky") {
-  switch (tone) {
-    case "indigo":
-      return "ring-indigo-500/20";
-    case "emerald":
-      return "ring-emerald-500/20";
-    case "violet":
-      return "ring-violet-500/20";
-    case "amber":
-      return "ring-amber-500/20";
-    case "sky":
-      return "ring-sky-500/20";
-  }
-}
-
-function formatRange(value: string, timezone: string) {
-  try {
-    const date = new Date(value);
-    return `${date.toLocaleDateString()} · ${timezone}`;
-  } catch {
-    return `${value} · ${timezone}`;
-  }
 }

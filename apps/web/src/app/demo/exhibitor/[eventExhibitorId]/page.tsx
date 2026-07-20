@@ -1,118 +1,150 @@
 ﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getPublicDemoOverview, getPublicBooth } from "@concourse/api-client";
+import {
+  getPublicDemoExhibitorDashboard,
+  getPublicDemoOverview,
+} from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function DemoExhibitorPage({ params }: { params: Promise<{ eventExhibitorId: string }> }) {
+export default async function DemoExhibitorDashboardPage({ params }: { params: Promise<{ eventExhibitorId: string }> }) {
   const { eventExhibitorId } = await params;
   const apiBase = getApiBaseUrl();
-  const overview = await getPublicDemoOverview({ baseUrl: apiBase }).catch(() => null);
-
-  if (!overview) return <Unavailable />;
+  const [overview, dashboard] = await Promise.all([
+    getPublicDemoOverview({ baseUrl: apiBase }).catch(() => null),
+    getPublicDemoExhibitorDashboard({ baseUrl: apiBase }, eventExhibitorId).catch(() => null),
+  ]);
+  if (!overview || !dashboard) return <Unavailable />;
 
   const exhibitorOrg = overview.exhibitorOrganizations.find((eo) =>
     eo.events.some((e) => e.eventExhibitorId === eventExhibitorId),
   );
-  if (!exhibitorOrg) notFound();
-
-  const participation = exhibitorOrg.events.find((e) => e.eventExhibitorId === eventExhibitorId);
+  const participation = exhibitorOrg?.events.find((e) => e.eventExhibitorId === eventExhibitorId);
   const event = overview.events.find((e) => e.id === participation?.eventId);
-  const boothInEvent = event?.exhibitors.find((b) => b.id === eventExhibitorId);
+  const booth = event?.exhibitors.find((b) => b.id === eventExhibitorId);
 
-  let publicBooth = null;
-  if (boothInEvent?.publicQrToken) {
-    publicBooth = await getPublicBooth({ baseUrl: apiBase }, boothInEvent.publicQrToken).catch(() => null);
-  }
+  if (!exhibitorOrg || !booth) notFound();
+
+  const perf = dashboard.performance;
+  const pipeline = dashboard.pipeline;
+  const pipelineTotal = pipeline.new + pipeline.active + pipeline.returning + pipeline.needsFollowUp;
+  const leadQuality = pipelineTotal > 0 ? Math.round((pipeline.active / pipelineTotal) * 100) : 0;
+  const engagementScore = Math.min(100, Math.round((perf.qrScans + perf.relationshipsCreated * 2 + perf.returningVisitors * 3) / 5));
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12 sm:px-10">
-      <Link href="/demo#exhibitors" className="mb-6 inline-flex items-center gap-1 text-sm text-link hover:underline">
-        <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M10 12l-4-4 4-4" />
-        </svg>
-        Back to demo
-      </Link>
+    <div className="mx-auto max-w-6xl space-y-8 px-6 py-12 sm:px-10">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+            Exhibitor workspace
+          </p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary">
+            {booth.companyName}
+          </h1>
+          <p className="text-sm text-secondary">
+            Booth {booth.boothNumber ?? "\u2014"} &middot; {booth.boothName}
+            {event ? ` \u00b7 ${event.name}` : ""}
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+          <span className="inline-block size-1.5 rounded-full bg-emerald-500" />
+          Read-only
+        </span>
+      </div>
 
-      <h1 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">{exhibitorOrg.name}</h1>
-      {boothInEvent ? (
-        <p className="mt-1 text-sm text-secondary">Booth {boothInEvent.boothNumber ?? "\u2014"} &middot; {event?.name}</p>
-      ) : null}
+      <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+        <KpiCard label="New Visitors" value={pipeline.new} trend={pipeline.new > 0 ? { direction: "up" as const, label: `${pipeline.new} today` } : undefined} />
+        <KpiCard label="QR Scans" value={perf.qrScans} />
+        <KpiCard label="Relationships" value={perf.relationshipsCreated} />
+        <KpiCard label="Returning" value={perf.returningVisitors} />
+        <KpiCard label="Profile Completion" value={`${perf.profileCompletion}%`} />
+        <KpiCard label="Lead Quality" value={`${leadQuality}%`} />
+        <KpiCard label="Engagement" value={engagementScore} />
+      </section>
 
-      {publicBooth?.description ? (
-        <p className="mt-4 text-sm text-secondary">{publicBooth.description}</p>
-      ) : null}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section className="rounded-xl border border-default bg-surface p-5">
+          <h2 className="mb-4 text-base font-semibold text-primary">Relationship Pipeline</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <PipelineCard label="New" value={pipeline.new} tone="neutral" />
+            <PipelineCard label="Active" value={pipeline.active} tone="success" />
+            <PipelineCard label="Returning" value={pipeline.returning} tone="info" />
+            <PipelineCard label="Needs Follow-up" value={pipeline.needsFollowUp} tone="warning" />
+          </div>
+        </section>
 
-      {publicBooth?.website ? (
-        <p className="mt-2 text-sm">
-          <span className="text-muted">Website: </span>
-          <span className="text-link">{publicBooth.website}</span>
-        </p>
-      ) : null}
+        <section className="rounded-xl border border-default bg-surface p-5">
+          <h2 className="mb-4 text-base font-semibold text-primary">AI Insights</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-default bg-sunken p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-secondary">Enriched Profiles</p>
+                <span className="inline-flex size-5 items-center justify-center rounded-full bg-purple-100 text-[10px] text-purple-700">AI</span>
+              </div>
+              <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{dashboard.intelligenceFeed.profilesEnriched}</p>
+              <p className="mt-1 text-xs text-muted">Attendees with recent data updates</p>
+            </div>
+            <div className="rounded-xl border border-default bg-sunken p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-secondary">Complete Profiles</p>
+                <span className="inline-flex size-5 items-center justify-center rounded-full bg-purple-100 text-[10px] text-purple-700">AI</span>
+              </div>
+              <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{dashboard.intelligenceFeed.completeProfiles}</p>
+              <p className="mt-1 text-xs text-muted">Profiles with full contact data</p>
+            </div>
+          </div>
+        </section>
+      </div>
 
-      {boothInEvent?.publicQrToken ? (
+      <div className="flex flex-wrap gap-3">
+        {booth.publicQrToken ? (
+          <Link
+            href={`/visit/${booth.publicQrToken}`}
+            className="inline-flex h-10 items-center rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white"
+          >
+            Open booth preview
+          </Link>
+        ) : null}
         <Link
-          href={"/visit/" + boothInEvent.publicQrToken}
-          className="mt-4 inline-flex items-center gap-1 rounded-lg border border-brand/30 bg-brand-subtle px-4 py-2 text-sm font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
+          href={`/demo/exhibitor/${eventExhibitorId}/booth`}
+          className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
         >
-          Open public booth page
-          <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M6 4l4 4-4 4" />
-          </svg>
+          Booth profile
         </Link>
-      ) : null}
+      </div>
+    </div>
+  );
+}
 
-      {publicBooth?.leadForm ? (
-        <section className="mt-10">
-          <h2 className="text-lg font-semibold text-primary">Lead form</h2>
-          <p className="mt-1 text-xs text-muted">{publicBooth.leadForm.name} &mdash; read-only preview</p>
-          {publicBooth.leadForm.consentText ? (
-            <p className="mt-2 text-sm text-secondary italic">{publicBooth.leadForm.consentText}</p>
-          ) : null}
-          <ul className="mt-4 space-y-2">
-            {publicBooth.leadForm.fields.map((field) => (
-              <li
-                key={field.key}
-                className="rounded-xl border border-default bg-surface px-4 py-3"
-              >
-                <span className="text-sm font-medium text-primary">
-                  {field.label}
-                  {field.required ? <span className="ml-1 text-status-danger-text">*</span> : null}
-                </span>
-                <span className="ml-2 rounded bg-sunken px-1.5 py-0.5 text-xs text-muted">
-                  {field.type}
-                </span>
-                {field.helpText ? (
-                  <p className="mt-0.5 text-xs text-muted">{field.helpText}</p>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+function KpiCard({ label, value, trend }: { label: string; value: string | number; trend?: { direction: "up" | "down"; label: string } }) {
+  return (
+    <div className="rounded-xl border border-default bg-surface p-4">
+      <p className="text-xs font-medium text-secondary">{label}</p>
+      <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{value}</p>
+      {trend && (
+        <p className={`mt-1 flex items-center gap-1 text-xs ${trend.direction === "up" ? "text-emerald-600" : "text-red-600"}`}>
+          <span>{trend.direction === "up" ? "\u2191" : "\u2193"}</span>
+          <span>{trend.label}</span>
+        </p>
+      )}
+    </div>
+  );
+}
 
-      {publicBooth?.resources && publicBooth.resources.length > 0 ? (
-        <section className="mt-10">
-          <h2 className="text-lg font-semibold text-primary">Resources</h2>
-          <ul className="mt-2 space-y-2">
-            {publicBooth.resources.map((resource) => (
-              <li key={resource.id}>
-                <a
-                  href={resource.href}
-                  className="text-sm text-link hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {resource.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+function PipelineCard({ label, value, tone }: { label: string; value: number; tone: "neutral" | "success" | "info" | "warning" }) {
+  const tones = {
+    neutral: "border-default bg-sunken text-secondary",
+    success: "border-emerald-500/30 bg-emerald-50 text-emerald-700",
+    info: "border-sky-500/30 bg-sky-50 text-sky-700",
+    warning: "border-amber-500/30 bg-amber-50 text-amber-700",
+  };
+  return (
+    <div className={`rounded-lg border p-3 ${tones[tone]}`}>
+      <p className="text-xs font-medium">{label}</p>
+      <p className="mt-1 text-xl font-semibold">{value}</p>
     </div>
   );
 }
@@ -120,8 +152,8 @@ export default async function DemoExhibitorPage({ params }: { params: Promise<{ 
 function Unavailable() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 sm:px-10">
-      <Link href="/demo" className="mb-6 inline-flex items-center gap-1 text-sm text-link hover:underline">Back to demo</Link>
-      <p className="rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
+      <Link href="/demo" className="text-sm text-link hover:underline">Back to demo</Link>
+      <p className="mt-6 rounded-xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
         Demo data is unavailable right now.
       </p>
     </div>
