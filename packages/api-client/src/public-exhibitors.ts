@@ -246,6 +246,53 @@ export function getDemoBoothQr(
   );
 }
 
+export type PublicDemoOverview = {
+  organizers: Array<{
+    id: string;
+    name: string;
+    slug: string;
+  }>;
+  events: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    organizerOrganizationId: string;
+    startAt: string;
+    endAt: string;
+    timezone: string;
+    status: string;
+    exhibitors: Array<{
+      id: string;
+      organizationId: string;
+      companyName: string;
+      boothName: string;
+      boothNumber: string | null;
+      publicQrToken: string | null;
+    }>;
+  }>;
+  exhibitorOrganizations: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    events: Array<{ eventId: string; eventSlug: string; eventExhibitorId: string }>;
+  }>;
+  relationships: Array<{
+    id: string;
+    organizationId: string;
+    eventExhibitorId: string;
+    attendeeEmail: string | null;
+  }>;
+  demoAccounts: Array<{
+    role: "organizer" | "exhibitor" | "attendee";
+    email: string;
+    fullName: string;
+  }>;
+};
+
+export function getPublicDemoOverview(client: PublicApiClient) {
+  return publicRequest<PublicDemoOverview>(client, "/v1/public/demo");
+}
+
 export function chatAtBooth(
   client: PublicApiClient,
   publicQrToken: string,

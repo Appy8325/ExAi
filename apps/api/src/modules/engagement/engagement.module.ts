@@ -22,6 +22,7 @@ import { AttendeeProfileController } from "./attendee-profile.controller";
 import { AttendeeProfileService } from "./attendee-profile.service";
 import { PublicExhibitorsController } from "./public-exhibitors.controller";
 import { PublicExhibitorsService } from "./public-exhibitors.service";
+import { PublicDemoController } from "./public-demo.controller";
 import { AttendeeRelationshipsController } from "./attendee-relationships.controller";
 import { AttendeeRelationshipsService } from "./attendee-relationships.service";
 import { OrganizerOverviewController } from "./organizer-overview.controller";
@@ -51,6 +52,7 @@ import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor
     PublicBoothController,
     AttendeeProfileController,
     PublicExhibitorsController,
+    PublicDemoController,
     AttendeeRelationshipsController,
     OrganizerOverviewController,
     OrganizerBootstrapController,
