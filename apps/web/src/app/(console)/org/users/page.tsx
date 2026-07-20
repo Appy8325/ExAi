@@ -1,4 +1,4 @@
-import { StatusBadge } from "@concourse/ui";
+import { PageHeader, StatusBadge, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@concourse/ui";
 
 import {
   loadOrganizationMembers,
@@ -10,59 +10,53 @@ export default async function UsersPage() {
   const overview = await loadOrganizerOverview();
   if (!overview)
     return (
-      <p className="rounded-xl border border-default bg-surface p-6 text-secondary">
+      <div className="rounded-xl border border-default bg-surface p-6 text-secondary">
         Organization unavailable.
-      </p>
+      </div>
     );
   const members = await loadOrganizationMembers(overview.organizationId);
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold text-primary">Team</h1>
-        <p className="mt-1 text-secondary">
-          Manage access to {overview.organizationName}.
-        </p>
-      </header>
+    <div className="space-y-section">
+      <PageHeader
+        title="Team"
+        description={`Manage access to ${overview.organizationName}.`}
+      />
       <InviteMemberForm organizationId={overview.organizationId} />
-      <div className="overflow-x-auto rounded-xl border border-default bg-surface">
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-default">
-              <th className="px-4 py-3 text-secondary">Member</th>
-              <th className="px-4 py-3 text-secondary">Role</th>
-              <th className="px-4 py-3 text-secondary">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members?.map((member) => (
-              <tr
-                key={member.id}
-                className="border-b border-default last:border-0"
-              >
-                <td className="px-4 py-3">
-                  <strong className="block text-primary">
-                    {member.fullName}
-                  </strong>
-                  <span className="text-secondary">{member.email}</span>
-                </td>
-                <td className="px-4 py-3 capitalize text-secondary">
+      {members?.length ? (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Member</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {members.map((member) => (
+              <TableRow key={member.id}>
+                <TableCell>
+                  <p className="font-medium text-primary">{member.fullName}</p>
+                  <p className="text-body-sm text-secondary">{member.email}</p>
+                </TableCell>
+                <TableCell className="capitalize text-secondary">
                   {member.role}
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell>
                   <StatusBadge
                     tone={member.status === "active" ? "success" : "neutral"}
                   >
                     {member.status}
                   </StatusBadge>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-        {!members?.length ? (
-          <p className="p-6 text-secondary">No members were found.</p>
-        ) : null}
-      </div>
+          </TableBody>
+        </Table>
+      ) : (
+        <div className="rounded-xl border border-dashed border-default bg-surface/50 p-8 text-center text-body text-secondary">
+          No members were found.
+        </div>
+      )}
     </div>
   );
 }

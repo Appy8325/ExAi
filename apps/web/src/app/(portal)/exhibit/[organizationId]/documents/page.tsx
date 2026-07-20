@@ -1,3 +1,4 @@
+import { PageHeader } from "@concourse/ui";
 import { KnowledgeSources } from "../exhibitor-forms";
 import { loadExhibitorWorkspace } from "@/lib/exhibitor";
 
@@ -22,20 +23,12 @@ export default async function DocumentsPage({
       </main>
     );
   return (
-    <main className="mx-auto max-w-5xl space-y-6 p-6">
-      <header>
-        <p className="text-sm font-medium text-secondary">
-          {workspace.event.name}
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold text-primary">
-          Company knowledge
-        </h1>
-        <p className="mt-2 text-sm text-secondary">
-          Upload PDFs, brochures, presentations, FAQs, pricing, or register a
-          public website. Files stay private while security and indexing are
-          pending.
-        </p>
-      </header>
+    <main className="mx-auto max-w-(--mq-content-max-narrow) space-y-section p-6">
+      <PageHeader
+        parent={{ label: workspace.event.name }}
+        title="Company knowledge"
+        description="Upload PDFs, brochures, presentations, FAQs, pricing, or register a public website. Files stay private while security and indexing are pending."
+      />
       <KnowledgeSources workspace={workspace} />
     </main>
   );

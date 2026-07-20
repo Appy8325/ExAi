@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { StatusBadge } from "@concourse/ui";
+import { PageHeader, SectionHeader, StatusBadge, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@concourse/ui";
 import { getEventExhibitors } from "@concourse/api-client";
 
 import { getApiBaseUrl } from "@/lib/api/config";
@@ -32,13 +32,11 @@ export default async function ExhibitorsPage({
     ? await loadExhibitorInvitations(overview.organizationId, eventId)
     : undefined;
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-xl font-semibold text-primary">Exhibitors</h1>
-        <p className="mt-1 text-sm text-secondary">
-          Invite companies and monitor accepted exhibitor profiles.
-        </p>
-      </header>
+    <div className="space-y-section">
+      <PageHeader
+        title="Exhibitors"
+        description="Invite companies and monitor accepted exhibitor profiles."
+      />
       {overview ? (
         <InviteExhibitorForm
           organizationId={overview.organizationId}
@@ -46,20 +44,20 @@ export default async function ExhibitorsPage({
         />
       ) : null}
       {invitations?.length ? (
-        <section className="rounded-xl border border-default bg-surface p-5">
-          <h2 className="font-semibold text-primary">Invitations</h2>
-          <div className="mt-3 divide-y divide-default">
+        <section>
+          <SectionHeader title="Invitations" />
+          <div className="mt-3 space-y-2">
             {invitations.map((invitation) => (
               <div
                 key={invitation.id}
-                className="flex items-center justify-between gap-4 py-3 text-sm"
+                className="flex items-center justify-between gap-4 rounded-lg border border-default bg-surface p-4"
               >
-                <span>
-                  <strong className="block text-primary">
+                <div className="min-w-0 flex-1">
+                  <p className="text-body font-medium text-primary">
                     {invitation.companyName}
-                  </strong>
-                  <span className="text-secondary">{invitation.email}</span>
-                </span>
+                  </p>
+                  <p className="text-body-sm text-secondary">{invitation.email}</p>
+                </div>
                 <StatusBadge
                   tone={
                     invitation.status === "accepted" ? "success" : "neutral"
@@ -73,46 +71,41 @@ export default async function ExhibitorsPage({
         </section>
       ) : null}
       {exhibitors.length ? (
-        <div className="overflow-x-auto rounded-xl border border-default bg-surface">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-default">
-                <th className="px-4 py-3 text-secondary">Company</th>
-                <th className="px-4 py-3 text-secondary">Booth</th>
-                <th className="px-4 py-3 text-secondary">Contact</th>
-              </tr>
-            </thead>
-            <tbody>
-              {exhibitors.map((exhibitor) => (
-                <tr
-                  key={exhibitor.id}
-                  className="border-b border-default last:border-0"
-                >
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/org/events/${eventId}/exhibitors/${exhibitor.id}`}
-                      className="font-medium text-primary hover:underline"
-                    >
-                      {exhibitor.companyName}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-secondary">
-                    {exhibitor.boothNumber ?? "—"}
-                  </td>
-                  <td className="px-4 py-3 text-secondary">
-                    {exhibitor.contactEmail ??
-                      exhibitor.website ??
-                      "At the booth"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Company</TableHead>
+              <TableHead>Booth</TableHead>
+              <TableHead>Contact</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {exhibitors.map((exhibitor) => (
+              <TableRow key={exhibitor.id}>
+                <TableCell>
+                  <Link
+                    href={`/org/events/${eventId}/exhibitors/${exhibitor.id}`}
+                    className="font-medium text-link hover:text-brand-hover transition-colors"
+                  >
+                    {exhibitor.companyName}
+                  </Link>
+                </TableCell>
+                <TableCell className="text-secondary">
+                  {exhibitor.boothNumber ?? "—"}
+                </TableCell>
+                <TableCell className="text-secondary">
+                  {exhibitor.contactEmail ??
+                    exhibitor.website ??
+                    "At the booth"}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       ) : (
-        <p className="rounded-xl border border-default bg-surface p-6 text-secondary">
+        <div className="rounded-xl border border-dashed border-default bg-surface/50 p-8 text-center text-body text-secondary">
           No exhibitors have accepted yet.
-        </p>
+        </div>
       )}
     </div>
   );

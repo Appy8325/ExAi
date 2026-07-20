@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card } from "@concourse/ui";
+import { Card, PageHeader, Badge } from "@concourse/ui";
 
 import { loadOrganizerOverview } from "@/lib/organizer";
 import { CreateEventForm } from "../organizer-forms";
@@ -7,55 +7,49 @@ import { CreateEventForm } from "../organizer-forms";
 export default async function EventsPage() {
   const overview = await loadOrganizerOverview();
   return (
-    <div className="space-y-8">
-      <header>
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted">
-          Organizer workspace
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold text-primary">Events</h1>
-        <p className="mt-1 text-sm text-secondary">
-          Events for {overview?.organizationName ?? "your organization"}
-        </p>
-      </header>
+    <div className="space-y-section">
+      <PageHeader
+        title="Events"
+        description={`Events for ${overview?.organizationName ?? "your organization"}`}
+      />
       {overview ? (
         <>
           <CreateEventForm organizationId={overview.organizationId} />
           {overview.events.length ? (
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {overview.events.map((event) => (
-                <Card key={event.id} className="space-y-4">
-                  <div>
-                    <h2 className="text-lg font-semibold text-primary">
-                      {event.name}
-                    </h2>
-                    <p className="mt-1 text-sm capitalize text-muted">
-                      {event.status} · {dateRange(event.startAt, event.endAt)}
-                    </p>
+                <Card key={event.id} variant="interactive" className="group space-y-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <Link href={`/org/events/${event.id}`} className="text-title font-semibold text-primary hover:text-brand transition-colors">
+                        {event.name}
+                      </Link>
+                      <p className="mt-0.5 text-body-sm capitalize text-muted">
+                        {dateRange(event.startAt, event.endAt)}
+                      </p>
+                    </div>
+                    <Badge variant={event.status === "published" || event.status === "live" ? "success" : "default"}>
+                      {event.status}
+                    </Badge>
                   </div>
-                  <div className="flex gap-6 text-sm text-secondary">
+                  <div className="flex gap-6 text-body-sm text-secondary">
                     <span>
-                      <strong className="text-primary">
-                        {event.exhibitors}
-                      </strong>{" "}
-                      exhibitors
+                      <strong className="text-primary">{event.exhibitors}</strong> exhibitors
                     </span>
                     <span>
-                      <strong className="text-primary">
-                        {event.attendees}
-                      </strong>{" "}
-                      attendees
+                      <strong className="text-primary">{event.attendees}</strong> attendees
                     </span>
                   </div>
-                  <div className="flex gap-2 border-t border-default pt-4">
+                  <div className="flex gap-2 pt-2">
                     <Link
                       href={`/org/events/${event.id}`}
-                      className="inline-flex h-9 items-center rounded-md bg-brand px-4 text-sm font-medium text-on-brand"
+                      className="inline-flex h-9 items-center rounded-lg bg-brand px-4 text-body-sm font-medium text-on-brand shadow-1 hover:bg-brand-hover hover:shadow-2 transition-all"
                     >
                       Manage event
                     </Link>
                     <Link
                       href={`/org/events/${event.id}/reports`}
-                      className="inline-flex h-9 items-center rounded-md border border-default px-4 text-sm font-medium text-primary"
+                      className="inline-flex h-9 items-center rounded-lg border border-strong bg-surface px-4 text-body-sm font-medium text-primary hover:bg-sunken transition-all"
                     >
                       Reports
                     </Link>
@@ -65,7 +59,7 @@ export default async function EventsPage() {
             </div>
           ) : (
             <p className="rounded-xl border border-default bg-surface p-6 text-secondary">
-              No events yet.
+              No events yet. Create one above.
             </p>
           )}
         </>

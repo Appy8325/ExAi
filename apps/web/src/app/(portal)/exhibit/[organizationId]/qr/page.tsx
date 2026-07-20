@@ -1,3 +1,4 @@
+import { PageHeader } from "@concourse/ui";
 import { QrPanel } from "../exhibitor-forms";
 import { loadExhibitorWorkspace } from "@/lib/exhibitor";
 
@@ -22,13 +23,12 @@ export default async function QrPage({
       </main>
     );
   return (
-    <main className="mx-auto max-w-5xl space-y-6 p-6">
-      <header>
-        <p className="text-sm font-medium text-secondary">
-          {workspace.event.name}
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold text-primary">Booth QR</h1>
-      </header>
+    <main className="mx-auto max-w-(--mq-content-max-narrow) space-y-section p-6">
+      <PageHeader
+        parent={{ label: workspace.event.name }}
+        title="Booth QR"
+        description="Display or download QR codes for your booth."
+      />
       <QrPanel workspace={workspace} />
     </main>
   );

@@ -1,3 +1,4 @@
+import { PageHeader } from "@concourse/ui";
 import { BoothProfileForm, PublishBoothPanel } from "../exhibitor-forms";
 import { loadExhibitorWorkspace } from "@/lib/exhibitor";
 
@@ -17,18 +18,12 @@ export default async function SettingsPage({
     : undefined;
   if (!workspace) return <Unavailable />;
   return (
-    <main className="mx-auto max-w-5xl space-y-6 p-6">
-      <header>
-        <p className="text-sm font-medium text-secondary">
-          {workspace.event.name}
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold text-primary">
-          Company profile and booth
-        </h1>
-        <p className="mt-2 text-sm text-secondary">
-          Configure the event-scoped public booth and company branding.
-        </p>
-      </header>
+    <main className="mx-auto max-w-(--mq-content-max-narrow) space-y-section p-6">
+      <PageHeader
+        parent={{ label: workspace.event.name }}
+        title="Company profile and booth"
+        description="Configure the event-scoped public booth and company branding."
+      />
       <BoothProfileForm workspace={workspace} />
       <PublishBoothPanel workspace={workspace} />
     </main>
@@ -38,9 +33,9 @@ export default async function SettingsPage({
 function Unavailable() {
   return (
     <main className="mx-auto max-w-3xl p-6">
-      <p className="rounded-xl border border-default bg-surface p-6 text-secondary">
+      <div className="rounded-xl border border-default bg-surface p-6 text-body text-secondary">
         Choose an accepted exhibitor event from the exhibitor home page.
-      </p>
+      </div>
     </main>
   );
 }

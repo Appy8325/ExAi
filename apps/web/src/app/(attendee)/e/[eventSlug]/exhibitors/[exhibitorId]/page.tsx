@@ -11,7 +11,7 @@ import {
   unsaveExhibitor,
 } from "@concourse/api-client";
 import type { PublicExhibitor, ShowcaseExhibitor } from "@concourse/api-client";
-import { Button, Skeleton } from "@concourse/ui";
+import { Button, Skeleton, Card } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
 
@@ -90,9 +90,9 @@ export default function ExhibitorProfilePage({
         <p className="text-body text-secondary">Exhibitor not found.</p>
         <Link
           href={`/e/${eventSlug}`}
-          className="text-body-sm font-medium text-brand hover:underline"
+          className="text-body-sm font-medium text-link hover:text-brand-hover"
         >
-          Back to directory
+          &larr; Back to directory
         </Link>
       </div>
     );
@@ -103,59 +103,55 @@ export default function ExhibitorProfilePage({
   return (
     <div className="space-y-6">
       <div className="relative h-48 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-100 to-sky-100">
-        {exhibitor.logoUrl && (
+        {exhibitor.logoUrl ? (
           <div className="absolute inset-0 flex items-center justify-center bg-black/5">
             <Image
               alt={`${exhibitor.companyName} logo`}
-              className="h-20 w-20 rounded-2xl border-2 border-white/80 object-contain bg-white shadow-3"
+              className="size-20 rounded-2xl border-2 border-white/80 object-contain bg-white shadow-3"
               height={80}
               src={exhibitor.logoUrl}
               unoptimized
               width={80}
             />
           </div>
-        )}
-        {!exhibitor.logoUrl && (
+        ) : (
           <div className="flex h-full items-center justify-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/80 text-display font-bold text-brand shadow-3">
+            <div className="flex size-20 items-center justify-center rounded-2xl bg-white/80 text-title-lg font-bold text-brand shadow-3">
               {initials}
             </div>
           </div>
         )}
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-title-lg font-semibold text-primary">
-              {exhibitor.companyName}
-            </h1>
-            <p className="text-body-sm text-muted">
-              {exhibitor.boothName}
-              {exhibitor.boothNumber
-                ? ` · Booth ${exhibitor.boothNumber}`
-                : ""}
-            </p>
-          </div>
-          <button
-            onClick={toggleSave}
-            disabled={saving}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors ${
-              saved
-                ? "border-brand bg-brand text-on-brand"
-                : "border-default text-muted hover:border-strong"
-            }`}
-          >
-            {saved ? "★" : "☆"}
-          </button>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-title-lg font-semibold text-primary">
+            {exhibitor.companyName}
+          </h1>
+          <p className="text-body-sm text-muted">
+            {exhibitor.boothName}
+            {exhibitor.boothNumber ? ` · Booth ${exhibitor.boothNumber}` : ""}
+          </p>
         </div>
+        <button
+          onClick={toggleSave}
+          disabled={saving}
+          className={`flex size-10 shrink-0 items-center justify-center rounded-full border transition-all duration-[var(--mq-duration-fast)] ${
+            saved
+              ? "border-brand bg-brand text-on-brand shadow-1"
+              : "border-default text-muted hover:border-strong hover:text-primary"
+          }`}
+          aria-label={saved ? "Unsave exhibitor" : "Save exhibitor"}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+          </svg>
+        </button>
       </div>
 
       {exhibitor.description && (
-        <section>
-          <h2 className="mb-2 text-title-sm font-semibold text-primary">
-            About
-          </h2>
+        <section className="space-y-2">
+          <h2 className="text-title-sm font-semibold text-primary">About</h2>
           <p className="text-body text-secondary leading-relaxed">
             {exhibitor.description}
           </p>
@@ -163,10 +159,8 @@ export default function ExhibitorProfilePage({
       )}
 
       {exhibitor.socialLinks && Object.keys(exhibitor.socialLinks).length > 0 && (
-        <section>
-          <h2 className="mb-2 text-title-sm font-semibold text-primary">
-            Links
-          </h2>
+        <section className="space-y-2">
+          <h2 className="text-title-sm font-semibold text-primary">Links</h2>
           <div className="flex flex-wrap gap-2">
             {Object.entries(exhibitor.socialLinks).map(([key, url]) => (
               <a
@@ -174,7 +168,7 @@ export default function ExhibitorProfilePage({
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg border border-default bg-surface px-3 py-1.5 text-body-sm text-link hover:bg-sunken"
+                className="rounded-lg border border-default bg-surface px-3 py-1.5 text-body-sm text-link hover:bg-sunken transition-colors"
               >
                 {key}
               </a>
@@ -188,9 +182,9 @@ export default function ExhibitorProfilePage({
           href={exhibitor.website}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-xl border border-default bg-surface p-3 text-body-sm text-link transition-colors hover:bg-sunken"
+          className="flex items-center gap-2 rounded-xl border border-default bg-surface p-3 text-body-sm text-link hover:bg-sunken transition-colors"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <circle cx="12" cy="12" r="10" />
             <path d="M2 12h20" />
             <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
@@ -201,41 +195,29 @@ export default function ExhibitorProfilePage({
 
       <div className="space-y-3 pt-2">
         {showcase?.publicQrToken ? (
-          <Link href={`/visit/${showcase.publicQrToken}`}>
-            <Button className="min-h-12 w-full text-body font-semibold">
-              Ask AI about this exhibitor
-            </Button>
+          <Link href={`/visit/${showcase.publicQrToken}`} className="block">
+            <Button className="w-full">Ask AI about this exhibitor</Button>
           </Link>
         ) : (
-          <Link href={`/e/${eventSlug}/exhibitors/${exhibitorId}/insights`}>
-            <Button className="min-h-12 w-full text-body font-semibold">
-              View booth briefing
-            </Button>
+          <Link href={`/e/${eventSlug}/exhibitors/${exhibitorId}/insights`} className="block">
+            <Button className="w-full">View booth briefing</Button>
           </Link>
         )}
         <div className="flex gap-3">
           {showcase?.brochureUrl && showcase.brochureUrl !== "#" ? (
-            <a
-              className="flex-1"
-              href={showcase.brochureUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              <Button
-                className="min-h-12 w-full text-body font-medium"
-                variant="secondary"
-              >
+            <a className="flex-1" href={showcase.brochureUrl} rel="noreferrer" target="_blank">
+              <Button className="w-full" variant="secondary">
                 Download Brochure
               </Button>
             </a>
           ) : null}
           <Button
-            className={`min-h-12 text-body font-medium ${showcase?.brochureUrl && showcase.brochureUrl !== "#" ? "flex-1" : "w-full"}`}
+            className={showcase?.brochureUrl && showcase.brochureUrl !== "#" ? "flex-1" : "w-full"}
             variant="secondary"
             onClick={toggleSave}
             disabled={saving}
           >
-            {saved ? "Saved" : "Connect with Exhibitor"}
+            {saved ? "Saved" : "Connect"}
           </Button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Button, Input } from "@concourse/ui";
 
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
@@ -12,7 +13,7 @@ export function CreateOrganizationForm() {
   const [pending, startTransition] = useTransition();
   return (
     <form
-      className="space-y-4 rounded-xl border border-default bg-surface p-6"
+      className="space-y-5 rounded-xl border border-default bg-surface p-6 shadow-1"
       onSubmit={(event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -31,16 +32,20 @@ export function CreateOrganizationForm() {
       }}
     >
       <div>
-        <h2 className="text-lg font-semibold text-primary">
+        <h2 className="text-title font-semibold text-primary">
           Create your organization
         </h2>
-        <p className="mt-1 text-sm text-secondary">
+        <p className="mt-1 text-body-sm text-secondary">
           This account becomes the organization owner.
         </p>
       </div>
       <Field label="Organization name" name="name" required />
-      <Submit pending={pending}>Create organization</Submit>
-      <ErrorMessage error={error} />
+      <div className="flex items-center gap-3">
+        <Button disabled={pending} type="submit">
+          {pending ? "Working…" : "Create organization"}
+        </Button>
+        <ErrorMessage error={error} />
+      </div>
     </form>
   );
 }
@@ -55,7 +60,7 @@ export function CreateEventForm({
   const [pending, startTransition] = useTransition();
   return (
     <form
-      className="grid gap-4 rounded-xl border border-default bg-surface p-6 sm:grid-cols-2"
+      className="grid gap-5 rounded-xl border border-default bg-surface p-6 shadow-1 sm:grid-cols-2"
       onSubmit={(event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -81,8 +86,8 @@ export function CreateEventForm({
       }}
     >
       <div className="sm:col-span-2">
-        <h2 className="text-lg font-semibold text-primary">Create event</h2>
-        <p className="mt-1 text-sm text-secondary">
+        <h2 className="text-title font-semibold text-primary">Create event</h2>
+        <p className="mt-1 text-body-sm text-secondary">
           Start as a draft, then configure policy and branding.
         </p>
       </div>
@@ -95,10 +100,10 @@ export function CreateEventForm({
       />
       <Field label="Starts" name="startAt" type="datetime-local" required />
       <Field label="Ends" name="endAt" type="datetime-local" required />
-      <div className="sm:col-span-2">
-        <Submit pending={pending}>Create draft event</Submit>
-      </div>
-      <div className="sm:col-span-2">
+      <div className="sm:col-span-2 flex items-center gap-3">
+        <Button disabled={pending} type="submit">
+          {pending ? "Working…" : "Create draft event"}
+        </Button>
         <ErrorMessage error={error} />
       </div>
     </form>
@@ -128,7 +133,7 @@ export function EventSettingsForm({
   const [pending, startTransition] = useTransition();
   return (
     <form
-      className="grid gap-4 rounded-xl border border-default bg-surface p-6 sm:grid-cols-2"
+      className="grid gap-5 rounded-xl border border-default bg-surface p-6 shadow-1 sm:grid-cols-2"
       onSubmit={(submitEvent) => {
         submitEvent.preventDefault();
         const form = submitEvent.currentTarget;
@@ -159,60 +164,21 @@ export function EventSettingsForm({
         });
       }}
     >
-      <Field
-        label="Event name"
-        name="name"
-        defaultValue={event.name}
-        required
-      />
+      <Field label="Event name" name="name" defaultValue={event.name} required />
       <Field label="Slug" name="slug" defaultValue={event.slug} required />
-      <Field
-        label="IANA timezone"
-        name="timezone"
-        defaultValue={event.timezone}
-        required
-      />
-      <Field
-        label="Primary color"
-        name="primaryColor"
-        type="color"
-        defaultValue={event.primaryColor}
-        required
-      />
-      <Field
-        label="Starts"
-        name="startAt"
-        type="datetime-local"
-        defaultValue={localValue(event.startAt)}
-        required
-      />
-      <Field
-        label="Ends"
-        name="endAt"
-        type="datetime-local"
-        defaultValue={localValue(event.endAt)}
-        required
-      />
-      <Field
-        label="Privacy policy URL"
-        name="privacyPolicyUrl"
-        type="url"
-        defaultValue={event.privacyPolicyUrl ?? ""}
-        required
-      />
-      <Field
-        label="Event logo URL"
-        name="logoUrl"
-        type="url"
-        defaultValue={event.logoUrl ?? ""}
-      />
+      <Field label="IANA timezone" name="timezone" defaultValue={event.timezone} required />
+      <Field label="Primary color" name="primaryColor" type="color" defaultValue={event.primaryColor} required />
+      <Field label="Starts" name="startAt" type="datetime-local" defaultValue={localValue(event.startAt)} required />
+      <Field label="Ends" name="endAt" type="datetime-local" defaultValue={localValue(event.endAt)} required />
+      <Field label="Privacy policy URL" name="privacyPolicyUrl" type="url" defaultValue={event.privacyPolicyUrl ?? ""} required />
+      <Field label="Event logo URL" name="logoUrl" type="url" defaultValue={event.logoUrl ?? ""} />
       <div className="sm:col-span-2 flex items-center gap-3">
-        <Submit pending={pending}>Save settings</Submit>
+        <Button disabled={pending} type="submit">
+          {pending ? "Working…" : "Save settings"}
+        </Button>
         {saved ? (
-          <span className="text-sm text-status-success-text">Saved</span>
+          <span className="text-body-sm text-status-success-text font-medium">Saved</span>
         ) : null}
-      </div>
-      <div className="sm:col-span-2">
         <ErrorMessage error={error} />
       </div>
     </form>
@@ -231,10 +197,8 @@ export function PublishEventButton({
   const [pending, startTransition] = useTransition();
   return (
     <div className="space-y-2">
-      <button
-        type="button"
+      <Button
         disabled={pending}
-        className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-on-brand disabled:opacity-60"
         onClick={() =>
           startTransition(async () => {
             setError("");
@@ -251,7 +215,7 @@ export function PublishEventButton({
         }
       >
         {pending ? "Publishing…" : "Publish event"}
-      </button>
+      </Button>
       <ErrorMessage error={error} />
     </div>
   );
@@ -269,16 +233,16 @@ export function InviteMemberForm({
       fields={
         <>
           <Field label="Email" name="email" type="email" required />
-          <label className="grid gap-1 text-sm text-secondary">
-            Role
+          <div className="space-y-1.5">
+            <label className="text-body-sm font-medium text-primary">Role</label>
             <select
               name="role"
-              className="h-10 rounded-md border border-default bg-surface px-3 text-primary"
+              className="h-(--spacing-control-h) w-full rounded-md border border-strong bg-surface px-(--spacing-control-px) text-body text-primary outline-none focus:border-strong focus:ring-2 focus:ring-ring/30"
             >
               <option value="member">Member</option>
               <option value="admin">Administrator</option>
             </select>
-          </label>
+          </div>
         </>
       }
       path={`/v1/organizations/${organizationId}/members/invite`}
@@ -325,7 +289,7 @@ function InvitationForm({
   const [pending, startTransition] = useTransition();
   return (
     <form
-      className="space-y-4 rounded-xl border border-default bg-surface p-6"
+      className="space-y-5 rounded-xl border border-default bg-surface p-6 shadow-1"
       onSubmit={(event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -348,15 +312,19 @@ function InvitationForm({
       }}
     >
       <div>
-        <h2 className="text-lg font-semibold text-primary">{title}</h2>
-        <p className="mt-1 text-sm text-secondary">{description}</p>
+        <h2 className="text-title font-semibold text-primary">{title}</h2>
+        <p className="mt-1 text-body-sm text-secondary">{description}</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">{fields}</div>
-      <Submit pending={pending}>Send invitation</Submit>
-      {sent ? (
-        <p className="text-sm text-status-success-text">Invitation sent.</p>
-      ) : null}
-      <ErrorMessage error={error} />
+      <div className="flex items-center gap-3">
+        <Button disabled={pending} type="submit">
+          {pending ? "Working…" : "Send invitation"}
+        </Button>
+        {sent ? (
+          <span className="text-body-sm text-status-success-text font-medium">Invitation sent.</span>
+        ) : null}
+        <ErrorMessage error={error} />
+      </div>
     </form>
   );
 }
@@ -375,40 +343,24 @@ function Field({
   required?: boolean;
 }) {
   return (
-    <label className="grid gap-1 text-sm text-secondary">
-      {label}
-      <input
-        className="h-10 rounded-md border border-default bg-surface px-3 text-primary"
+    <div className="space-y-1.5">
+      <label htmlFor={name} className="text-body-sm font-medium text-primary">
+        {label}
+      </label>
+      <Input
+        id={name}
         name={name}
         type={type}
         defaultValue={defaultValue}
         required={required}
       />
-    </label>
-  );
-}
-
-function Submit({
-  pending,
-  children,
-}: {
-  pending: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-on-brand disabled:opacity-60"
-      disabled={pending}
-      type="submit"
-    >
-      {pending ? "Working…" : children}
-    </button>
+    </div>
   );
 }
 
 function ErrorMessage({ error }: { error: string }) {
   return error ? (
-    <p className="text-sm text-status-danger-text" role="alert">
+    <p className="text-body-sm text-status-danger-text" role="alert">
       {error}
     </p>
   ) : null;

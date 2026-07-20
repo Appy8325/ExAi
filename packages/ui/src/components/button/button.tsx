@@ -18,9 +18,11 @@ import { cn } from "../../lib/utils";
  */
 export const buttonVariants = cva(
   [
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm",
-    "text-body font-medium transition-colors",
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg",
+    "text-body font-medium",
     "h-(--spacing-control-h) px-(--spacing-control-px)",
+    "transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)]",
+    "active:scale-[0.97]",
     "disabled:pointer-events-none disabled:opacity-50",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
   ].join(" "),
@@ -28,19 +30,20 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          "bg-brand text-on-brand",
-          "hover:bg-brand-hover",
+          "bg-brand text-on-brand shadow-1",
+          "hover:bg-brand-hover hover:shadow-2",
         ].join(" "),
         secondary: [
           "bg-surface text-primary border border-strong",
-          "hover:bg-sunken",
+          "hover:bg-sunken hover:border-default",
         ].join(" "),
         ghost: [
           "bg-transparent text-primary",
           "hover:bg-sunken",
         ].join(" "),
         danger: [
-          "bg-status-danger-solid text-on-brand",
+          "bg-status-danger-solid text-on-brand shadow-1",
+          "hover:opacity-90 hover:shadow-2",
         ].join(" "),
       },
       size: {

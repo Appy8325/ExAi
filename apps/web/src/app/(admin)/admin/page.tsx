@@ -1,24 +1,23 @@
-import { Card, MetricCard } from "@concourse/ui";
+import { Card, KPICard, PageHeader, SectionHeader, StatusBadge } from "@concourse/ui";
 
 export default function AdminPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted">Platform admin</p>
-        <h1 className="text-2xl font-semibold text-primary mt-1">Overview</h1>
-        <p className="mt-1 text-sm text-secondary">Monitor platform health, organizations, and system events</p>
-      </div>
+    <div className="space-y-section">
+      <PageHeader
+        title="Overview"
+        description="Monitor platform health, organizations, and system events"
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Organizations" value="12" />
-        <MetricCard label="Active Events" value="3" />
-        <MetricCard label="Total Users" value="1,247" />
-        <MetricCard label="API Health" value="Healthy" detail="99.9% uptime" />
-      </div>
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KPICard label="Organizations" value="12" accent="brand" />
+        <KPICard label="Active Events" value="3" accent="info" />
+        <KPICard label="Total Users" value="1,247" accent="success" />
+        <KPICard label="API Health" value="Healthy" detail="99.9% uptime" accent="ai" />
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <h2 className="text-lg font-semibold text-primary">Recent System Events</h2>
+        <Card variant="default">
+          <SectionHeader title="Recent System Events" />
           <div className="mt-4 space-y-3">
             {[
               "Organization TechExpo Events upgraded to Pro plan",
@@ -26,30 +25,28 @@ export default function AdminPage() {
               "Northstar Cloud integration webhook configured",
               "Database backup completed successfully",
             ].map((event, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-lg border border-default bg-sunken/30 p-3 text-sm text-primary">
-                <span className="size-1.5 rounded-full bg-status-success" />
+              <div key={i} className="flex items-center gap-3 rounded-lg border border-default bg-sunken/30 p-3 text-body-sm text-primary">
+                <span className="size-1.5 rounded-full bg-status-success-solid" />
                 {event}
               </div>
             ))}
           </div>
         </Card>
 
-        <Card>
-          <h2 className="text-lg font-semibold text-primary">Service Status</h2>
+        <Card variant="default">
+          <SectionHeader title="Service Status" />
           <div className="mt-4 space-y-3">
             {[
-              { name: "API", status: "Operational" },
+              { name: "API Gateway", status: "Operational" },
               { name: "Database", status: "Operational" },
-              { name: "AI Engine", status: "Operational" },
-              { name: "Worker Queue", status: "Operational" },
-              { name: "Email Service", status: "Operational" },
-            ].map((svc) => (
-              <div key={svc.name} className="flex items-center justify-between rounded-lg border border-default bg-sunken/30 px-4 py-3">
-                <span className="text-sm font-medium text-primary">{svc.name}</span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-status-success-text">
-                  <span className="size-1.5 rounded-full bg-status-success-solid" />
-                  {svc.status}
-                </span>
+              { name: "AI Inference", status: "Degraded" },
+              { name: "File Storage", status: "Operational" },
+            ].map((service) => (
+              <div key={service.name} className="flex items-center justify-between border-b border-default pb-3 last:border-0 last:pb-0">
+                <span className="text-body-sm text-primary">{service.name}</span>
+                <StatusBadge tone={service.status === "Operational" ? "success" : "warning"}>
+                  {service.status}
+                </StatusBadge>
               </div>
             ))}
           </div>

@@ -53,7 +53,7 @@ export default function SavedExhibitorsPage({
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-display font-semibold text-primary">Saved</h1>
+        <h1 className="text-title-lg font-semibold text-primary">Saved</h1>
         <p className="mt-1 text-body text-secondary">
           {saved.length
             ? `${saved.length} exhibitor${saved.length === 1 ? "" : "s"} saved`
@@ -63,13 +63,15 @@ export default function SavedExhibitorsPage({
 
       {saved.length === 0 && (
         <div className="flex flex-col items-center gap-3 py-12">
-          <div className="text-4xl text-muted">☆</div>
-          <p className="text-body text-secondary">
-            No saved exhibitors yet.
-          </p>
+          <div className="flex size-12 items-center justify-center rounded-full bg-sunken text-muted">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+          <p className="text-body text-secondary">No saved exhibitors yet.</p>
           <Link
             href={`/e/${eventSlug}`}
-            className="text-body-sm font-medium text-brand hover:underline"
+            className="text-body-sm font-medium text-link hover:text-brand-hover"
           >
             Browse exhibitors
           </Link>
@@ -81,31 +83,29 @@ export default function SavedExhibitorsPage({
           <Link
             key={item.relationshipId}
             href={`/e/${eventSlug}/exhibitors/${item.exhibitor.id}`}
-            className="flex items-center gap-4 rounded-xl border border-default bg-surface p-4 transition-all hover:border-strong hover:shadow-2"
+            className="group flex items-center gap-4 rounded-xl border border-default bg-surface p-4 shadow-1 transition-all duration-[var(--mq-duration-moderate)] hover:border-strong hover:shadow-card-hover"
           >
             {item.exhibitor.logoUrl ? (
               <Image
                 alt={`${item.exhibitor.companyName} logo`}
-                className="h-12 w-12 flex-shrink-0 rounded-lg border border-default object-contain"
+                className="size-12 shrink-0 rounded-lg border border-default object-contain"
                 height={48}
                 src={item.exhibitor.logoUrl}
                 unoptimized
                 width={48}
               />
             ) : (
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-brand-subtle text-title-sm font-semibold text-brand">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-brand-subtle text-title-sm font-semibold text-brand">
                 {item.exhibitor.companyName.slice(0, 2).toUpperCase()}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <h3 className="text-body font-semibold text-primary">
+              <h3 className="text-body font-semibold text-primary group-hover:text-brand transition-colors">
                 {item.exhibitor.companyName}
               </h3>
               <p className="truncate text-body-sm text-muted">
                 {item.exhibitor.boothName}
-                {item.exhibitor.boothNumber
-                  ? ` · Booth ${item.exhibitor.boothNumber}`
-                  : ""}
+                {item.exhibitor.boothNumber ? ` · Booth ${item.exhibitor.boothNumber}` : ""}
               </p>
             </div>
           </Link>

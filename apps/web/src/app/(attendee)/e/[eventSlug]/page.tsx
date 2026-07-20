@@ -8,7 +8,7 @@ import {
   getEventExhibitors,
 } from "@concourse/api-client";
 import type { PublicExhibitor, PublicEvent } from "@concourse/api-client";
-import { Skeleton } from "@concourse/ui";
+import { Skeleton, Input } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 
 export default function ExhibitorDirectoryPage({
@@ -77,8 +77,8 @@ export default function ExhibitorDirectoryPage({
 
   return (
     <div className="space-y-6">
-      <header className="space-y-2">
-        <h1 className="text-display font-semibold text-primary">
+      <header className="space-y-1">
+        <h1 className="text-title-lg font-semibold text-primary">
           {event?.name ?? "Exhibitors"}
         </h1>
         <p className="text-body text-secondary">
@@ -87,20 +87,21 @@ export default function ExhibitorDirectoryPage({
       </header>
 
       <div className="relative">
-        <input
-          className="w-full rounded-xl border border-default bg-surface px-4 py-3 pl-11 text-body text-primary placeholder:text-muted focus:border-strong focus:outline-none focus:ring-2 focus:ring-ring"
+        <Input
           placeholder="Search exhibitors..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          className="pl-10"
         />
         <svg
           className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
-          width="18"
-          height="18"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
+          aria-hidden="true"
         >
           <circle cx="11" cy="11" r="8" />
           <path d="M21 21l-4.35-4.35" />
@@ -108,9 +109,9 @@ export default function ExhibitorDirectoryPage({
       </div>
 
       {loading && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            <Skeleton key={i} className="h-20 w-full rounded-xl" />
           ))}
         </div>
       )}
@@ -123,8 +124,8 @@ export default function ExhibitorDirectoryPage({
 
       {!loading && !error && exhibitors.length === 0 && (
         <div className="flex flex-col items-center gap-3 py-12">
-          <div className="text-4xl text-muted">
-            {search ? "🔍" : "🏢"}
+          <div className="flex size-12 items-center justify-center rounded-full bg-sunken text-muted text-xl">
+            {search ? "?" : "!"}
           </div>
           <p className="text-body text-secondary">
             {search
@@ -136,9 +137,7 @@ export default function ExhibitorDirectoryPage({
 
       {!loading && !error && exhibitors.length > 0 && !search && (
         <section>
-          <h2 className="mb-3 text-title font-semibold text-primary">
-            Featured
-          </h2>
+          <h2 className="mb-3 text-title font-semibold text-primary">Featured</h2>
           <div className="grid grid-cols-1 gap-3">
             {featured.map((ex) => (
               <ExhibitorCard key={ex.id} exhibitor={ex} eventSlug={eventSlug} />
@@ -194,26 +193,26 @@ function ExhibitorCard({
   return (
     <Link
       href={`/e/${eventSlug}/exhibitors/${exhibitor.id}`}
-      className={`flex items-center gap-4 rounded-xl border border-default bg-surface p-4 transition-all hover:border-strong hover:shadow-2 ${
+      className={`group flex items-center gap-4 rounded-xl border border-default bg-surface p-4 shadow-1 transition-all duration-[var(--mq-duration-moderate)] hover:border-strong hover:shadow-card-hover ${
         compact ? "min-h-16" : ""
       }`}
     >
       {exhibitor.logoUrl ? (
         <Image
           alt={`${exhibitor.companyName} logo`}
-          className="h-12 w-12 flex-shrink-0 rounded-lg border border-default object-contain"
+          className="size-12 shrink-0 rounded-lg border border-default object-contain"
           height={48}
           src={exhibitor.logoUrl}
           unoptimized
           width={48}
         />
       ) : (
-        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-brand-subtle text-title-sm font-semibold text-brand">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-brand-subtle text-title-sm font-semibold text-brand">
           {initials}
         </div>
       )}
       <div className="min-w-0 flex-1">
-        <h3 className="text-body font-semibold text-primary">
+        <h3 className="text-body font-semibold text-primary group-hover:text-brand transition-colors">
           {exhibitor.companyName}
         </h3>
         <p className="truncate text-body-sm text-muted">
@@ -222,13 +221,14 @@ function ExhibitorCard({
         </p>
       </div>
       <svg
-        className="flex-shrink-0 text-muted"
+        className="shrink-0 text-muted group-hover:text-primary transition-colors"
         width="16"
         height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="2"
+        aria-hidden="true"
       >
         <path d="M9 18l6-6-6-6" />
       </svg>

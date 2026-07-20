@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MetricCard, StatusBadge } from "@concourse/ui";
+import { Breadcrumbs, KPICard, StatusBadge, PageHeader } from "@concourse/ui";
 
 import { loadOrganizerOverview } from "@/lib/organizer";
 import { PublishEventButton } from "../../organizer-forms";
@@ -14,68 +14,63 @@ export default async function EventOverviewPage({
   const event = overview?.events.find((item) => item.id === eventId);
   if (!event || !overview)
     return (
-      <p className="rounded-xl border border-default bg-surface p-6 text-secondary">
+      <div className="rounded-xl border border-default bg-surface p-6 text-secondary">
         Event unavailable.
-      </p>
+      </div>
     );
   const isPublic = event.status === "published" || event.status === "live";
   return (
-    <div className="space-y-6">
-      <Link
-        href="/org/events"
-        className="text-sm text-secondary hover:text-primary"
-      >
-        ← Back to events
-      </Link>
-      <header>
-        <h1 className="text-2xl font-semibold text-primary">{event.name}</h1>
-        <div className="mt-2 flex items-center gap-3">
-          <StatusBadge tone={isPublic ? "success" : "neutral"}>
-            {event.status}
-          </StatusBadge>
-          <span className="text-sm text-secondary">
-            {dateRange(event.startAt, event.endAt)} · {event.timezone}
-          </span>
-        </div>
-      </header>
-      <section className="grid gap-4 sm:grid-cols-3">
-        <MetricCard label="Exhibitors" value={String(event.exhibitors)} />
-        <MetricCard label="Attendees" value={String(event.attendees)} />
-        <MetricCard label="Relationships" value={String(event.relationships)} />
-      </section>
-      <nav className="flex flex-wrap gap-3">
-        <Link
-          href={`/org/events/${eventId}/exhibitors`}
-          className="inline-flex h-10 items-center rounded-md bg-brand px-4 text-sm font-medium text-on-brand"
-        >
-          View exhibitors
-        </Link>
-        <Link
-          href={`/org/events/${eventId}/settings`}
-          className="inline-flex h-10 items-center rounded-md border border-default px-4 text-sm font-medium text-primary"
-        >
-          Event settings
-        </Link>
-        <Link
-          href={`/org/events/${eventId}/reports`}
-          className="inline-flex h-10 items-center rounded-md border border-default px-4 text-sm font-medium text-primary"
-        >
-          View report
-        </Link>
-        {event.status === "draft" ? (
-          <PublishEventButton
-            organizationId={overview.organizationId}
-            eventId={event.id}
-          />
-        ) : (
+    <div className="space-y-section">
+      <Breadcrumbs
+        items={[
+          { label: "Events", href: "/org/events" },
+          { label: event.name },
+        ]}
+      />
+      <div className="space-y-6">
+        <PageHeader
+          title={event.name}
+          description={`${dateRange(event.startAt, event.endAt)} · ${event.timezone}`}
+        />
+        <section className="grid gap-4 sm:grid-cols-3">
+          <KPICard label="Exhibitors" value={String(event.exhibitors)} accent="brand" />
+          <KPICard label="Attendees" value={String(event.attendees)} accent="info" />
+          <KPICard label="Relationships" value={String(event.relationships)} accent="ai" />
+        </section>
+        <div className="flex flex-wrap gap-3">
           <Link
-            href={`/e/${event.slug}`}
-            className="inline-flex h-10 items-center rounded-md border border-default px-4 text-sm font-medium text-primary"
+            href={`/org/events/${eventId}/exhibitors`}
+            className="inline-flex h-10 items-center rounded-lg bg-brand px-4 text-body-sm font-medium text-on-brand shadow-1 hover:bg-brand-hover hover:shadow-2 transition-all"
           >
-            Public event
+            View exhibitors
           </Link>
-        )}
-      </nav>
+          <Link
+            href={`/org/events/${eventId}/settings`}
+            className="inline-flex h-10 items-center rounded-lg border border-strong bg-surface px-4 text-body-sm font-medium text-primary hover:bg-sunken transition-all"
+          >
+            Event settings
+          </Link>
+          <Link
+            href={`/org/events/${eventId}/reports`}
+            className="inline-flex h-10 items-center rounded-lg border border-strong bg-surface px-4 text-body-sm font-medium text-primary hover:bg-sunken transition-all"
+          >
+            View report
+          </Link>
+          {event.status === "draft" ? (
+            <PublishEventButton
+              organizationId={overview.organizationId}
+              eventId={event.id}
+            />
+          ) : (
+            <Link
+              href={`/e/${event.slug}`}
+              className="inline-flex h-10 items-center rounded-lg border border-strong bg-surface px-4 text-body-sm font-medium text-primary hover:bg-sunken transition-all"
+            >
+              Public event
+            </Link>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

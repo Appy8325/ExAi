@@ -1,3 +1,4 @@
+import { Card, PageHeader, SectionHeader } from "@concourse/ui";
 import { loadOrganizerOverview } from "@/lib/organizer";
 import {
   EventSettingsForm,
@@ -13,36 +14,34 @@ export default async function EventSettingsPage({
   const overview = await loadOrganizerOverview();
   const event = overview?.events.find((item) => item.id === eventId);
   if (!event || !overview)
-    return <p className="text-secondary">Event unavailable.</p>;
+    return <div className="text-secondary">Event unavailable.</div>;
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-xl font-semibold text-primary">
-          Event settings and branding
-        </h1>
-        <p className="mt-1 text-sm text-secondary">
-          Configure identity, schedule, policy, and public branding.
-        </p>
-      </header>
+    <div className="space-y-section">
+      <PageHeader
+        title="Event settings and branding"
+        description="Configure identity, schedule, policy, and public branding."
+      />
       <EventSettingsForm
         organizationId={overview.organizationId}
         event={event}
       />
       {event.status === "draft" ? (
-        <section className="rounded-xl border border-default bg-surface p-6">
-          <h2 className="font-semibold text-primary">Publication</h2>
-          <p className="mb-4 mt-1 text-sm text-secondary">
-            Publishing makes the event public. A privacy policy is required.
-          </p>
-          <PublishEventButton
-            organizationId={overview.organizationId}
-            eventId={event.id}
+        <Card variant="default">
+          <SectionHeader
+            title="Publication"
+            description="Publishing makes the event public. A privacy policy is required."
           />
-        </section>
+          <div className="mt-4">
+            <PublishEventButton
+              organizationId={overview.organizationId}
+              eventId={event.id}
+            />
+          </div>
+        </Card>
       ) : (
         <a
           href={`/e/${event.slug}`}
-          className="inline-flex h-10 items-center rounded-md border border-default px-4 text-sm font-medium text-primary"
+          className="inline-flex h-10 items-center rounded-lg border border-strong bg-surface px-4 text-body-sm font-medium text-primary hover:bg-sunken transition-all"
         >
           Open public event
         </a>

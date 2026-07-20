@@ -9,7 +9,9 @@ export default function ExhibitorLayout({ children }: { children: ReactNode }) {
       >
         <Sidebar />
       </Suspense>
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 overflow-auto scrollbar-thin">
+        {children}
+      </div>
     </div>
   );
 }
