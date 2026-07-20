@@ -44,10 +44,9 @@ interface NvidiaChatCompletion {
 export class AiGenerationService {
   async generate(req: AiGenerationRequest): Promise<AiGenerationResult> {
     const apiKey = process.env.NVIDIA_API_KEY;
-    const model = process.env.NVIDIA_CHAT_MODEL;
+    const model = process.env.NVIDIA_CHAT_MODEL ?? "deepseek-ai/deepseek-v4-flash";
 
     if (!apiKey) throw new Error("NVIDIA_API_KEY is required");
-    if (!model) throw new Error("NVIDIA_CHAT_MODEL is required");
 
     const baseUrl = (
       process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1"

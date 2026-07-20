@@ -105,8 +105,8 @@ export function BoothExperience({
     <main className="mx-auto min-h-screen max-w-(--mq-attendee-content-max) bg-canvas px-gutter py-section text-primary">
       <Card className="space-y-6">
         <BoothHeader booth={booth} />
-        <Resources booth={booth} />
         <BoothChat publicQrToken={publicQrToken} />
+        <Resources booth={booth} />
         {step === "landing" ? (
           <Landing booth={booth} onConnect={() => setStep("email")} />
         ) : null}
@@ -266,13 +266,16 @@ function BoothChat({ publicQrToken }: { publicQrToken: string }) {
     });
   };
   return (
-    <section aria-labelledby="assistant-heading" className="space-y-3">
+    <section
+      aria-labelledby="assistant-heading"
+      className="space-y-4 rounded-xl bg-brand-subtle p-5"
+    >
       <div>
-        <h2 className="text-title-sm font-semibold" id="assistant-heading">
-          Ask the company AI
+        <h2 className="text-title font-semibold text-primary" id="assistant-heading">
+          Company AI Assistant
         </h2>
-        <p className="text-body-sm text-secondary">
-          Answers use only this exhibitor&rsquo;s published knowledge.
+        <p className="mt-1 text-body text-secondary">
+          Ask anything about this exhibitor&rsquo;s products, services, and booth details.
         </p>
       </div>
       <form className="flex gap-2" onSubmit={submit}>
@@ -280,7 +283,7 @@ function BoothChat({ publicQrToken }: { publicQrToken: string }) {
           aria-label="Question for the company AI"
           maxLength={1000}
           name="question"
-          placeholder="What would you like to know?"
+          placeholder="E.g. What products do you offer?"
           required
         />
         <Button disabled={pending} type="submit">
@@ -295,16 +298,16 @@ function BoothChat({ publicQrToken }: { publicQrToken: string }) {
       {answer ? (
         <div
           aria-live="polite"
-          className="rounded-sm border border-default p-3"
+          className="rounded-sm border border-default bg-surface p-4"
         >
-          <p className="whitespace-pre-wrap text-body text-secondary">
+          <p className="whitespace-pre-wrap text-body text-primary">
             {answer.answer}
           </p>
           {answer.citations.length ? (
-            <ul className="mt-2 text-body-sm text-secondary">
+            <ul className="mt-3 space-y-1 border-t border-default pt-3 text-body-sm text-muted">
               {answer.citations.map((citation) => (
                 <li key={`${citation.marker}-${citation.documentId}`}>
-                  {citation.marker} {citation.title}
+                  {citation.marker} — {citation.title}
                 </li>
               ))}
             </ul>

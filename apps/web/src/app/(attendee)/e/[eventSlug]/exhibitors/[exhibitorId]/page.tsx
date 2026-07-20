@@ -6,10 +6,11 @@ import Link from "next/link";
 import {
   getEventExhibitor,
   getPublicEventBySlug,
+  getPublicShowcase,
   saveExhibitor,
   unsaveExhibitor,
 } from "@concourse/api-client";
-import type { PublicExhibitor } from "@concourse/api-client";
+import type { PublicExhibitor, ShowcaseExhibitor } from "@concourse/api-client";
 import { Button, Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
@@ -21,6 +22,7 @@ export default function ExhibitorProfilePage({
 }) {
   const { eventSlug, exhibitorId } = use(params);
   const [exhibitor, setExhibitor] = useState<PublicExhibitor | null>(null);
+  const [showcase, setShowcase] = useState<ShowcaseExhibitor | null>(null);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -34,13 +36,15 @@ export default function ExhibitorProfilePage({
           eventSlug,
         );
         if (cancelled) return;
-        const ex = await getEventExhibitor(
-          { baseUrl: getApiBaseUrl() },
-          ev.id,
-          exhibitorId,
-        );
+        const [ex, showcaseList] = await Promise.all([
+          getEventExhibitor({ baseUrl: getApiBaseUrl() }, ev.id, exhibitorId),
+          getPublicShowcase({ baseUrl: getApiBaseUrl() }),
+        ]);
         if (cancelled) return;
         setExhibitor(ex);
+        setShowcase(
+          showcaseList.find((s) => s.id === exhibitorId) ?? null,
+        );
       } catch {
         /* handled by null state */
       } finally {
@@ -196,19 +200,44 @@ export default function ExhibitorProfilePage({
       )}
 
       <div className="space-y-3 pt-2">
-        <Link href={`/e/${eventSlug}/exhibitors/${exhibitorId}/insights`}>
-          <Button className="min-h-12 w-full text-body font-semibold">
-            View booth briefing
+        {showcase?.publicQrToken ? (
+          <Link href={`/visit/${showcase.publicQrToken}`}>
+            <Button className="min-h-12 w-full text-body font-semibold">
+              Ask AI about this exhibitor
+            </Button>
+          </Link>
+        ) : (
+          <Link href={`/e/${eventSlug}/exhibitors/${exhibitorId}/insights`}>
+            <Button className="min-h-12 w-full text-body font-semibold">
+              View booth briefing
+            </Button>
+          </Link>
+        )}
+        <div className="flex gap-3">
+          {showcase?.brochureUrl && showcase.brochureUrl !== "#" ? (
+            <a
+              className="flex-1"
+              href={showcase.brochureUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <Button
+                className="min-h-12 w-full text-body font-medium"
+                variant="secondary"
+              >
+                Download Brochure
+              </Button>
+            </a>
+          ) : null}
+          <Button
+            className={`min-h-12 text-body font-medium ${showcase?.brochureUrl && showcase.brochureUrl !== "#" ? "flex-1" : "w-full"}`}
+            variant="secondary"
+            onClick={toggleSave}
+            disabled={saving}
+          >
+            {saved ? "Saved" : "Connect with Exhibitor"}
           </Button>
-        </Link>
-        <Button
-          className="min-h-12 w-full text-body font-medium"
-          variant="secondary"
-          onClick={toggleSave}
-          disabled={saving}
-        >
-          {saved ? "Saved" : "Connect with Exhibitor"}
-        </Button>
+        </div>
       </div>
     </div>
   );
