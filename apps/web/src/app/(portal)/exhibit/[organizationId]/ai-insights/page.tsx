@@ -1,9 +1,14 @@
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { getExhibitorDashboard } from "@concourse/api-client";
 import { createClient } from "@/lib/supabase/server";
 import { getApiBaseUrl } from "@/lib/api/config";
-import { AiInsightsScreen } from "./ai-insights-screen";
 import { AiInsightsFallback } from "./ai-insights-fallback";
+import { Skeleton } from "@concourse/ui";
+
+const AiInsightsScreen = dynamic(() => import("./ai-insights-screen").then((m) => m.AiInsightsScreen), {
+  loading: () => <InsightsLoading />,
+});
 
 export default function AiInsightsPage({ params, searchParams }: { params: Promise<{ organizationId: string }>; searchParams: Promise<{ eeId?: string }> }) {
   return <Suspense fallback={<InsightsLoading />}><Insights params={params} searchParams={searchParams} /></Suspense>;
@@ -29,10 +34,10 @@ async function Insights({ params, searchParams }: { params: Promise<{ organizati
 
 function InsightsLoading() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6">
-      <div className="h-8 w-48 animate-pulse rounded bg-sunken" />
+    <div className="mx-auto max-w-7xl space-y-6 p-6 animate-enter">
+      <Skeleton className="h-8 w-48" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }, (_, i) => <div key={i} className="h-40 animate-pulse rounded-xl bg-sunken" />)}
+        {Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-40 w-full rounded-xl" />)}
       </div>
     </div>
   );

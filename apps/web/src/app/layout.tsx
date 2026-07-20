@@ -1,8 +1,24 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 import { AuthSessionProvider } from "@/components/auth/session-provider";
+
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  display: "swap",
+  variable: "--font-inter",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
+});
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "ExAi · AI-native trade show intelligence",
@@ -23,7 +39,25 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Enable View Transitions API for page navigation
+              if (typeof window !== 'undefined' && 'startViewTransition' in document) {
+                window.startViewTransition = function(callback) {
+                  document.startViewTransition(callback);
+                };
+              } else {
+                window.startViewTransition = function(callback) {
+                  callback();
+                };
+              }
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-canvas font-sans text-primary antialiased">
         <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>

@@ -886,15 +886,31 @@ export function AiTypingIndicator({ className }: { className?: string }) {
 export type AiChatBubbleProps = React.HTMLAttributes<HTMLDivElement> & {
   role: "user" | "ai";
   timestamp?: string;
+  showCopy?: boolean;
 };
 
 export function AiChatBubble({
   role,
   timestamp,
+  showCopy,
   children,
   className,
   ...props
 }: AiChatBubbleProps) {
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = React.useCallback(() => {
+    const textContent = typeof children === "string"
+      ? children
+      : (children as React.ReactElement<{ children?: React.ReactNode }>)?.props?.children?.toString() ?? "";
+
+    if (!textContent) return;
+    navigator.clipboard.writeText(textContent).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [children]);
+
   return (
     <div
       className={cn(
@@ -906,10 +922,8 @@ export function AiChatBubble({
     >
       <div
         className={cn(
-          "flex max-w-[85%] flex-col gap-1",
-          role === "user"
-            ? "items-end"
-            : "items-start",
+          "group relative flex max-w-[85%] flex-col gap-1",
+          role === "user" ? "items-end" : "items-start",
         )}
       >
         <div
@@ -922,6 +936,25 @@ export function AiChatBubble({
         >
           {children}
         </div>
+        {role === "ai" && showCopy ? (
+          <button
+            type="button"
+            onClick={handleCopy}
+            aria-label={copied ? "Copied" : "Copy response"}
+            className="absolute -right-8 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity focus-visible:opacity-100 rounded-md p-1 hover:bg-sunken"
+          >
+            {copied ? (
+              <svg className="size-3.5 text-status-success-text" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="2">
+                <path d="M13 3L6 10l-3-3" />
+              </svg>
+            ) : (
+              <svg className="size-3.5 text-muted" fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth="1.5">
+                <rect x="5" y="5" width="8" height="8" rx="1" />
+                <path d="M3 11V4a1 1 0 011-1h7" />
+              </svg>
+            )}
+          </button>
+        ) : null}
         {timestamp ? (
           <span className="text-caption text-muted">{timestamp}</span>
         ) : null}
@@ -979,6 +1012,7 @@ export interface AiChatProps {
   suggestedQuestions?: AiSuggestedQuestion[];
   onSuggestedClick?: (question: string) => void;
   className?: string;
+  showCopy?: boolean;
 }
 
 export function AiChat({
@@ -987,12 +1021,13 @@ export function AiChat({
   suggestedQuestions,
   onSuggestedClick,
   className,
+  showCopy = true,
 }: AiChatProps) {
   return (
     <div className={cn("flex flex-col gap-4", className)}>
       <div className="flex flex-col gap-3" role="log" aria-live="polite">
         {messages.map((msg) => (
-          <AiChatBubble key={msg.id} role={msg.role} timestamp={msg.timestamp}>
+          <AiChatBubble key={msg.id} role={msg.role} timestamp={msg.timestamp} showCopy={msg.role === "ai" && showCopy}>
             <p className="whitespace-pre-wrap">{msg.content}</p>
           </AiChatBubble>
         ))}

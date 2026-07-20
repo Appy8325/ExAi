@@ -1,8 +1,13 @@
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { getExhibitorDashboard } from "@concourse/api-client";
 import { createClient } from "@/lib/supabase/server";
 import { getApiBaseUrl } from "@/lib/api/config";
-import { AttendeeListScreen } from "./attendee-list-screen";
+import { Skeleton } from "@concourse/ui";
+
+const AttendeeListScreen = dynamic(() => import("./attendee-list-screen").then((m) => m.AttendeeListScreen), {
+  loading: () => <AttendeesLoading />,
+});
 
 export default function AttendeesPage({ params, searchParams }: { params: Promise<{ organizationId: string }>; searchParams: Promise<{ eeId?: string }> }) {
   return <Suspense fallback={<AttendeesLoading />}><Attendees params={params} searchParams={searchParams} /></Suspense>;
@@ -28,10 +33,12 @@ async function Attendees({ params, searchParams }: { params: Promise<{ organizat
 
 function AttendeesLoading() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6">
-      <div className="h-8 w-48 animate-pulse rounded bg-sunken" />
-      <div className="h-12 w-full animate-pulse rounded-xl bg-sunken" />
-      <div className="space-y-3">{Array.from({ length: 5 }, (_, i) => <div key={i} className="h-16 animate-pulse rounded-xl bg-sunken" />)}</div>
+    <div className="mx-auto max-w-7xl space-y-6 p-6 animate-enter">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-12 w-full rounded-xl" />
+      <div className="space-y-3">
+        {Array.from({ length: 5 }, (_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
+      </div>
     </div>
   );
 }

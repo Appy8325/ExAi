@@ -1,21 +1,22 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import QRCode from "qrcode";
 
 async function main() {
   const outputRoot = resolve(process.cwd(), "../..");
-  const folder = resolve(outputRoot, "demo/qr");
+  const folder = resolve(outputRoot, "apps/web/public/qr");
   await mkdir(folder, { recursive: true });
 
-  const url = "http://localhost:3000/hackathon";
+  const url = process.env.EVENT_QR_URL ?? "http://localhost:3000/hackathon";
 
   await QRCode.toFile(
-    resolve(folder, "event-entrance.png"),
+    resolve(folder, "hackathon-event.png"),
     url,
     { width: 640, margin: 2 },
   );
 
-  console.log("Event entrance QR generated at demo/qr/event-entrance.png");
+  console.warn("Event QR generated at apps/web/public/qr/hackathon-event.png");
+  console.warn(`URL: ${url}`);
 }
 
 main().catch((err) => {

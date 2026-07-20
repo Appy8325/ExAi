@@ -3,16 +3,23 @@ import Link from "next/link";
 import { getPublicShowcase } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { HackathonLandingClient } from "./landing-client";
+import { Skeleton } from "@concourse/ui";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function LoadingSkeleton() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <div className="h-8 w-8 mx-auto rounded-full border-2 border-blue-600 border-t-transparent animate-spin" />
-        <p className="mt-4 text-sm text-gray-500">Loading TechExpo 2027...</p>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8 py-16">
+      <div className="space-y-4 w-full max-w-lg mx-auto px-6">
+        <Skeleton className="h-10 w-48 mx-auto" />
+        <Skeleton className="h-6 w-full mx-auto" />
+        <Skeleton className="h-6 w-3/4 mx-auto" />
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 w-full max-w-2xl px-6">
+        {Array.from({ length: 3 }, (_, i) => (
+          <Skeleton key={i} className="h-32 w-full rounded-xl" />
+        ))}
       </div>
     </div>
   );
@@ -25,15 +32,15 @@ export default async function HackathonLandingPage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-default bg-surface/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-900 text-sm font-bold text-white shadow-lg">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-sm font-bold text-on-brand shadow-1">
               E
             </span>
-            <span className="text-base font-semibold text-gray-900">ExAi</span>
+            <span className="text-base font-semibold text-primary">ExAi</span>
           </Link>
-          <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+          <span className="rounded-full border border-brand/20 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
             TechExpo 2027
           </span>
         </div>
@@ -43,9 +50,9 @@ export default async function HackathonLandingPage() {
         <HackathonLandingClient exhibitors={exhibitors} count={count} />
       )}
 
-      <footer className="border-t border-gray-200 bg-gray-50 py-6">
-        <div className="mx-auto max-w-7xl px-6 text-center text-xs text-gray-500">
-          TechExpo 2027 • Powered by ExAi • No sign-up required
+      <footer className="border-t border-default bg-sunken py-6">
+        <div className="mx-auto max-w-7xl px-6 text-center text-xs text-muted">
+          TechExpo 2027 · Powered by ExAi · No sign-up required
         </div>
       </footer>
     </main>

@@ -125,17 +125,29 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
           </div>
         )}
 
-        <div className="mt-4 flex items-center gap-2">
-          <span className="flex-1 rounded-lg bg-brand px-3 py-2 text-center text-xs font-semibold text-white shadow-sm transition-colors group-hover:bg-brand-hover">
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <span className="flex items-center justify-center gap-1 rounded-lg bg-brand px-2 py-2 text-center text-xs font-semibold text-white shadow-sm transition-colors group-hover:bg-brand-hover">
             Visit Booth
           </span>
-          <span className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-colors group-hover:border-brand group-hover:text-brand">
+          <span className="flex items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs font-medium text-gray-700 transition-colors group-hover:border-brand group-hover:text-brand">
             <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16">
               <circle cx="8" cy="8" r="6" strokeWidth="1.5" />
               <path d="M8 5v3l2 2" strokeWidth="1.5" />
             </svg>
             Ask AI
           </span>
+          <a
+            href={exhibitor.website || "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs font-medium text-gray-700 transition-colors hover:border-brand hover:text-brand"
+          >
+            <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+              <path strokeWidth="1.5" d="M6 2h8v8M8 8l6-6M2 8v6h6" />
+            </svg>
+            Website
+          </a>
         </div>
       </div>
     </Link>

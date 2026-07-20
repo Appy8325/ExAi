@@ -63,6 +63,25 @@
   }
 
   /*
+   * Page transition using View Transitions API
+   */
+  @supports (view-transition-name: none) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 200ms;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    ::view-transition-old(root) {
+      animation-name: mq-fade-out;
+    }
+
+    ::view-transition-new(root) {
+      animation-name: mq-fade-in;
+    }
+  }
+
+  /*
    * Scrollbar styling
    */
   .scrollbar-thin {
@@ -90,6 +109,65 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  /*
+   * Micro-interactions
+   */
+
+  /* Card hover lift effect */
+  .card-hover {
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--mq-shadow-card-hover);
+  }
+
+  /* Button press effect */
+  .btn-press:active {
+    transform: scale(0.97);
+  }
+
+  /* Link underline animation */
+  .link-animate {
+    position: relative;
+    text-decoration: none;
+  }
+  .link-animate::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width 200ms ease;
+  }
+  .link-animate:hover::after {
+    width: 100%;
+  }
+
+  /* Nav item highlight */
+  .nav-item {
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  /* Table row hover */
+  .table-row-hover {
+    transition: background-color 100ms ease;
+  }
+
+  /* Skeleton shimmer effect */
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.4) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: mq-shimmer 1.5s ease-in-out infinite;
+  }
 }
 
 @keyframes mq-fade-up {
@@ -108,6 +186,11 @@
   to { opacity: 1; }
 }
 
+@keyframes mq-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 @keyframes mq-scale-in {
   from {
     opacity: 0;
@@ -122,6 +205,11 @@
 @keyframes mq-skeleton-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
+}
+
+@keyframes mq-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
