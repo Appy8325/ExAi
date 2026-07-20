@@ -40,10 +40,10 @@ export default async function DemoPage() {
           </Link>
           <div className="flex items-center gap-3">
             <Link
-              href="/showcase"
+              href="/hackathon/expo"
               className="rounded-lg border border-brand/30 bg-brand-subtle px-3 py-1.5 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
             >
-              Expo Showcase
+              Hackathon Expo
             </Link>
             <span className="rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
               Read-only demo
