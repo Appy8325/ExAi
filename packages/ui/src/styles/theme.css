@@ -116,11 +116,26 @@
   --radius-md: var(--mq-radius-md);
   --radius-lg: var(--mq-radius-lg);
   --radius-xl: var(--mq-radius-xl);
+  --radius-2xl: var(--mq-radius-2xl);
   --radius-full: var(--mq-radius-full);
+  --shadow-0: var(--mq-shadow-0);
   --shadow-1: var(--mq-shadow-1);
   --shadow-2: var(--mq-shadow-2);
   --shadow-3: var(--mq-shadow-3);
   --shadow-4: var(--mq-shadow-4);
+  --shadow-5: var(--mq-shadow-5);
   --shadow-premium: var(--mq-shadow-premium);
   --shadow-card-hover: var(--mq-shadow-card-hover);
+  --shadow-focus: var(--mq-shadow-focus);
+  --shadow-inset: var(--mq-shadow-inset);
+  --spacing-section-lg: var(--mq-space-section-lg);
+  --z-dropdown: var(--mq-z-dropdown);
+  --z-tooltip: var(--mq-z-tooltip);
+  --animate-fade-in: var(--mq-animate-fade-in);
+  --animate-fade-up: var(--mq-animate-fade-up);
+  --animate-scale-in: var(--mq-animate-scale-in);
+  --animate-slide-up: var(--mq-animate-slide-up);
+  --animate-slide-down: var(--mq-animate-slide-down);
+  --animate-enter: var(--mq-animate-enter);
+  --animate-exit: var(--mq-animate-exit);
 }

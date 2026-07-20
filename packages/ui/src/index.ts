@@ -1,5 +1,9 @@
 export { Button, buttonVariants, type ButtonProps } from "./components/button";
 export {
+  AiChat,
+  AiChatBubble,
+  AiSuggestedQuestions,
+  AiTypingIndicator,
   Badge,
   Breadcrumbs,
   Card,
@@ -34,6 +38,11 @@ export {
   Timeline,
   TimelineItem,
   Toast,
+  type AiChatProps,
+  type AiChatBubbleProps,
+  type AiMessage,
+  type AiSuggestedQuestion,
+  type AiSuggestedQuestionsProps,
   type BadgeProps,
   type BreadcrumbItem,
   type BreadcrumbsProps,

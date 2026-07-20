@@ -24,6 +24,7 @@ export const buttonVariants = cva(
     "transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)]",
     "active:scale-[0.97]",
     "disabled:pointer-events-none disabled:opacity-50",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
   ].join(" "),
   {

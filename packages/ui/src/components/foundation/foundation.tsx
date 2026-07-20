@@ -857,3 +857,159 @@ export function MobileNavigation({ className, ...props }: NavigationProps) {
     />
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/* AI Chat Components                                                          */
+/* -------------------------------------------------------------------------- */
+
+export function AiTypingIndicator({ className }: { className?: string }) {
+  return (
+    <div
+      aria-label="AI is thinking"
+      role="status"
+      className={cn("flex items-center gap-1 px-3 py-2", className)}
+    >
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="size-1.5 rounded-full bg-status-ai-text"
+          style={{
+            animation: `mq-typing-dots 1.4s ease-in-out infinite`,
+            animationDelay: `${i * 0.2}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+export type AiChatBubbleProps = React.HTMLAttributes<HTMLDivElement> & {
+  role: "user" | "ai";
+  timestamp?: string;
+};
+
+export function AiChatBubble({
+  role,
+  timestamp,
+  children,
+  className,
+  ...props
+}: AiChatBubbleProps) {
+  return (
+    <div
+      className={cn(
+        "flex gap-3",
+        role === "user" ? "flex-row-reverse" : "flex-row",
+        className,
+      )}
+      {...props}
+    >
+      <div
+        className={cn(
+          "flex max-w-[85%] flex-col gap-1",
+          role === "user"
+            ? "items-end"
+            : "items-start",
+        )}
+      >
+        <div
+          className={cn(
+            "rounded-2xl px-4 py-2.5 text-body text-primary",
+            role === "user"
+              ? "rounded-tr-sm bg-brand text-on-brand"
+              : "rounded-tl-sm bg-sunken border border-default shadow-1",
+          )}
+        >
+          {children}
+        </div>
+        {timestamp ? (
+          <span className="text-caption text-muted">{timestamp}</span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+export interface AiSuggestedQuestion {
+  label: string;
+  onClick: () => void;
+}
+
+export interface AiSuggestedQuestionsProps {
+  questions: AiSuggestedQuestion[];
+  className?: string;
+}
+
+export function AiSuggestedQuestions({ questions, className }: AiSuggestedQuestionsProps) {
+  return (
+    <div
+      role="group"
+      aria-label="Suggested questions"
+      className={cn("flex flex-wrap gap-2", className)}
+    >
+      {questions.map((q, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={q.onClick}
+          className={cn(
+            "rounded-full border border-default bg-surface px-3 py-1.5 text-body-sm text-secondary",
+            "hover:border-strong hover:text-primary hover:shadow-1",
+            "transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)]",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          )}
+        >
+          {q.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export interface AiMessage {
+  id: string;
+  role: "user" | "ai";
+  content: string;
+  timestamp?: string;
+}
+
+export interface AiChatProps {
+  messages: AiMessage[];
+  isLoading?: boolean;
+  suggestedQuestions?: AiSuggestedQuestion[];
+  onSuggestedClick?: (question: string) => void;
+  className?: string;
+}
+
+export function AiChat({
+  messages,
+  isLoading,
+  suggestedQuestions,
+  onSuggestedClick,
+  className,
+}: AiChatProps) {
+  return (
+    <div className={cn("flex flex-col gap-4", className)}>
+      <div className="flex flex-col gap-3" role="log" aria-live="polite">
+        {messages.map((msg) => (
+          <AiChatBubble key={msg.id} role={msg.role} timestamp={msg.timestamp}>
+            <p className="whitespace-pre-wrap">{msg.content}</p>
+          </AiChatBubble>
+        ))}
+        {isLoading ? (
+          <AiChatBubble role="ai">
+            <AiTypingIndicator />
+          </AiChatBubble>
+        ) : null}
+      </div>
+      {suggestedQuestions && suggestedQuestions.length > 0 && !isLoading ? (
+        <AiSuggestedQuestions
+          questions={suggestedQuestions.map((q) => ({
+            ...q,
+            onClick: () => onSuggestedClick?.(q.label),
+          }))}
+        />
+      ) : null}
+    </div>
+  );
+}

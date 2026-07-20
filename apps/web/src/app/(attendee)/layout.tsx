@@ -27,7 +27,7 @@ export default function AttendeeLayout({ children }: { children: ReactNode }) {
       ) : (
         <>
           <main className="pb-24 pt-4">{children}</main>
-          <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-default bg-surface/95 backdrop-blur-lg">
+          <nav aria-label="Attendee navigation" className="fixed inset-x-0 bottom-0 z-50 border-t border-default bg-surface/95 backdrop-blur-lg">
             <div className="mx-auto flex max-w-lg items-center justify-around py-1">
               {tabs.map(({ href, label }) => {
                 const isActive = href === `/e/${slug}`
@@ -37,7 +37,8 @@ export default function AttendeeLayout({ children }: { children: ReactNode }) {
                   <Link
                     key={href}
                     href={href}
-                    className={`flex min-h-12 min-w-20 items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors ${
+                    aria-current={isActive ? "page" : undefined}
+                    className={`flex min-h-12 min-w-20 items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       isActive
                         ? "bg-brand text-on-brand"
                         : "text-muted hover:text-primary"

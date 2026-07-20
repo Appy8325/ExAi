@@ -5,8 +5,8 @@
 
 :root {
   /* Typography */
-  --mq-type-display: 1.875rem;
-  --mq-leading-display: 2.25rem;
+  --mq-type-display: 2.25rem;
+  --mq-leading-display: 2.5rem;
   --mq-type-title-lg: 1.5rem;
   --mq-leading-title-lg: 2rem;
   --mq-type-title: 1.25rem;
@@ -26,9 +26,10 @@
   --mq-space-gutter: 1rem;
   --mq-space-section: 2rem;
   --mq-space-section-sm: 1.5rem;
+  --mq-space-section-lg: 3rem;
   --mq-grid-columns: 12;
   --mq-grid-gap: 1.5rem;
-  --mq-content-max: 90rem;
+  --mq-content-max: 80rem;
   --mq-content-max-narrow: 64rem;
   --mq-attendee-content-max: 40rem;
 
@@ -36,36 +37,47 @@
   --mq-radius-none: 0;
   --mq-radius-xs: 0.25rem;
   --mq-radius-sm: 0.375rem;
-  --mq-radius-md: 0.625rem;
-  --mq-radius-lg: 0.875rem;
+  --mq-radius-md: 0.5rem;
+  --mq-radius-lg: 0.75rem;
   --mq-radius-xl: 1rem;
+  --mq-radius-2xl: 1.5rem;
   --mq-radius-full: 9999px;
   --mq-shadow-0: none;
-  --mq-shadow-1: 0 1px 2px rgb(2 6 23 / 0.06);
-  --mq-shadow-2: 0 2px 8px rgb(2 6 23 / 0.08), 0 1px 2px rgb(2 6 23 / 0.06);
-  --mq-shadow-3: 0 8px 24px rgb(2 6 23 / 0.12), 0 2px 6px rgb(2 6 23 / 0.08);
-  --mq-shadow-4: 0 16px 48px rgb(2 6 23 / 0.18);
-  --mq-shadow-premium: 0 24px 70px rgb(15 23 42 / 0.14), 0 1px 0 rgb(255 255 255 / 0.7) inset;
-  --mq-shadow-card-hover: 0 4px 16px rgb(2 6 23 / 0.1), 0 1px 4px rgb(2 6 23 / 0.06);
+  --mq-shadow-1: 0 1px 2px 0 rgb(15 23 42 / 0.03);
+  --mq-shadow-2: 0 1px 3px 0 rgb(15 23 42 / 0.05), 0 1px 2px -1px rgb(15 23 42 / 0.03);
+  --mq-shadow-3: 0 4px 6px -1px rgb(15 23 42 / 0.04), 0 2px 4px -2px rgb(15 23 42 / 0.03);
+  --mq-shadow-4: 0 10px 15px -3px rgb(15 23 42 / 0.04), 0 4px 6px -4px rgb(15 23 42 / 0.03);
+  --mq-shadow-5: 0 20px 25px -5px rgb(15 23 42 / 0.04), 0 8px 10px -6px rgb(15 23 42 / 0.03);
+  --mq-shadow-premium: 0 25px 50px -12px rgb(15 23 42 / 0.12), 0 0 0 1px rgb(255 255 255 / 0.8) inset;
+  --mq-shadow-card-hover: 0 8px 20px -5px rgb(15 23 42 / 0.08), 0 2px 8px -2px rgb(15 23 42 / 0.04);
+  --mq-shadow-focus: 0 0 0 3px rgb(99 102 241 / 0.35);
+  --mq-shadow-inset: inset 0 2px 4px 0 rgb(15 23 42 / 0.03);
 
   /* Motion and layering */
-  --mq-duration-fast: 75ms;
+  --mq-duration-fast: 100ms;
   --mq-duration-base: 150ms;
   --mq-duration-moderate: 200ms;
   --mq-duration-slow: 300ms;
-  --mq-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --mq-duration-slower: 500ms;
+  --mq-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --mq-ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
-  --mq-ease-exit: cubic-bezier(0.4, 0, 0.6, 1);
+  --mq-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --mq-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   --mq-z-sticky: 10;
+  --mq-z-dropdown: 20;
   --mq-z-overlay: 30;
   --mq-z-modal: 40;
   --mq-z-toast: 50;
+  --mq-z-tooltip: 60;
 
   /* Animation keyframes */
   --mq-animate-fade-in: mq-fade-in var(--mq-duration-moderate) var(--mq-ease-standard) both;
   --mq-animate-fade-up: mq-fade-up var(--mq-duration-slow) var(--mq-ease-enter) both;
   --mq-animate-scale-in: mq-scale-in var(--mq-duration-moderate) var(--mq-ease-enter) both;
   --mq-animate-slide-up: mq-slide-up var(--mq-duration-slow) var(--mq-ease-enter) both;
+  --mq-animate-slide-down: mq-slide-down var(--mq-duration-moderate) var(--mq-ease-exit) both;
+  --mq-animate-enter: mq-enter var(--mq-duration-slower) var(--mq-ease-enter) both;
+  --mq-animate-exit: mq-exit var(--mq-duration-moderate) var(--mq-ease-exit) both;
 }
 
 @keyframes mq-fade-in {
@@ -74,7 +86,7 @@
 }
 
 @keyframes mq-fade-up {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -88,9 +100,51 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes mq-slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mq-enter {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mq-exit {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
 @keyframes mq-skeleton-pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50% { opacity: 0.45; }
+}
+
+@keyframes mq-typing-dots {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+@keyframes mq-pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes mq-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes mq-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes mq-bounce-in {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 @media (min-width: 48rem) {
@@ -99,11 +153,46 @@
   }
 }
 
+@media (min-width: 64rem) {
+  :root {
+    --mq-space-gutter: 2rem;
+  }
+}
+
+@media (min-width: 90rem) {
+  :root {
+    --mq-space-gutter: 2.5rem;
+  }
+}
+
 [data-theme="dark"] {
-  --mq-shadow-1: 0 1px 2px rgb(0 0 0 / 0.04);
-  --mq-shadow-2: 0 2px 8px rgb(0 0 0 / 0.05), 0 1px 2px rgb(0 0 0 / 0.04);
-  --mq-shadow-3: 0 8px 24px rgb(0 0 0 / 0.07), 0 2px 6px rgb(0 0 0 / 0.05);
-  --mq-shadow-4: 0 16px 48px rgb(0 0 0 / 0.11);
-  --mq-shadow-premium: 0 24px 70px rgb(0 0 0 / 0.25), 0 1px 0 rgb(255 255 255 / 0.04) inset;
-  --mq-shadow-card-hover: 0 4px 16px rgb(0 0 0 / 0.08), 0 1px 4px rgb(0 0 0 / 0.05);
+  --mq-shadow-1: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --mq-shadow-2: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --mq-shadow-3: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+  --mq-shadow-4: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.03);
+  --mq-shadow-5: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.03);
+  --mq-shadow-premium: 0 25px 50px -12px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.05) inset;
+  --mq-shadow-card-hover: 0 8px 20px -5px rgb(0 0 0 / 0.12), 0 2px 8px -2px rgb(0 0 0 / 0.05);
+  --mq-shadow-focus: 0 0 0 3px rgb(129 140 248 / 0.4);
+  --mq-shadow-inset: inset 0 2px 4px 0 rgb(0 0 0 / 0.06);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mq-duration-fast: 0.01ms;
+    --mq-duration-base: 0.01ms;
+    --mq-duration-moderate: 0.01ms;
+    --mq-duration-slow: 0.01ms;
+    --mq-duration-slower: 0.01ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

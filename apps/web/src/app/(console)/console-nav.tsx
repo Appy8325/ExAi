@@ -36,14 +36,15 @@ export function ConsoleNav() {
         </div>
         <span className="text-sm font-semibold text-primary">ExAi</span>
       </Link>
-      <nav className="flex-1 space-y-1 p-3">
+      <nav aria-label="Primary navigation" className="flex-1 space-y-1 p-3">
         {navItems.map((item) => {
           const active = pathname === item.href || (item.href !== "/org" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-[var(--mq-duration-fast)] ${
+              aria-current={active ? "page" : undefined}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-[var(--mq-duration-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 active
                   ? "bg-brand-subtle text-brand"
                   : "text-secondary hover:bg-sunken hover:text-primary"
@@ -78,7 +79,8 @@ export function ConsoleNav() {
             <button
               type="button"
               onClick={handleSignOut}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-secondary hover:bg-sunken hover:text-primary transition-colors"
+              aria-label="Sign out"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-secondary hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
