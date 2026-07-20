@@ -12,7 +12,7 @@ import {
   updateAttendeeProfile,
 } from "@concourse/api-client";
 import type { BoothChatResponse, PublicBooth } from "@concourse/api-client";
-import { Button, Card, Input, StatusBadge } from "@concourse/ui";
+import { Button, Card, Input, StatusBadge, AiChatBubble, AiTypingIndicator, AiChat, AiSuggestedQuestions } from "@concourse/ui";
 
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
@@ -394,7 +394,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
           onChange={(e) => setQuestion(e.target.value)}
         />
         <Button disabled={pending} type="submit">
-          {pending ? "Asking…" : "Ask"}
+          {pending ? "Asking\u2026" : "Ask"}
         </Button>
       </form>
       {error ? (
@@ -414,7 +414,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
             <ul className="mt-3 space-y-1 border-t border-default pt-3 text-body-sm text-muted">
               {answer.citations.map((citation) => (
                 <li key={`${citation.marker}-${citation.documentId}`}>
-                  {citation.marker} — {citation.title}
+                  {citation.marker} \u2014 {citation.title}
                 </li>
               ))}
             </ul>

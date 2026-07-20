@@ -48,11 +48,11 @@ function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string
 }
 
 const JOURNEY_STEPS = [
-  { step: 1, title: "Welcome", description: "Scan the event QR to enter the exhibition hall." },
-  { step: 2, title: "Browse", description: "Explore exhibitors by industry, name, or keyword." },
-  { step: 3, title: "Ask AI", description: "Chat with an AI assistant at any booth." },
-  { step: 4, title: "Connect", description: "Share your details with exhibitors you like." },
-  { step: 5, title: "Discover", description: "Get tailored recommendations based on your interests." },
+  { step: 1, title: "Enter the Exhibition", description: "Scan the event QR to access the exhibition hall." },
+  { step: 2, title: "Explore an Exhibitor", description: "Browse booths by industry, name, or keyword search." },
+  { step: 3, title: "Ask the AI Assistant", description: "Chat with the AI at any booth about products and services." },
+  { step: 4, title: "Submit a Lead", description: "Share your details to receive tailored follow-ups." },
+  { step: 5, title: "Experience AI", description: "Get personalized recommendations based on your interests." },
 ];
 
 function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
@@ -246,6 +246,9 @@ export function HackathonLandingClient({
         </div>
 
         <div className="mt-16 grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-5">
+          <div className="col-span-1 sm:col-span-5">
+            <p className="text-sm font-medium text-secondary">New here? Follow this journey:</p>
+          </div>
           {JOURNEY_STEPS.map((item) => (
             <div key={item.step} className="rounded-xl border border-default/50 bg-surface/60 p-4 text-center backdrop-blur-sm">
               <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-bold text-on-brand">
@@ -255,6 +258,45 @@ export function HackathonLandingClient({
               <p className="mt-1 text-xs text-muted leading-relaxed">{item.description}</p>
             </div>
           ))}
+          <div className="col-span-1 sm:col-span-5 text-center">
+            <p className="text-xs text-muted">Estimated time: 2–3 minutes</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={scrollToExhibition}
+          className="mt-10 inline-flex h-14 items-center gap-3 rounded-2xl bg-brand px-10 text-base font-semibold text-on-brand shadow-premium transition-all duration-300 hover:bg-brand-hover hover:shadow-2 hover:scale-[1.02] active:scale-[0.98]"
+        >
+          Enter Exhibition
+          <svg className="size-5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M8 3v10M3 8l5 5 5-5" />
+          </svg>
+        </button>
+
+        <div className="mt-16 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted">
+          <span className="inline-flex items-center gap-1.5">
+            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M8 1C5.2 1 3 3.2 3 6c0 3.5 5 9 5 9s5-5.5 5-9c0-2.8-2.2-5-5-5z" />
+              <circle cx="8" cy="6" r="2" />
+            </svg>
+            Moscone Center, San Francisco
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="1" y="2" width="14" height="12" rx="2" />
+              <path d="M1 6h14" />
+              <path d="M5 1v3M11 1v3" />
+            </svg>
+            September 2027
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <rect x="3" y="3" width="10" height="10" rx="2" />
+              <path d="M5 7h6M5 9h4" />
+            </svg>
+            {count} Featured Exhibitors
+          </span>
         </div>
       </section>
 

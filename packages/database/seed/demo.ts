@@ -157,6 +157,63 @@ const exhibitors: ExhibitorSeed[] = [
   },
 ];
 
+const COMPANY_KNOWLEDGE: Record<string, {
+  overview: string;
+  products: string;
+  support: string;
+}> = {
+  Microsoft: {
+    overview: `Microsoft (NASDAQ: MSFT) empowers every person and organization on the planet to achieve more. The company develops, licenses, and supports software, services, devices, and solutions including Microsoft 365, Azure cloud platform, Dynamics 365, LinkedIn, GitHub, and the Microsoft Copilot AI assistant. Headquarters: Redmond, Washington.`,
+    products: `Flagship products: Microsoft 365 (productivity cloud), Microsoft Azure (cloud computing platform), Microsoft Copilot (AI assistant across Microsoft 365, Windows, GitHub), Microsoft Teams (collaboration platform), GitHub Copilot (AI-powered developer tool), Dynamics 365 (business applications), LinkedIn (professional network), Windows 11 (operating system), Visual Studio (IDE).`,
+    support: `Official website: https://www.microsoft.com\nSupport: https://support.microsoft.com\nDocumentation: https://learn.microsoft.com\nAzure status: https://status.azure.com\nMicrosoft 365 status: https://status.office365.com`
+  },
+  Apple: {
+    overview: `Apple designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories. Product lineup includes iPhone, Mac, iPad, Apple Watch, Apple Vision Pro, AirPods, and services such as Apple Music, iCloud, the App Store, and Apple Pay. Headquarters: Cupertino, California.`,
+    products: `Flagship products: iPhone (smartphone), Mac (personal computers with Apple Silicon), iPad (tablet), Apple Watch (wearable), Apple Vision Pro (spatial computer), AirPods (wireless audio), Apple Music (streaming), iCloud (cloud storage), App Store (app marketplace), Apple Pay (payments).`,
+    support: `Official website: https://www.apple.com\nSupport: https://support.apple.com\nDeveloper documentation: https://developer.apple.com/documentation\nSystem status: https://www.apple.com/support/systemstatus/`
+  },
+  Google: {
+    overview: `Google (Alphabet Inc., NASDAQ: GOOGL) specializes in internet-related services and products including Google Search, Google Cloud Platform, Android, YouTube, Google Workspace, Google Maps, Google Gemini AI, and Google Pixel hardware. Headquarters: Mountain View, California.`,
+    products: `Flagship products: Google Cloud Platform (cloud infrastructure), Google Workspace (productivity suite), Android (mobile OS), YouTube (video platform), Google Search (search engine), Google Maps (mapping), Google Gemini (AI models), Google Pixel (smartphones), Chrome (browser), TensorFlow (ML framework).`,
+    support: `Official website: https://www.google.com\nCloud documentation: https://cloud.google.com/docs\nWorkspace help: https://support.google.com/workspace\nAI documentation: https://ai.google.dev\nCloud status: https://status.cloud.google.com`
+  },
+  NVIDIA: {
+    overview: `NVIDIA (NASDAQ: NVDA) designs GPUs for gaming, professional visualization, data centers, and automotive markets. The CUDA platform enables parallel computing. AI platforms include DGX systems, NVIDIA AI Enterprise, Omniverse, and DRIVE for autonomous vehicles. Headquarters: Santa Clara, California.`,
+    products: `Flagship products: GeForce GPUs (gaming graphics), CUDA (parallel computing platform), NVIDIA AI Enterprise (AI software suite), DGX Systems (AI supercomputers), NVIDIA Omniverse (3D collaboration), NVIDIA DRIVE (autonomous vehicle platform), NVIDIA Clara (healthcare AI), NVIDIA Jetson (edge AI), NVIDIA Spectrum (networking).`,
+    support: `Official website: https://www.nvidia.com\nDeveloper zone: https://developer.nvidia.com\nDocumentation: https://docs.nvidia.com\nSupport: https://www.nvidia.com/en-us/support/`
+  },
+  Cisco: {
+    overview: `Cisco (NASDAQ: CSCO) develops, manufactures, and sells networking hardware, software, telecommunications equipment, and cybersecurity solutions. Portfolio includes Catalyst/Nexus switching, ISR/ASR routing, Secure Firewall, Duo Security, Meraki cloud-managed IT, Webex collaboration, AppDynamics observability, and ThousandEyes internet monitoring. Headquarters: San Jose, California.`,
+    products: `Flagship products: Cisco Catalyst Switches (campus switching), Cisco Secure Firewall (network security), Cisco Meraki (cloud-managed IT), Webex (collaboration), Cisco AppDynamics (observability), Cisco ThousandEyes (internet monitoring), Cisco ISR Routers (routing), Cisco DNA Center (network management), Cisco Duo Security (zero trust).`,
+    support: `Official website: https://www.cisco.com\nDocumentation: https://www.cisco.com/c/en/us/support/docs.html\nSupport: https://www.cisco.com/c/en/us/support/index.html\nSecurity advisories: https://sec.cloudapps.cisco.com/security/center/`
+  },
+  IBM: {
+    overview: `IBM (NYSE: IBM) provides hybrid cloud, AI, and consulting services. Products include watsonx AI platform, IBM Cloud, Red Hat OpenShift, Qiskit for quantum computing, SPSS for statistical analysis, and Granite open-source AI models. Headquarters: Armonk, New York. Operations in 175+ countries.`,
+    products: `Flagship products: IBM watsonx (AI and data platform), IBM Cloud (hybrid cloud), Red Hat OpenShift (Kubernetes platform), IBM Qiskit (quantum SDK), IBM SPSS (analytics), IBM Granite (open-source foundation models), IBM Consulting (professional services), IBM Security (cybersecurity), IBM Maximo (asset management).`,
+    support: `Official website: https://www.ibm.com\nDocumentation: https://www.ibm.com/docs\nCloud status: https://cloud.ibm.com/status\nSupport: https://www.ibm.com/support`
+  },
+  Intel: {
+    overview: `Intel (NASDAQ: INTC) designs and manufactures CPUs, GPUs, FPGAs, and other semiconductor products. Product lines include Core processors for consumer devices, Xeon for data centers, Arc GPUs, vPro for business, and Gaudi AI accelerators. Headquarters: Santa Clara, California.`,
+    products: `Flagship products: Intel Core Processors (consumer CPUs), Intel Xeon Processors (data center CPUs), Intel Arc GPUs (discrete graphics), Intel Iris Xe Graphics (integrated graphics), Intel vPro (business platform), Intel Gaudi AI Accelerators (AI training/inference), Intel FPGAs (programmable logic), Intel Optane Memory (storage), Intel Ethernet Adapters (networking).`,
+    support: `Official website: https://www.intel.com\nDocumentation: https://www.intel.com/content/www/us/en/developer/tools/documentation.html\nSupport: https://www.intel.com/content/www/us/en/support.html\nARK specs: https://ark.intel.com`
+  },
+  Salesforce: {
+    overview: `Salesforce (NYSE: CRM) provides cloud-based CRM solutions and enterprise applications. Platform includes Sales Cloud, Service Cloud, Marketing Cloud, Commerce Cloud, Tableau analytics, MuleSoft integration, Slack collaboration, and Einstein AI. Headquarters: San Francisco, California.`,
+    products: `Flagship products: Sales Cloud (sales automation), Service Cloud (customer service), Marketing Cloud (digital marketing), Einstein AI (AI for CRM), Tableau (analytics), MuleSoft (integration), Slack (collaboration), Commerce Cloud (e-commerce), Data Cloud (customer data platform).`,
+    support: `Official website: https://www.salesforce.com\nHelp & training: https://help.salesforce.com\nDeveloper docs: https://developer.salesforce.com/docs\nTrust status: https://trust.salesforce.com`
+  },
+  Adobe: {
+    overview: `Adobe (NASDAQ: ADBE) provides creative, marketing, and document management solutions. Products include Photoshop, Illustrator, Premiere Pro, After Effects, Acrobat, Adobe Express, Adobe Firefly generative AI, and Adobe Experience Cloud for digital marketing. Headquarters: San Jose, California.`,
+    products: `Flagship products: Adobe Photoshop (image editing), Adobe Illustrator (vector graphics), Adobe Premiere Pro (video editing), Adobe Acrobat (PDF), Adobe Firefly (generative AI), Adobe Express (content creation), Adobe Experience Cloud (digital experience platform), Adobe Stock (creative assets), Adobe Fonts (typography).`,
+    support: `Official website: https://www.adobe.com\nHelp center: https://helpx.adobe.com\nDeveloper docs: https://developer.adobe.com\nSystem status: https://status.adobe.com`
+  },
+  Siemens: {
+    overview: `Siemens (ETR: SIE) focuses on industry, infrastructure, transport, and healthcare. Business areas: Digital Industries (automation/software), Smart Infrastructure (building automation/energy), Siemens Mobility (rail/road transport). Key platforms: Siemens Xcelerator digital platform, SIMATIC automation, NX software, Teamcenter PLM. Headquarters: Munich, Germany.`,
+    products: `Flagship products: Siemens Xcelerator (digital business platform), SIMATIC Automation (industrial controllers), NX Software (CAD/CAM/CAE), Teamcenter (PLM), Siemens Industrial Edge (edge computing), SICAM (grid automation), Desigo CC (building management), Siemens Mobility (rail/road transport), Siemens Healthineers (medical technology).`,
+    support: `Official website: https://www.siemens.com\nSupport: https://support.industry.siemens.com\nDocumentation: https://www.siemens.com/global/en/products/services/industry-support.html`
+  },
+};
+
 function one<T>(rows: readonly T[]): T {
   const value = rows[0];
   if (!value) throw new Error("Demo seed expected a database row.");
@@ -232,7 +289,10 @@ async function main() {
           RETURNING id AS source_id, file_id,
             (SELECT storage_key FROM inserted_file) AS storage_key
         `));
-        const overviewContent = `Company: ${name}
+const overviewContent = (() => {
+          const k = COMPANY_KNOWLEDGE[name];
+          if (!k) {
+            return `Company: ${name}
 Industry: ${industry}
 Booth: ${number}
 Tagline: ${tagline}
@@ -244,7 +304,25 @@ ${products.map((p) => `- ${p}`).join("\n")}
 
 Official website: ${brochureUrl}
 
-Booth staff can answer questions about products, features, industry applications, and technology roadmap throughout TechExpo 2027.`;
+Contact: ${phone}`;
+          }
+          return `${name} Company Overview
+
+Industry: ${industry}
+Booth: ${number}
+
+${k.overview}
+
+Products:
+${products.map((p) => `- ${p}`).join("\n")}
+
+${k.products}
+
+Official website: ${brochureUrl}
+Contact: ${phone}
+
+Source: ${brochureUrl}`;
+        })();
         knowledgeUploads.push({
           fileId: overview.file_id,
           sourceId: overview.source_id,
@@ -278,7 +356,10 @@ Booth staff can answer questions about products, features, industry applications
           fileId: faq.file_id,
           sourceId: faq.source_id,
           storageKey: faq.storage_key,
-          content: `${name} — Product Information
+          content: (() => {
+            const k = COMPANY_KNOWLEDGE[name];
+            if (!k) {
+              return `${name} — Product Information
 
 ${name} offers the following products and services:
 
@@ -288,9 +369,22 @@ Industry: ${industry}
 
 ${description}
 
-For detailed product specifications, pricing, and availability, visit the official website: ${brochureUrl}
+For detailed product specifications, pricing, and availability, visit the official website: ${brochureUrl}`;
+            }
+            return `${name} — FAQ & Product Information
 
-Booth staff can answer questions about these products, their features, and industry applications during TechExpo 2027.`,
+Industry: ${industry}
+Booth: ${number}
+
+${k.overview}
+
+Products:
+${products.map((p) => `- ${p}`).join("\n")}
+
+${k.products}
+
+${k.support}`;
+          })(),
         });
 
         const brochureTitle = `${name} product brochure`;
@@ -319,7 +413,10 @@ Booth staff can answer questions about these products, their features, and indus
           fileId: brochure.file_id,
           sourceId: brochure.source_id,
           storageKey: brochure.storage_key,
-          content: `${name} — Product Brochure
+          content: (() => {
+            const k = COMPANY_KNOWLEDGE[name];
+            if (!k) {
+              return `${name} — Product Brochure
 
 Company: ${name}
 Industry: ${industry}
@@ -332,7 +429,28 @@ ${description}
 
 Official website: ${brochureUrl}
 
-Social: ${Object.entries(socialLinks).map(([k, v]) => `${k}: ${v}`).join(", ")}`,
+Contact: ${phone}`;
+            }
+            return `${name} — Product Brochure
+
+Company: ${name}
+Industry: ${industry}
+Booth: ${number}
+
+Products:
+${products.map((p) => `  • ${p}`).join("\n")}
+
+Company Overview:
+${k.overview}
+
+${k.products}
+
+Official website: ${brochureUrl}
+
+Contact: ${phone}
+
+Social: ${Object.entries(socialLinks).map(([k, v]) => `${k}: ${v}`).join(", ")}`;
+          })(),
         });
         const form = one(
           await tx`INSERT INTO lead_forms(event_exhibitor_id,name,consent_text,version,is_default,status) VALUES (${booth.id},'Connect at TechExpo','I agree to share my submitted information with this exhibitor.',1,true,'draft') ON CONFLICT (event_exhibitor_id,name,version) DO UPDATE SET is_default=true RETURNING id,status`,
