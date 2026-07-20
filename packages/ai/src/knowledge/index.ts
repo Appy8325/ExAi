@@ -1,6 +1,7 @@
 export {
   chunkText,
   ingestSource,
+  ingestSourceForcibly,
   pendingSourceIds,
   robotsAllows,
 } from "./ingest";
