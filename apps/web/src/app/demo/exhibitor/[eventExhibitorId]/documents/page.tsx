@@ -32,7 +32,7 @@ export default async function DemoExhibitorDocumentsPage({ params }: { params: P
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-success-text">
           Knowledge sources
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary">Documents</h1>

@@ -28,7 +28,7 @@ export default async function DemoExhibitorQrPage({ params }: { params: Promise<
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-success-text">
           QR management
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary">Booth QR code</h1>
@@ -61,7 +61,7 @@ export default async function DemoExhibitorQrPage({ params }: { params: Promise<
           <div>
             <Link
               href={`/visit/${booth.publicQrToken}`}
-              className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+              className="inline-flex items-center gap-1 rounded-lg bg-status-success-solid px-4 py-2 text-sm font-semibold text-on-brand"
             >
               Open public booth page
               <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">

@@ -77,7 +77,7 @@ export default async function DemoPage() {
               title="Organizer"
               description="Manage events, exhibitors, and gain insights from AI-powered analytics, heatmaps, and reports."
               href="/demo/organizer"
-              tone="indigo"
+              tone="info"
               stats={[
                 { label: "Events", value: overview.events.length },
                 { label: "Exhibitors", value: exhibitors.length },
@@ -88,7 +88,7 @@ export default async function DemoPage() {
               title="Exhibitor"
               description="Manage your booth profile, knowledge base, lead forms, and track attendee engagement."
               href="/demo/exhibitor"
-              tone="emerald"
+              tone="success"
               stats={[
                 { label: "Organizations", value: overview.exhibitorOrganizations.length },
                 { label: "Active booths", value: exhibitors.length },
@@ -99,7 +99,7 @@ export default async function DemoPage() {
               title="Attendee"
               description="Browse the exhibitor directory, search companies, visit booths, and ask the AI assistant."
               href="/demo/attendee"
-              tone="violet"
+              tone="brand"
               stats={
                 firstEvent
                   ? [
@@ -134,18 +134,18 @@ function PersonaCard({
   title: string;
   description: string;
   href: string;
-  tone: "indigo" | "emerald" | "violet";
+  tone: "info" | "success" | "brand";
   stats?: Array<{ label: string; value: string | number }>;
 }) {
   const border = {
-    indigo: "border-indigo-500/20 hover:ring-indigo-500/30",
-    emerald: "border-emerald-500/20 hover:ring-emerald-500/30",
-    violet: "border-violet-500/20 hover:ring-violet-500/30",
+    info: "border-status-info-border hover:ring-status-info-border/30",
+    success: "border-status-success-border hover:ring-status-success-border/30",
+    brand: "border-brand/30 hover:ring-brand/30",
   }[tone];
   const badge = {
-    indigo: "bg-indigo-100 text-indigo-700",
-    emerald: "bg-emerald-100 text-emerald-700",
-    violet: "bg-violet-100 text-violet-700",
+    info: "bg-status-info-subtle text-status-info-text",
+    success: "bg-status-success-subtle text-status-success-text",
+    brand: "bg-brand-subtle text-brand",
   }[tone];
 
   return (

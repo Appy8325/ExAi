@@ -30,7 +30,7 @@ export default async function DemoOrganizerAnalyticsPage() {
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-info-text">
           Organizer workspace
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
@@ -45,7 +45,7 @@ export default async function DemoOrganizerAnalyticsPage() {
         {overview.events.map((event) => (
           <span
             key={event.id}
-            className={`rounded-full border px-4 py-2 text-sm ${event.id === eventId ? "border-indigo-500 bg-indigo-500 text-white" : "border-default bg-surface text-secondary"}`}
+            className={`rounded-full border px-4 py-2 text-sm ${event.id === eventId ? "border-status-info-border bg-status-info-solid text-on-brand" : "border-default bg-surface text-secondary"}`}
           >
             {event.name}
           </span>
@@ -76,7 +76,7 @@ export default async function DemoOrganizerAnalyticsPage() {
                 </div>
                 <Link
                   href="/demo/organizer/reports"
-                  className="text-sm font-medium text-indigo-600"
+                  className="text-sm font-medium text-status-info-text"
                 >
                   Executive report
                 </Link>
@@ -95,7 +95,7 @@ export default async function DemoOrganizerAnalyticsPage() {
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-subtle">
                       <div
-                        className="h-full rounded-full bg-indigo-500"
+                        className="h-full rounded-full bg-status-info-solid"
                         style={{ width: `${booth.heat}%` }}
                       />
                     </div>

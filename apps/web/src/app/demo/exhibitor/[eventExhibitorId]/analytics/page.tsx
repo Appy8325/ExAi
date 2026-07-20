@@ -38,7 +38,7 @@ export default async function DemoExhibitorAnalyticsPage({ params }: { params: P
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-success-text">
           Booth analytics
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary">{booth.companyName}</h1>
@@ -58,10 +58,10 @@ export default async function DemoExhibitorAnalyticsPage({ params }: { params: P
         <Card>
           <h2 className="text-base font-semibold text-primary">Pipeline distribution</h2>
           <div className="mt-4 space-y-4">
-            <Bar label="New" value={pipeline.new} max={Math.max(...[pipeline.new, pipeline.active, pipeline.returning, pipeline.needsFollowUp], 1)} color="bg-slate-400" />
-            <Bar label="Active" value={pipeline.active} max={Math.max(...[pipeline.new, pipeline.active, pipeline.returning, pipeline.needsFollowUp], 1)} color="bg-emerald-500" />
-            <Bar label="Returning" value={pipeline.returning} max={Math.max(...[pipeline.new, pipeline.active, pipeline.returning, pipeline.needsFollowUp], 1)} color="bg-sky-500" />
-            <Bar label="Needs Follow-up" value={pipeline.needsFollowUp} max={Math.max(...[pipeline.new, pipeline.active, pipeline.returning, pipeline.needsFollowUp], 1)} color="bg-amber-500" />
+            <Bar label="New" value={pipeline.new} max={Math.max(...[pipeline.new, pipeline.active, pipeline.returning, pipeline.needsFollowUp], 1)} color="bg-muted" />
+            <Bar label="Active" value={pipeline.active} max={Math.max(...[pipeline.new, pipeline.active, pipeline.returning, pipeline.needsFollowUp], 1)} color="bg-status-success-solid" />
+            <Bar label="Returning" value={pipeline.returning} max={Math.max(...[pipeline.new, pipeline.active, pipeline.returning, pipeline.needsFollowUp], 1)} color="bg-status-info-solid" />
+            <Bar label="Needs Follow-up" value={pipeline.needsFollowUp} max={Math.max(...[pipeline.new, pipeline.active, pipeline.returning, pipeline.needsFollowUp], 1)} color="bg-status-warning-solid" />
           </div>
         </Card>
 

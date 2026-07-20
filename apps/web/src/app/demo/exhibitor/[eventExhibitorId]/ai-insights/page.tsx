@@ -35,7 +35,7 @@ export default async function DemoExhibitorAiInsightsPage({ params }: { params: 
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-success-text">
           AI intelligence
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary">AI insights</h1>
@@ -47,7 +47,7 @@ export default async function DemoExhibitorAiInsightsPage({ params }: { params: 
       <section className="mt-8 grid gap-6 md:grid-cols-2">
         <Card>
           <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-purple-100 text-xs text-purple-700">AI</span>
+            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-xs text-status-ai-text">AI</span>
             <h2 className="text-base font-semibold text-primary">Attendee intelligence</h2>
           </div>
           <div className="mt-4 space-y-4 text-sm">
@@ -68,7 +68,7 @@ export default async function DemoExhibitorAiInsightsPage({ params }: { params: 
 
         <Card>
           <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-purple-100 text-xs text-purple-700">AI</span>
+            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-xs text-status-ai-text">AI</span>
             <h2 className="text-base font-semibold text-primary">Lead scoring</h2>
           </div>
           <div className="mt-4 space-y-4 text-sm">
@@ -77,15 +77,15 @@ export default async function DemoExhibitorAiInsightsPage({ params }: { params: 
             </p>
             <div className="grid grid-cols-3 gap-3">
               <div className="rounded-lg border border-default p-3 text-center">
-                <p className="text-lg font-bold text-emerald-600">{dashboard.pipeline.active}</p>
+                <p className="text-lg font-bold text-status-success-text">{dashboard.pipeline.active}</p>
                 <p className="text-xs text-muted">Active</p>
               </div>
               <div className="rounded-lg border border-default p-3 text-center">
-                <p className="text-lg font-bold text-amber-600">{dashboard.pipeline.needsFollowUp}</p>
+                <p className="text-lg font-bold text-status-warning-text">{dashboard.pipeline.needsFollowUp}</p>
                 <p className="text-xs text-muted">Follow-up</p>
               </div>
               <div className="rounded-lg border border-default p-3 text-center">
-                <p className="text-lg font-bold text-sky-600">{dashboard.pipeline.returning}</p>
+                <p className="text-lg font-bold text-status-info-text">{dashboard.pipeline.returning}</p>
                 <p className="text-xs text-muted">Returning</p>
               </div>
             </div>
@@ -96,7 +96,7 @@ export default async function DemoExhibitorAiInsightsPage({ params }: { params: 
       <section className="mt-8">
         <Card>
           <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-purple-100 text-xs text-purple-700">AI</span>
+            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-xs text-status-ai-text">AI</span>
             <h2 className="text-base font-semibold text-primary">Recommendation</h2>
           </div>
           <p className="mt-4 text-sm text-secondary leading-relaxed">

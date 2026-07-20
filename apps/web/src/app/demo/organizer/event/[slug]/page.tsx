@@ -33,7 +33,7 @@ export default async function DemoOrganizerEventPage({ params }: { params: Promi
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-info-text">
           Event overview
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary sm:text-3xl">{event.name}</h1>
@@ -54,7 +54,7 @@ export default async function DemoOrganizerEventPage({ params }: { params: Promi
       <nav className="mt-6 flex flex-wrap gap-3">
         <Link
           href={`/demo/organizer/analytics`}
-          className="inline-flex h-10 items-center rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white"
+          className="inline-flex h-10 items-center rounded-lg bg-status-info-solid px-4 text-sm font-semibold text-on-brand"
         >
           View analytics
         </Link>

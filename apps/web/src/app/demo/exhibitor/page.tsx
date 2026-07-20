@@ -21,7 +21,7 @@ export default async function DemoExhibitorLandingPage() {
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-brand">
           Exhibitor workspace
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
@@ -40,7 +40,7 @@ export default async function DemoExhibitorLandingPage() {
               <Link
                 key={org.id}
                 href={`/demo/exhibitor/${firstEvent?.eventExhibitorId ?? ""}`}
-                className="flex items-center justify-between rounded-xl border-2 border-emerald-500/20 bg-surface p-5 transition-all hover:shadow-2 hover:ring-2 hover:ring-emerald-500/30"
+                className="flex items-center justify-between rounded-xl border-2 border-brand/20 bg-surface p-5 transition-all hover:shadow-2 hover:ring-2 hover:ring-brand/30"
               >
                 <div>
                   <p className="text-lg font-semibold text-primary">{org.name}</p>

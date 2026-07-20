@@ -19,7 +19,7 @@ export default async function DemoOrganizerDashboardPage() {
     <div className="mx-auto max-w-5xl px-6 py-12 sm:px-10">
       <DemoBreadcrumb label="Organizer dashboard" />
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-brand">
           Organizer workspace
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
@@ -79,7 +79,7 @@ export default async function DemoOrganizerDashboardPage() {
   );
 }
 
-function DemoBreadcrumb({ label }: { label: string }) {
+function DemoBreadcrumb({ label: _label }: { label: string }) {
   return (
     <Link href="/demo" className="inline-flex items-center gap-1 text-sm text-link hover:underline">
       <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">

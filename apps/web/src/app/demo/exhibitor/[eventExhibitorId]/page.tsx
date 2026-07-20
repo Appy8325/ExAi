@@ -38,7 +38,7 @@ export default async function DemoExhibitorDashboardPage({ params }: { params: P
     <div className="mx-auto max-w-6xl space-y-8 px-6 py-12 sm:px-10">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+          <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-success-text">
             Exhibitor workspace
           </p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary">
@@ -49,8 +49,8 @@ export default async function DemoExhibitorDashboardPage({ params }: { params: P
             {event ? ` \u00b7 ${event.name}` : ""}
           </p>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-          <span className="inline-block size-1.5 rounded-full bg-emerald-500" />
+        <span className="inline-flex items-center gap-1 rounded-full border border-status-success-border bg-status-success-subtle px-2.5 py-1 text-xs font-medium text-status-success-text">
+          <span className="inline-block size-1.5 rounded-full bg-status-success-solid" />
           Read-only
         </span>
       </div>
@@ -82,7 +82,7 @@ export default async function DemoExhibitorDashboardPage({ params }: { params: P
             <div className="rounded-xl border border-default bg-sunken p-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-medium text-secondary">Enriched Profiles</p>
-                <span className="inline-flex size-5 items-center justify-center rounded-full bg-purple-100 text-[10px] text-purple-700">AI</span>
+                <span className="inline-flex size-5 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] text-status-ai-text">AI</span>
               </div>
               <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{dashboard.intelligenceFeed.profilesEnriched}</p>
               <p className="mt-1 text-xs text-muted">Attendees with recent data updates</p>
@@ -90,7 +90,7 @@ export default async function DemoExhibitorDashboardPage({ params }: { params: P
             <div className="rounded-xl border border-default bg-sunken p-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-medium text-secondary">Complete Profiles</p>
-                <span className="inline-flex size-5 items-center justify-center rounded-full bg-purple-100 text-[10px] text-purple-700">AI</span>
+                <span className="inline-flex size-5 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] text-status-ai-text">AI</span>
               </div>
               <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{dashboard.intelligenceFeed.completeProfiles}</p>
               <p className="mt-1 text-xs text-muted">Profiles with full contact data</p>
@@ -103,7 +103,7 @@ export default async function DemoExhibitorDashboardPage({ params }: { params: P
         {booth.publicQrToken ? (
           <Link
             href={`/visit/${booth.publicQrToken}`}
-            className="inline-flex h-10 items-center rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white"
+            className="inline-flex h-10 items-center rounded-lg bg-status-success-solid px-4 text-sm font-semibold text-on-brand"
           >
             Open booth preview
           </Link>
@@ -125,7 +125,7 @@ function KpiCard({ label, value, trend }: { label: string; value: string | numbe
       <p className="text-xs font-medium text-secondary">{label}</p>
       <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{value}</p>
       {trend && (
-        <p className={`mt-1 flex items-center gap-1 text-xs ${trend.direction === "up" ? "text-emerald-600" : "text-red-600"}`}>
+        <p className={`mt-1 flex items-center gap-1 text-xs ${trend.direction === "up" ? "text-status-success-text" : "text-status-danger-text"}`}>
           <span>{trend.direction === "up" ? "\u2191" : "\u2193"}</span>
           <span>{trend.label}</span>
         </p>
@@ -137,14 +137,14 @@ function KpiCard({ label, value, trend }: { label: string; value: string | numbe
 function PipelineCard({ label, value, tone }: { label: string; value: number; tone: "neutral" | "success" | "info" | "warning" }) {
   const tones = {
     neutral: "border-default bg-sunken text-secondary",
-    success: "border-emerald-500/30 bg-emerald-50 text-emerald-700",
-    info: "border-sky-500/30 bg-sky-50 text-sky-700",
-    warning: "border-amber-500/30 bg-amber-50 text-amber-700",
+    success: "border-status-success-border bg-status-success-subtle text-status-success-text",
+    info: "border-status-info-border bg-status-info-subtle text-status-info-text",
+    warning: "border-status-warning-border bg-status-warning-subtle text-status-warning-text",
   };
   return (
     <div className={`rounded-lg border p-3 ${tones[tone]}`}>
       <p className="text-xs font-medium">{label}</p>
-      <p className="mt-1 text-xl font-semibold">{value}</p>
+      <p className="mt-1 text-xl font-semibold text-primary">{value}</p>
     </div>
   );
 }

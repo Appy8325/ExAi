@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Breadcrumbs, KPICard, StatusBadge, PageHeader } from "@concourse/ui";
+import { Breadcrumbs, KPICard, PageHeader } from "@concourse/ui";
 
 import { loadOrganizerOverview } from "@/lib/organizer";
 import { PublishEventButton } from "../../organizer-forms";
@@ -18,7 +18,7 @@ export default async function EventOverviewPage({
         Event unavailable.
       </div>
     );
-  const isPublic = event.status === "published" || event.status === "live";
+  const _isPublic = event.status === "published" || event.status === "live";
   return (
     <div className="space-y-section">
       <Breadcrumbs

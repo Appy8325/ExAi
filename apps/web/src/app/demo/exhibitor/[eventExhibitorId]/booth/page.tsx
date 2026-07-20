@@ -32,7 +32,7 @@ export default async function DemoExhibitorBoothPage({ params }: { params: Promi
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-success-text">
           Booth profile
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary">{booth.companyName}</h1>
@@ -67,7 +67,7 @@ export default async function DemoExhibitorBoothPage({ params }: { params: Promi
               <li key={field.key} className="rounded-xl border border-default bg-surface px-4 py-3">
                 <span className="text-sm font-medium text-primary">
                   {field.label}
-                  {field.required ? <span className="ml-1 text-red-500">*</span> : null}
+                  {field.required ? <span className="ml-1 text-status-danger-text">*</span> : null}
                 </span>
                 <span className="ml-2 rounded bg-sunken px-1.5 py-0.5 text-xs text-muted">{field.type}</span>
                 {field.helpText ? <p className="mt-0.5 text-xs text-muted">{field.helpText}</p> : null}
@@ -101,7 +101,7 @@ export default async function DemoExhibitorBoothPage({ params }: { params: Promi
         <div className="mt-8">
           <Link
             href={`/visit/${booth.publicQrToken}`}
-            className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+            className="inline-flex items-center gap-1 rounded-lg bg-status-success-solid px-4 py-2 text-sm font-semibold text-on-brand"
           >
             Open public booth page
             <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">

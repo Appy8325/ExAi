@@ -30,7 +30,7 @@ export default async function DemoOrganizerReportsPage() {
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-500">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-info-text">
           Executive reporting
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary sm:text-3xl">

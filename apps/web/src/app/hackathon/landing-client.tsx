@@ -144,7 +144,7 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
 
 export function HackathonLandingClient({
   exhibitors,
-  count,
+  count: _count,
 }: {
   exhibitors: ShowcaseExhibitor[];
   count: number;

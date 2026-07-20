@@ -22,7 +22,7 @@ export default async function DemoAttendeePage() {
       </Link>
 
       <header className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">
+        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-brand">
           Attendee experience
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
@@ -36,7 +36,7 @@ export default async function DemoAttendeePage() {
       <div className="mt-10 space-y-6">
         {firstEvent ? (
           <>
-            <section className="rounded-2xl border-2 border-violet-500/20 bg-surface p-6 shadow-1 transition-all hover:shadow-2 hover:ring-2 hover:ring-violet-500/30 sm:p-8">
+            <section className="rounded-2xl border-2 border-brand/20 bg-surface p-6 shadow-1 transition-all hover:shadow-2 hover:ring-2 hover:ring-brand/30 sm:p-8">
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-primary">{firstEvent.name}</h2>
@@ -51,7 +51,7 @@ export default async function DemoAttendeePage() {
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <Link
                   href={`/e/${firstEvent.slug}`}
-                  className="flex items-center justify-between rounded-lg border border-violet-500/30 bg-violet-50 px-4 py-3 text-sm font-semibold text-violet-700"
+                  className="flex items-center justify-between rounded-lg border border-brand/30 bg-brand-subtle px-4 py-3 text-sm font-semibold text-brand"
                 >
                   Browse exhibitor directory
                   <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
