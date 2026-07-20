@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import type { FormEvent } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ApiError,
@@ -19,6 +18,88 @@ import { createClient } from "@/lib/supabase/client";
 
 type Step = "landing" | "email" | "sent" | "profile" | "form" | "success";
 type Recommendation = { title: string; reason: string };
+
+const COMPANY_QUESTIONS: Record<string, string[]> = {
+  Microsoft: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+  Apple: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+  Google: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+  NVIDIA: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+  Cisco: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+  IBM: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+  Intel: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+  Salesforce: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+  Adobe: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+  Siemens: [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What AI offerings do you provide?",
+    "How can I contact your sales team?",
+  ],
+};
+
+function getCompanyQuestions(companyName: string): string[] {
+  return COMPANY_QUESTIONS[companyName] ?? [
+    "What are your flagship products?",
+    "Which industries do you serve?",
+    "What differentiates your platform?",
+    "How can I contact your sales team?",
+  ];
+}
+
+function TypingIndicator() {
+  return (
+    <div className="flex items-center gap-1">
+      <span className="size-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+      <span className="size-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+      <span className="size-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+    </div>
+  );
+}
 
 export function BoothExperience({
   booth,
@@ -40,7 +121,7 @@ export function BoothExperience({
     run(async () => {
       await enrollAtBooth({ baseUrl: getApiBaseUrl() }, publicQrToken, email);
       setStep("sent");
-    }, "We could not send your Magic Link. Please try again.");
+    }, "Could not send magic link. Please try again.");
   };
 
   const submitProfile = (event: FormEvent<HTMLFormElement>) => {
@@ -54,12 +135,11 @@ export function BoothExperience({
           fullName: String(form.get("fullName") ?? ""),
           company: String(form.get("company") ?? ""),
           jobTitle: String(form.get("jobTitle") ?? ""),
-          shareProfileWithExhibitors:
-            form.get("shareProfileWithExhibitors") === "on",
+          shareProfileWithExhibitors: form.get("shareProfileWithExhibitors") === "on",
         },
       );
       setStep(booth.leadForm ? "form" : "success");
-    }, "We could not save your profile. Please try again.");
+    }, "Could not save profile. Please try again.");
   };
 
   const submitLead = (event: FormEvent<HTMLFormElement>) => {
@@ -83,7 +163,7 @@ export function BoothExperience({
       );
       setRecommendations(result.recommendations);
       setStep("success");
-    }, "We could not submit your information. Nothing was lost; please try again.");
+    }, "Could not submit. Please try again.");
   };
 
   function run(work: () => Promise<void>, message: string) {
@@ -92,63 +172,57 @@ export function BoothExperience({
       try {
         await work();
       } catch (cause) {
-        setError(
-          cause instanceof ApiError && cause.status === 404
-            ? "This booth is no longer available."
-            : message,
-        );
+        setError(cause instanceof ApiError && cause.status === 404
+          ? "This booth is no longer available."
+          : message);
       }
     });
   }
 
   return (
-    <main className="mx-auto min-h-screen max-w-(--mq-attendee-content-max) bg-canvas px-gutter py-section text-primary">
-      <Card className="space-y-6">
-        <BoothHeader booth={booth} />
-        <BoothChat publicQrToken={publicQrToken} companyName={booth.companyName} />
-        <Resources booth={booth} />
-        {step === "landing" ? (
-          <Landing booth={booth} onConnect={() => setStep("email")} />
-        ) : null}
-        {step === "email" ? (
-          <EmailStep pending={pending} error={error} onSubmit={submitEmail} />
-        ) : null}
-        {step === "sent" ? (
-          <MagicLinkSent onBack={() => setStep("email")} />
-        ) : null}
-        {step === "profile" ? (
-          <ProfileStep
-            companyName={booth.companyName}
-            error={error}
-            pending={pending}
-            onSubmit={submitProfile}
-          />
-        ) : null}
-        {step === "form" && booth.leadForm ? (
-          <LeadFormStep
-            booth={booth}
-            error={error}
-            pending={pending}
-            onSubmit={submitLead}
-          />
-        ) : null}
-        {step === "success" ? (
-          <Success booth={booth} recommendations={recommendations} />
-        ) : null}
-      </Card>
+    <main className="min-h-screen bg-gray-50 px-4 py-8">
+      <div className="mx-auto max-w-lg">
+        <Link href="/hackathon" className="mb-6 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900">
+          <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+            <path strokeWidth="2" d="M10 12l-4-4 4-4" />
+          </svg>
+          Back to Exhibition
+        </Link>
+
+        <Card className="space-y-6">
+          <BoothHeader booth={booth} />
+          <BoothChat publicQrToken={publicQrToken} companyName={booth.companyName} />
+          <Resources booth={booth} />
+
+          {step === "landing" && (
+            <Landing booth={booth} onConnect={() => setStep("email")} />
+          )}
+          {step === "email" && (
+            <EmailStep pending={pending} error={error} onSubmit={submitEmail} />
+          )}
+          {step === "sent" && (
+            <MagicLinkSent onBack={() => setStep("email")} />
+          )}
+          {step === "profile" && (
+            <ProfileStep companyName={booth.companyName} error={error} pending={pending} onSubmit={submitProfile} />
+          )}
+          {step === "form" && booth.leadForm && (
+            <LeadFormStep booth={booth} error={error} pending={pending} onSubmit={submitLead} />
+          )}
+          {step === "success" && (
+            <Success booth={booth} recommendations={recommendations} />
+          )}
+        </Card>
+      </div>
     </main>
   );
 }
 
 async function authenticatedSession() {
   const supabase = createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error("Authentication required");
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Authentication required");
   return session;
 }
@@ -157,81 +231,55 @@ function BoothHeader({ booth }: { booth: PublicBooth }) {
   const initials = booth.companyName.slice(0, 2).toUpperCase();
   return (
     <header className="space-y-4">
-      {booth.logoUrl ? (
-        <Image
-          alt={`${booth.companyName} logo`}
-          className="h-16 w-16 rounded-md border border-default object-contain"
-          height={64}
-          priority
-          src={booth.logoUrl}
-          unoptimized
-          width={64}
-        />
-      ) : (
-        <div
-          aria-hidden="true"
-          className="flex h-16 w-16 items-center justify-center rounded-md bg-brand text-title font-semibold text-on-brand"
-        >
+      <div className="flex items-center gap-4">
+        <div className="flex size-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-lg font-bold text-white">
           {initials}
         </div>
-      )}
-      <div className="space-y-2">
-        <StatusBadge tone="info">Booth {booth.boothNumber ?? ""}</StatusBadge>
-        <h1 className="text-title-lg font-semibold text-primary">
-          {booth.companyName}
-        </h1>
-        <p className="text-body text-secondary">{booth.boothName}</p>
+        <div>
+          <StatusBadge tone="info">Booth {booth.boothNumber ?? ""}</StatusBadge>
+          <h1 className="mt-1 text-xl font-bold text-gray-900">{booth.companyName}</h1>
+          <p className="text-sm text-gray-500">{booth.boothName}</p>
+        </div>
       </div>
-      <section aria-labelledby="products-heading">
-        <h2
-          className="text-title-sm font-semibold text-primary"
-          id="products-heading"
+      <p className="text-sm text-gray-600 leading-relaxed">
+        {booth.description ?? "Learn more about this exhibitor's products and services."}
+      </p>
+      {booth.website && (
+        <a
+          href={booth.website}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
         >
-          Products &amp; services
-        </h2>
-        <p className="mt-1 text-body text-secondary">
-          {booth.description ??
-            "Explore this exhibitor's published resources and ask their AI assistant a question."}
-        </p>
-        {booth.website ? (
-          <a
-            className="mt-2 inline-block text-body text-link underline"
-            href={booth.website}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Visit company website
-          </a>
-        ) : null}
-      </section>
+          <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+            <path strokeWidth="1.5" d="M6 2h8v8M8 8l6-6M2 8v6h6" />
+          </svg>
+          Visit Official Website
+        </a>
+      )}
     </header>
   );
 }
 
 function Resources({ booth }: { booth: PublicBooth }) {
   if (!booth.resources.length) return null;
-  const apiBase = getApiBaseUrl();
   return (
-    <section aria-labelledby="resources-heading" className="space-y-2">
-      <h2 className="text-title-sm font-semibold" id="resources-heading">
-        Published resources
-      </h2>
-      <ul className="space-y-2">
+    <section className="space-y-2 border-t border-gray-100 pt-4">
+      <h3 className="text-sm font-semibold text-gray-900">Published Resources</h3>
+      <ul className="space-y-1">
         {booth.resources.map((resource) => (
           <li key={resource.id}>
             <a
-              className="text-body text-link underline"
-              href={
-                resource.external ? resource.href : `${apiBase}${resource.href}`
-              }
-              rel="noreferrer"
+              href={resource.external ? resource.href : `${getApiBaseUrl()}${resource.href}`}
               target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
             >
+              <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+                <path strokeWidth="1.5" d="M6 2h8v8M8 8l6-6M2 8v6h6" />
+              </svg>
               {resource.title}
-            </a>{" "}
-            <span className="text-body-sm text-secondary">
-              ({resource.sourceType.replaceAll("_", " ")})
-            </span>
+            </a>
           </li>
         ))}
       </ul>
@@ -239,252 +287,142 @@ function Resources({ booth }: { booth: PublicBooth }) {
   );
 }
 
-const COMPANY_QUESTIONS: Record<string, string[]> = {
-  Microsoft: [
-    "What is Microsoft Copilot and how does it work?",
-    "How does Azure compare to other cloud platforms?",
-    "What's included in Microsoft 365 for enterprise?",
-    "How can developers use GitHub Copilot?",
-  ],
-  Apple: [
-    "What's new in the latest iPhone?",
-    "How does Apple Vision Pro work for developers?",
-    "What are Apple's privacy features?",
-    "How does Apple Silicon performance compare?",
-  ],
-  Google: [
-    "What is Google Gemini and how does it work?",
-    "How does Google Cloud Platform differentiate?",
-    "What's new in Android for developers?",
-    "How does Google Workspace AI help productivity?",
-  ],
-  NVIDIA: [
-    "What are the latest GeForce GPUs for gaming?",
-    "How does CUDA enable AI acceleration?",
-    "What is NVIDIA Omniverse for digital twins?",
-    "How do DGX systems support AI training?",
-  ],
-  Cisco: [
-    "What is Cisco Meraki cloud networking?",
-    "How does Cisco Secure Firewall protect networks?",
-    "What's new in Webex for collaboration?",
-    "How does ThousandEyes monitor internet performance?",
-  ],
-  IBM: [
-    "What is watsonx and how does it help enterprises?",
-    "How does IBM Quantum compute work?",
-    "What are IBM Granite foundation models?",
-    "How does Red Hat OpenShift integrate with IBM Cloud?",
-  ],
-  Intel: [
-    "What's new in Intel Core Ultra processors?",
-    "How do Gaudi AI accelerators compare to GPUs?",
-    "What is Intel vPro for enterprise devices?",
-    "How does Intel Foundry Services work?",
-  ],
-  Salesforce: [
-    "What is Salesforce Einstein AI?",
-    "How does Data Cloud unify customer data?",
-    "What's the difference between Sales and Service Cloud?",
-    "How does Slack integrate with Salesforce?",
-  ],
-  Adobe: [
-    "What is Adobe Firefly generative AI?",
-    "How does Adobe Experience Cloud help marketers?",
-    "What's new in Creative Cloud apps?",
-    "How does Adobe Acrobat AI Assistant work?",
-  ],
-  Siemens: [
-    "What is the Siemens Xcelerator platform?",
-    "How does Teamcenter PLM manage product data?",
-    "What is Siemens Industrial Edge computing?",
-    "How does Siemens support sustainable manufacturing?",
-  ],
-};
-
-function getCompanyQuestions(companyName: string): string[] {
-  return COMPANY_QUESTIONS[companyName] ?? [
-    "What are your flagship products?",
-    "Which industries do you serve?",
-    "What makes your solution different?",
-    "How can I contact your sales team?",
-  ];
-}
-
 function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; companyName: string }) {
   const [answer, setAnswer] = useState<BoothChatResponse>();
   const [error, setError] = useState<string>();
   const [pending, startTransition] = useTransition();
   const [question, setQuestion] = useState("");
+  const [history, setHistory] = useState<Array<{ q: string; a?: string }>>([]);
   const suggestions = getCompanyQuestions(companyName);
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const q = question.trim();
-    if (!q) return;
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history, answer]);
+
+  const submit = (q: string) => {
+    if (!q.trim()) return;
+    const userQuestion = q;
+    setQuestion("");
     setError(undefined);
+
+    setHistory((prev) => [...prev, { q: userQuestion }]);
+
     startTransition(async () => {
       try {
-        setAnswer(
-          await chatAtBooth(
-            { baseUrl: getApiBaseUrl() },
-            publicQrToken,
-            q,
-          ),
+        const result = await chatAtBooth({ baseUrl: getApiBaseUrl() }, publicQrToken, userQuestion);
+        setAnswer(result);
+        setHistory((prev) =>
+          prev.map((item, i) => (i === prev.length - 1 ? { ...item, a: result.answer } : item))
         );
       } catch {
-        setError(
-          "The AI assistant could not answer right now. You can still review the published resources.",
+        setError("The AI could not answer. Please try again or check the resources above.");
+        setHistory((prev) =>
+          prev.map((item, i) => (i === prev.length - 1 ? { ...item, a: "Sorry, I couldn't answer that question. Please try again or browse the published resources." } : item))
         );
       }
     });
   };
-  const askQuestion = (q: string) => {
-    setQuestion(q);
-    setError(undefined);
-    startTransition(async () => {
-      try {
-        setAnswer(
-          await chatAtBooth(
-            { baseUrl: getApiBaseUrl() },
-            publicQrToken,
-            q,
-          ),
-        );
-      } catch {
-        setError(
-          "The AI assistant could not answer right now. You can still review the published resources.",
-        );
-      }
-    });
-  };
+
   return (
-    <section
-      aria-labelledby="assistant-heading"
-      className="space-y-4 rounded-xl bg-brand-subtle p-5"
-    >
+    <section className="space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
       <div>
-        <h2 className="text-title font-semibold text-primary" id="assistant-heading">
-          {companyName} AI Assistant
-        </h2>
-        <p className="mt-1 text-body text-secondary">
-          Ask anything about this exhibitor&rsquo;s products, services, and booth details.
-        </p>
+        <h3 className="text-sm font-semibold text-gray-900">AI Assistant</h3>
+        <p className="text-xs text-gray-500">Ask about {companyName}'s products and services</p>
       </div>
-      <div className="flex flex-wrap gap-2">
+
+      <div className="space-y-3 max-h-64 overflow-y-auto">
+        {history.length === 0 && (
+          <div className="text-center py-4">
+            <p className="text-xs text-gray-500">Try one of these questions:</p>
+          </div>
+        )}
+        {history.map((item, i) => (
+          <div key={i} className="space-y-2">
+            <div className="flex justify-end">
+              <span className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white">
+                {item.q}
+              </span>
+            </div>
+            {item.a && (
+              <div className="flex justify-start">
+                <span className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 whitespace-pre-wrap">
+                  {item.a}
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+        {pending && (
+          <div className="flex justify-start">
+            <span className="rounded-lg border border-gray-200 bg-white px-3 py-2">
+              <TypingIndicator />
+            </span>
+          </div>
+        )}
+        <div ref={chatEndRef} />
+      </div>
+
+      <div className="flex flex-wrap gap-1.5">
         {suggestions.map((s) => (
           <button
             key={s}
             type="button"
             disabled={pending}
-            onClick={() => askQuestion(s)}
-            className="rounded-lg border border-brand/20 bg-white px-3 py-1.5 text-body-sm text-brand transition-colors hover:bg-brand hover:text-on-brand disabled:opacity-50"
+            onClick={() => submit(s)}
+            className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 transition-colors hover:border-blue-300 hover:text-blue-600 disabled:opacity-50"
           >
             {s}
           </button>
         ))}
       </div>
-      <form className="flex gap-2" onSubmit={submit}>
+
+      <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); submit(question); }}>
         <Input
-          aria-label="Question for the company AI"
-          maxLength={1000}
-          name="question"
-          placeholder="Ask a question..."
-          required
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Ask a question..."
+          className="flex-1"
+          disabled={pending}
         />
-        <Button disabled={pending} type="submit">
-          {pending ? "Asking\u2026" : "Ask"}
+        <Button type="submit" disabled={pending || !question.trim()}>
+          {pending ? <TypingIndicator /> : "Ask"}
         </Button>
       </form>
-      {error ? (
-        <p className="text-body-sm text-status-danger-text" role="alert">
-          {error}
-        </p>
-      ) : null}
-      {answer ? (
-        <div
-          aria-live="polite"
-          className="rounded-sm border border-default bg-surface p-4"
-        >
-          <p className="whitespace-pre-wrap text-body text-primary">
-            {answer.answer}
-          </p>
-          {answer.citations.length ? (
-            <ul className="mt-3 space-y-1 border-t border-default pt-3 text-body-sm text-muted">
-              {answer.citations.map((citation) => (
-                <li key={`${citation.marker}-${citation.documentId}`}>
-                  {citation.marker} \u2014 {citation.title}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      ) : null}
+
+      {error && (
+        <p className="text-xs text-red-600">{error}</p>
+      )}
     </section>
   );
 }
 
-function Landing({
-  booth,
-  onConnect,
-}: {
-  booth: PublicBooth;
-  onConnect: () => void;
-}) {
+function Landing({ booth, onConnect }: { booth: PublicBooth; onConnect: () => void }) {
   return (
-    <section className="space-y-4">
-      <p className="text-body-lg text-secondary">
-        Connect to share your details and receive recommendations from{" "}
-        {booth.companyName}.
+    <section className="space-y-4 border-t border-gray-100 pt-4">
+      <p className="text-sm text-gray-600">
+        Connect with <strong>{booth.companyName}</strong> to receive personalized information and follow-ups.
       </p>
-      <Button className="min-h-11 w-full" onClick={onConnect}>
-        Connect with this exhibitor
+      <Button onClick={onConnect} className="w-full">
+        Connect with Exhibitor
       </Button>
     </section>
   );
 }
 
-function EmailStep({
-  error,
-  onSubmit,
-  pending,
-}: {
-  error?: string;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  pending: boolean;
-}) {
+function EmailStep({ error, onSubmit, pending }: { error?: string; onSubmit: (e: FormEvent<HTMLFormElement>) => void; pending: boolean }) {
   return (
-    <section aria-labelledby="connect-heading" className="space-y-4">
+    <section className="space-y-4 border-t border-gray-100 pt-4">
       <div>
-        <h2 className="text-title font-semibold" id="connect-heading">
-          Connect with this exhibitor
-        </h2>
-        <p className="mt-1 text-body text-secondary">
-          Enter your email and we&rsquo;ll send a secure Magic Link.
-        </p>
+        <h3 className="text-sm font-semibold text-gray-900">Connect with this exhibitor</h3>
+        <p className="text-xs text-gray-500">Enter your email for a secure magic link</p>
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
-        <label
-          className="block space-y-1 text-body font-medium"
-          htmlFor="email"
-        >
-          Email
-          <Input
-            autoComplete="email"
-            id="email"
-            name="email"
-            required
-            type="email"
-          />
-        </label>
-        {error ? (
-          <p className="text-body-sm text-status-danger-text" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <Button className="min-h-11 w-full" disabled={pending} type="submit">
-          {pending ? "Sending…" : "Send Magic Link"}
+        <label className="block text-xs font-medium text-gray-700">Work email</label>
+        <Input type="email" name="email" required autoComplete="email" />
+        {error && <p className="text-xs text-red-600">{error}</p>}
+        <Button type="submit" disabled={pending} className="w-full">
+          {pending ? "Sending..." : "Send Magic Link"}
         </Button>
       </form>
     </section>
@@ -493,212 +431,115 @@ function EmailStep({
 
 function MagicLinkSent({ onBack }: { onBack: () => void }) {
   return (
-    <section aria-live="polite" className="space-y-4">
-      <h2 className="text-title font-semibold">Check your email</h2>
-      <p className="text-body text-secondary">
-        Open the Magic Link to securely connect with this exhibitor.
-      </p>
-      <Button onClick={onBack} variant="ghost">
+    <section className="space-y-4 border-t border-gray-100 pt-4 text-center">
+      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-green-100">
+        <svg className="size-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+          <path strokeWidth="2" d="M3 8l3 3 7-7" />
+        </svg>
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900">Check your email</h3>
+        <p className="mt-1 text-xs text-gray-500">Open the magic link to securely connect</p>
+      </div>
+      <Button variant="ghost" onClick={onBack} className="w-full">
         Use a different email
       </Button>
     </section>
   );
 }
 
-function ProfileStep({
-  companyName,
-  error,
-  onSubmit,
-  pending,
-}: {
-  companyName: string;
-  error?: string;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  pending: boolean;
-}) {
+function ProfileStep({ companyName, error, onSubmit, pending }: { companyName: string; error?: string; onSubmit: (e: FormEvent<HTMLFormElement>) => void; pending: boolean }) {
   return (
-    <section aria-labelledby="profile-heading" className="space-y-4">
+    <section className="space-y-4 border-t border-gray-100 pt-4">
       <div>
-        <h2 className="text-title font-semibold" id="profile-heading">
-          Complete your profile
-        </h2>
-        <p className="mt-1 text-body text-secondary">
-          Review what you want to share before continuing.
-        </p>
+        <h3 className="text-sm font-semibold text-gray-900">Complete your profile</h3>
+        <p className="text-xs text-gray-500">Review what you share before connecting</p>
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
-        <ProfileField label="Name" name="fullName" />
-        <ProfileField label="Company" name="company" />
-        <ProfileField label="Job title" name="jobTitle" />
-        <label className="flex items-start gap-3 rounded-sm border border-default p-3 text-body text-secondary">
-          <input
-            className="mt-1 h-4 w-4"
-            name="shareProfileWithExhibitors"
-            type="checkbox"
-          />
-          <span>
-            Share my professional profile with {companyName}. You stay in
-            control of what you share.
-          </span>
+        <div>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Full name</label>
+          <Input name="fullName" required />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Company</label>
+          <Input name="company" required />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Job title</label>
+          <Input name="jobTitle" required />
+        </div>
+        <label className="flex items-start gap-2 text-xs text-gray-600">
+          <input type="checkbox" name="shareProfileWithExhibitors" defaultChecked className="mt-0.5" />
+          <span>Share my profile with {companyName}</span>
         </label>
-        {error ? (
-          <p className="text-body-sm text-status-danger-text" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <Button className="min-h-11 w-full" disabled={pending} type="submit">
-          {pending ? "Saving…" : "Continue"}
+        {error && <p className="text-xs text-red-600">{error}</p>}
+        <Button type="submit" disabled={pending} className="w-full">
+          {pending ? "Saving..." : "Continue"}
         </Button>
       </form>
     </section>
   );
 }
 
-function ProfileField({ label, name }: { label: string; name: string }) {
-  return (
-    <label className="block space-y-1 text-body font-medium">
-      {label}
-      <Input name={name} required />
-    </label>
-  );
-}
-
-function LeadFormStep({
-  booth,
-  error,
-  onSubmit,
-  pending,
-}: {
-  booth: PublicBooth;
-  error?: string;
-  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  pending: boolean;
-}) {
+function LeadFormStep({ booth, error, onSubmit, pending }: { booth: PublicBooth; error?: string; onSubmit: (e: FormEvent<HTMLFormElement>) => void; pending: boolean }) {
   const form = booth.leadForm!;
   return (
-    <section aria-labelledby="lead-form-heading" className="space-y-4">
+    <section className="space-y-4 border-t border-gray-100 pt-4">
       <div>
-        <h2 className="text-title font-semibold" id="lead-form-heading">
-          {form.name}
-        </h2>
-        {form.description ? (
-          <p className="mt-1 text-body text-secondary">{form.description}</p>
-        ) : null}
+        <h3 className="text-sm font-semibold text-gray-900">{form.name}</h3>
+        {form.description && <p className="text-xs text-gray-500">{form.description}</p>}
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
         {form.fields.map((field) => (
-          <LeadField field={field} key={field.key} />
+          <div key={field.key}>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              {field.label} {field.required && "*"}
+            </label>
+            {field.type === "multiline_text" ? (
+              <textarea name={field.key} required={field.required} rows={3} className="w-full rounded-lg border border-gray-200 p-2 text-sm" placeholder={field.placeholder ?? undefined} />
+            ) : (
+              <Input name={field.key} type={field.type === "email" ? "email" : "text"} required={field.required} placeholder={field.placeholder ?? undefined} />
+            )}
+          </div>
         ))}
-        {form.consentText ? (
-          <p className="text-body-sm text-secondary">{form.consentText}</p>
-        ) : null}
-        {booth.privacyPolicyUrl ? (
-          <a
-            className="text-body-sm text-link underline"
-            href={booth.privacyPolicyUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Privacy policy
-          </a>
-        ) : null}
-        {error ? (
-          <p className="text-body-sm text-status-danger-text" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <Button className="min-h-11 w-full" disabled={pending} type="submit">
-          {pending ? "Submitting…" : "Submit information"}
+        {form.consentText && <p className="text-xs text-gray-500">{form.consentText}</p>}
+        {error && <p className="text-xs text-red-600">{error}</p>}
+        <Button type="submit" disabled={pending} className="w-full">
+          {pending ? "Submitting..." : "Submit"}
         </Button>
       </form>
     </section>
   );
 }
 
-function LeadField({
-  field,
-}: {
-  field: NonNullable<PublicBooth["leadForm"]>["fields"][number];
-}) {
-  if (["checkbox", "consent_checkbox"].includes(field.type))
-    return (
-      <label className="flex items-start gap-3 rounded-sm border border-default p-3 text-body text-secondary">
-        <input
-          className="mt-1 h-4 w-4"
-          name={field.key}
-          required={field.required}
-          type="checkbox"
-        />
-        <span>
-          {field.label}
-          {field.required ? " *" : ""}
-          {field.helpText ? (
-            <small className="block">{field.helpText}</small>
-          ) : null}
-        </span>
-      </label>
-    );
-  const inputType =
-    field.type === "email" ? "email" : field.type === "phone" ? "tel" : "text";
+function Success({ booth, recommendations }: { booth: PublicBooth; recommendations: Recommendation[] }) {
   return (
-    <label className="block space-y-1 text-body font-medium">
-      {field.label}
-      {field.required ? " *" : ""}
-      {field.type === "multiline_text" ? (
-        <textarea
-          className="min-h-24 w-full rounded-sm border border-default bg-surface p-3"
-          maxLength={2000}
-          name={field.key}
-          placeholder={field.placeholder ?? undefined}
-          required={field.required}
-        />
-      ) : (
-        <Input
-          name={field.key}
-          placeholder={field.placeholder ?? undefined}
-          required={field.required}
-          type={inputType}
-        />
-      )}
-      {field.helpText ? (
-        <small className="block text-secondary">{field.helpText}</small>
-      ) : null}
-    </label>
-  );
-}
-
-function Success({
-  booth,
-  recommendations,
-}: {
-  booth: PublicBooth;
-  recommendations: Recommendation[];
-}) {
-  return (
-    <section aria-live="polite" className="space-y-4">
-      <StatusBadge tone="success">Submitted</StatusBadge>
-      <h2 className="text-title font-semibold">You&rsquo;re connected!</h2>
-      <p className="text-body text-secondary">
-        Your information was received by {booth.companyName}.
-      </p>
-      {recommendations.length ? (
-        <div>
-          <h3 className="text-title-sm font-semibold">Recommended next</h3>
-          <ul className="mt-2 space-y-2">
-            {recommendations.map((item) => (
-              <li
-                className="rounded-sm border border-default p-3"
-                key={item.title}
-              >
-                <p className="font-medium">{item.title}</p>
-                <p className="text-body-sm text-secondary">{item.reason}</p>
+    <section className="space-y-4 border-t border-gray-100 pt-4 text-center">
+      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-green-100">
+        <svg className="size-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+          <path strokeWidth="2" d="M3 8l3 3 7-7" />
+        </svg>
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold text-gray-900">You&apos;re connected!</h3>
+        <p className="mt-1 text-xs text-gray-500">Your information was sent to {booth.companyName}</p>
+      </div>
+      {recommendations.length > 0 && (
+        <div className="text-left rounded-lg border border-gray-100 bg-gray-50 p-3">
+          <p className="text-xs font-medium text-gray-900">Recommended next</p>
+          <ul className="mt-2 space-y-1">
+            {recommendations.map((r) => (
+              <li key={r.title} className="text-xs text-gray-600">
+                • {r.title}
               </li>
             ))}
           </ul>
         </div>
-      ) : null}
-      <Link href={`/e/${booth.eventSlug}`}>
-        <Button className="min-h-11 w-full">Browse all exhibitors</Button>
+      )}
+      <Link href="/hackathon" className="block">
+        <Button variant="secondary" className="w-full">
+          Back to Exhibition
+        </Button>
       </Link>
     </section>
   );

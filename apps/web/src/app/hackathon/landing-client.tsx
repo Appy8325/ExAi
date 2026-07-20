@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 import type { ShowcaseExhibitor } from "@concourse/api-client";
 
 const industryGradients: Record<string, string> = {
-  Technology: "from-blue-600 to-indigo-600",
-  "Semiconductors & AI": "from-green-600 to-emerald-600",
+  Technology: "from-blue-600 to-indigo-700",
+  "Semiconductors & AI": "from-green-600 to-emerald-700",
   "Networking & Security": "from-cyan-500 to-teal-600",
   "Technology & Consulting": "from-indigo-500 to-purple-600",
   Semiconductors: "from-amber-500 to-orange-600",
@@ -20,467 +21,337 @@ function getGradient(industry: string): string {
   return industryGradients[industry] ?? "from-brand/60 to-brand/40";
 }
 
-function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const [display, setDisplay] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const started = useRef(false);
+function AnimatedCounter({ end, suffix = "" }: { end: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-    const duration = 1500;
-    const start = performance.now();
-    const step = (now: number) => {
-      const elapsed = now - start;
+    if (started) return;
+    setStarted(true);
+    const duration = 2000;
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplay(Math.floor(eased * value));
-      if (progress < 1) requestAnimationFrame(step);
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setCount(Math.floor(eased * end));
+      if (progress < 1) requestAnimationFrame(animate);
     };
-    requestAnimationFrame(step);
-  }, [value]);
+
+    requestAnimationFrame(animate);
+  }, [end, started]);
 
   return (
-    <span ref={ref}>
-      {display}{suffix}
+    <span>
+      {count.toLocaleString()}
+      {suffix}
     </span>
   );
 }
 
 const JOURNEY_STEPS = [
-  { step: 1, title: "Enter the Exhibition", description: "Scan the event QR to access the exhibition hall." },
-  { step: 2, title: "Explore an Exhibitor", description: "Browse booths by industry, name, or keyword search." },
-  { step: 3, title: "Ask the AI Assistant", description: "Chat with the AI at any booth about products and services." },
-  { step: 4, title: "Submit a Lead", description: "Share your details to receive tailored follow-ups." },
-  { step: 5, title: "Experience AI", description: "Get personalized recommendations based on your interests." },
+  { icon: "🚪", title: "Enter the Exhibition", desc: "Scan QR or tap to begin" },
+  { icon: "🔍", title: "Explore an Exhibitor", desc: "Browse real companies" },
+  { icon: "🤖", title: "Ask the AI Assistant", desc: "Get answers about products" },
+  { icon: "📝", title: "Submit a Lead", desc: "Connect with exhibitors" },
+  { icon: "✨", title: "Experience AI", desc: "See the future of events" },
 ];
+
+function EventQR() {
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="relative overflow-hidden rounded-2xl border border-default bg-white p-3 shadow-xl">
+        <Image
+          src="/qr/hackathon-event.png"
+          alt="TechExpo 2027 Event QR Code"
+          width={200}
+          height={200}
+          className="rounded-lg"
+          unoptimized
+        />
+        <div className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-on-brand shadow-lg">
+          E
+        </div>
+      </div>
+      <p className="mt-3 text-xs text-muted">Scan to enter TechExpo 2027</p>
+    </div>
+  );
+}
 
 function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-default bg-surface shadow-1 transition-all duration-300 hover:shadow-premium hover:-translate-y-1">
-      <div
-        className={`h-28 bg-gradient-to-br ${getGradient(exhibitor.industry)} p-5`}
-      >
-        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 text-xl font-bold text-white shadow-sm backdrop-blur-sm">
-          {exhibitor.companyName.charAt(0)}
+    <Link
+      href={exhibitor.publicQrToken ? `/visit/${exhibitor.publicQrToken}` : "#"}
+      className="group relative block overflow-hidden rounded-2xl border border-default bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+    >
+      <div className={`h-24 bg-gradient-to-br ${getGradient(exhibitor.industry)} p-4`}>
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+          <span className="text-lg font-bold text-white">
+            {exhibitor.companyName.charAt(0)}
+          </span>
         </div>
       </div>
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-3">
+
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-lg font-semibold text-primary">
+            <h3 className="truncate text-base font-semibold text-primary">
               {exhibitor.companyName}
             </h3>
-            <p className="mt-0.5 text-sm text-muted">
-              Booth {exhibitor.boothNumber ?? "\u2014"}
+            <p className="mt-0.5 text-xs text-gray-500">
+              Booth {exhibitor.boothNumber ?? "—"}
             </p>
           </div>
-          <span className="shrink-0 rounded-full border border-default bg-sunken/60 px-2.5 py-1 text-[11px] font-medium text-secondary">
+          <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
             {exhibitor.industry}
           </span>
         </div>
-        <p className="mt-3 line-clamp-2 text-sm text-secondary leading-relaxed">
+
+        <p className="mt-2 line-clamp-2 text-sm text-gray-600 leading-relaxed">
           {exhibitor.tagline}
         </p>
+
         {exhibitor.products && exhibitor.products.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {exhibitor.products.slice(0, 3).map((product) => (
-              <span key={product} className="rounded-full border border-default bg-sunken/40 px-2 py-0.5 text-[10px] text-secondary">
-                {product}
+          <div className="mt-3 flex flex-wrap gap-1">
+            {exhibitor.products.slice(0, 4).map((p) => (
+              <span
+                key={p}
+                className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600"
+              >
+                {p}
               </span>
             ))}
-            {exhibitor.products.length > 3 && (
-              <span className="text-[10px] text-muted">+{exhibitor.products.length - 3} more</span>
-            )}
           </div>
         )}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {exhibitor.publicQrToken ? (
-            <Link
-              href={`/visit/${exhibitor.publicQrToken}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand-subtle px-3.5 py-2 text-sm font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
-            >
-              <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M8 3v10M3 8h10" />
-              </svg>
-              Visit Booth
-            </Link>
-          ) : null}
 
-          {exhibitor.publicQrToken ? (
-            <Link
-              href={`/visit/${exhibitor.publicQrToken}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
-            >
-              <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="8" cy="8" r="6" />
-                <path d="M8 5v3l2 2" />
-              </svg>
-              Ask AI
-            </Link>
-          ) : null}
-
-          <a
-            href={exhibitor.website || `https://${exhibitor.companyName.toLowerCase().replace(/[^a-z0-9]/g, "")}.com`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
-          >
-            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 2h8v8M8 8l6-6M2 8v6h6" />
+        <div className="mt-4 flex items-center gap-2">
+          <span className="flex-1 rounded-lg bg-brand px-3 py-2 text-center text-xs font-semibold text-white shadow-sm transition-colors group-hover:bg-brand-hover">
+            Visit Booth
+          </span>
+          <span className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-colors group-hover:border-brand group-hover:text-brand">
+            <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6" strokeWidth="1.5" />
+              <path d="M8 5v3l2 2" strokeWidth="1.5" />
             </svg>
-            Website
-          </a>
+            Ask AI
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
 export function HackathonLandingClient({
   exhibitors,
   count,
-  industries,
 }: {
   exhibitors: ShowcaseExhibitor[];
   count: number;
-  industries: string[];
 }) {
+  const [heroVisible, setHeroVisible] = useState(false);
+  const exhibitionRef = useRef<HTMLDivElement | null>(null);
   const [search, setSearch] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
-  const [heroVisible, setHeroVisible] = useState(false);
-  const exhibitionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setHeroVisible(true), 50);
+    const timer = setTimeout(() => setHeroVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
-
-  const filtered = exhibitors.filter((e) => {
-    const matchSearch =
-      !search ||
-      e.companyName.toLowerCase().includes(search.toLowerCase()) ||
-      e.industry.toLowerCase().includes(search.toLowerCase()) ||
-      e.tagline.toLowerCase().includes(search.toLowerCase());
-    const matchIndustry = !selectedIndustry || e.industry === selectedIndustry;
-    return matchSearch && matchIndustry;
-  });
-
-  const displayList = search || selectedIndustry ? filtered : exhibitors;
-  const isFiltered = Boolean(search || selectedIndustry);
 
   const scrollToExhibition = () => {
     exhibitionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const filtered = exhibitors.filter((e) => {
+    const matchSearch =
+      !search ||
+      e.companyName.toLowerCase().includes(search.toLowerCase()) ||
+      e.industry.toLowerCase().includes(search.toLowerCase());
+    const matchIndustry = !selectedIndustry || e.industry === selectedIndustry;
+    return matchSearch && matchIndustry;
+  });
+
+  const industries = [...new Set(exhibitors.map((e) => e.industry))].sort();
+  const isFiltered = Boolean(search || selectedIndustry);
+
   return (
-    <div className="relative">
+    <div className="min-h-screen bg-white">
       <section
-        className={`relative min-h-[85vh] flex flex-col items-center justify-center px-6 text-center transition-all duration-700 ${
-          heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+        className={`relative min-h-screen flex flex-col items-center justify-center px-6 py-16 transition-all duration-1000 ${
+          heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         }`}
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-brand/[0.07] via-brand/[0.03] to-transparent"
-        />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50 via-white to-white" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }} />
 
-        <svg
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10 size-full opacity-[0.04]"
-          width="100%"
-          height="100%"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <pattern id="hero-grid" width="64" height="64" patternUnits="userSpaceOnUse">
-              <path d="M 64 0 L 0 0 0 64" fill="none" stroke="currentColor" strokeWidth="0.5" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#hero-grid)" />
-        </svg>
-
-        <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
-          <span className="size-1.5 rounded-full bg-brand animate-pulse" />
-          TechExpo 2027
-        </span>
-
-        <h1 className="mt-8 text-5xl font-bold tracking-tight text-primary sm:text-6xl lg:text-7xl">
-          TechExpo{" "}
-          <span className="bg-gradient-to-r from-brand to-violet-400 bg-clip-text text-transparent">
-            2027
-          </span>
-        </h1>
-
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-secondary leading-relaxed sm:text-xl">
-          Experience the Future of AI-Powered Trade Shows
-        </p>
-
-        <p className="mx-auto mt-4 max-w-xl text-sm text-muted leading-relaxed">
-          Discover how AI transforms organizer, exhibitor and attendee engagement.
-        </p>
-
-        <button
-          type="button"
-          onClick={scrollToExhibition}
-          className="mt-10 inline-flex h-14 items-center gap-3 rounded-2xl bg-brand px-10 text-base font-semibold text-on-brand shadow-premium transition-all duration-300 hover:bg-brand-hover hover:shadow-2 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          Enter Exhibition
-          <svg className="size-5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M8 3v10M3 8l5 5 5-5" />
-          </svg>
-        </button>
-
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted">
-          <span className="inline-flex items-center gap-1.5">
-            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M8 1C5.2 1 3 3.2 3 6c0 3.5 5 9 5 9s5-5.5 5-9c0-2.8-2.2-5-5-5z" />
-              <circle cx="8" cy="6" r="2" />
-            </svg>
-            Moscone Center, San Francisco
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <rect x="1" y="2" width="14" height="12" rx="2" />
-              <path d="M1 6h14" />
-              <path d="M5 1v3M11 1v3" />
-            </svg>
-            September 2027
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <rect x="3" y="3" width="10" height="10" rx="2" />
-              <path d="M5 7h6M5 9h4" />
-            </svg>
-            {count} Featured Exhibitors
-          </span>
-        </div>
-
-        <div className="mt-16 w-full max-w-3xl">
-          <div className="mb-6 text-center">
-            <span className="text-2xl">👋</span>
-            <h2 className="mt-2 text-xl font-semibold text-primary">Welcome to TechExpo 2027</h2>
-            <p className="mt-1 text-sm text-secondary">New here? Follow this journey.</p>
+        <div className="relative z-10 flex max-w-6xl flex-col items-center">
+          <div className="mb-8">
+            <EventQR />
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
-            {JOURNEY_STEPS.map((item) => (
-              <div key={item.step} className="rounded-xl border border-default/50 bg-surface/60 p-4 text-center backdrop-blur-sm transition-all hover:border-brand/30 hover:shadow-sm">
-                <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-brand text-sm font-bold text-on-brand">
-                  {item.step}
-                </span>
-                <p className="mt-2 text-sm font-medium text-primary">{item.title}</p>
-                <p className="mt-1 text-xs text-muted leading-relaxed">{item.description}</p>
+
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-xs font-semibold text-blue-600">
+            <span className="size-1.5 rounded-full bg-blue-500 animate-pulse" />
+            Live Event • September 2027
+          </span>
+
+          <h1 className="text-center text-5xl font-bold tracking-tight text-primary sm:text-6xl lg:text-7xl">
+            TechExpo{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+              2027
+            </span>
+          </h1>
+
+          <p className="mt-6 max-w-xl text-center text-xl text-gray-600 leading-relaxed">
+            Experience the Future of AI-Powered Trade Shows
+          </p>
+
+          <p className="mt-3 max-w-lg text-center text-sm text-gray-500 leading-relaxed">
+            A live demonstration of AI-powered attendee engagement
+          </p>
+
+          <button
+            type="button"
+            onClick={scrollToExhibition}
+            className="mt-10 inline-flex h-14 items-center gap-3 rounded-2xl bg-gray-900 px-10 text-base font-semibold text-white shadow-xl transition-all duration-300 hover:bg-gray-800 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
+          >
+            Enter Exhibition
+            <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+              <path strokeWidth="2" d="M8 3v10M3 8l5 5 5-5" />
+            </svg>
+          </button>
+
+          <div className="mt-16 w-full max-w-3xl">
+            <div className="text-center">
+              <span className="text-3xl">👋</span>
+              <h2 className="mt-2 text-xl font-semibold text-primary">
+                Welcome to TechExpo 2027
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">New here? Follow this journey.</p>
+            </div>
+
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-5">
+              {JOURNEY_STEPS.map((step, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm transition-all hover:border-blue-200 hover:shadow-md"
+                >
+                  <span className="text-2xl">{step.icon}</span>
+                  <p className="mt-2 text-xs font-semibold text-primary">{step.title}</p>
+                  <p className="mt-1 text-xs text-gray-500">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-6 text-center text-sm text-gray-500">
+              <span className="font-medium text-gray-700">Estimated time:</span> 2–3 minutes
+            </p>
+          </div>
+
+          <div className="mt-16 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
+            {[
+              { icon: "📍", label: "Moscone Center", sub: "San Francisco" },
+              { icon: "📅", label: "September 2027", sub: "" },
+              { icon: "🏢", label: <><AnimatedCounter end={10} /><span className="ml-1">Exhibitors</span></>, sub: "" },
+              { icon: "👥", label: <><AnimatedCounter end={18500} suffix="+" /><span className="ml-1">Attendees</span></>, sub: "(Demo)" },
+              { icon: "🤖", label: "AI at Every", sub: "Booth" },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <span className="text-xl">{item.icon}</span>
+                <p className="mt-1 text-sm font-semibold text-primary">
+                  {typeof item.label === 'object' ? item.label : item.label}
+                </p>
+                <p className="text-xs text-gray-500">{item.sub}</p>
               </div>
             ))}
           </div>
-          <p className="mt-6 text-center text-sm text-muted">
-            <span className="font-medium">Estimated time:</span> 2–3 minutes
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={scrollToExhibition}
-          className="mt-10 inline-flex h-14 items-center gap-3 rounded-2xl bg-brand px-10 text-base font-semibold text-on-brand shadow-premium transition-all duration-300 hover:bg-brand-hover hover:shadow-2 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          Enter Exhibition
-          <svg className="size-5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M8 3v10M3 8l5 5 5-5" />
-          </svg>
-        </button>
-
-        <div className="mt-16 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted">
-          <span className="inline-flex items-center gap-1.5">
-            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M8 1C5.2 1 3 3.2 3 6c0 3.5 5 9 5 9s5-5.5 5-9c0-2.8-2.2-5-5-5z" />
-              <circle cx="8" cy="6" r="2" />
-            </svg>
-            Moscone Center, San Francisco
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <rect x="1" y="2" width="14" height="12" rx="2" />
-              <path d="M1 6h14" />
-              <path d="M5 1v3M11 1v3" />
-            </svg>
-            September 2027
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <rect x="3" y="3" width="10" height="10" rx="2" />
-              <path d="M5 7h6M5 9h4" />
-            </svg>
-            {count} Featured Exhibitors
-          </span>
         </div>
       </section>
 
-      <section className="border-t border-default/50 bg-sunken/40">
-        <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 sm:py-16">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            <div className="rounded-xl border border-default bg-surface p-4 text-center">
-              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={count} /></p>
-              <p className="mt-1 text-xs text-muted">Featured Exhibitors</p>
-            </div>
-            <div className="rounded-xl border border-default bg-surface p-4 text-center">
-              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={18500} suffix="+" /></p>
-              <p className="mt-1 text-xs text-muted">Attendees</p>
-            </div>
-            <div className="rounded-xl border border-default bg-surface p-4 text-center">
-              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={25} /></p>
-              <p className="mt-1 text-xs text-muted">Countries Represented</p>
-            </div>
-            <div className="rounded-xl border border-default bg-surface p-4 text-center">
-              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={10} /></p>
-              <p className="mt-1 text-xs text-muted">AI Assistants</p>
-            </div>
-            <div className="rounded-xl border border-default bg-surface p-4 text-center sm:col-span-3 lg:col-span-1">
-              <p className="text-2xl font-bold text-primary"><AnimatedNumber value={80} suffix="+" /></p>
-              <p className="mt-1 text-xs text-muted">Sessions</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section ref={exhibitionRef} className="scroll-mt-16">
-        <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 sm:py-20">
-          <div className="flex flex-col items-center text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
-              Explore the Expo
-            </span>
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-primary sm:text-4xl">
-              Featured Technologies
-            </h2>
-            <p className="mt-3 max-w-xl text-sm text-secondary">
-              Discover groundbreaking innovations from industry-leading
-              technology companies.
+      <section
+        ref={exhibitionRef}
+        className="scroll-mt-8 border-t border-default bg-sunken py-16"
+      >
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-primary">Featured Exhibitors</h2>
+            <p className="mt-2 text-gray-600">
+              Discover groundbreaking innovations from industry leaders
             </p>
           </div>
 
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <svg
-                className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted"
-                viewBox="0 0 16 16"
+                className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-gray-400"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                viewBox="0 0 16 16"
               >
-                <circle cx="6.5" cy="6.5" r="4.5" />
-                <path d="M10 10l4 4" />
+                <circle cx="7" cy="7" r="5" strokeWidth="2" />
+                <path strokeWidth="2" d="M11 11l4 4" />
               </svg>
               <input
                 type="text"
-                placeholder="Search exhibitors, industries, keywords..."
+                placeholder="Search companies..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-xl border border-default bg-surface py-3 pl-10 pr-4 text-sm text-primary placeholder-muted outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
+                className="w-full rounded-xl border border-gray-200 bg-white py-3 pl-11 pr-4 text-sm text-primary placeholder-gray-400 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedIndustry(null)}
+                className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-all ${
+                  !selectedIndustry
+                    ? "border-blue-500 bg-blue-500 text-white"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                All
+              </button>
               {industries.map((ind) => (
                 <button
                   key={ind}
                   type="button"
-                  onClick={() =>
-                    setSelectedIndustry(selectedIndustry === ind ? null : ind)
-                  }
-                  className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all ${
+                  onClick={() => setSelectedIndustry(selectedIndustry === ind ? null : ind)}
+                  className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-all ${
                     selectedIndustry === ind
-                      ? "border-brand bg-brand text-on-brand shadow-1"
-                      : "border-default bg-surface text-secondary hover:border-brand/50 hover:text-brand"
+                      ? "border-blue-500 bg-blue-500 text-white"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
                   }`}
                 >
                   {ind}
                 </button>
               ))}
-              {isFiltered && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearch("");
-                    setSelectedIndustry(null);
-                  }}
-                  className="rounded-full border border-default bg-surface px-3.5 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-sunken hover:text-primary"
-                >
-                  Clear
-                </button>
-              )}
             </div>
           </div>
 
-          <div className="mt-2 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-primary">
-              {isFiltered ? "Results" : "Today's Highlights"}
-            </h3>
-            {!isFiltered && (
-              <Link
-                href="/hackathon/expo"
-                className="text-sm font-medium text-brand transition-colors hover:text-brand-hover"
-              >
-                View Full Exhibition &rarr;
-              </Link>
-            )}
+          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {(isFiltered ? filtered : exhibitors).map((exhibitor) => (
+              <ExhibitorCard key={exhibitor.id} exhibitor={exhibitor} />
+            ))}
           </div>
 
-          {displayList.length === 0 ? (
-            <div className="mt-8 rounded-2xl border border-dashed border-default p-12 text-center">
-              <p className="text-sm text-secondary">
-                No exhibitors match your search.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {displayList.map((exhibitor) => (
-                <ExhibitorCard key={exhibitor.id} exhibitor={exhibitor} />
-              ))}
-            </div>
-          )}
-
-          {!isFiltered && (
+          {filtered.length === 0 && (
             <div className="mt-12 text-center">
-              <Link
-                href="/hackathon/expo"
-                className="inline-flex h-12 items-center gap-2 rounded-xl border border-default bg-surface px-8 text-sm font-medium text-secondary transition-all duration-200 hover:bg-sunken hover:text-primary hover:border-brand/30"
-              >
-                Explore All {count} Exhibitors
-                <svg className="size-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M6 4l4 4-4 4" />
-                </svg>
-              </Link>
+              <p className="text-gray-500">No exhibitors found matching your search.</p>
             </div>
           )}
         </div>
       </section>
 
-      <section className="border-t border-default/50 bg-gradient-to-b from-transparent to-brand/[0.02]">
-        <div className="mx-auto max-w-7xl px-6 py-16 sm:px-10 sm:py-24">
-          <div className="mx-auto max-w-2xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
-              AI Discovery
-            </span>
-            <h2 className="mt-4 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-              Every Booth Has an AI Assistant
-            </h2>
-            <p className="mt-3 text-sm text-secondary leading-relaxed">
-              Ask questions about any exhibitor&rsquo;s products, services, and
-              technology. Our AI answers are grounded in factual company
-              information — nothing is fabricated.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <span className="rounded-lg border border-default bg-surface px-4 py-2 text-xs text-secondary">
-                What are your flagship products?
-              </span>
-              <span className="rounded-lg border border-default bg-surface px-4 py-2 text-xs text-secondary">
-                Which industries do you serve?
-              </span>
-              <span className="rounded-lg border border-default bg-surface px-4 py-2 text-xs text-secondary">
-                What makes your solution different?
-              </span>
-            </div>
-          </div>
+      <footer className="border-t border-gray-200 bg-white py-8">
+        <div className="mx-auto max-w-7xl px-6 text-center">
+          <p className="text-sm text-gray-500">
+            TechExpo 2027 • Powered by ExAi • No sign-up required
+          </p>
         </div>
-      </section>
+      </footer>
     </div>
   );
 }
