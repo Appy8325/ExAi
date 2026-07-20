@@ -27,155 +27,269 @@ export default async function DemoPage() {
   const relationships = overview?.relationships ?? [];
 
   return (
-    <main className="min-h-screen bg-canvas text-primary">
-      <header className="sticky top-0 z-40 border-b border-default/50 bg-canvas/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 sm:px-10">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">
-              E
-            </span>
-            <span className="text-base font-semibold tracking-tight">
-              ExAi
-            </span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/hackathon/expo"
-              className="rounded-lg border border-brand/30 bg-brand-subtle px-3 py-1.5 text-xs font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
-            >
-              Hackathon Expo
-            </Link>
-            <span className="rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
-              Read-only demo
-            </span>
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 sm:py-16">
-        <div className="space-y-3 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+    <main className="min-h-screen bg-canvas">
+      <div className="mx-auto max-w-7xl px-6 pt-16 sm:px-10 sm:pt-24">
+        <div className="mx-auto max-w-3xl space-y-4 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
+            <span className="inline-block size-1.5 rounded-full bg-brand" />
+            ExAi product tour
+          </span>
+          <h1 className="text-balance text-4xl font-bold tracking-tight text-primary sm:text-5xl">
             Experience ExAi
           </h1>
-          <p className="mx-auto max-w-2xl text-base text-secondary">
-            Explore the platform from the perspective of each user. Every page is
-            read-only and requires no login.
+          <p className="mx-auto max-w-2xl text-base text-secondary sm:text-lg">
+            Explore the platform from each perspective. Every page is read-only,
+            powered by seeded demo data, and requires no login or editing.
           </p>
+        </div>
+
+        <div className="mx-auto mt-4 grid max-w-3xl gap-3 sm:grid-cols-3">
+          <QuickStat
+            label="Events in showcase"
+            value={overview ? overview.events.length : "—"}
+          />
+          <QuickStat
+            label="Exhibitors live"
+            value={overview ? exhibitors.length : "—"}
+          />
+          <QuickStat
+            label="Relationships captured"
+            value={overview ? relationships.length : "—"}
+          />
+        </div>
+      </div>
+
+      <section className="mx-auto mt-12 max-w-7xl px-6 pb-20 sm:px-10">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="text-base font-semibold uppercase tracking-[0.18em] text-muted">
+            Choose your perspective
+          </h2>
+        </div>
+
+        <div className="mt-4 grid gap-5 lg:grid-cols-3">
+          <PersonaCard
+            tone="info"
+            eyebrow="Read-only"
+            title="Organizer"
+            tagline="Plan, analyze, report."
+            href="/demo/organizer"
+            cta="Open organizer workspace"
+            capabilities={[
+              "Event portfolio dashboard",
+              "Live traffic & conversion analytics",
+              "Booth heatmaps across the floor",
+              "AI-generated executive insights",
+              "Deterministic reports ready to share",
+            ]}
+            stats={
+              overview
+                ? [
+                    { label: "Events", value: overview.events.length },
+                    { label: "Booths", value: exhibitors.length },
+                    { label: "Relationships", value: relationships.length },
+                  ]
+                : undefined
+            }
+          />
+
+          <PersonaCard
+            tone="success"
+            eyebrow="Read-only"
+            title="Exhibitor"
+            tagline="Operate a booth with intelligence."
+            href="/demo/exhibitor"
+            cta="Open exhibitor workspace"
+            capabilities={[
+              "Booth dashboard with live KPIs",
+              "Products & knowledge sources",
+              "Relationship pipeline & visitors",
+              "Booth-level analytics & AI insights",
+              "QR credential & public booth preview",
+            ]}
+            stats={
+              overview
+                ? [
+                    {
+                      label: "Organizations",
+                      value: overview.exhibitorOrganizations.length,
+                    },
+                    { label: "Active booths", value: exhibitors.length },
+                    { label: "Captured leads", value: relationships.length },
+                  ]
+                : undefined
+            }
+          />
+
+          <PersonaCard
+            tone="brand"
+            eyebrow="Live now"
+            title="Attendee"
+            tagline="Already built. We just hand off."
+            href="/hackathon"
+            cta="Launch attendee experience"
+            external
+            capabilities={[
+              "Public exhibitor directory",
+              "Booth pages with AI assistant",
+              "Lead forms & downloadable brochures",
+              "No sign-up, no friction",
+            ]}
+            stats={
+              firstEvent
+                ? [
+                    { label: "Exhibitors", value: firstEvent.exhibitors.length },
+                    { label: "Event", value: firstEvent.name },
+                  ]
+                : undefined
+            }
+          />
         </div>
 
         {!overview ? (
-          <section className="mt-12 rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
-            The public demo discovery endpoint is unavailable right now. Run
-            <code className="mx-1 rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>
-            against a Supabase project with credentials configured in Vercel.
-          </section>
-        ) : null}
-
-        {overview ? (
-          <div className="mt-12 space-y-8">
-            <PersonaCard
-              title="Organizer"
-              description="Manage events, exhibitors, and gain insights from AI-powered analytics, heatmaps, and reports."
-              href="/demo/organizer"
-              tone="info"
-              stats={[
-                { label: "Events", value: overview.events.length },
-                { label: "Exhibitors", value: exhibitors.length },
-                { label: "Relationships", value: relationships.length },
-              ]}
-            />
-            <PersonaCard
-              title="Exhibitor"
-              description="Manage your booth profile, knowledge base, lead forms, and track attendee engagement."
-              href="/demo/exhibitor"
-              tone="success"
-              stats={[
-                { label: "Organizations", value: overview.exhibitorOrganizations.length },
-                { label: "Active booths", value: exhibitors.length },
-                { label: "Relationships", value: relationships.length },
-              ]}
-            />
-            <PersonaCard
-              title="Attendee"
-              description="Browse the exhibitor directory, search companies, visit booths, and ask the AI assistant."
-              href="/demo/attendee"
-              tone="brand"
-              stats={
-                firstEvent
-                  ? [
-                      { label: "Exhibitors", value: firstEvent.exhibitors.length },
-                      { label: "Event", value: firstEvent.name },
-                    ]
-                  : undefined
-              }
-            />
+          <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
+            The demo discovery endpoint is unavailable. Run{" "}
+            <code className="rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>{" "}
+            against a seeded Supabase project to power this showcase.
           </div>
         ) : null}
 
-        {overview ? (
-          <p className="mt-8 text-center text-xs text-muted">
-            Powered by{" "}
-            <span className="font-medium text-primary">ExAi</span> &middot;
-            Read-only showcase
-          </p>
-        ) : null}
-      </div>
+        <footer className="mt-16 border-t border-default/60 pt-6 text-center text-xs text-muted">
+          Powered by <span className="font-semibold text-primary">ExAi</span> ·
+          Read-only showcase · Zero auth required
+        </footer>
+      </section>
     </main>
   );
 }
 
 function PersonaCard({
   title,
+  tagline,
   description,
   href,
+  cta,
   tone,
+  eyebrow,
+  capabilities,
   stats,
+  external,
 }: {
   title: string;
-  description: string;
+  tagline: string;
+  description?: string;
   href: string;
+  cta: string;
   tone: "info" | "success" | "brand";
+  eyebrow: string;
+  capabilities: string[];
   stats?: Array<{ label: string; value: string | number }>;
+  external?: boolean;
 }) {
-  const border = {
-    info: "border-status-info-border hover:ring-status-info-border/30",
-    success: "border-status-success-border hover:ring-status-success-border/30",
-    brand: "border-brand/30 hover:ring-brand/30",
-  }[tone];
-  const badge = {
-    info: "bg-status-info-subtle text-status-info-text",
-    success: "bg-status-success-subtle text-status-success-text",
-    brand: "bg-brand-subtle text-brand",
+  const toneClass = {
+    info: {
+      border: "border-status-info-border hover:ring-status-info-border/40",
+      badge: "bg-status-info-subtle text-status-info-text",
+      cta: "bg-status-info-solid text-on-brand",
+      accent: "text-status-info-text",
+    },
+    success: {
+      border: "border-status-success-border hover:ring-status-success-border/40",
+      badge: "bg-status-success-subtle text-status-success-text",
+      cta: "bg-status-success-solid text-on-brand",
+      accent: "text-status-success-text",
+    },
+    brand: {
+      border: "border-brand/30 hover:ring-brand/40",
+      badge: "bg-brand-subtle text-brand",
+      cta: "bg-brand text-on-brand",
+      accent: "text-brand",
+    },
   }[tone];
 
   return (
     <Link
       href={href}
-      className={`group block rounded-2xl border-2 ${border} bg-surface p-6 shadow-1 transition-all hover:shadow-2 hover:ring-2 sm:p-8`}
+      className={`group flex h-full flex-col rounded-2xl border-2 ${toneClass.border} bg-surface p-6 shadow-1 transition-all hover:shadow-2 hover:ring-2 sm:p-7`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-3">
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${badge}`}>
-              {title}
-            </span>
-            <svg className="size-4 text-muted transition-transform group-hover:translate-x-1" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+      <div className="flex items-center justify-between gap-3">
+        <span
+          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${toneClass.badge}`}
+        >
+          {tone === "brand" ? "Live experience" : `${title} workspace`}
+        </span>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+          {eyebrow}
+        </span>
+      </div>
+      <h3 className="mt-4 text-2xl font-bold tracking-tight text-primary">
+        {title}
+      </h3>
+      <p className="mt-1 text-sm text-secondary">{tagline}</p>
+      {description ? (
+        <p className="mt-2 text-sm text-muted">{description}</p>
+      ) : null}
+      <ul className="mt-5 space-y-2">
+        {capabilities.map((cap) => (
+          <li key={cap} className="flex items-start gap-2 text-sm text-secondary">
+            <svg
+              className={`mt-0.5 size-4 shrink-0 ${toneClass.accent}`}
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden
+            >
+              <path d="M3 8.5l3 3 7-7" />
+            </svg>
+            <span>{cap}</span>
+          </li>
+        ))}
+      </ul>
+      {stats && stats.length > 0 ? (
+        <div className="mt-5 grid grid-cols-3 gap-3 rounded-xl border border-default bg-sunken p-3">
+          {stats.map((s) => (
+            <div
+              key={s.label}
+              className="min-w-0 text-center sm:text-left"
+            >
+              <p className="truncate text-base font-bold tabular-nums text-primary sm:text-lg">
+                {s.value}
+              </p>
+              <p className="truncate text-[11px] uppercase tracking-wide text-muted">
+                {s.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      <div className="mt-6 flex items-center justify-between">
+        <span
+          className={`inline-flex items-center gap-1 rounded-lg ${toneClass.cta} px-3 py-1.5 text-sm font-semibold`}
+        >
+          {cta}
+          {external ? (
+            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <path d="M5 11L11 5M11 5H6M11 5v5" />
+            </svg>
+          ) : (
+            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <path d="M6 4l4 4-4 4" />
             </svg>
-          </div>
-          <p className="mt-3 text-base text-secondary">{description}</p>
-        </div>
-        {stats ? (
-          <div className="flex gap-4 sm:gap-6">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-xl font-bold tabular-nums text-primary">{stat.value}</p>
-                <p className="text-xs text-muted">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        ) : null}
+          )}
+        </span>
+        <span className="text-xs text-muted">
+          {external ? "/hackathon" : "/demo"}
+        </span>
       </div>
     </Link>
+  );
+}
+
+function QuickStat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl border border-default bg-surface px-4 py-3 text-left">
+      <p className="text-xl font-bold tabular-nums text-primary">{value}</p>
+      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
+    </div>
   );
 }

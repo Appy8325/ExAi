@@ -6,127 +6,175 @@ import {
   getPublicDemoOverview,
 } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
+import {
+  DemoMobileNav,
+  DemoPageHeader,
+  DemoUnavailable,
+} from "@/components/demo/shell";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function DemoOrganizerAnalyticsPage() {
+const SIDEBAR = [
+  { label: "Dashboard", href: "/demo/organizer" },
+  { label: "Events", href: "/demo/organizer/events" },
+  { label: "Analytics", href: "/demo/organizer/analytics" },
+  { label: "Heatmaps", href: "/demo/organizer/heatmaps" },
+  { label: "AI Insights", href: "/demo/organizer/ai-insights" },
+  { label: "Reports", href: "/demo/organizer/reports" },
+];
+
+export default async function OrganizerAnalyticsPage() {
   const apiBase = getApiBaseUrl();
   const overview = await getPublicDemoOverview({ baseUrl: apiBase }).catch(() => null);
-  if (!overview) return <Unavailable />;
+  if (!overview) return <DemoUnavailable />;
 
-  const eventId = overview.events[0]?.id;
-  const analytics = eventId
-    ? await getPublicDemoAnalytics({ baseUrl: apiBase }, eventId).catch(() => null)
+  const firstEvent = overview.events[0];
+  const analytics = firstEvent
+    ? await getPublicDemoAnalytics({ baseUrl: apiBase }, firstEvent.id).catch(
+        () => null,
+      )
     : null;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12 sm:px-10">
-      <Link href="/demo/organizer" className="inline-flex items-center gap-1 text-sm text-link hover:underline">
-        <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M10 12l-4-4 4-4" />
-        </svg>
-        Back to organizer
-      </Link>
+    <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
+      <DemoMobileNav items={SIDEBAR} currentHref="/demo/organizer/analytics" />
 
-      <header className="mt-4">
-        <p className="text-caption font-semibold uppercase tracking-[0.2em] text-status-info-text">
-          Organizer workspace
-        </p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-          Live analytics
-        </h1>
-        <p className="mt-1 text-sm text-secondary">
-          Captured booth interactions and lead outcomes &mdash; read-only demo.
-        </p>
-      </header>
+      <DemoPageHeader
+        eyebrow="Organizer workspace"
+        title="Live analytics"
+        description="Captured booth interactions and lead outcomes — read-only demo."
+        badge="Live"
+      />
 
-      <nav className="mt-6 flex flex-wrap gap-2" aria-label="Events">
-        {overview.events.map((event) => (
-          <span
-            key={event.id}
-            className={`rounded-full border px-4 py-2 text-sm ${event.id === eventId ? "border-status-info-border bg-status-info-solid text-on-brand" : "border-default bg-surface text-secondary"}`}
-          >
-            {event.name}
-          </span>
-        ))}
-      </nav>
+      {overview.events.length > 0 ? (
+        <nav className="flex flex-wrap gap-2" aria-label="Events">
+          {overview.events.map((event) => (
+            <Link
+              key={event.id}
+              href={`/demo/organizer/event/${event.slug}`}
+              className={`rounded-full border px-4 py-2 text-sm ${
+                event.id === firstEvent?.id
+                  ? "border-status-info-border bg-status-info-solid text-on-brand"
+                  : "border-default bg-surface text-secondary hover:text-primary"
+              }`}
+            >
+              {event.name}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
 
       {!analytics ? (
-        <p className="mt-6 rounded-xl border border-default bg-surface p-6 text-sm text-secondary">
-          No event analytics are available yet.
-        </p>
+        <Card>
+          <p className="text-sm text-secondary">
+            No event analytics are available yet.
+          </p>
+        </Card>
       ) : (
-        <div className="mt-8 space-y-8">
+        <>
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MetricCard label="Captured visits" value={String(analytics.traffic.capturedVisits)} />
-            <MetricCard label="Unique attendees" value={String(analytics.traffic.uniqueVisitors)} />
-            <MetricCard label="Leads" value={String(analytics.conversions.leads)} />
-            <MetricCard label="Conversion" value={`${analytics.conversions.conversionRate}%`} />
+            <MetricCard
+              label="Captured visits"
+              value={String(analytics.traffic.capturedVisits)}
+            />
+            <MetricCard
+              label="Unique attendees"
+              value={String(analytics.traffic.uniqueVisitors)}
+            />
+            <MetricCard
+              label="Leads"
+              value={String(analytics.conversions.leads)}
+            />
+            <MetricCard
+              label="Conversion"
+              value={`${analytics.conversions.conversionRate}%`}
+            />
           </section>
 
-          <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+          <div className="grid gap-6 lg:grid-cols-2">
             <Card>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-lg font-semibold text-primary">Booth heatmap</h2>
+                  <h2 className="text-lg font-semibold text-primary">
+                    Pipeline distribution
+                  </h2>
                   <p className="mt-1 text-sm text-secondary">
-                    Relative share of captured interactions; hottest booth is 100%.
+                    Where captured visits land on the funnel.
                   </p>
                 </div>
                 <Link
-                  href="/demo/organizer/reports"
-                  className="text-sm font-medium text-status-info-text"
+                  href="/demo/organizer/heatmaps"
+                  className="text-xs font-medium text-status-info-text hover:underline"
                 >
-                  Executive report
+                  Heatmaps →
                 </Link>
               </div>
-              <div className="mt-5 space-y-5">
-                {analytics.booths.map((booth) => (
-                  <div key={booth.id}>
-                    <div className="mb-2 flex justify-between gap-4 text-sm">
-                      <span className="font-medium text-primary">
-                        {booth.name}
-                        {booth.boothNumber ? ` · ${booth.boothNumber}` : ""}
-                      </span>
-                      <span className="text-secondary">
-                        {booth.visits} visits &middot; {booth.leads} leads
-                      </span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-subtle">
-                      <div
-                        className="h-full rounded-full bg-status-info-solid"
-                        style={{ width: `${booth.heat}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-                {!analytics.booths.length && (
-                  <p className="text-sm text-muted">No published booths yet.</p>
-                )}
+              <div className="mt-5 space-y-4">
+                <Bar
+                  label="New"
+                  value={analytics.traffic.capturedVisits}
+                  max={Math.max(
+                    analytics.traffic.capturedVisits,
+                    analytics.traffic.uniqueVisitors,
+                    analytics.conversions.leads || 1,
+                  )}
+                  color="bg-muted"
+                />
+                <Bar
+                  label="Unique"
+                  value={analytics.traffic.uniqueVisitors}
+                  max={Math.max(
+                    analytics.traffic.capturedVisits,
+                    analytics.traffic.uniqueVisitors,
+                    analytics.conversions.leads || 1,
+                  )}
+                  color="bg-status-info-solid"
+                />
+                <Bar
+                  label="Leads"
+                  value={analytics.conversions.leads}
+                  max={Math.max(
+                    analytics.traffic.capturedVisits,
+                    analytics.traffic.uniqueVisitors,
+                    analytics.conversions.leads || 1,
+                  )}
+                  color="bg-status-success-solid"
+                />
               </div>
             </Card>
 
             <Card>
               <h2 className="text-lg font-semibold text-primary">Engagement</h2>
-              <dl className="mt-4 space-y-4 text-sm">
-                <Stat label="Returning attendees" value={String(analytics.traffic.returningVisitors)} />
-                <Stat label="Repeat engagement" value={`${analytics.engagement.repeatEngagementRate}%`} />
-                <Stat label="Average interactions" value={String(analytics.engagement.averageInteractions)} />
-                <Stat label="AI-analyzed leads" value={String(analytics.engagement.analyzedLeads)} />
+              <dl className="mt-4 space-y-3 text-sm">
+                <Stat
+                  label="Returning attendees"
+                  value={String(analytics.traffic.returningVisitors)}
+                />
+                <Stat
+                  label="Repeat engagement"
+                  value={`${analytics.engagement.repeatEngagementRate}%`}
+                />
+                <Stat
+                  label="Average interactions"
+                  value={String(analytics.engagement.averageInteractions)}
+                />
+                <Stat
+                  label="AI-analyzed leads"
+                  value={String(analytics.engagement.analyzedLeads)}
+                />
               </dl>
             </Card>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
-              <h2 className="text-lg font-semibold text-primary">Popular industries</h2>
+              <h2 className="text-base font-semibold text-primary">
+                Popular industries
+              </h2>
               <div className="mt-4 space-y-3">
                 {analytics.industries.map((item) => (
-                  <div key={item.name} className="flex justify-between text-sm">
-                    <span className="text-secondary">{item.name}</span>
-                    <strong className="text-primary">{item.count}</strong>
-                  </div>
+                  <Row key={item.name} label={item.name} value={item.count} />
                 ))}
                 {!analytics.industries.length && (
                   <p className="text-sm text-muted">No data captured yet.</p>
@@ -134,13 +182,12 @@ export default async function DemoOrganizerAnalyticsPage() {
               </div>
             </Card>
             <Card>
-              <h2 className="text-lg font-semibold text-primary">Popular topics</h2>
+              <h2 className="text-base font-semibold text-primary">
+                Popular topics
+              </h2>
               <div className="mt-4 space-y-3">
                 {analytics.topics.map((item) => (
-                  <div key={item.name} className="flex justify-between text-sm">
-                    <span className="text-secondary">{item.name}</span>
-                    <strong className="text-primary">{item.count}</strong>
-                  </div>
+                  <Row key={item.name} label={item.name} value={item.count} />
                 ))}
                 {!analytics.topics.length && (
                   <p className="text-sm text-muted">No data captured yet.</p>
@@ -150,11 +197,39 @@ export default async function DemoOrganizerAnalyticsPage() {
           </div>
 
           <p className="text-xs text-muted">
-            Updated {new Date(analytics.generatedAt).toLocaleString()} &middot;
-            Industry data includes only attendees who consented to profile sharing.
+            Updated {new Date(analytics.generatedAt).toLocaleString()} · Industry
+            data includes only attendees who consented to profile sharing.
           </p>
-        </div>
+        </>
       )}
+    </div>
+  );
+}
+
+function Bar({
+  label,
+  value,
+  max,
+  color,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  color: string;
+}) {
+  const pct = Math.round((value / Math.max(1, max)) * 100);
+  return (
+    <div>
+      <div className="mb-1 flex justify-between text-sm">
+        <span className="text-secondary">{label}</span>
+        <span className="font-medium text-primary">{value}</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-subtle">
+        <div
+          className={`h-full rounded-full ${color}`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
     </div>
   );
 }
@@ -168,13 +243,11 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Unavailable() {
+function Row({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12 sm:px-10">
-      <Link href="/demo" className="text-sm text-link hover:underline">Back to demo</Link>
-      <p className="mt-6 rounded-xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
-        Demo data is unavailable right now.
-      </p>
+    <div className="flex justify-between text-sm">
+      <span className="text-secondary">{label}</span>
+      <strong className="text-primary">{value}</strong>
     </div>
   );
 }
