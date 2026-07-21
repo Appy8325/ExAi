@@ -97,7 +97,13 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     await this.loadSeededData();
-    this.logger.log("Demo simulation service initialized with seeded data.");
+    const autoStart = process.env.DEMO_SIMULATION_AUTO_START;
+    if (autoStart === "true" || (autoStart === undefined && process.env.NODE_ENV !== "production")) {
+      this.startSimulation();
+      this.logger.log("Simulation auto-started (DEMO_SIMULATION_AUTO_START enabled).");
+    } else {
+      this.logger.log("Demo simulation service initialized. Auto-start disabled.");
+    }
   }
 
   onModuleDestroy() {
@@ -270,11 +276,11 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
 
     if (eventType === "ai_chat") {
       const messageCount = 2 + Math.floor(rand() * 4);
-      this.analyticsStore.track({ ...baseEvent, type: "ai_chat", messageCount });
-    } else if (eventType === "booth_visit" || eventType === "dwell") {
+      this.analyticsStore.track({ ...baseEvent, type: "ai_chat", messageCount } as TrackEvent);
+    } else if (eventType === "booth_visit") {
       const dwellSeconds = 60 + Math.floor(rand() * 900 * scenario.dwellTimeMultiplier);
-      this.analyticsStore.track({ ...baseEvent, type: "booth_visit" });
-      this.analyticsStore.track({ ...baseEvent, type: "dwell", seconds: Math.min(dwellSeconds, 3600) });
+      this.analyticsStore.track({ ...baseEvent, type: "booth_visit" } as TrackEvent);
+      this.analyticsStore.track({ ...baseEvent, type: "dwell", seconds: Math.min(dwellSeconds, 3600) } as TrackEvent);
     } else {
       const typeMap: Record<string, TrackEvent["type"]> = {
         qr_scan: "qr_scan",
@@ -284,7 +290,7 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
         product_view: "product_view",
         brochure_download: "brochure_download",
       };
-      this.analyticsStore.track({ ...baseEvent, type: typeMap[eventType] ?? "booth_visit" });
+      this.analyticsStore.track({ ...baseEvent, type: typeMap[eventType] ?? "booth_visit" } as TrackEvent);
     }
 
     this.logger.debug(`[Sim] ${eventType} @ ${chosenExhibitor.name} by ${chosenAttendee.fullName}`);
