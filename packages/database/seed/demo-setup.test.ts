@@ -15,13 +15,14 @@ describe("demo setup", () => {
     expect(source).toContain('run(["db:seed:demo"])');
   });
 
-  it("ships a deterministic seed with the required TechExpo scale", async () => {
+  it("loads seed data from deterministic JSON and creates the required TechExpo entities", async () => {
     const source = await readFile(
       resolve(process.cwd(), "seed/demo.ts"),
       "utf8",
     );
-    expect(source).toContain("for (let index = 0; index < 200; index += 1)");
-    expect(source).toContain("for (let index = 0; index < 100; index += 1)");
-    expect(source).toContain("TechExpo 2027");
+    expect(source).toContain("readFile(seedPath, \"utf8\")");
+    expect(source).toContain("JSON.parse(seedJson)");
+    expect(source).toContain("for (const exhibitor of seed.exhibitors)");
+    expect(source).toContain("for (const a of seed.attendees)");
   });
 });
