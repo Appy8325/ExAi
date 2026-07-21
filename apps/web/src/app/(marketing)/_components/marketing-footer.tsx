@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { memo } from "react";
 
-export function MarketingFooter() {
+export const MarketingFooter = memo(function MarketingFooter() {
   return (
     <footer className="border-t border-default/50 bg-surface py-12">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-6 text-sm text-secondary sm:flex-row sm:justify-between sm:px-10">
@@ -18,4 +19,4 @@ export function MarketingFooter() {
       </div>
     </footer>
   );
-}
+});

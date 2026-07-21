@@ -13,28 +13,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex min-h-screen bg-canvas">
       <aside className="flex w-60 flex-col border-r border-default bg-surface">
-        <Link href="/" className="flex h-14 items-center gap-2 border-b border-default px-4">
+        <Link href="/" className="flex h-14 items-center gap-2 border-b border-default px-4 transition-colors hover:bg-sunken/50">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">E</div>
           <span className="text-sm font-semibold text-primary">ExAi Admin</span>
         </Link>
-        <nav className="flex-1 space-y-1 p-3">
+        <nav className="flex-1 space-y-0.5 p-3">
           {items.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-[var(--mq-duration-fast)] ${
-                  active ? "bg-brand-subtle text-brand" : "text-secondary hover:bg-sunken hover:text-primary"
+                className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  active ? "bg-brand-subtle text-brand" : "text-secondary hover:bg-sunken/70 hover:text-primary"
                 }`}
               >
+                {active && (
+                  <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-brand" />
+                )}
                 {item.label}
               </Link>
             );
           })}
         </nav>
         <div className="border-t border-default p-3">
-          <Link href="/auth" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-secondary hover:bg-sunken hover:text-primary">
+          <Link href="/auth" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-secondary transition-colors hover:bg-sunken hover:text-primary">
             Sign in
           </Link>
         </div>

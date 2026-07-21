@@ -26,6 +26,24 @@
     outline: 2px solid var(--mq-ring);
     outline-offset: 2px;
   }
+
+  /* Ensure all interactive elements are keyboard accessible */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: 2px solid var(--mq-ring);
+    outline-offset: 2px;
+  }
+
+  /* Larger minimum touch targets for mobile */
+  @media (pointer: coarse) {
+    button, a, [role="button"] {
+      min-height: 44px;
+    }
+  }
 }
 
 @layer utilities {
@@ -44,41 +62,56 @@
   }
 
   /*
-   * Fade-in animation for page content.
-   * Apply to top-level containers to get a subtle entrance.
+   * Entrance animations for page content.
+   * Apply staggered delays for cascading reveal.
    */
   .animate-enter {
-    animation: mq-fade-up 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .animate-enter-delay-1 {
-    animation: mq-fade-up 400ms cubic-bezier(0.16, 1, 0.3, 1) 75ms both;
+    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 60ms both;
   }
 
   .animate-enter-delay-2 {
-    animation: mq-fade-up 400ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
+    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
   }
 
   .animate-enter-delay-3 {
-    animation: mq-fade-up 400ms cubic-bezier(0.16, 1, 0.3, 1) 225ms both;
+    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
   }
+
+  .animate-enter-delay-4 {
+    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
+  }
+
+  .animate-enter-delay-5 {
+    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both;
+  }
+
+  /* Stagger children with data-delay attributes */
+  .stagger-children > * {
+    animation: mq-stagger-fade-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger-children > *:nth-child(6) { animation-delay: 300ms; }
 
   /*
    * Page transition using View Transitions API
+   * Smooth crossfade with scale for depth perception
    */
   @supports (view-transition-name: none) {
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-      animation-duration: 200ms;
-      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
     ::view-transition-old(root) {
-      animation-name: mq-fade-out;
+      animation: mq-fade-out 200ms cubic-bezier(0.4, 0, 0.2, 1) both;
     }
 
     ::view-transition-new(root) {
-      animation-name: mq-fade-in;
+      animation: mq-scale-in 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
     }
   }
 
@@ -168,6 +201,36 @@
     );
     background-size: 200% 100%;
     animation: mq-shimmer 1.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  [data-theme="dark"] .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(255 255 255 / 0.06) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  /* Will-change hint for animated elements */
+  .gpu-layer {
+    will-change: transform, opacity;
+  }
+
+  /* Smooth number transition */
+  .tabular-nums-smooth {
+    font-variant-numeric: tabular-nums;
+    transition: all 200ms ease;
+  }
+
+  /* Subtle scale on badge for notification dots */
+  .badge-dot {
+    transition: transform 150ms ease;
+  }
+  .badge-dot:hover {
+    transform: scale(1.15);
   }
 }
 

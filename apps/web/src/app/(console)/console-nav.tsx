@@ -30,13 +30,13 @@ export function ConsoleNav() {
 
   return (
     <aside className="flex w-60 flex-col border-r border-default bg-surface">
-      <Link href="/" className="flex h-14 items-center gap-2.5 border-b border-default px-4">
+      <Link href="/" className="flex h-14 items-center gap-2.5 border-b border-default px-4 transition-colors hover:bg-sunken/50">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">
           E
         </div>
         <span className="text-sm font-semibold text-primary">ExAi</span>
       </Link>
-      <nav aria-label="Primary navigation" className="flex-1 space-y-1 p-3">
+      <nav aria-label="Primary navigation" className="flex-1 space-y-0.5 p-3">
         {navItems.map((item) => {
           const active = pathname === item.href || (item.href !== "/org" && pathname.startsWith(item.href));
           return (
@@ -44,12 +44,15 @@ export function ConsoleNav() {
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-[var(--mq-duration-fast)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+              className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 active
                   ? "bg-brand-subtle text-brand"
-                  : "text-secondary hover:bg-sunken hover:text-primary"
+                  : "text-secondary hover:bg-sunken/70 hover:text-primary"
               }`}
             >
+              {active && (
+                <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-brand" />
+              )}
               <NavIcon name={item.icon} active={active} />
               {item.label}
             </Link>
@@ -80,7 +83,7 @@ export function ConsoleNav() {
               type="button"
               onClick={handleSignOut}
               aria-label="Sign out"
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-secondary hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-secondary transition-colors hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -93,7 +96,7 @@ export function ConsoleNav() {
         ) : (
           <Link
             href="/auth"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-secondary hover:bg-sunken hover:text-primary transition-colors"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />

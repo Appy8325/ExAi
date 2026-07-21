@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { memo } from "react";
 
 export type DemoPersona = "organizer" | "exhibitor";
 
@@ -15,7 +16,7 @@ const PERSONA_META: Record<DemoPersona, { label: string; tone: string; href: str
   },
 };
 
-export function DemoTopBar({ persona }: { persona?: DemoPersona }) {
+export const DemoTopBar = memo(function DemoTopBar({ persona }: { persona?: DemoPersona }) {
   const active = persona ? PERSONA_META[persona] : undefined;
   return (
     <header className="sticky top-0 z-(--mq-z-sticky) border-b border-default/50 bg-canvas/80 backdrop-blur-xl">
@@ -72,11 +73,11 @@ export function DemoTopBar({ persona }: { persona?: DemoPersona }) {
       ) : null}
     </header>
   );
-}
+});
 
 export type PersonaNavItem = { label: string; href: string; description?: string };
 
-export function DemoSideNav({
+export const DemoSideNav = memo(function DemoSideNav({
   title,
   items,
   currentHref,
@@ -111,9 +112,9 @@ export function DemoSideNav({
       </nav>
     </aside>
   );
-}
+});
 
-export function DemoPageHeader({
+export const DemoPageHeader = memo(function DemoPageHeader({
   eyebrow,
   title,
   description,
@@ -145,9 +146,9 @@ export function DemoPageHeader({
       ) : null}
     </div>
   );
-}
+});
 
-export function DemoUnavailable({ backHref = "/demo" }: { backHref?: string }) {
+export const DemoUnavailable = memo(function DemoUnavailable({ backHref = "/demo" }: { backHref?: string }) {
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 sm:px-10">
       <Link href={backHref} className="text-sm text-link hover:underline">
@@ -162,9 +163,9 @@ export function DemoUnavailable({ backHref = "/demo" }: { backHref?: string }) {
       </p>
     </div>
   );
-}
+});
 
-export function DemoMobileNav({
+export const DemoMobileNav = memo(function DemoMobileNav({
   items,
   currentHref,
 }: {
@@ -195,4 +196,4 @@ export function DemoMobileNav({
       })}
     </nav>
   );
-}
+});

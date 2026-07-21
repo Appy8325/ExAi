@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -12,6 +12,16 @@ const links = [
 
 export function MarketingNav({ logo }: { logo: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [mobileOpen]);
 
   return (
     <header className="sticky top-0 z-(--mq-z-sticky) border-b border-default/50 bg-canvas/80 backdrop-blur-xl">
@@ -29,7 +39,7 @@ export function MarketingNav({ logo }: { logo: ReactNode }) {
           ))}
           <Link
             href="/demo"
-            className="inline-flex h-9 items-center rounded-lg bg-brand px-4 text-sm font-medium text-on-brand shadow-1 transition-colors hover:bg-brand-hover"
+            className="inline-flex h-9 items-center rounded-lg bg-brand px-4 text-sm font-medium text-on-brand shadow-1 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:scale-[1.02]"
           >
             Try demo
           </Link>
@@ -38,7 +48,8 @@ export function MarketingNav({ logo }: { logo: ReactNode }) {
           type="button"
           aria-label="Toggle menu"
           aria-expanded={mobileOpen}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-default bg-surface text-secondary sm:hidden"
+          aria-controls="mobile-menu"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-default bg-surface text-secondary transition-colors hover:bg-sunken sm:hidden"
           onClick={() => setMobileOpen((v) => !v)}
         >
           {mobileOpen ? (
@@ -52,13 +63,21 @@ export function MarketingNav({ logo }: { logo: ReactNode }) {
           )}
         </button>
       </div>
-      {mobileOpen && (
-        <nav className="flex flex-col gap-1 border-t border-default px-4 pb-4 pt-3 sm:hidden">
+      <div
+        id="mobile-menu"
+        ref={menuRef}
+        role="region"
+        aria-label="Mobile navigation"
+        className={`overflow-hidden transition-all duration-[var(--mq-duration-moderate)] ease-[var(--mq-ease-standard)] sm:hidden ${
+          mobileOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <nav className="flex flex-col gap-1 border-t border-default px-4 pb-4 pt-3">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-primary hover:bg-sunken"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-sunken"
               onClick={() => setMobileOpen(false)}
             >
               {link.label}
@@ -66,13 +85,13 @@ export function MarketingNav({ logo }: { logo: ReactNode }) {
           ))}
           <Link
             href="/demo"
-            className="mt-1 rounded-lg bg-brand px-3 py-2 text-center text-sm font-medium text-on-brand"
+            className="mt-1 rounded-lg bg-brand px-3 py-2 text-center text-sm font-medium text-on-brand transition-colors hover:bg-brand-hover"
             onClick={() => setMobileOpen(false)}
           >
             Try demo
           </Link>
         </nav>
-      )}
+      </div>
     </header>
   );
 }

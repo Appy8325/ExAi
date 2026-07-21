@@ -9,16 +9,16 @@ import { cn } from "../../lib/utils";
 /* -------------------------------------------------------------------------- */
 
 const cardVariants = cva(
-  "rounded-lg border bg-surface shadow-1 transition-all duration-[var(--mq-duration-moderate)] ease-[var(--mq-ease-standard)]",
+  "rounded-lg border bg-surface shadow-1 transition-all duration-[var(--mq-duration-moderate)] ease-[var(--mq-ease-standard)] will-change-transform",
   {
     variants: {
       variant: {
-        default: "border-default",
+        default: "border-default hover:shadow-2",
         elevated:
-          "border-transparent shadow-2 hover:shadow-card-hover",
+          "border-transparent shadow-2 hover:shadow-card-hover hover:-translate-y-0.5",
         outline: "border-default bg-transparent shadow-none",
         interactive:
-          "border-default cursor-pointer hover:border-strong hover:shadow-card-hover",
+          "border-default cursor-pointer hover:border-strong hover:shadow-card-hover hover:-translate-y-0.5",
       },
     },
     defaultVariants: { variant: "default" },
@@ -524,62 +524,156 @@ export function EmptyState({
 export type SkeletonProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Renders a text-like skeleton line */
   text?: boolean;
+  /** Shows shimmer overlay */
+  shimmer?: boolean;
 };
 
-export function Skeleton({ className, text, ...props }: SkeletonProps) {
+export function Skeleton({ className, text, shimmer = true, ...props }: SkeletonProps) {
   return (
     <div
       aria-hidden="true"
       className={cn(
-        "animate-pulse rounded-md bg-sunken",
+        "relative rounded-md bg-sunken overflow-hidden",
         text ? "h-4 w-full" : "",
-        className,
-      )}
-      style={
-        text ? { animation: "mq-skeleton-pulse 1.5s ease-in-out infinite" } : undefined
-      }
-      {...props}
-    />
-  );
-}
-
-export function SkeletonCard({ className, ...props }: SkeletonProps) {
-  return (
-    <div
-      aria-hidden="true"
-      className={cn(
-        "rounded-lg border border-default bg-surface p-(--spacing-card-p) shadow-1 space-y-3",
         className,
       )}
       {...props}
     >
-      <Skeleton className="h-4 w-1/3" />
-      <Skeleton className="h-7 w-1/2" />
-      <Skeleton className="h-3 w-2/3" />
+      {shimmer && (
+        <div className="absolute inset-0 skeleton-shimmer" />
+      )}
     </div>
   );
 }
 
-export function SkeletonTable({ rows = 5 }: { rows?: number }) {
+export function SkeletonCard({ className, shimmer = true, ...props }: SkeletonProps) {
   return (
-    <div aria-hidden="true" className="space-y-3">
+    <div
+      aria-hidden="true"
+      className={cn(
+        "relative overflow-hidden rounded-lg border border-default bg-surface p-(--spacing-card-p) shadow-1 space-y-3",
+        className,
+      )}
+      {...props}
+    >
+      {shimmer && (
+        <div className="absolute inset-0 skeleton-shimmer" />
+      )}
+      <Skeleton className="h-4 w-1/3" shimmer={false} />
+      <Skeleton className="h-7 w-1/2" shimmer={false} />
+      <Skeleton className="h-3 w-2/3" shimmer={false} />
+    </div>
+  );
+}
+
+export function SkeletonTable({ rows = 5, shimmer = true }: { rows?: number; shimmer?: boolean }) {
+  return (
+    <div aria-hidden="true" className="relative space-y-3 overflow-hidden">
+      {shimmer && (
+        <div className="absolute inset-0 skeleton-shimmer" />
+      )}
       <div className="flex gap-4 px-(--spacing-table-cell-px)">
-        <Skeleton className="h-4 flex-1" />
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-4 flex-1" shimmer={false} />
+        <Skeleton className="h-4 w-24" shimmer={false} />
+        <Skeleton className="h-4 w-20" shimmer={false} />
       </div>
       {Array.from({ length: rows }, (_, i) => (
         <div
           key={i}
           className="flex items-center gap-4 border-b border-default px-(--spacing-table-cell-px) py-3"
         >
-          <Skeleton className="h-4 flex-1" />
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 flex-1" shimmer={false} />
+          <Skeleton className="h-4 w-24" shimmer={false} />
+          <Skeleton className="h-4 w-20" shimmer={false} />
         </div>
       ))}
     </div>
   );
+}
+
+/* -------------------------------------------------------------------------- */
+/* LiveBadge — animated pulsing indicator                                     */
+/* -------------------------------------------------------------------------- */
+
+export interface LiveBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
+  label?: string;
+}
+
+export function LiveBadge({ label = "Live", className, ...props }: LiveBadgeProps) {
+  return (
+    <span
+      role="status"
+      aria-label={label}
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full border border-status-success-border bg-status-success-subtle px-2 py-0.5 text-caption font-medium text-status-success-text",
+        className,
+      )}
+      {...props}
+    >
+      <span className="relative flex size-2">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-status-success-text opacity-75" />
+        <span className="relative inline-flex size-2 rounded-full bg-status-success-text" />
+      </span>
+      {label}
+    </span>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* CelebrationEffect — micro-interaction for positive events                  */
+/* -------------------------------------------------------------------------- */
+
+export interface CelebrationEffectProps {
+  show: boolean;
+  children: React.ReactNode;
+}
+
+export function CelebrationEffect({ show, children }: CelebrationEffectProps) {
+  return (
+    <div className={cn("transition-all duration-[var(--mq-duration-moderate)]", show ? "animate-[mq-celebration_600ms_cubic-bezier(0.68,-0.55,0.265,1.55)_both]" : "")}>
+      {children}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* AnimatedCounter — number counting animation                                */
+/* -------------------------------------------------------------------------- */
+
+export interface AnimatedCounterProps {
+  value: number;
+  duration?: number;
+  format?: boolean;
+}
+
+export function AnimatedCounter({ value, duration = 500, format = true }: AnimatedCounterProps) {
+  const [displayed, setDisplayed] = React.useState(0);
+  const previous = React.useRef(0);
+
+  React.useEffect(() => {
+    const start = previous.current;
+    const diff = value - start;
+    if (diff === 0) return;
+
+    const startTime = performance.now();
+    let rafId: number;
+
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayed(Math.round(start + diff * eased));
+      if (progress < 1) {
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+
+    previous.current = value;
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, [value, duration]);
+
+  return <span className="tabular-nums">{format ? displayed.toLocaleString() : displayed}</span>;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -640,15 +734,23 @@ export function Drawer({
   }, [open, onClose]);
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className={cn(
-        "fixed inset-y-0 right-0 z-(--mq-z-modal) flex w-full max-w-lg flex-col border-l border-default bg-raised shadow-4 transition-transform duration-[var(--mq-duration-slow)] ease-[var(--mq-ease-enter)]",
-        open ? "translate-x-0" : "translate-x-full",
+    <>
+      {open && (
+        <div
+          aria-hidden="true"
+          className="fixed inset-0 z-(--mq-z-overlay) bg-overlay animate-[mq-fade-in_150ms_ease-out]"
+          onClick={onClose}
+        />
       )}
-    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className={cn(
+          "fixed inset-y-0 right-0 z-(--mq-z-modal) flex w-full max-w-lg flex-col border-l border-default bg-raised shadow-4 transition-all duration-[var(--mq-duration-slow)] ease-[var(--mq-ease-enter)] will-change-transform",
+          open ? "translate-x-0" : "translate-x-full",
+        )}
+      >
       {title ? (
         <div className="flex items-center justify-between border-b border-default px-6 py-4">
           <h2 className="text-title font-semibold text-primary">{title}</h2>
@@ -666,6 +768,7 @@ export function Drawer({
       ) : null}
       <div className="flex-1 overflow-y-auto p-6">{children}</div>
     </div>
+    </>
   );
 }
 

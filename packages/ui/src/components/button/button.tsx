@@ -22,6 +22,7 @@ export const buttonVariants = cva(
     "text-body font-medium",
     "h-(--spacing-control-h) px-(--spacing-control-px)",
     "transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)]",
+    "will-change-transform",
     "active:scale-[0.97]",
     "disabled:pointer-events-none disabled:opacity-50",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
@@ -32,11 +33,11 @@ export const buttonVariants = cva(
       variant: {
         primary: [
           "bg-brand text-on-brand shadow-1",
-          "hover:bg-brand-hover hover:shadow-2",
+          "hover:bg-brand-hover hover:shadow-2 hover:scale-[1.02]",
         ].join(" "),
         secondary: [
           "bg-surface text-primary border border-strong",
-          "hover:bg-sunken hover:border-default",
+          "hover:bg-sunken hover:border-default hover:scale-[1.02]",
         ].join(" "),
         ghost: [
           "bg-transparent text-primary",
@@ -44,7 +45,7 @@ export const buttonVariants = cva(
         ].join(" "),
         danger: [
           "bg-status-danger-solid text-on-brand shadow-1",
-          "hover:opacity-90 hover:shadow-2",
+          "hover:opacity-90 hover:shadow-2 hover:scale-[1.02]",
         ].join(" "),
       },
       size: {

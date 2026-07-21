@@ -73,11 +73,18 @@
   /* Animation keyframes */
   --mq-animate-fade-in: mq-fade-in var(--mq-duration-moderate) var(--mq-ease-standard) both;
   --mq-animate-fade-up: mq-fade-up var(--mq-duration-slow) var(--mq-ease-enter) both;
+  --mq-animate-fade-down: mq-fade-down var(--mq-duration-moderate) var(--mq-ease-exit) both;
   --mq-animate-scale-in: mq-scale-in var(--mq-duration-moderate) var(--mq-ease-enter) both;
   --mq-animate-slide-up: mq-slide-up var(--mq-duration-slow) var(--mq-ease-enter) both;
   --mq-animate-slide-down: mq-slide-down var(--mq-duration-moderate) var(--mq-ease-exit) both;
+  --mq-animate-slide-in-right: mq-slide-in-right var(--mq-duration-slow) var(--mq-ease-enter) both;
   --mq-animate-enter: mq-enter var(--mq-duration-slower) var(--mq-ease-enter) both;
   --mq-animate-exit: mq-exit var(--mq-duration-moderate) var(--mq-ease-exit) both;
+  --mq-animate-bounce-in: mq-bounce-in var(--mq-duration-slower) var(--mq-ease-bounce) both;
+  --mq-animate-shimmer: mq-shimmer 1.5s var(--mq-ease-standard) infinite;
+  --mq-animate-pulse-ring: mq-pulse-ring 2s var(--mq-ease-standard) infinite;
+  --mq-animate-badge-pulse: mq-badge-pulse 2s var(--mq-ease-standard) infinite;
+  --mq-animate-celebration: mq-celebration 600ms var(--mq-ease-bounce) both;
 }
 
 @keyframes mq-fade-in {
@@ -145,6 +152,37 @@
   50% { opacity: 1; transform: scale(1.05); }
   70% { transform: scale(0.9); }
   100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes mq-fade-down {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(10px); }
+}
+
+@keyframes mq-slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes mq-badge-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes mq-celebration {
+  0% { opacity: 0; transform: scale(0.5) translateY(10px); }
+  50% { opacity: 1; transform: scale(1.05) translateY(-4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes mq-scale-up {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes mq-stagger-fade-in {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @media (min-width: 48rem) {

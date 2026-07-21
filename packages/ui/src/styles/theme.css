@@ -133,9 +133,16 @@
   --z-tooltip: var(--mq-z-tooltip);
   --animate-fade-in: var(--mq-animate-fade-in);
   --animate-fade-up: var(--mq-animate-fade-up);
+  --animate-fade-down: var(--mq-animate-fade-down);
   --animate-scale-in: var(--mq-animate-scale-in);
   --animate-slide-up: var(--mq-animate-slide-up);
   --animate-slide-down: var(--mq-animate-slide-down);
+  --animate-slide-in-right: var(--mq-animate-slide-in-right);
   --animate-enter: var(--mq-animate-enter);
   --animate-exit: var(--mq-animate-exit);
+  --animate-bounce-in: var(--mq-animate-bounce-in);
+  --animate-shimmer: var(--mq-animate-shimmer);
+  --animate-pulse-ring: var(--mq-animate-pulse-ring);
+  --animate-badge-pulse: var(--mq-animate-badge-pulse);
+  --animate-celebration: var(--mq-animate-celebration);
 }

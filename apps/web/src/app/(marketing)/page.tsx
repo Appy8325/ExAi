@@ -7,9 +7,8 @@ export default function MarketingHomePage() {
   return (
     <main>
       <HeroSection />
-      <HowExAiWorks />
       <PersonasSection />
-      <CapabilitiesSection />
+      <HowExAiWorks />
       <CTASection />
     </main>
   );
@@ -42,7 +41,7 @@ function FadeIn({ children, delay = 0 }: { children: ReactNode; delay?: number }
   return (
     <div
       ref={ref}
-      className="transition-all duration-700 ease-out"
+      className="transition-all duration-700 ease-out gpu-layer"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(16px)",
@@ -68,7 +67,10 @@ function HeroSection() {
       <div className="mx-auto max-w-4xl text-center">
         <FadeIn>
           <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
-            <span className="size-1.5 rounded-full bg-brand animate-pulse" />
+            <span className="relative flex size-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
+              <span className="relative inline-flex size-2 rounded-full bg-brand" />
+            </span>
             AI-native trade show intelligence
           </span>
         </FadeIn>
@@ -94,14 +96,14 @@ function HeroSection() {
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/demo"
-              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-base font-semibold text-on-brand shadow-2 transition-all hover:bg-brand-hover hover:shadow-3"
+              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-base font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
             >
               Try the live demo
               <ChevronRight className="ml-2 size-4" />
             </Link>
             <Link
               href="/auth"
-              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-base font-medium text-primary transition-all hover:bg-sunken"
+              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-base font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
             >
               Sign in
             </Link>
@@ -171,7 +173,82 @@ function HeroVisual() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  How ExAi Works — horizontal flow                                  */
+/*  One Platform, Three Roles                                         */
+/* ------------------------------------------------------------------ */
+
+function PersonasSection() {
+  const personas = [
+    {
+      role: "Organizer",
+      color: "bg-brand",
+      icon: OrganizerIcon,
+      desc: "Full control over the event lifecycle — manage exhibitors, see real-time analytics, and generate reports from one dashboard.",
+      cta: "View organizer demo",
+      href: "/org",
+      illustration: OrganizerIllo,
+    },
+    {
+      role: "Exhibitor",
+      color: "bg-status-success-solid",
+      icon: ExhibitorIcon,
+      desc: "Live visitor pipeline, AI-powered insights, relationship workspace, notes, and follow-up tracking for your entire booth team.",
+      cta: "View exhibitor demo",
+      href: "/demo",
+      illustration: ExhibitorIllo,
+    },
+    {
+      role: "Attendee",
+      color: "bg-status-ai-solid",
+      icon: AttendeeIcon,
+      desc: "Browse exhibitors, get personalized AI recommendations, scan QR codes, and manage your profile. Mobile-first and privacy-first.",
+      cta: "View attendee demo",
+      href: "/demo",
+      illustration: AttendeeIllo,
+    },
+  ];
+
+  return (
+    <section className="px-6 py-20 sm:px-10 sm:py-28">
+      <div className="mx-auto max-w-6xl">
+        <FadeIn>
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+              One platform, three roles
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-secondary">
+              ExAi serves everyone at a trade show — each with their own
+              dedicated experience powered by the same intelligence layer.
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="mt-16 grid gap-6 sm:grid-cols-3">
+          {personas.map((p, i) => (
+            <FadeIn key={p.role} delay={i * 100}>
+              <div className="group relative rounded-2xl border border-default bg-surface p-6 shadow-1 transition-all duration-[var(--mq-duration-moderate)] ease-[var(--mq-ease-standard)] will-change-transform hover:-translate-y-1 hover:shadow-card-hover">
+                <div className={`mb-4 flex size-12 items-center justify-center rounded-xl ${p.color}/10`}>
+                  <p.icon className={`size-6 ${p.color === "bg-brand" ? "text-brand" : p.color === "bg-status-success-solid" ? "text-status-success-text" : "text-status-ai-text"}`} />
+                </div>
+                <h3 className="text-lg font-semibold text-primary">{p.role}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-secondary">{p.desc}</p>
+                <Link
+                  href={p.href}
+                  className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-brand transition-colors hover:text-brand-hover"
+                >
+                  {p.cta}
+                  <ChevronRight className="size-3.5 transition-transform duration-[var(--mq-duration-fast)] group-hover:translate-x-0.5" />
+                </Link>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  How ExAi Works + What You Get — combined storytelling             */
 /* ------------------------------------------------------------------ */
 
 function HowExAiWorks() {
@@ -188,7 +265,7 @@ function HowExAiWorks() {
     },
     {
       icon: LeadIntelIcon,
-      title: "Lead intelligence generated",
+      title: "Lead intelligence",
       desc: "Summaries, talking points, and follow-up priorities appear automatically.",
     },
     {
@@ -198,9 +275,32 @@ function HowExAiWorks() {
     },
   ];
 
+  const benefits = [
+    {
+      icon: QrFeatureIcon,
+      title: "Instant lead capture",
+      desc: "One QR scan creates a rich, AI-enriched relationship record — no business cards, no manual entry.",
+    },
+    {
+      icon: AiFeatureIcon,
+      title: "AI-powered insights",
+      desc: "Auto-generated summaries, talking points, buying-intent analysis, and follow-up suggestions for every lead.",
+    },
+    {
+      icon: EnrichmentIcon,
+      title: "Progressive enrichment",
+      desc: "Attendees control their profile. As they share more, dashboards update in real time.",
+    },
+    {
+      icon: MemoryFeatureIcon,
+      title: "Cross-event memory",
+      desc: "ExAi remembers context across events — so relationships build year after year, not from scratch.",
+    },
+  ];
+
   return (
     <section className="border-y border-default/50 bg-sunken/30 px-6 py-20 sm:px-10 sm:py-28">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-6xl">
         <FadeIn>
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
@@ -212,164 +312,53 @@ function HowExAiWorks() {
           </div>
         </FadeIn>
 
-        <div className="relative mt-16 flex flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">
-          {steps.map((step, i) => (
-            <div key={step.title} className="flex w-full items-center gap-4 md:w-auto md:flex-col md:text-center">
-              <FadeIn delay={i * 100}>
-                <div className="card-hover flex size-16 shrink-0 items-center justify-center rounded-2xl border border-brand/20 bg-surface shadow-1">
-                  <step.icon className="size-7 text-brand" />
-                </div>
-              </FadeIn>
-              <FadeIn delay={i * 100 + 50}>
-                <div className="md:mt-3">
-                  <h3 className="text-sm font-semibold text-primary">{step.title}</h3>
-                  <p className="mt-1 max-w-44 text-xs leading-relaxed text-secondary">{step.desc}</p>
-                </div>
-              </FadeIn>
+        <div className="relative mt-16 grid gap-8 md:grid-cols-2 md:gap-12">
+          {/* Left: How it works flow */}
+          <div>
+            <h3 className="mb-8 text-sm font-semibold uppercase tracking-widest text-muted">The flow</h3>
+            <div className="space-y-8">
+              {steps.map((step, i) => (
+                <FadeIn key={step.title} delay={i * 80}>
+                  <div className="flex items-start gap-4">
+                    <div className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-brand/20 bg-surface shadow-1">
+                      <step.icon className="size-5 text-brand" />
+                    </div>
+                    <div className="min-w-0 pt-1">
+                      <h4 className="text-sm font-semibold text-primary">{step.title}</h4>
+                      <p className="mt-0.5 text-sm leading-relaxed text-secondary">{step.desc}</p>
+                    </div>
+                  </div>
+                </FadeIn>
+              ))}
             </div>
-          ))}
+          </div>
 
-          {/* Connector arrows — visible on md+ */}
-          <div aria-hidden className="absolute left-[68px] top-8 hidden md:block" style={{ width: "calc(100% - 136px)" }}>
-            <svg className="size-full text-brand/30" viewBox="0 0 600 4" preserveAspectRatio="none">
-              <line x1="0" y1="2" x2="600" y2="2" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 4" />
-              <path d="M594 0l4 2-4 2" fill="currentColor" stroke="none" />
-            </svg>
+          {/* Right: Benefits */}
+          <div>
+            <h3 className="mb-8 text-sm font-semibold uppercase tracking-widest text-muted">What you get</h3>
+            <div className="space-y-8">
+              {benefits.map((b, i) => (
+                <FadeIn key={b.title} delay={i * 80}>
+                  <div className="flex items-start gap-4">
+                    <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-brand-subtle text-brand">
+                      <b.icon className="size-5" />
+                    </div>
+                    <div className="min-w-0 pt-1">
+                      <h4 className="text-sm font-semibold text-primary">{b.title}</h4>
+                      <p className="mt-0.5 text-sm leading-relaxed text-secondary">{b.desc}</p>
+                    </div>
+                  </div>
+                </FadeIn>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
 
-/* ------------------------------------------------------------------ */
-/*  One Platform, Three Roles                                         */
-/* ------------------------------------------------------------------ */
-
-function PersonasSection() {
-  const personas = [
-    {
-      role: "Organizer",
-      color: "bg-brand",
-      icon: OrganizerIcon,
-      desc: "Create events, manage exhibitors, see real-time analytics, and generate reports. Full control over the event lifecycle.",
-      cta: "View organizer demo",
-      href: "/org",
-    },
-    {
-      role: "Exhibitor",
-      color: "bg-status-success-solid",
-      icon: ExhibitorIcon,
-      desc: "Dashboard with live visitor pipeline, AI insights, relationship workspace, notes, and follow-up tracking. Everything your booth team needs.",
-      cta: "View exhibitor demo",
-      href: "/demo",
-    },
-    {
-      role: "Attendee",
-      color: "bg-status-ai-solid",
-      icon: AttendeeIcon,
-      desc: "Browse exhibitors, get personalized AI recommendations, scan QR codes to connect, manage your profile and consent. Mobile-first experience.",
-      cta: "View attendee demo",
-      href: "/demo",
-    },
-  ];
-
-  return (
-    <section className="px-6 py-20 sm:px-10 sm:py-28">
-      <div className="mx-auto max-w-5xl">
-        <FadeIn>
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
-              One platform, three roles
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-secondary">
-              ExAi serves everyone at a trade show — each with their own
-              dedicated experience.
-            </p>
-          </div>
-        </FadeIn>
-
-        <div className="mt-16 grid gap-6 sm:grid-cols-3">
-          {personas.map((p, i) => (
-            <FadeIn key={p.role} delay={i * 100}>
-              <div className="card-hover group rounded-2xl border border-default bg-surface p-6 shadow-1">
-                <div className={`mb-4 flex size-12 items-center justify-center rounded-xl ${p.color}/10`}>
-                  <p.icon className={`size-6 ${p.color === "bg-brand" ? "text-brand" : p.color === "bg-status-success-solid" ? "text-status-success-text" : "text-status-ai-text"}`} />
-                </div>
-                <h3 className="text-lg font-semibold text-primary">{p.role}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-secondary">{p.desc}</p>
-                <Link
-                  href={p.href}
-                  className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-brand transition-colors hover:text-brand-hover"
-                >
-                  {p.cta}
-                  <ChevronRight className="size-3.5" />
-                </Link>
-              </div>
-            </FadeIn>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Platform Capabilities                                             */
-/* ------------------------------------------------------------------ */
-
-function CapabilitiesSection() {
-  const capabilities = [
-    {
-      title: "Instant lead capture",
-      desc: "Attendees scan a QR and connect instantly. One tap creates a rich, AI-enriched relationship record.",
-      icon: QrFeatureIcon,
-    },
-    {
-      title: "AI-powered insights",
-      desc: "Every relationship gets an AI summary, talking points, follow-up suggestions, and buying-intent analysis.",
-      icon: AiFeatureIcon,
-    },
-    {
-      title: "Progressive enrichment",
-      desc: "Attendees control their profile. As they share more, exhibitor dashboards update automatically.",
-      icon: EnrichmentIcon,
-    },
-    {
-      title: "Cross-event memory",
-      desc: "ExAi remembers relationships across events. Full context and history carry over year after year.",
-      icon: MemoryFeatureIcon,
-    },
-  ];
-
-  return (
-    <section className="border-y border-default/50 bg-sunken/30 px-6 py-20 sm:px-10 sm:py-28">
-      <div className="mx-auto max-w-5xl">
-        <FadeIn>
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
-              Platform capabilities
-            </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-secondary">
-              Purpose-built for the speed, privacy, and relationship dynamics of live events.
-            </p>
-          </div>
-        </FadeIn>
-
-        <div className="mt-16 grid gap-5 sm:grid-cols-2">
-          {capabilities.map((c, i) => (
-            <FadeIn key={c.title} delay={i * 100}>
-              <div className="card-hover flex items-start gap-5 rounded-2xl border border-default bg-surface p-5 shadow-1">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-subtle text-brand">
-                  <c.icon className="size-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-primary">{c.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-secondary">{c.desc}</p>
-                </div>
-              </div>
-            </FadeIn>
-          ))}
+        {/* Visual divider with decorative element */}
+        <div aria-hidden="true" className="mx-auto mt-16 flex items-center justify-center gap-3">
+          <span className="h-px w-12 bg-gradient-to-r from-transparent to-border-default" />
+          <span className="flex size-2 rounded-full border border-border-default" />
+          <span className="h-px w-12 bg-gradient-to-l from-transparent to-border-default" />
         </div>
       </div>
     </section>
@@ -399,13 +388,14 @@ function CTASection() {
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/demo"
-              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-base font-semibold text-on-brand shadow-2 transition-all hover:bg-brand-hover hover:shadow-3"
+              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-base font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
             >
               Open demo
+              <ChevronRight className="ml-2 size-4" />
             </Link>
             <Link
               href="/auth"
-              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-base font-medium text-primary transition-all hover:bg-sunken"
+              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-base font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
             >
               Sign in
             </Link>
@@ -486,19 +476,19 @@ function DashboardIcon({ className }: { className?: string }) {
   );
 }
 
-/* ---- Persona icons ---- */
+/* ---- Persona icons — cohesive 32×32 family ---- */
 
 function OrganizerIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="5" y="8" width="22" height="20" rx="2" />
-      <rect x="8" y="12" width="6" height="4" rx="0.5" fill="currentColor" stroke="none" opacity="0.3" />
-      <rect x="18" y="12" width="6" height="4" rx="0.5" fill="currentColor" stroke="none" opacity="0.3" />
-      <rect x="8" y="18" width="6" height="4" rx="0.5" fill="currentColor" stroke="none" opacity="0.3" />
-      <rect x="18" y="18" width="6" height="4" rx="0.5" fill="currentColor" stroke="none" opacity="0.3" />
-      <path d="M12 8V5a2 2 0 012-2h4a2 2 0 012 2v3" />
-      <path d="M20 8V5" strokeWidth="1" />
-      <path d="M12 8V5" strokeWidth="1" />
+      <rect x="4" y="7" width="24" height="21" rx="3" />
+      <rect x="7" y="11" width="7" height="5" rx="1" fill="currentColor" stroke="none" opacity="0.25" />
+      <rect x="18" y="11" width="7" height="5" rx="1" fill="currentColor" stroke="none" opacity="0.25" />
+      <rect x="7" y="18" width="7" height="5" rx="1" fill="currentColor" stroke="none" opacity="0.25" />
+      <rect x="18" y="18" width="7" height="5" rx="1" fill="currentColor" stroke="none" opacity="0.25" />
+      <path d="M11 7V4a2 2 0 012-2h6a2 2 0 012 2v3" />
+      <circle cx="16" cy="13" r="2" fill="currentColor" stroke="none" opacity="0.5" />
+      <path d="M16 20v3M14 21h4" strokeWidth="1.2" opacity="0.5" />
     </svg>
   );
 }
@@ -506,12 +496,12 @@ function OrganizerIcon({ className }: { className?: string }) {
 function ExhibitorIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="5" y="14" width="22" height="14" rx="2" />
-      <rect x="8" y="17" width="16" height="3" rx="0.5" fill="currentColor" stroke="none" opacity="0.3" />
-      <rect x="8" y="22" width="10" height="3" rx="0.5" fill="currentColor" stroke="none" opacity="0.3" />
-      <path d="M10 14V8a2 2 0 012-2h8a2 2 0 012 2v6" />
-      <rect x="14" y="4" width="4" height="4" rx="1" fill="currentColor" stroke="none" opacity="0.4" />
-      <circle cx="16" cy="6" r="0.8" fill="currentColor" stroke="none" />
+      <rect x="4" y="13" width="24" height="15" rx="3" />
+      <rect x="7" y="16" width="18" height="4" rx="1" fill="currentColor" stroke="none" opacity="0.2" />
+      <rect x="7" y="22" width="10" height="3" rx="1" fill="currentColor" stroke="none" opacity="0.2" />
+      <path d="M9 13V7a2 2 0 012-2h10a2 2 0 012 2v6" />
+      <circle cx="16" cy="5" r="2" fill="currentColor" stroke="none" opacity="0.4" />
+      <path d="M16 8v2" strokeWidth="1.2" opacity="0.5" />
     </svg>
   );
 }
@@ -520,23 +510,69 @@ function AttendeeIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="16" cy="8" r="5" />
-      <path d="M6 28c0-5.5 4.5-10 10-10s10 4.5 10 10" />
-      <rect x="22" y="4" width="8" height="8" rx="1.5" opacity="0.5" />
-      <path d="M24 7l2 2 3-3" strokeWidth="1.2" />
+      <path d="M5 28c0-5.5 4.5-10 11-10s11 4.5 11 10" />
+      <rect x="23" y="3" width="8" height="8" rx="2" opacity="0.5" />
+      <path d="M25 6l2 2 3-3" strokeWidth="1.2" />
     </svg>
   );
 }
 
-/* ---- Capability icons ---- */
+/* ---- Persona illustrations — larger 48×48 decorative ---- */
+
+function OrganizerIllo({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="10" width="36" height="32" rx="4" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+      <rect x="10" y="15" width="10" height="6" rx="1.5" fill="currentColor" opacity="0.12" />
+      <rect x="28" y="15" width="10" height="6" rx="1.5" fill="currentColor" opacity="0.12" />
+      <rect x="10" y="24" width="10" height="6" rx="1.5" fill="currentColor" opacity="0.12" />
+      <rect x="28" y="24" width="10" height="6" rx="1.5" fill="currentColor" opacity="0.12" />
+      <rect x="10" y="33" width="6" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" opacity="0.4" />
+      <rect x="32" y="33" width="6" height="5" rx="1" stroke="currentColor" strokeWidth="1.2" opacity="0.4" />
+      <path d="M20 10V6a2 2 0 012-2h4a2 2 0 012 2v4" stroke="currentColor" strokeWidth="1.2" opacity="0.4" />
+      <circle cx="24" cy="18" r="2" fill="currentColor" opacity="0.25" />
+    </svg>
+  );
+}
+
+function ExhibitorIllo({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="18" width="40" height="24" rx="4" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+      <rect x="8" y="22" width="32" height="6" rx="2" fill="currentColor" opacity="0.08" />
+      <rect x="8" y="31" width="14" height="5" rx="1.5" fill="currentColor" opacity="0.08" />
+      <rect x="26" y="31" width="14" height="5" rx="1.5" fill="currentColor" opacity="0.08" />
+      <path d="M12 18V10a3 3 0 013-3h18a3 3 0 013 3v8" stroke="currentColor" strokeWidth="1.2" opacity="0.4" />
+      <circle cx="24" cy="8" r="3" fill="currentColor" opacity="0.15" />
+      <circle cx="24" cy="8" r="1.5" fill="currentColor" opacity="0.3" />
+    </svg>
+  );
+}
+
+function AttendeeIllo({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+      <circle cx="24" cy="12" r="4" fill="currentColor" opacity="0.1" />
+      <path d="M6 42c0-8.8 8-16 18-16s18 7.2 18 16" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+      <rect x="34" y="4" width="12" height="12" rx="3" stroke="currentColor" strokeWidth="1.2" opacity="0.4" />
+      <path d="M37 9l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+      <circle cx="24" cy="34" r="2" fill="currentColor" opacity="0.15" />
+    </svg>
+  );
+}
+
+/* ---- Capability icons — 24×24 family ---- */
 
 function QrFeatureIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="4" height="4" rx="1" />
-      <rect x="17" y="3" width="4" height="4" rx="1" />
-      <rect x="11" y="3" width="4" height="4" rx="1" />
-      <rect x="3" y="11" width="4" height="4" rx="1" />
-      <path d="M11 13h2v2M13 11v-1M16 14h1M17 17v-1M13 17h2" />
+      <rect x="3" y="3" width="5" height="5" rx="1" />
+      <rect x="16" y="3" width="5" height="5" rx="1" />
+      <rect x="10" y="3" width="4" height="5" rx="1" />
+      <rect x="3" y="10" width="5" height="5" rx="1" />
+      <path d="M10 12h2v2M12 10V9M16 13h2M18 17v-1M12 17h2" />
+      <rect x="3" y="17" width="5" height="5" rx="1" />
     </svg>
   );
 }
@@ -544,8 +580,8 @@ function QrFeatureIcon({ className }: { className?: string }) {
 function AiFeatureIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" />
-      <path d="M19 16l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" />
+      <path d="M12 3l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5 1.5-4z" />
+      <path d="M19 15l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" />
     </svg>
   );
 }
@@ -553,9 +589,9 @@ function AiFeatureIcon({ className }: { className?: string }) {
 function EnrichmentIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="4" />
+      <circle cx="12" cy="7" r="4" />
       <path d="M3 21c0-4.5 4-8 9-8s9 3.5 9 8" />
-      <path d="M18 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" />
+      <path d="M18 3l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" opacity="0.7" />
     </svg>
   );
 }
@@ -563,9 +599,10 @@ function EnrichmentIcon({ className }: { className?: string }) {
 function MemoryFeatureIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4h16v16H4z" />
-      <path d="M8 4v16M16 4v16M4 12h16" />
-      <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" opacity="0.4" />
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M6 3v18M18 3v18M3 12h18" opacity="0.4" />
+      <circle cx="12" cy="12" r="2.5" fill="currentColor" opacity="0.15" />
+      <path d="M12 9.5v5M9.5 12h5" strokeWidth="1.5" opacity="0.5" />
     </svg>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { getDemoLiveEventMetrics, type DemoLiveEventMetrics } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { RelativeTime } from "./relative-time";
@@ -58,7 +58,7 @@ export function LiveMetricsBar() {
   );
 }
 
-export function LiveBadge({ count, label }: { count: number; label: string }) {
+export const LiveBadge = memo(function LiveBadge({ count, label }: { count: number; label: string }) {
   if (count === 0) return null;
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-status-success-subtle px-2 py-0.5 text-xs font-medium text-status-success-text">
@@ -66,7 +66,7 @@ export function LiveBadge({ count, label }: { count: number; label: string }) {
       {count} {label}
     </span>
   );
-}
+});
 
 export function RecentActivityFeed({ className }: { className?: string }) {
   const [activities, setActivities] = useState<DemoLiveEventMetrics["recentActivity"]>([]);
@@ -110,7 +110,7 @@ export function RecentActivityFeed({ className }: { className?: string }) {
   );
 }
 
-export function InsightCard({
+export const InsightCard = memo(function InsightCard({
   title,
   value,
   detail,
@@ -136,4 +136,4 @@ export function InsightCard({
       {detail && <p className="text-body-sm text-muted mt-0.5">{detail}</p>}
     </div>
   );
-}
+});
