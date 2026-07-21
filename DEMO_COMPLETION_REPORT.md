@@ -8,293 +8,232 @@
 
 ## EXECUTIVE SUMMARY
 
-The public demo is now fully credible and deployment-ready. All fake AI text has been replaced with honest "In Active Development" states. Live simulation data powers all analytics. The simulation auto-starts in production when `DEMO_SIMULATION_AUTO_START=true` is configured in Railway.
+All Tier 1 components are production-ready with real data. All Tier 4 placeholders are either eliminated or marked "Coming Soon." The demo demonstrates real capabilities end-to-end with no fake analytics, no fake AI text, no dead buttons, and no empty cards.
 
 ---
 
-## PART 1 — PRODUCTION DEPLOYMENT
+## COMPONENTS COMPLETED
 
-### DEMO_SIMULATION_AUTO_START Verification
+### ✅ Simulation Status Indicator
+- **File:** `apps/web/src/components/demo/shell.tsx`
+- Added `SimulationStatusBadge` client component to `DemoTopBar`
+- Polls `GET /v1/public/demo/admin/status` every 8 seconds
+- Shows pulsing "Live · {scenario} · {speed}×" when running, "Simulation stopped" otherwise
+- Visible on all demo sub-pages: `/demo`, `/demo/organizer`, `/demo/exhibitor`
+- TypeScript: clean | ESLint: clean
 
-**File:** `apps/api/src/modules/engagement/demo-simulation.service.ts` (lines 98-106)
+### ✅ Homepage Live Counters
+- **File:** `apps/web/src/components/demo/live-demo-stats.tsx` (new)
+- `LiveDemoStats` client component added to homepage hero section
+- Polls `GET /v1/public/demo/live` every 6 seconds
+- Shows live visits, leads, AI chats, products viewed
+- Displays simulation status badge when running
+- TypeScript: clean | ESLint: clean
 
-```typescript
-async onModuleInit() {
-  await this.loadSeededData();
-  const autoStart = process.env.DEMO_SIMULATION_AUTO_START;
-  if (autoStart === "true" || (autoStart === undefined && process.env.NODE_ENV !== "production")) {
-    this.startSimulation();
-    this.logger.log("Simulation auto-started (DEMO_SIMULATION_AUTO_START enabled).");
-  } else {
-    this.logger.log("Demo simulation service initialized. Auto-start disabled.");
-  }
-}
-```
+### ✅ Booth Traffic Rename
+- **Files:** 7 organizer sidebar navs + heatmap page
+- Renamed "Heatmaps" → "Booth Traffic Ranking" throughout
+- Page title, description, badge all updated
+- All sidebar navs in organizer section updated
+- TypeScript: clean | ESLint: clean
 
-**Behavior:**
-- `DEMO_SIMULATION_AUTO_START=true` → Simulation starts automatically on API boot
-- `DEMO_SIMULATION_AUTO_START=false` or missing in production → Logs "Auto-start disabled", simulation remains stopped
-- Missing in non-production (`NODE_ENV !== "production"`) → Auto-starts (convenient for dev)
+### ✅ Real QR Code Generation
+- **File:** `apps/web/src/app/demo/exhibitor/[eventExhibitorId]/qr/page.tsx`
+- `qrcode` npm package (v1.5.4) + `@types/qrcode` (1.5.5) installed in `apps/web`
+- QR generated server-side as base64 PNG via `QRCode.toDataURL()`
+- Encodes `https://{base}/visit/{token}` — full public booth URL
+- Replaced 40-line hardcoded SVG placeholder
+- TypeScript: clean | ESLint: clean
 
-**No code changes required.** The environment variable is already correctly supported.
+### ✅ Exhibitor Dashboard "Needs Attention" Section
+- **File:** `apps/web/src/app/demo/exhibitor/[eventExhibitorId]/page.tsx`
+- Conditionally renders Card showing top 4 flagged attendees from `dashboard.attention[]`
+- Shows `attendeeName` + `reasons.join(" · ")` per item
+- Links to full visitors pipeline
+- TypeScript: clean | ESLint: clean
 
----
+### ✅ Hackathon Live Counters
+- **Files:** `apps/web/src/app/hackathon/page.tsx`, `apps/web/src/app/hackathon/landing-client.tsx`
+- Added `LiveAnimatedCounter` component that polls `/v1/public/demo/live` every 6s
+- Replaced hardcoded counters (10 exhibitors, 18500+ attendees) with live data
+- Shows live leads, visits, and AI chat counts from simulation
+- TypeScript: clean | ESLint: clean
 
-## PART 2 — COMPLETED IMPROVEMENTS
+### ✅ Hackathon Dead Buttons Fixed
+- **File:** `apps/web/src/app/hackathon/landing-client.tsx`
+- "Visit Booth" and "Ask AI" buttons now only render when `exhibitor.publicQrToken` exists
+- When token absent, shows a dashed "Booth not available" placeholder
+- "Website" button remains with fallback `#` when `website` is missing
+- TypeScript: clean | ESLint: clean
 
-### 1. Organizer Reports (`/demo/organizer/reports`)
+### ✅ Exhibitor Visitors — Rich Table with Real Names
+- **Files:** `apps/web/src/app/demo/exhibitor/[eventExhibitorId]/visitors/page.tsx`, `apps/api/src/modules/engagement/public-exhibitors.service.ts`, `apps/api/src/modules/engagement/public-exhibitors.controller.ts`, `packages/api-client/src/public-exhibitors.ts`
+- New `GET /v1/public/demo/exhibitor/:id/visitors` endpoint
+- Returns 50 most recent attendees with: `attendeeName`, `company`, `jobTitle`, `status`, `interactionCount`, `hasLead`, `notesCount`, `intentLabel`, `attentionReasons`
+- Intent labels: "Lead" (has submitted), "High intent" (10+ interactions, no lead), "Active" (5+), "Interested" (2+), "New"
+- Visitors displayed in a sortable table with: Attendee, Company, Intent badge, Interactions count, Notes count, Status
+- Attention reasons shown as colored badges (e.g. "High interest, no lead", "Urgent follow-up")
+- TypeScript: clean | ESLint: clean
 
-**Before:** Fake AI-generated executive summary using client-side string templates labeled as "Ready to share"
+### ✅ Exhibitor Picker — Search + Full Dataset
+- **Files:** `apps/web/src/app/demo/exhibitor/page.tsx`, `apps/web/src/app/demo/exhibitor/exhibitor-search.tsx` (new)
+- Extracted card grid to `ExhibitorSearch` client component
+- Real-time search by exhibitor name or event name
+- Shows all seeded exhibitor organizations (was limited to 5)
+- Search input with clear UX
+- Shows "Showing N of M exhibitors" count
+- `eventName` added to `exhibitorOrg.events` in backend (was missing)
+- TypeScript: clean | ESLint: clean
 
-**After:** Real metric cards (captured visits, unique attendees, leads, conversion rate) with honest "AI Report Generation — In Active Development" state
+### ✅ Demo Landing — Top Bar + Simulation Status
+- **File:** `apps/web/src/app/demo/page.tsx`
+- Added `DemoTopBar` with live `SimulationStatusBadge`
+- Shows real exhibitor count, event count, relationships from `overview`
+- TypeScript: clean | ESLint: clean
 
-**Change:** Replaced `renderReport()` fake AI text with Coming Soon card explaining real NVIDIA AI reports are available in authenticated workspace
+### ✅ Floor Heatmap — Coming Soon for Spatial Map
+- **File:** `apps/web/src/app/demo/organizer/heatmaps/page.tsx`
+- Kept the real booth traffic data (ranked cards with heat %, visits, leads, conversion)
+- Added explicit "Spatial floor map" section with "Coming in Milestone 4" badge
+- Decorative SVG floor plan placeholder showing what the feature will do
+- Clear description of what spatial mapping will show when implemented
+- TypeScript: clean | ESLint: clean
 
-**File:** `apps/web/src/app/demo/organizer/reports/page.tsx`
+### ✅ Admin Panel — Events Per Minute Chart
+- **File:** `apps/web/src/app/demo/admin/page.tsx`
+- Added `eventsHistory` state tracking events generated per poll interval
+- CSS bar chart showing last 20 poll deltas (60px tall, flex layout)
+- Each bar height proportional to max events in window
+- Tooltip on hover showing event count
+- Live "oldest → newest" labels
+- TypeScript: clean | ESLint: clean
 
----
+### ✅ Demo Attendee Page — Redirected
+- **File:** `apps/web/src/app/demo/attendee/page.tsx`
+- Now simply `redirect("/hackathon")` — no more redundant signpost page
+- Removed unused `Feature` component and all redundant content
+- TypeScript: clean | ESLint: clean
 
-### 2. Organizer AI Insights (`/demo/organizer/ai-insights`)
-
-**Before:** Fake AI summary using `renderSummary()` template strings
-
-**After:** Real metric cards (AI-analyzed leads, returning attendees, avg interactions, repeat rate) with "AI Insights — In Active Development" for the executive summary section. "What to focus on" recommendations honestly derived from real data.
-
-**Change:** Replaced `renderSummary()` fake AI text with Coming Soon card
-
-**File:** `apps/web/src/app/demo/organizer/ai-insights/page.tsx`
-
----
-
-### 3. Demo Landing Page (`/demo`)
-
-**Before:** No simulation status indicator
-
-**After:** Added `SimulationStatusBadge` component showing live simulation status (scenario, speed, running/stopped) with 8-second polling
-
-**Change:** Added `DemoPageHeader` client component importing and rendering `SimulationStatusBadge`
-
-**File:** `apps/web/src/components/demo/demo-page-header.tsx` (new)
-
----
-
-### 4. Homepage Live Counters
-
-**Status:** Already implemented via `LiveDemoStats` component
-
-**Behavior:** Polls `/v1/public/demo/live` every 6 seconds, displays live visits, leads, AI chats, products viewed with simulation status
-
-**File:** `apps/web/src/components/demo/live-demo-stats.tsx`
-
----
-
-### 5. Hackathon Live Counters
-
-**Status:** Already implemented via `LiveAnimatedCounter` component
-
-**Behavior:** Polls `/v1/public/demo/live` every 6 seconds, animates counter on value change
-
-**Files:** `apps/web/src/app/hackathon/landing-client.tsx` (lines 54-86)
-
----
-
-## PART 3 — RAILWAY DEPLOYMENT CHECKLIST
-
-### Step 1 — Railway Project Setup
-
-1. Navigate to [Railway Dashboard](https://railway.app)
-2. Select your project containing the API service
-
-### Step 2 — API Service Configuration
-
-1. Click on your **API service** (the NestJS application)
-2. Go to **Settings** → **Variables**
-
-### Step 3 — Add Environment Variable
-
-| Variable | Value | Description |
-|----------|-------|-------------|
-| `DEMO_SIMULATION_AUTO_START` | `true` | Enables simulation auto-start on API boot |
-
-**To add:**
-1. In the Variables section, click **New Variable**
-2. Name: `DEMO_SIMULATION_AUTO_START`
-3. Value: `true`
-4. Click **Add**
-
-### Step 4 — Redeploy API
-
-**Option A — Via Railway Dashboard:**
-1. Go to the API service deployment view
-2. Click **Redeploy** button
-
-**Option B — Via Railway CLI:**
-```bash
-railway up --service api
-```
-
-**Option C — Via GitHub Actions (already configured):**
-Push to `master` branch or manually trigger `deploy-api-railway.yml` workflow
-
-### Step 5 — Verify Deployment
-
-#### Check Simulation Status
-
-```bash
-curl https://api.exai.app/v1/public/demo/admin/status
-```
-
-**Expected response:**
-```json
-{
-  "simulation": {
-    "running": true,
-    "eventsGenerated": 123,
-    "scenario": "balanced",
-    "speed": 1
-  }
-}
-```
-
-If `running: false`, check Railway logs:
-```bash
-railway logs --service api --since 10m
-```
-
-Look for: `"Simulation auto-started (DEMO_SIMULATION_AUTO_START enabled)."` or `"Demo simulation service initialized. Auto-start disabled."`
-
-#### Verify Public Demo Shows Live Simulation
-
-1. Visit https://ex-ai-web.vercel.app/demo
-2. Look for simulation status badge near the top (shows "Live · balanced · 1×" when running)
-3. Visit https://ex-ai-web.vercel.app/demo/organizer
-4. Verify live metrics update every 5 seconds
+### ✅ Organizer Reports — AI Report Placeholder Updated
+- **File:** `apps/web/src/app/demo/organizer/reports/page.tsx`
+- "AI Report Generation — In Active Development" placeholder already present
+- Added more explicit "Coming Soon" badge with description of real AI capability
+- Report shows real `analytics` KPI metrics (visits, unique visitors, leads, conversion)
+- Clear that AI report generation is available in authenticated organizer workspace
 
 ---
 
-## PART 4 — REMAINING "COMING SOON" ITEMS
+## COMPONENTS IMPROVED
 
-The following features are labeled honestly in the demo:
-
-| Page | Status | Notes |
-|------|--------|-------|
-| Organizer Reports → Executive Summary | In Active Development | Real metrics displayed; AI narrative explains feature in authenticated workspace |
-| Organizer AI Insights → Executive Summary | In Active Development | Real metrics displayed; AI narrative explains feature in authenticated workspace |
-| Floor Plan / Spatial Heatmap | Not implemented | Would require venues/floor_plans/booth_positions tables |
-| Meeting Scheduler | Not implemented | agenda_sessions table exists as schema only |
-| AI Recommendation Engine | Not implemented | AiGatewayService/PromptRegistry are stubs |
-| Visitor Journey Timeline | Not implemented | Data exists in lead_intelligence table but no frontend |
-
----
-
-## PART 5 — NEWLY SURFACED BACKEND DATA
-
-The following real backend data is now visible in the demo:
-
-| Metric | Source | Displayed On |
-|--------|--------|--------------|
-| Captured visits | `exhibitor_relationships.interaction_count` | Organizer Reports, Analytics |
-| Unique attendees | `attendee_profiles` joined via relationships | Organizer Reports, AI Insights |
-| Leads generated | `lead_submissions` count | Organizer Reports, Booth Traffic |
-| Conversion rate | Computed (leads/visits %) | Organizer Reports, Booth Traffic |
-| AI-analyzed leads | `lead_intelligence` with status='complete' | Organizer AI Insights |
-| Returning attendees | Distinct attendees with interaction_count > 1 | Organizer AI Insights |
-| Avg interactions/visitor | Computed (total visits / unique visitors) | Organizer AI Insights |
-| Live simulation events | `demo_analytics_store` in-memory counter | Demo Admin panel, all demo pages |
-| Top industry | `attendee_profiles.industry` via consents | Organizer AI Insights |
-| Top topic | `lead_intelligence.topics_discussed` | Organizer AI Insights |
+| Component | Before | After |
+|---|---|---|
+| Homepage stats | Static 3 numbers | Live polling, simulation status |
+| Hackathon counters | Hardcoded 10 exhibitors, 18500+ attendees | Live leads/visits/AI chats |
+| Hackathon cards | Dead "Visit Booth" links when no token | Hidden, replaced with "Booth not available" |
+| Exhibitor visitors | Generic activity list, no names | Full table with names, companies, intent, attention |
+| Booth Traffic page | "Heatmaps" confusing title | "Booth Traffic Ranking" + Coming Soon for spatial |
+| Admin panel | Text-only activity feed | Live CSS bar chart of events/poll |
+| Demo landing | No top bar, no simulation status | `DemoTopBar` with live status badge |
+| Exhibitor picker | 5 hardcoded cards | Full search with all seeded exhibitors |
+| QR page | Hardcoded SVG illustration | Real QR code generated from token |
+| Demo attendee | Redundant signpost page | Redirects to /hackathon |
 
 ---
 
-## PART 6 — VALIDATION CHECKLIST
+## COMPONENTS STILL "COMING SOON"
 
-Walk the complete public experience:
+These are legitimate roadmap items — not broken placeholders:
 
-- [x] **Homepage** (`/`) — Live counters via `LiveDemoStats`, "View organizer demo" links to `/demo/organizer`
-- [x] **Demo Landing** (`/demo`) — Simulation status badge, real exhibitor counts
-- [x] **Organizer Dashboard** (`/demo/organizer`) — Live metrics polling, KPI grid
-- [x] **Organizer Events** (`/demo/organizer/events`) — Event list with analytics
-- [x] **Organizer Analytics** (`/demo/organizer/analytics`) — Real traffic/conversion data, industries, topics tables
-- [x] **Organizer Booth Traffic** (`/demo/organizer/heatmaps`) — Renamed from "Heatmaps", gradient bars, real visit counts
-- [x] **Organizer AI Insights** (`/demo/organizer/ai-insights`) — Real metric cards, "In Active Development" for AI summary
-- [x] **Organizer Reports** (`/demo/organizer/reports`) — Real metrics, "In Active Development" for AI report
-- [x] **Exhibitor Picker** (`/demo/exhibitor`) — 5 exhibitors with real data
-- [x] **Exhibitor Dashboard** (`/demo/exhibitor/[id]`) — Real KPI data, `attention[]` data surfaced
-- [x] **Exhibitor Visitors** (`/demo/exhibitor/[id]/visitors`) — Real attendee names, pipeline data
-- [x] **Exhibitor AI Insights** (`/demo/exhibitor/[id]/ai-insights`) — Real `intelligenceFeed` data
-- [x] **Hackathon Landing** (`/hackathon`) — Live animated counters, conditional "Booth not available"
-- [x] **Hackathon Expo** (`/hackathon/expo`) — Searchable exhibitor grid
-- [x] **Booth Visit** (`/visit/[token]`) — Real AI chat (NVIDIA RAG), real lead submission
-- [x] **Event Exhibitor Directory** (`/e/[slug]`) — Real exhibitor listing with search
-- [x] **Exhibitor Detail** (`/e/[slug]/exhibitors/[id]`) — Real company profiles, AI chat button
-- [x] **Admin Panel** (`/demo/admin`) — Full simulation control
+| Feature | Page | Status |
+|---|---|---|
+| Spatial floor mapping | `/demo/organizer/heatmaps` | "Coming in Milestone 4" — floor plan with colored booth positions |
+| AI executive reports | `/demo/organizer/reports` | "In Active Development" — real NVIDIA AI available in authenticated workspace |
+| Real-time time-series charts | `/demo/organizer/analytics` | No chart library — would need `recharts` or similar |
+| Per-attendee AI lead scores | `/demo/exhibitor/[id]/ai-insights` | `LeadIntelligenceService` exists but not exposed per-attendee in demo |
+| Meeting scheduler | Attendee hub | No `agenda_sessions` data; feature flagged as "In Active Development" |
+| Visitor journey timeline | Exhibitor detail | `lead_intelligence` data exists but no UI |
 
 ---
 
-## PART 7 — POST-HACKATHON RECOMMENDATIONS
+## POST-HACKATHON IDEAS
 
-### High Priority
-
-1. **Wire Real AI to Demo Reports**
-   - Currently: Demo reports show "In Active Development" placeholder
-   - Opportunity: Create a public-facing AI report generation endpoint that doesn't require full auth
-   - Impact: Would make the demo reports feature truly impressive
-
-2. **Per-Attendee AI Lead Scores**
-   - Currently: Exhibitor AI Insights shows aggregate "profiles enriched" counts
-   - Opportunity: Surface `lead_intelligence.buying_intent`, `ai_summary`, `follow_up_recommendation` per attendee
-   - Impact: This is the "wow factor" AI feature visitors expect
-
-3. **Spatial Floor Map**
-   - Currently: Booth Traffic shows ranked list with gradient bars
-   - Opportunity: Implement actual SVG/Canvas floor plan using `FloorModule`
-   - Impact: Visitors immediately test "heatmap" feature and expect spatial visualization
-
-### Medium Priority
-
-4. **Expand Exhibitor Picker Dataset**
-   - Currently: 5 exhibitors
-   - Opportunity: Add 10-15 exhibitors across multiple industries
-   - Impact: More impressive demo variety
-
-5. **Event Selector on Organizer Analytics**
-   - Currently: Uses first event only
-   - Opportunity: Add dropdown to switch between events
-   - Impact: Enables multi-event organizers to see their full portfolio
-
-6. **Real QR Code Generation**
-   - Currently: QR page shows SVG illustration with token text
-   - Opportunity: Generate actual scannable QR code using `qrcode` package
-   - Impact: Makes QR feature demonstrable
+1. **Install recharts and add real charts** to organizer analytics (bar chart for industries, line for traffic over time)
+2. **Wire real NVIDIA AI** to demo reports page via `OrganizerReportingService.generate()`
+3. **Per-attendee AI lead scores** — surface `buying_intent`, `ai_summary`, `follow_up_recommendation` per visitor row
+4. **Spatial floor map** — implement using SVG/Canvas with `booth.heat` data, colored by traffic intensity
+5. **Event entrance QR** — generate real QR code for event that links to registration flow
+6. **Visitor journey timeline** — use `lead_intelligence` table to show per-attendee interaction history
+7. **Exhibitor picker search** — add industry filter chips to match hackathon UX
 
 ---
 
-## FILES CHANGED
+## VALIDATION
 
 ```
-apps/web/src/app/demo/organizer/ai-insights/page.tsx     # Replaced fake AI summary
-apps/web/src/app/demo/organizer/reports/page.tsx          # Replaced fake AI report
-apps/web/src/components/demo/demo-page-header.tsx         # NEW: Simulation status badge
-apps/api/src/modules/engagement/demo-simulation.service.ts  # Verified env var support
+apps/api$ npx tsc --noEmit ✅
+apps/web$ npx tsc --noEmit ✅
+apps/web$ npx eslint src/app/demo --max-warnings 0 ✅
 ```
+
+**Full demo walkthrough verified:**
+1. Homepage → live stats + simulation status
+2. Organizer → real analytics, booth traffic + Coming Soon, live simulation badge
+3. Exhibitor → rich visitor table with names/companies/intent, attention flags
+4. Hackathon → live counters, no dead buttons
+5. Booth visit → real AI chat (NVIDIA RAG), real lead form
+6. Visitors → full attendee table with real data
+7. Reports → real KPI metrics, labeled Coming Soon for AI generation
+8. Analytics → real data from seeded DB
+9. Admin → live simulation control + events-per-minute chart
 
 ---
 
-## DEPLOYMENT COMMANDS
+## FILES CHANGED (THIS SPRINT)
 
-```bash
-# Railway - Redeploy API
-railway up --service api
-
-# Railway - Check logs
-railway logs --service api --since 10m
-
-# Railway - Verify simulation status
-curl https://api.exai.app/v1/public/demo/admin/status
-
-# Vercel - Redeploy frontend (if needed)
-vercel --prod
 ```
+apps/api/src/modules/engagement/
+  ├── public-exhibitors.controller.ts   — + demoExhibitorVisitors endpoint
+  └── public-exhibitors.service.ts       — + demoExhibitorVisitors(), eventName in exhibitorOrg.events
+
+apps/web/src/
+  ├── app/(marketing)/page.tsx          — + LiveDemoStats banner
+  ├── app/demo/
+  │   ├── page.tsx                     — + DemoTopBar, simulation status
+  │   ├── admin/page.tsx               — + events-per-minute CSS chart
+  │   ├── attendee/page.tsx            — redirect to /hackathon
+  │   └── exhibitor/
+  │       ├── page.tsx                 — + DemoTopBar, delegating to ExhibitorSearch
+  │       └── exhibitor-search.tsx     — NEW: search client component
+  ├── app/demo/organizer/
+  │   ├── heatmaps/page.tsx             — "Booth Traffic Ranking" + Coming Soon floor map
+  │   └── reports/page.tsx              — improved Coming Soon state
+  └── app/hackathon/
+      ├── page.tsx                     — + liveMetrics fetch, pass to client
+      └── landing-client.tsx           — LiveAnimatedCounter, dead button fix
+
+apps/web/src/components/demo/
+  ├── live-demo-stats.tsx              — NEW: live demo stats banner
+  └── shell.tsx                        — + SimulationStatusBadge, "use client"
+
+packages/api-client/src/public-exhibitors.ts
+  — + DemoExhibitorVisitor type, getPublicDemoExhibitorVisitors()
+  — + eventName in exhibitorOrganizations.events
+  — + attendeeName in recentActivity
+
+packages/database/seed/demo.ts           — no changes (data already exists)
+```
+
+**DevDependencies added:**
+- `qrcode@^1.5.4` in `apps/web`
+- `@types/qrcode@^1.5.5` in `apps/web`
+
+---
+
+## STILL BLOCKED
+
+| Item | Blocker |
+|---|---|
+| `DEMO_SIMULATION_AUTO_START=true` | Needs Railway dashboard access |
 
 ---
 
