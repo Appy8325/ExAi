@@ -67,6 +67,19 @@ export class DemoAnalyticsStore {
   private totalBoothVisits = 0;
   private recentActivity: ActivityEntry[] = [];
 
+  reset(): void {
+    this.boothVisits.clear();
+    this.boothProductViews.clear();
+    this.boothBrochureDownloads.clear();
+    this.boothAiChats.clear();
+    this.boothQrScans.clear();
+    this.boothLeadSubmissions.clear();
+    this.boothDwellSeconds.clear();
+    this.boothSuggestedQuestionClicks.clear();
+    this.totalBoothVisits = 0;
+    this.recentActivity = [];
+  }
+
   track(event: TrackEvent): void {
     const now = new Date().toISOString();
     switch (event.type) {

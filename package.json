@@ -25,7 +25,9 @@
     "supabase:stop": "supabase stop",
     "db:migrate": "corepack pnpm --filter @concourse/database migrate",
     "db:seed": "corepack pnpm --filter @concourse/database seed",
-    "db:seed:demo": "corepack pnpm --filter @concourse/database seed"
+    "db:seed:demo": "corepack pnpm --filter @concourse/database seed",
+    "demo:seed": "tsx scripts/generate-demo-seed.ts && corepack pnpm --filter @concourse/database seed",
+    "demo:reset": "tsx scripts/demo-reset.ts"
   },
   "devDependencies": {
     "@concourse/config": "workspace:*",

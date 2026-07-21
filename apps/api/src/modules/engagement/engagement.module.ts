@@ -43,6 +43,9 @@ import { ExhibitorWorkspaceService } from "./exhibitor-workspace.service";
 import { LeadIntelligenceService } from "./lead-intelligence.service";
 import { OrganizerReportingService } from "./organizer-reporting.service";
 import { DemoAnalyticsStore } from "./demo-analytics.store";
+import { DemoSimulationService } from "./demo-simulation.service";
+import { DemoScenarioService } from "./demo-scenario.service";
+import { DemoAdminController } from "./demo-admin.controller";
 import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor";
 
 @Module({
@@ -56,6 +59,7 @@ import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor
     AttendeeProfileController,
     PublicExhibitorsController,
     PublicDemoController,
+    DemoAdminController,
     AttendeeRelationshipsController,
     OrganizerOverviewController,
     OrganizerBootstrapController,
@@ -83,6 +87,8 @@ import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor
     OrganizerOverviewService,
     OrganizerReportingService,
     DemoAnalyticsStore,
+    DemoSimulationService,
+    DemoScenarioService,
     ExhibitorWorkspaceRepository,
     ExhibitorWorkspaceService,
     { provide: TaskExecutor, useClass: DeploymentTaskExecutor },
