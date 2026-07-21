@@ -112,28 +112,31 @@ async function main() {
         // ── Knowledge documents ─────────────────────────────
         for (const doc of exhibitor.knowledgeDocuments) {
           const existing = await tx`SELECT source.id AS source_id, source.file_id, file.storage_key FROM kb_sources source JOIN files file ON file.id = source.file_id WHERE source.event_exhibitor_id = ${booth.id} AND source.title = ${doc.title} LIMIT 1`;
-          const record = existing.length
-            ? one(existing)
-            : one(await tx`
-              WITH generated AS (SELECT concourse.uuid_generate_v7() AS id),
-              inserted_file AS (
-                INSERT INTO files(id, organization_id, uploaded_by_user_id, purpose, storage_key, content_type, byte_size, status)
-                SELECT id, ${org.id}, ${exhibitorUser.id}, 'kb_document',
-                  ${`org/${org.id}/kb_document/`} || id || '/${slugify(doc.title)}.txt',
-                  'text/plain', 1, 'pending' FROM generated RETURNING id, storage_key
-              )
-              INSERT INTO kb_sources(event_id, event_exhibitor_id, organizer_organization_id, owner_organization_id, kind, source_type, title, file_id, status)
-              SELECT ${event.id}, ${booth.id}, ${organizerOrg.id}, ${org.id}, 'uploaded_document',
-                'faq', ${doc.title}, id, 'processing' FROM inserted_file
-              RETURNING id AS source_id, file_id,
-                (SELECT storage_key FROM inserted_file) AS storage_key
-            `);
-          knowledgeUploads.push({
-            fileId: record.file_id,
-            sourceId: record.source_id,
-            storageKey: record.storage_key,
-            content: doc.content,
-          });
+          if (!existing.length) {
+            const kbId = crypto.randomUUID();
+            const orgId = org.id;
+            const exhibitorUserId = exhibitorUser.id;
+            const eventId = event.id;
+            const boothId = booth.id;
+            const organizerOrgId = organizerOrg.id;
+            const storageKey = `org/${orgId}/kb_document/${kbId}/${slugify(doc.title)}.txt`;
+            await tx`INSERT INTO files(id, organization_id, uploaded_by_user_id, purpose, storage_key, content_type, byte_size, status) VALUES (${kbId}, ${orgId}, ${exhibitorUserId}, 'kb_document', ${storageKey}, 'text/plain', 1, 'pending')`;
+            await tx`INSERT INTO kb_sources(event_id, event_exhibitor_id, organizer_organization_id, owner_organization_id, kind, source_type, title, file_id, status) VALUES (${eventId}, ${boothId}, ${organizerOrgId}, ${orgId}, 'uploaded_document', 'faq', ${doc.title}, ${kbId}, 'processing')`;
+            knowledgeUploads.push({
+              fileId: kbId,
+              sourceId: kbId,
+              storageKey: storageKey,
+              content: doc.content,
+            });
+          } else {
+            const record = one(existing);
+            knowledgeUploads.push({
+              fileId: record.file_id,
+              sourceId: record.source_id,
+              storageKey: record.storage_key,
+              content: doc.content,
+            });
+          }
         }
 
         // ── Lead form ────────────────────────────────────────
@@ -171,17 +174,22 @@ async function main() {
           await tx`INSERT INTO attendee_profile_consents(user_id,share_profile_with_exhibitors) VALUES (${attendee.id},true) ON CONFLICT (user_id) DO UPDATE SET share_profile_with_exhibitors=true`;
 
           const interactionCount = (index % 3) + 1;
+          const firstInteractionAt = new Date(Date.now() - (500 - index) * 60 * 1000);
+          const latestInteractionAt = new Date(Date.now() - (index % 90) * 60 * 1000);
           const rel = one(
-            await tx`INSERT INTO exhibitor_relationships(event_exhibitor_id,attendee_user_id,interaction_count,first_interaction_at,latest_interaction_at,has_potential_duplicate) VALUES (${booth.id},${attendee.id},${interactionCount},now() - ${500 - index} * interval '1 minute',now() - ${index % 90} * interval '1 minute',${index % 19 === 0}) ON CONFLICT (event_exhibitor_id,attendee_user_id) DO UPDATE SET interaction_count=EXCLUDED.interaction_count,latest_interaction_at=EXCLUDED.latest_interaction_at RETURNING id`,
+            await tx`INSERT INTO exhibitor_relationships(event_exhibitor_id,attendee_user_id,interaction_count,first_interaction_at,latest_interaction_at,has_potential_duplicate) VALUES (${booth.id},${attendee.id},${interactionCount},${firstInteractionAt},${latestInteractionAt},${index % 19 === 0}) ON CONFLICT (event_exhibitor_id,attendee_user_id) DO UPDATE SET interaction_count=EXCLUDED.interaction_count,latest_interaction_at=EXCLUDED.latest_interaction_at RETURNING id`,
           );
 
           const key = `demo-${booth.id}-${attendee.id}`;
-          await tx`INSERT INTO lead_submissions(event_id,event_exhibitor_id,attendee_user_id,relationship_id,lead_form_id,idempotency_key,interaction_source,potential_duplicate,submitted_at) VALUES (${event.id},${booth.id},${attendee.id},${rel.id},${form.id},${key},'visitor_qr',${index % 19 === 0},now() - ${index % 90} * interval '1 minute') ON CONFLICT (event_exhibitor_id,idempotency_key) DO NOTHING`;
+          const submittedAt = new Date(Date.now() - (index % 90) * 60 * 1000);
+          await tx`INSERT INTO lead_submissions(event_id,event_exhibitor_id,attendee_user_id,relationship_id,lead_form_id,idempotency_key,interaction_source,potential_duplicate,submitted_at) VALUES (${event.id},${booth.id},${attendee.id},${rel.id},${form.id},${key},'visitor_qr',${index % 19 === 0},${submittedAt}) ON CONFLICT (event_exhibitor_id,idempotency_key) DO NOTHING`;
 
           if (index % 20 === 0)
             await tx`INSERT INTO exhibitor_relationship_notes(relationship_id,body,created_by_user_id) SELECT ${rel.id},'Met at the booth. Follow up with a tailored product overview.',${exhibitorUser.id} WHERE NOT EXISTS (SELECT 1 FROM exhibitor_relationship_notes WHERE relationship_id=${rel.id})`;
-          if (index % 10 === 0)
-            await tx`INSERT INTO relationship_enrichments(relationship_id,field_name,change_type,created_at) SELECT ${rel.id},'company','added',now() - ${index % 60} * interval '1 minute' WHERE NOT EXISTS (SELECT 1 FROM relationship_enrichments WHERE relationship_id=${rel.id} AND field_name='company')`;
+          if (index % 10 === 0) {
+            const enrichmentAt = new Date(Date.now() - (index % 60) * 60 * 1000);
+            await tx`INSERT INTO relationship_enrichments(relationship_id,field_name,change_type,created_at) SELECT ${rel.id},'company','added',${enrichmentAt} WHERE NOT EXISTS (SELECT 1 FROM relationship_enrichments WHERE relationship_id=${rel.id} AND field_name='company')`;
+          }
         }
 
         await tx`INSERT INTO exhibitor_dashboard_visits(organization_id,event_exhibitor_id,user_id,last_visited_at) VALUES (${org.id},${booth.id},${exhibitorUser.id},now()-interval '2 hours') ON CONFLICT (organization_id,event_exhibitor_id,user_id) DO UPDATE SET last_visited_at=EXCLUDED.last_visited_at`;
