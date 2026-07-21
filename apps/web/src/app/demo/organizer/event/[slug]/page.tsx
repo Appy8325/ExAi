@@ -2,6 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, MetricCard } from "@concourse/ui";
 
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+  }).format(new Date(value));
+}
+
 import {
   getPublicDemoAnalytics,
   getPublicDemoOverview,
@@ -183,11 +189,9 @@ export default async function OrganizerEventPage({
 
 function renderEventInsight(
   analytics: NonNullable<Awaited<ReturnType<typeof getPublicDemoAnalytics>>>,
-  eventName: string,
+  _eventName: string,
 ) {
-  try {
-    return new Date(value).toLocaleDateString();
-  } catch {
-    return value;
-  }
+  const visits = analytics.traffic.capturedVisits;
+  const rate = analytics.engagement.repeatEngagementRate;
+  return `${_eventName} has generated ${visits} total visits with a ${Math.round(rate * 100)}% repeat engagement rate. AI has analyzed ${analytics.engagement.analyzedLeads} leads to surface actionable intelligence for exhibitors.`;
 }
