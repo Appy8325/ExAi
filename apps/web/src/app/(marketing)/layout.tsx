@@ -17,7 +17,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
           </Link>
         }
       />
-      <div className="flex-1">{children}</div>
+      <main id="main" className="flex-1">{children}</main>
       <MarketingFooter />
     </div>
   );

@@ -11,7 +11,7 @@ import {
   updateAttendeeProfile,
 } from "@concourse/api-client";
 import type { BoothChatResponse, PublicBooth } from "@concourse/api-client";
-import { Button, Card, Input, StatusBadge } from "@concourse/ui";
+import { Button, Card, Field, Input, StatusBadge, Textarea } from "@concourse/ui";
 
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
@@ -93,10 +93,14 @@ function getCompanyQuestions(companyName: string): string[] {
 
 function TypingIndicator() {
   return (
-    <div className="flex items-center gap-1">
-      <span className="size-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-      <span className="size-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-      <span className="size-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+    <div className="flex items-center gap-1" aria-label="AI is thinking" role="status">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="size-1.5 rounded-full bg-status-ai-solid"
+          style={{ animationDelay: `${i * 150}ms` }}
+        />
+      ))}
     </div>
   );
 }
@@ -180,10 +184,10 @@ export function BoothExperience({
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-8">
-      <div className="mx-auto max-w-lg">
-        <Link href="/hackathon" className="mb-6 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900">
-          <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+    <main className="min-h-screen bg-canvas px-gutter py-8 sm:px-(--mq-space-gutter)">
+      <div className="mx-auto max-w-(--mq-attendee-content-max)">
+        <Link href="/hackathon" className="mb-6 inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-primary">
+          <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
             <path strokeWidth="2" d="M10 12l-4-4 4-4" />
           </svg>
           Back to Exhibition
@@ -232,16 +236,16 @@ function BoothHeader({ booth }: { booth: PublicBooth }) {
   return (
     <header className="space-y-4">
       <div className="flex items-center gap-4">
-        <div className="flex size-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-lg font-bold text-white">
+        <div className="flex size-14 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-status-ai-solid text-lg font-bold text-on-brand">
           {initials}
         </div>
         <div>
           <StatusBadge tone="info">Booth {booth.boothNumber ?? ""}</StatusBadge>
-          <h1 className="mt-1 text-xl font-bold text-gray-900">{booth.companyName}</h1>
-          <p className="text-sm text-gray-500">{booth.boothName}</p>
+          <h1 className="mt-1 text-title-lg font-bold text-primary">{booth.companyName}</h1>
+          <p className="text-sm text-muted">{booth.boothName}</p>
         </div>
       </div>
-      <p className="text-sm text-gray-600 leading-relaxed">
+      <p className="text-sm leading-relaxed text-secondary">
         {booth.description ?? "Learn more about this exhibitor's products and services."}
       </p>
       {booth.website && (
@@ -249,9 +253,9 @@ function BoothHeader({ booth }: { booth: PublicBooth }) {
           href={booth.website}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-link transition-colors hover:text-brand"
         >
-          <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+          <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
             <path strokeWidth="1.5" d="M6 2h8v8M8 8l6-6M2 8v6h6" />
           </svg>
           Visit Official Website
@@ -264,8 +268,8 @@ function BoothHeader({ booth }: { booth: PublicBooth }) {
 function Resources({ booth }: { booth: PublicBooth }) {
   if (!booth.resources.length) return null;
   return (
-    <section className="space-y-2 border-t border-gray-100 pt-4">
-      <h3 className="text-sm font-semibold text-gray-900">Published Resources</h3>
+    <section className="space-y-2 border-t border-default pt-4">
+      <h3 className="text-sm font-semibold text-primary">Published Resources</h3>
       <ul className="space-y-1">
         {booth.resources.map((resource) => (
           <li key={resource.id}>
@@ -273,9 +277,9 @@ function Resources({ booth }: { booth: PublicBooth }) {
               href={resource.external ? resource.href : `${getApiBaseUrl()}${resource.href}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+              className="flex items-center gap-2 text-sm text-link transition-colors hover:text-brand"
             >
-              <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+              <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
                 <path strokeWidth="1.5" d="M6 2h8v8M8 8l6-6M2 8v6h6" />
               </svg>
               {resource.title}
@@ -325,28 +329,28 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
   };
 
   return (
-    <section className="space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <section className="space-y-4 rounded-xl border border-default bg-sunken p-4">
       <div>
-        <h3 className="text-sm font-semibold text-gray-900">AI Assistant</h3>
-        <p className="text-xs text-gray-500">Ask about {companyName}&apos;s products and services</p>
+        <h3 className="text-sm font-semibold text-primary">AI Assistant</h3>
+        <p className="text-xs text-muted">Ask about {companyName}&apos;s products and services</p>
       </div>
 
-      <div className="space-y-3 max-h-64 overflow-y-auto">
+      <div className="max-h-64 space-y-3 overflow-y-auto">
         {history.length === 0 && (
-          <div className="text-center py-4">
-            <p className="text-xs text-gray-500">Try one of these questions:</p>
+          <div className="py-4 text-center">
+            <p className="text-xs text-muted">Try one of these questions:</p>
           </div>
         )}
         {history.map((item, i) => (
           <div key={i} className="space-y-2">
             <div className="flex justify-end">
-              <span className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white">
+              <span className="rounded-lg bg-brand px-3 py-1.5 text-xs text-on-brand">
                 {item.q}
               </span>
             </div>
             {item.a && (
               <div className="flex justify-start">
-                <span className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 whitespace-pre-wrap">
+                <span className="whitespace-pre-wrap rounded-lg border border-default bg-surface px-3 py-1.5 text-xs text-primary shadow-1">
                   {item.a}
                 </span>
               </div>
@@ -355,7 +359,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
         ))}
         {pending && (
           <div className="flex justify-start">
-            <span className="rounded-lg border border-gray-200 bg-white px-3 py-2">
+            <span className="rounded-lg border border-default bg-surface px-3 py-2 shadow-1">
               <TypingIndicator />
             </span>
           </div>
@@ -370,7 +374,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
             type="button"
             disabled={pending}
             onClick={() => submit(s)}
-            className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs text-gray-600 transition-colors hover:border-blue-300 hover:text-blue-600 disabled:opacity-50"
+            className="rounded-full border border-default bg-surface px-3 py-1 text-xs text-secondary transition-colors duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] hover:border-strong hover:text-primary hover:shadow-1 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {s}
           </button>
@@ -384,6 +388,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
           placeholder="Ask a question..."
           className="flex-1"
           disabled={pending}
+          aria-label="Ask the AI assistant"
         />
         <Button type="submit" disabled={pending || !question.trim()}>
           {pending ? <TypingIndicator /> : "Ask"}
@@ -391,7 +396,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
       </form>
 
       {error && (
-        <p className="text-xs text-red-600">{error}</p>
+        <p className="text-xs text-status-danger-text" role="alert">{error}</p>
       )}
     </section>
   );
@@ -399,9 +404,9 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
 
 function Landing({ booth, onConnect }: { booth: PublicBooth; onConnect: () => void }) {
   return (
-    <section className="space-y-4 border-t border-gray-100 pt-4">
-      <p className="text-sm text-gray-600">
-        Connect with <strong>{booth.companyName}</strong> to receive personalized information and follow-ups.
+    <section className="space-y-4 border-t border-default pt-4">
+      <p className="text-sm text-secondary">
+        Connect with <strong className="text-primary">{booth.companyName}</strong> to receive personalized information and follow-ups.
       </p>
       <Button onClick={onConnect} className="w-full">
         Connect with Exhibitor
@@ -412,15 +417,16 @@ function Landing({ booth, onConnect }: { booth: PublicBooth; onConnect: () => vo
 
 function EmailStep({ error, onSubmit, pending }: { error?: string; onSubmit: (e: FormEvent<HTMLFormElement>) => void; pending: boolean }) {
   return (
-    <section className="space-y-4 border-t border-gray-100 pt-4">
+    <section className="space-y-4 border-t border-default pt-4">
       <div>
-        <h3 className="text-sm font-semibold text-gray-900">Connect with this exhibitor</h3>
-        <p className="text-xs text-gray-500">Enter your email for a secure magic link</p>
+        <h3 className="text-sm font-semibold text-primary">Connect with this exhibitor</h3>
+        <p className="text-xs text-muted">Enter your email for a secure magic link</p>
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
-        <label className="block text-xs font-medium text-gray-700">Work email</label>
-        <Input type="email" name="email" required autoComplete="email" />
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        <Field label="Work email">
+          <Input type="email" name="email" required autoComplete="email" />
+        </Field>
+        {error && <p className="text-xs text-status-danger-text" role="alert">{error}</p>}
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Sending..." : "Send Magic Link"}
         </Button>
@@ -431,15 +437,15 @@ function EmailStep({ error, onSubmit, pending }: { error?: string; onSubmit: (e:
 
 function MagicLinkSent({ onBack }: { onBack: () => void }) {
   return (
-    <section className="space-y-4 border-t border-gray-100 pt-4 text-center">
-      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-green-100">
-        <svg className="size-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+    <section className="space-y-4 border-t border-default pt-4 text-center">
+      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-status-success-subtle">
+        <svg className="size-6 text-status-success-text" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
           <path strokeWidth="2" d="M3 8l3 3 7-7" />
         </svg>
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-gray-900">Check your email</h3>
-        <p className="mt-1 text-xs text-gray-500">Open the magic link to securely connect</p>
+        <h3 className="text-sm font-semibold text-primary">Check your email</h3>
+        <p className="mt-1 text-xs text-muted">Open the magic link to securely connect</p>
       </div>
       <Button variant="ghost" onClick={onBack} className="w-full">
         Use a different email
@@ -450,29 +456,26 @@ function MagicLinkSent({ onBack }: { onBack: () => void }) {
 
 function ProfileStep({ companyName, error, onSubmit, pending }: { companyName: string; error?: string; onSubmit: (e: FormEvent<HTMLFormElement>) => void; pending: boolean }) {
   return (
-    <section className="space-y-4 border-t border-gray-100 pt-4">
+    <section className="space-y-4 border-t border-default pt-4">
       <div>
-        <h3 className="text-sm font-semibold text-gray-900">Complete your profile</h3>
-        <p className="text-xs text-gray-500">Review what you share before connecting</p>
+        <h3 className="text-sm font-semibold text-primary">Complete your profile</h3>
+        <p className="text-xs text-muted">Review what you share before connecting</p>
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Full name</label>
+        <Field label="Full name">
           <Input name="fullName" required />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Company</label>
+        </Field>
+        <Field label="Company">
           <Input name="company" required />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Job title</label>
+        </Field>
+        <Field label="Job title">
           <Input name="jobTitle" required />
-        </div>
-        <label className="flex items-start gap-2 text-xs text-gray-600">
+        </Field>
+        <label className="flex items-start gap-2 text-xs text-secondary">
           <input type="checkbox" name="shareProfileWithExhibitors" defaultChecked className="mt-0.5" />
           <span>Share my profile with {companyName}</span>
         </label>
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {error && <p className="text-xs text-status-danger-text" role="alert">{error}</p>}
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Saving..." : "Continue"}
         </Button>
@@ -484,26 +487,23 @@ function ProfileStep({ companyName, error, onSubmit, pending }: { companyName: s
 function LeadFormStep({ booth, error, onSubmit, pending }: { booth: PublicBooth; error?: string; onSubmit: (e: FormEvent<HTMLFormElement>) => void; pending: boolean }) {
   const form = booth.leadForm!;
   return (
-    <section className="space-y-4 border-t border-gray-100 pt-4">
+    <section className="space-y-4 border-t border-default pt-4">
       <div>
-        <h3 className="text-sm font-semibold text-gray-900">{form.name}</h3>
-        {form.description && <p className="text-xs text-gray-500">{form.description}</p>}
+        <h3 className="text-sm font-semibold text-primary">{form.name}</h3>
+        {form.description && <p className="text-xs text-muted">{form.description}</p>}
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
         {form.fields.map((field) => (
-          <div key={field.key}>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              {field.label} {field.required && "*"}
-            </label>
+          <Field key={field.key} label={`${field.label}${field.required ? " *" : ""}`}>
             {field.type === "multiline_text" ? (
-              <textarea name={field.key} required={field.required} rows={3} className="w-full rounded-lg border border-gray-200 p-2 text-sm" placeholder={field.placeholder ?? undefined} />
+              <Textarea name={field.key} required={field.required} rows={3} placeholder={field.placeholder ?? undefined} />
             ) : (
               <Input name={field.key} type={field.type === "email" ? "email" : "text"} required={field.required} placeholder={field.placeholder ?? undefined} />
             )}
-          </div>
+          </Field>
         ))}
-        {form.consentText && <p className="text-xs text-gray-500">{form.consentText}</p>}
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {form.consentText && <p className="text-xs text-muted">{form.consentText}</p>}
+        {error && <p className="text-xs text-status-danger-text" role="alert">{error}</p>}
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Submitting..." : "Submit"}
         </Button>
@@ -514,22 +514,22 @@ function LeadFormStep({ booth, error, onSubmit, pending }: { booth: PublicBooth;
 
 function Success({ booth, recommendations }: { booth: PublicBooth; recommendations: Recommendation[] }) {
   return (
-    <section className="space-y-4 border-t border-gray-100 pt-4 text-center">
-      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-green-100">
-        <svg className="size-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 16 16">
+    <section className="space-y-4 border-t border-default pt-4 text-center">
+      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-status-success-subtle">
+        <svg className="size-6 text-status-success-text" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
           <path strokeWidth="2" d="M3 8l3 3 7-7" />
         </svg>
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-gray-900">You&apos;re connected!</h3>
-        <p className="mt-1 text-xs text-gray-500">Your information was sent to {booth.companyName}</p>
+        <h3 className="text-sm font-semibold text-primary">You&apos;re connected!</h3>
+        <p className="mt-1 text-xs text-muted">Your information was sent to {booth.companyName}</p>
       </div>
       {recommendations.length > 0 && (
-        <div className="text-left rounded-lg border border-gray-100 bg-gray-50 p-3">
-          <p className="text-xs font-medium text-gray-900">Recommended next</p>
+        <div className="rounded-lg border border-default bg-sunken p-3 text-left">
+          <p className="text-xs font-medium text-primary">Recommended next</p>
           <ul className="mt-2 space-y-1">
             {recommendations.map((r) => (
-              <li key={r.title} className="text-xs text-gray-600">
+              <li key={r.title} className="text-xs text-secondary">
                 • {r.title}
               </li>
             ))}

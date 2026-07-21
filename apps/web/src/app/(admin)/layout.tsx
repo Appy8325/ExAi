@@ -39,8 +39,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto scrollbar-thin">
-        <div className="mx-auto max-w-(--mq-content-max) p-gutter sm:p-6 lg:p-8">
+      <main id="main" className="flex-1 overflow-auto scrollbar-thin">
+        <div className="mx-auto max-w-(--mq-content-max) p-(--mq-space-gutter) sm:p-6 lg:p-8">
           {children}
         </div>
       </main>

@@ -67,7 +67,7 @@ export function UserMenu() {
         <span className="hidden max-w-[120px] truncate text-left sm:inline">
           {user.displayName}
         </span>
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
           <path d="M4 6l4 4 4-4" />
         </svg>
       </button>

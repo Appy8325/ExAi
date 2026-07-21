@@ -10,13 +10,13 @@ export const revalidate = 0;
 
 function LoadingSkeleton() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8 py-16">
-      <div className="space-y-4 w-full max-w-lg mx-auto px-6">
-        <Skeleton className="h-10 w-48 mx-auto" />
-        <Skeleton className="h-6 w-full mx-auto" />
-        <Skeleton className="h-6 w-3/4 mx-auto" />
+    <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center gap-8 px-gutter py-16 sm:px-(--mq-space-gutter)">
+      <div className="mx-auto w-full max-w-lg space-y-4">
+        <Skeleton className="mx-auto h-10 w-48" />
+        <Skeleton className="mx-auto h-6 w-full" />
+        <Skeleton className="mx-auto h-6 w-3/4" />
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 w-full max-w-2xl px-6">
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-3">
         {Array.from({ length: 3 }, (_, i) => (
           <Skeleton key={i} className="h-32 w-full rounded-xl" />
         ))}
@@ -31,9 +31,9 @@ export default async function HackathonLandingPage() {
   const count = exhibitors?.length ?? 0;
 
   return (
-    <main className="min-h-screen bg-white">
-      <header className="sticky top-0 z-50 border-b border-default bg-surface/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <main className="min-h-screen bg-canvas">
+      <header className="sticky top-0 z-(--mq-z-sticky) border-b border-default/60 bg-canvas/85 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-gutter py-4 sm:px-(--mq-space-gutter)">
           <Link href="/" className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-sm font-bold text-on-brand shadow-1">
               E
@@ -51,7 +51,7 @@ export default async function HackathonLandingPage() {
       )}
 
       <footer className="border-t border-default bg-sunken py-6">
-        <div className="mx-auto max-w-7xl px-6 text-center text-xs text-muted">
+        <div className="mx-auto max-w-7xl px-gutter text-center text-xs text-muted sm:px-(--mq-space-gutter)">
           TechExpo 2027 · Powered by ExAi · No sign-up required
         </div>
       </footer>

@@ -14,7 +14,7 @@ export function MarketingNav({ logo }: { logo: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-default/50 bg-canvas/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-(--mq-z-sticky) border-b border-default/50 bg-canvas/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 sm:px-10">
         {logo}
         <nav className="hidden items-center gap-6 sm:flex">
@@ -42,11 +42,11 @@ export function MarketingNav({ logo }: { logo: ReactNode }) {
           onClick={() => setMobileOpen((v) => !v)}
         >
           {mobileOpen ? (
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <path d="M4 4l8 8M12 4l-8 8" />
             </svg>
           ) : (
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
               <path d="M3 5h10M3 8h10M3 11h10" />
             </svg>
           )}

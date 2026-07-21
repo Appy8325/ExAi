@@ -26,7 +26,7 @@ export default function AttendeeLayout({ children }: { children: ReactNode }) {
         children
       ) : (
         <>
-          <main className="pb-24 pt-4">{children}</main>
+          <main id="main" className="pb-24 pt-4">{children}</main>
           <nav aria-label="Attendee navigation" className="fixed inset-x-0 bottom-0 z-50 border-t border-default bg-surface/95 backdrop-blur-lg">
             <div className="mx-auto flex max-w-lg items-center justify-around py-1">
               {tabs.map(({ href, label }) => {

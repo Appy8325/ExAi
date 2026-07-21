@@ -11,7 +11,7 @@ import {
   unsaveExhibitor,
 } from "@concourse/api-client";
 import type { PublicExhibitor, ShowcaseExhibitor } from "@concourse/api-client";
-import { Button, Skeleton, Card } from "@concourse/ui";
+import { Button, Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
 
