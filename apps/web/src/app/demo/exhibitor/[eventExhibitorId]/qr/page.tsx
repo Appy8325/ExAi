@@ -69,7 +69,7 @@ export default async function ExhibitorQrPage({
 
           <Card>
             <div className="flex flex-col items-center gap-4 text-center">
-              <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-xl bg-white p-3 shadow-1">
+              <div className="mx-auto flex h-44 w-44 max-w-full items-center justify-center rounded-xl bg-white p-3 shadow-1">
                 <svg viewBox="0 0 100 100" className="h-full w-full">
                   <rect x="0" y="0" width="30" height="30" rx="3" fill="#111" />
                   <rect x="0" y="0" width="10" height="10" rx="1.5" fill="#fff" />

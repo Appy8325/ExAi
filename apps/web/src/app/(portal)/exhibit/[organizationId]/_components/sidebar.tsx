@@ -53,7 +53,7 @@ export function Sidebar() {
   const initials = user?.initials ?? "EX";
 
   return (
-    <aside className="flex w-60 flex-col border-r border-default bg-surface">
+    <aside className="hidden lg:flex w-60 flex-col border-r border-default bg-surface">
       <Link
         href="/"
         className="flex h-14 items-center gap-2.5 border-b border-default px-4"

@@ -5,7 +5,7 @@ export default function ExhibitorLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-canvas">
       <Suspense
-        fallback={<aside className="w-60 border-r border-default bg-surface" />}
+        fallback={<aside className="hidden lg:flex w-60 border-r border-default bg-surface" />}
       >
         <Sidebar />
       </Suspense>

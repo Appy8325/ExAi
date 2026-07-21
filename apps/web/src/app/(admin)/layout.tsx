@@ -12,7 +12,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex min-h-screen bg-canvas">
-      <aside className="flex w-60 flex-col border-r border-default bg-surface">
+      <aside className="hidden lg:flex w-60 flex-col border-r border-default bg-surface">
         <Link href="/" className="flex h-14 items-center gap-2 border-b border-default px-4 transition-colors hover:bg-sunken/50">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">E</div>
           <span className="text-sm font-semibold text-primary">ExAi Admin</span>

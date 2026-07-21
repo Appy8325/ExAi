@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { updateAttendeeProfile } from "@concourse/api-client";
-import { Button, Input, Card } from "@concourse/ui";
+import { Button, Input, Card, Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
 
@@ -48,8 +48,14 @@ export default function AttendeeProfilePage() {
 
   if (hasSession === null) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-4 border-default border-t-brand" />
+      <div className="space-y-4 px-4 py-8">
+        <Skeleton className="h-5 w-32" />
+        <div className="rounded-xl border border-default bg-surface p-(--spacing-card-p) space-y-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-6 w-48" />
+        </div>
       </div>
     );
   }
