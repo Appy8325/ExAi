@@ -281,38 +281,55 @@ export class PublicExhibitorsService {
         ),
         recent_submissions AS (
           SELECT ls.created_at AS at, 'form_submission' AS type,
-            ls.id AS ref_id, COALESCE(ap.company, '') AS label
+            ls.id AS ref_id,
+            COALESCE(u.full_name, ap.company, 'Attendee') AS attendee_name,
+            'Lead submitted by ' || COALESCE(u.full_name, ap.company, 'Attendee') AS label
           FROM lead_submissions ls
           JOIN lead_forms form ON form.id = ls.lead_form_id
           LEFT JOIN attendee_profiles ap ON ap.user_id = ls.submitted_by
+          LEFT JOIN users u ON u.id = ls.submitted_by
           WHERE form.event_exhibitor_id = ${eventExhibitorId}
           ORDER BY ls.created_at DESC LIMIT 10
         ),
         recent_notes AS (
           SELECT rn.created_at AS at, 'note_added' AS type,
-            rn.id AS ref_id, LEFT(rn.content, 80) AS label
+            rn.id AS ref_id,
+            COALESCE(u2.full_name, ap2.company, 'Attendee') AS attendee_name,
+            'Note added — ' || LEFT(rn.content, 60) AS label
           FROM relationship_notes rn
           JOIN exhibitor_relationships rel ON rel.id = rn.relationship_id
+          LEFT JOIN attendee_profiles ap2 ON ap2.user_id = rel.attendee_user_id
+          LEFT JOIN users u2 ON u2.id = rel.attendee_user_id
           WHERE rel.event_exhibitor_id = ${eventExhibitorId}
           ORDER BY rn.created_at DESC LIMIT 10
         ),
         recent_enrichments AS (
           SELECT li.created_at AS at, 'enrichment' AS type,
             li.id AS ref_id,
-            COALESCE(li.change_type || ' — ' || li.change_summary, '') AS label
+            COALESCE(u3.full_name, ap3.company, 'Attendee') AS attendee_name,
+            COALESCE(li.change_type, 'Profile') || ' enriched for ' || COALESCE(u3.full_name, ap3.company, 'Attendee') AS label
           FROM lead_intelligence li
           JOIN lead_submissions ls ON ls.id = li.lead_submission_id
           JOIN lead_forms form ON form.id = ls.lead_form_id
+          LEFT JOIN attendee_profiles ap3 ON ap3.user_id = ls.submitted_by
+          LEFT JOIN users u3 ON u3.id = ls.submitted_by
           WHERE form.event_exhibitor_id = ${eventExhibitorId}
           ORDER BY li.created_at DESC LIMIT 10
         ),
         flagged_rels AS (
           SELECT rel.id AS relationship_id,
-            COALESCE(ap.company, 'Attendee') || ' — ' || COALESCE(rel.notes, 'needs attention') AS reason
+            COALESCE(u4.full_name, ap4.company, 'Attendee') AS attendee_name,
+            ARRAY_REMOVE(ARRAY[
+              CASE WHEN rel.status = 'blocked' THEN 'Blocked account' ELSE NULL END,
+              CASE WHEN rel.notes ILIKE '%flag%' THEN 'Flagged for review' ELSE NULL END,
+              CASE WHEN rel.notes ILIKE '%urgent%' THEN 'Urgent follow-up' ELSE NULL END,
+              CASE WHEN rel.has_potential_duplicate THEN 'Potential duplicate' ELSE NULL END
+            ], NULL) AS reasons
           FROM exhibitor_relationships rel
-          LEFT JOIN attendee_profiles ap ON ap.user_id = rel.attendee_user_id
+          LEFT JOIN attendee_profiles ap4 ON ap4.user_id = rel.attendee_user_id
+          LEFT JOIN users u4 ON u4.id = rel.attendee_user_id
           WHERE rel.event_exhibitor_id = ${eventExhibitorId}
-            AND (rel.status = 'blocked' OR rel.notes ILIKE '%flag%' OR rel.notes ILIKE '%urgent%')
+            AND (rel.status = 'blocked' OR rel.notes ILIKE '%flag%' OR rel.notes ILIKE '%urgent%' OR rel.has_potential_duplicate)
         ),
         enrich_items AS (
           SELECT li.created_at AS at, li.change_type, li.change_summary
@@ -357,25 +374,35 @@ export class PublicExhibitorsService {
     if (!row) throw new NotFoundException("Booth not found.");
 
     const activityUnion = await this.database.execute(
-      sql<{ at: string; type: string; ref_id: string; label: string }>`
-        (SELECT created_at AS at, 'form_submission' AS type, id AS ref_id,
-          COALESCE((SELECT company FROM attendee_profiles WHERE user_id = submitted_by), '') AS label
+      sql<{ at: string; type: string; ref_id: string; attendee_name: string; label: string }>`
+        (SELECT ls.created_at AS at, 'form_submission' AS type, ls.id AS ref_id,
+          COALESCE(u.full_name, ap.company, 'Attendee') AS attendee_name,
+          'Lead submitted by ' || COALESCE(u.full_name, ap.company, 'Attendee') AS label
         FROM lead_submissions ls
         JOIN lead_forms form ON form.id = ls.lead_form_id
+        LEFT JOIN attendee_profiles ap ON ap.user_id = ls.submitted_by
+        LEFT JOIN users u ON u.id = ls.submitted_by
         WHERE form.event_exhibitor_id = ${eventExhibitorId}
-        ORDER BY created_at DESC LIMIT 10)
+        ORDER BY ls.created_at DESC LIMIT 10)
         UNION ALL
-        (SELECT rn.created_at AS at, 'note_added' AS type, rn.id AS ref_id, LEFT(rn.content, 80) AS label
+        (SELECT rn.created_at AS at, 'note_added' AS type, rn.id AS ref_id,
+          COALESCE(u2.full_name, ap2.company, 'Attendee') AS attendee_name,
+          'Note added — ' || LEFT(rn.content, 60) AS label
         FROM relationship_notes rn
         JOIN exhibitor_relationships rel ON rel.id = rn.relationship_id
+        LEFT JOIN attendee_profiles ap2 ON ap2.user_id = rel.attendee_user_id
+        LEFT JOIN users u2 ON u2.id = rel.attendee_user_id
         WHERE rel.event_exhibitor_id = ${eventExhibitorId}
         ORDER BY rn.created_at DESC LIMIT 10)
         UNION ALL
         (SELECT li.created_at AS at, 'enrichment' AS type, li.id AS ref_id,
-          COALESCE(li.change_type || ' — ' || li.change_summary, '') AS label
+          COALESCE(u3.full_name, ap3.company, 'Attendee') AS attendee_name,
+          COALESCE(li.change_type, 'Profile') || ' enriched for ' || COALESCE(u3.full_name, ap3.company, 'Attendee') AS label
         FROM lead_intelligence li
         JOIN lead_submissions ls ON ls.id = li.lead_submission_id
         JOIN lead_forms form ON form.id = ls.lead_form_id
+        LEFT JOIN attendee_profiles ap3 ON ap3.user_id = ls.submitted_by
+        LEFT JOIN users u3 ON u3.id = ls.submitted_by
         WHERE form.event_exhibitor_id = ${eventExhibitorId}
         ORDER BY li.created_at DESC LIMIT 10)
         ORDER BY at DESC LIMIT 20
@@ -383,13 +410,20 @@ export class PublicExhibitorsService {
     );
 
     const flagRows = await this.database.execute(
-      sql<{ relationship_id: string; reason: string }>`
+      sql<{ relationship_id: string; attendee_name: string; reasons: string[] }>`
         SELECT rel.id AS relationship_id,
-          COALESCE(ap.company, 'Attendee') || ' — ' || COALESCE(rel.notes, 'needs attention') AS reason
+          COALESCE(u.full_name, ap.company, 'Attendee') AS attendee_name,
+          ARRAY_REMOVE(ARRAY[
+            CASE WHEN rel.status = 'blocked' THEN 'Blocked account' ELSE NULL END,
+            CASE WHEN rel.notes ILIKE '%flag%' THEN 'Flagged for review' ELSE NULL END,
+            CASE WHEN rel.notes ILIKE '%urgent%' THEN 'Urgent follow-up' ELSE NULL END,
+            CASE WHEN rel.has_potential_duplicate THEN 'Potential duplicate' ELSE NULL END
+          ], NULL) AS reasons
         FROM exhibitor_relationships rel
         LEFT JOIN attendee_profiles ap ON ap.user_id = rel.attendee_user_id
+        LEFT JOIN users u ON u.id = rel.attendee_user_id
         WHERE rel.event_exhibitor_id = ${eventExhibitorId}
-          AND (rel.status = 'blocked' OR rel.notes ILIKE '%flag%' OR rel.notes ILIKE '%urgent%')
+          AND (rel.status = 'blocked' OR rel.notes ILIKE '%flag%' OR rel.notes ILIKE '%urgent%' OR rel.has_potential_duplicate)
       `,
     );
 
@@ -426,16 +460,18 @@ export class PublicExhibitorsService {
         returning: row.rel_returning,
         needsFollowUp: row.rel_needs_followup,
       },
-      recentActivity: (activityUnion as unknown as Array<{ at: string; type: string; ref_id: string; label: string }>).map((a) => ({
+      recentActivity: (activityUnion as unknown as Array<{ at: string; type: string; ref_id: string; attendee_name: string; label: string }>).map((a) => ({
         id: a.ref_id,
         at: a.at,
         type: a.type as "form_submission" | "note_added" | "enrichment",
         relationshipId: a.ref_id,
+        attendeeName: a.attendee_name,
         label: a.label,
       })),
-      attention: (flagRows as unknown as Array<{ relationship_id: string; reason: string }>).map((f) => ({
+      attention: (flagRows as unknown as Array<{ relationship_id: string; attendee_name: string; reasons: string[] }>).map((f) => ({
         relationshipId: f.relationship_id,
-        reason: f.reason,
+        attendeeName: f.attendee_name,
+        reasons: f.reasons,
       })),
       intelligenceFeed: {
         profilesEnriched: row.profiles_enriched,
@@ -457,6 +493,82 @@ export class PublicExhibitorsService {
       },
       boothInfo: { companyName: row.company_name, sourceCount },
     };
+  }
+
+  async demoExhibitorVisitors(eventExhibitorId: string) {
+    const relRows = await this.database.execute(
+      sql<{
+        id: string; status: string; interaction_count: number;
+        first_interaction_at: string; last_interaction_at: string;
+        attendee_name: string; company: string | null; job_title: string | null;
+        has_lead: boolean; notes_count: number; has_interest: boolean;
+      }>`
+        SELECT
+          rel.id,
+          rel.status,
+          rel.interaction_count,
+          rel.first_interaction_at::text,
+          rel.last_interaction_at::text,
+          COALESCE(u.full_name, ap.company, 'Attendee') AS attendee_name,
+          ap.company,
+          ap.job_title,
+          EXISTS(SELECT 1 FROM lead_submissions ls JOIN lead_forms form ON form.id = ls.lead_form_id WHERE form.event_exhibitor_id = rel.event_exhibitor_id AND ls.submitted_by = rel.attendee_user_id) AS has_lead,
+          (SELECT COUNT(*) FROM relationship_notes rn WHERE rn.relationship_id = rel.id)::int AS notes_count,
+          rel.interaction_count >= 3 AS has_interest
+        FROM exhibitor_relationships rel
+        LEFT JOIN attendee_profiles ap ON ap.user_id = rel.attendee_user_id
+        LEFT JOIN users u ON u.id = rel.attendee_user_id
+        WHERE rel.event_exhibitor_id = ${eventExhibitorId}
+        ORDER BY rel.last_interaction_at DESC NULLS LAST
+        LIMIT 50
+      `,
+    );
+
+    const attentionRows = await this.database.execute(
+      sql<{ relationship_id: string; reasons: string[] }>`
+        SELECT rel.id AS relationship_id,
+          ARRAY_REMOVE(ARRAY[
+            CASE WHEN rel.status = 'blocked' THEN 'Blocked account' ELSE NULL END,
+            CASE WHEN rel.notes ILIKE '%flag%' THEN 'Flagged for review' ELSE NULL END,
+            CASE WHEN rel.notes ILIKE '%urgent%' THEN 'Urgent follow-up' ELSE NULL END,
+            CASE WHEN rel.has_potential_duplicate THEN 'Potential duplicate' ELSE NULL END,
+            CASE WHEN rel.interaction_count >= 10 AND NOT EXISTS(SELECT 1 FROM lead_submissions ls JOIN lead_forms form ON form.id = ls.lead_form_id WHERE form.event_exhibitor_id = rel.event_exhibitor_id AND ls.submitted_by = rel.attendee_user_id) THEN 'High interest, no lead' ELSE NULL END
+          ], NULL) AS reasons
+        FROM exhibitor_relationships rel
+        WHERE rel.event_exhibitor_id = ${eventExhibitorId}
+          AND (rel.status = 'blocked' OR rel.notes ILIKE '%flag%' OR rel.notes ILIKE '%urgent%' OR rel.has_potential_duplicate
+            OR (rel.interaction_count >= 10 AND NOT EXISTS(SELECT 1 FROM lead_submissions ls JOIN lead_forms form ON form.id = ls.lead_form_id WHERE form.event_exhibitor_id = rel.event_exhibitor_id AND ls.submitted_by = rel.attendee_user_id)))
+      `,
+    );
+
+    const attentionMap = new Map(
+      (attentionRows as unknown as Array<{ relationship_id: string; reasons: string[] }>).map((r) => [r.relationship_id, r.reasons]),
+    );
+
+    return (relRows as unknown as Array<{
+      id: string; status: string; interaction_count: number;
+      first_interaction_at: string; last_interaction_at: string;
+      attendee_name: string; company: string | null; job_title: string | null;
+      has_lead: boolean; notes_count: number; has_interest: boolean;
+    }>).map((r) => ({
+      relationshipId: r.id,
+      attendeeName: r.attendee_name,
+      company: r.company ?? null,
+      jobTitle: r.job_title ?? null,
+      status: r.status,
+      interactionCount: r.interaction_count,
+      firstInteractionAt: r.first_interaction_at,
+      lastInteractionAt: r.last_interaction_at,
+      hasLead: r.has_lead,
+      notesCount: r.notes_count,
+      intentLabel:
+        r.has_lead ? "Lead" :
+        r.interaction_count >= 10 ? "High intent" :
+        r.interaction_count >= 5 ? "Active" :
+        r.interaction_count >= 2 ? "Interested" :
+        "New",
+      attentionReasons: attentionMap.get(r.id) ?? [],
+    }));
   }
 
   async demoOverview() {
@@ -578,7 +690,7 @@ export class PublicExhibitorsService {
     >();
     const exhibitorOrgMap = new Map<
       string,
-      { id: string; name: string; slug: string; events: Map<string, { eventId: string; eventSlug: string; eventExhibitorId: string }> }
+      { id: string; name: string; slug: string; events: Map<string, { eventId: string; eventSlug: string; eventExhibitorId: string; eventName: string }> }
     >();
 
     for (const row of rows) {
@@ -622,12 +734,13 @@ export class PublicExhibitorsService {
         id: row.exhibitor_org_id,
         name: row.exhibitor_org_name,
         slug: row.exhibitor_org_slug,
-        events: new Map<string, { eventId: string; eventSlug: string; eventExhibitorId: string }>(),
+        events: new Map<string, { eventId: string; eventSlug: string; eventExhibitorId: string; eventName: string }>(),
       };
       exhibitorOrg.events.set(row.event_id, {
         eventId: row.event_id,
         eventSlug: row.event_slug,
         eventExhibitorId: row.booth_id,
+        eventName: row.event_name,
       });
       exhibitorOrgMap.set(row.exhibitor_org_id, exhibitorOrg);
     }

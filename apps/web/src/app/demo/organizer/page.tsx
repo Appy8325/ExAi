@@ -24,23 +24,29 @@ const SIDEBAR = [
   { label: "Dashboard", href: "/demo/organizer" },
   { label: "Events", href: "/demo/organizer/events" },
   { label: "Analytics", href: "/demo/organizer/analytics" },
-  { label: "Heatmaps", href: "/demo/organizer/heatmaps" },
+  { label: "Booth Traffic", href: "/demo/organizer/heatmaps" },
   { label: "AI Insights", href: "/demo/organizer/ai-insights" },
   { label: "Reports", href: "/demo/organizer/reports" },
 ];
 
 export default async function OrganizerDashboardPage() {
   const apiBase = getApiBaseUrl();
-  const overview = await getPublicDemoOverview({ baseUrl: apiBase }).catch(() => null);
+
+  const [overview, analytics] = await Promise.all([
+    getPublicDemoOverview({ baseUrl: apiBase }).catch(() => null),
+    getPublicDemoOverview({ baseUrl: apiBase })
+      .then((ov) => {
+        const firstEvent = ov?.events[0];
+        return firstEvent
+          ? getPublicDemoAnalytics({ baseUrl: apiBase }, firstEvent.id).catch(() => null)
+          : null;
+      })
+      .catch(() => null),
+  ]);
+
   if (!overview) return <DemoUnavailable />;
 
   const firstEvent = overview.events[0];
-  const analytics = firstEvent
-    ? await getPublicDemoAnalytics({ baseUrl: apiBase }, firstEvent.id).catch(
-        () => null,
-      )
-    : null;
-
   const exhibitorCount = overview.events.reduce(
     (sum, e) => sum + e.exhibitors.length,
     0,

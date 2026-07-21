@@ -1,7 +1,17 @@
+"use client";
+
 import Link from "next/link";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
+import { getApiBaseUrl } from "@/lib/api/config";
 
 export type DemoPersona = "organizer" | "exhibitor";
+
+type SimulationStatus = {
+  running: boolean;
+  eventsGenerated: number;
+  scenario: string;
+  speed: number;
+};
 
 const PERSONA_META: Record<DemoPersona, { label: string; tone: string; href: string }> = {
   organizer: {
@@ -49,6 +59,7 @@ export const DemoTopBar = memo(function DemoTopBar({ persona }: { persona?: Demo
           <span className="ml-2 hidden rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand sm:inline-flex">
             Read-only demo
           </span>
+          <SimulationStatusBadge />
         </nav>
       </div>
       {active ? (
@@ -197,3 +208,44 @@ export const DemoMobileNav = memo(function DemoMobileNav({
     </nav>
   );
 });
+
+export function SimulationStatusBadge() {
+  const [status, setStatus] = useState<SimulationStatus | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const base = getApiBaseUrl();
+        const res = await fetch(`${base}/v1/public/demo/admin/status`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setStatus(data.simulation);
+      } catch { /* ignore */ }
+    };
+    load();
+    const id = setInterval(load, 8000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, []);
+
+  if (!status) return null;
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
+        status.running
+          ? "border-status-success-border bg-status-success-subtle text-status-success-text"
+          : "border-default bg-sunken text-muted"
+      }`}
+    >
+      <span
+        className={`size-1.5 rounded-full ${
+          status.running ? "bg-status-success-text animate-pulse" : "bg-muted"
+        }`}
+      />
+      {status.running
+        ? `Live · ${status.scenario} · ${status.speed}\u00d7`
+        : "Simulation stopped"}
+    </span>
+  );
+}

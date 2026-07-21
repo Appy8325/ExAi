@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import type { ShowcaseExhibitor } from "@concourse/api-client";
+import { getApiBaseUrl } from "@/lib/api/config";
 
 const industryGradients: Record<string, string> = {
   Technology: "from-status-info-solid to-brand",
@@ -41,6 +42,40 @@ function AnimatedCounter({ end, suffix = "" }: { end: number; suffix?: string })
 
     requestAnimationFrame(animate);
   }, [end, started]);
+
+  return (
+    <span>
+      {count.toLocaleString()}
+      {suffix}
+    </span>
+  );
+}
+
+function LiveAnimatedCounter({ initial, suffix = "" }: { initial: number; suffix?: string }) {
+  const [count, setCount] = useState(initial);
+  const prevRef = useRef(initial);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const base = getApiBaseUrl();
+        const res = await fetch(`${base}/v1/public/demo/live`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) {
+          const newVal = data.totalLiveBoothVisits ?? data.totalLiveLeadSubmissions ?? initial;
+          if (newVal !== prevRef.current) {
+            prevRef.current = newVal;
+            setCount(newVal);
+          }
+        }
+      } catch { /* ignore */ }
+    };
+    load();
+    const id = setInterval(load, 6000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [initial]);
 
   return (
     <span>
@@ -126,16 +161,30 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
         )}
 
         <div className="mt-4 grid grid-cols-3 gap-2">
-          <span className="flex items-center justify-center gap-1 rounded-lg bg-brand px-2 py-2 text-center text-xs font-semibold text-on-brand shadow-1 transition-colors group-hover:bg-brand-hover">
-            Visit Booth
-          </span>
-          <span className="flex items-center justify-center gap-1 rounded-lg border border-default bg-surface px-2 py-2 text-xs font-medium text-secondary transition-colors group-hover:border-strong group-hover:text-primary">
-            <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
-              <circle cx="8" cy="8" r="6" strokeWidth="1.5" />
-              <path d="M8 5v3l2 2" strokeWidth="1.5" />
-            </svg>
-            Ask AI
-          </span>
+          {exhibitor.publicQrToken ? (
+            <>
+              <Link
+                href={`/visit/${exhibitor.publicQrToken}`}
+                className="flex items-center justify-center gap-1 rounded-lg bg-brand px-2 py-2 text-center text-xs font-semibold text-on-brand shadow-1 transition-colors hover:bg-brand-hover"
+              >
+                Visit Booth
+              </Link>
+              <Link
+                href={`/visit/${exhibitor.publicQrToken}`}
+                className="flex items-center justify-center gap-1 rounded-lg border border-default bg-surface px-2 py-2 text-xs font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
+              >
+                <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
+                  <circle cx="8" cy="8" r="6" strokeWidth="1.5" />
+                  <path d="M8 5v3l2 2" strokeWidth="1.5" />
+                </svg>
+                Ask AI
+              </Link>
+            </>
+          ) : (
+            <span className="col-span-2 flex items-center justify-center rounded-lg border border-dashed border-default bg-sunken px-2 py-2 text-xs text-muted">
+              Booth not available
+            </span>
+          )}
           <a
             href={exhibitor.website || "#"}
             target="_blank"
@@ -157,9 +206,18 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
 export function HackathonLandingClient({
   exhibitors,
   count: _count,
+  liveMetrics,
 }: {
   exhibitors: ShowcaseExhibitor[];
   count: number;
+  liveMetrics?: {
+    totalLiveBoothVisits: number;
+    totalLiveLeadSubmissions: number;
+    totalLiveAiConversations: number;
+    totalLiveBrochureDownloads: number;
+    totalLiveProductViews: number;
+    totalLiveReturningVisitors: number;
+  } | null;
 }) {
   const [heroVisible, setHeroVisible] = useState(false);
   const exhibitionRef = useRef<HTMLDivElement | null>(null);
@@ -271,9 +329,9 @@ export function HackathonLandingClient({
             {[
               { icon: "📍", label: "Moscone Center", sub: "San Francisco" },
               { icon: "📅", label: "September 2027", sub: "" },
-              { icon: "🏢", label: <><AnimatedCounter end={10} /><span className="ml-1">Exhibitors</span></>, sub: "" },
-              { icon: "👥", label: <><AnimatedCounter end={18500} suffix="+" /><span className="ml-1">Attendees</span></>, sub: "(Demo)" },
-              { icon: "🤖", label: "AI at Every", sub: "Booth" },
+              { icon: "🏢", label: <><LiveAnimatedCounter initial={liveMetrics?.totalLiveLeadSubmissions ?? 0} /><span className="ml-1">Leads</span></>, sub: "" },
+              { icon: "👥", label: <><LiveAnimatedCounter initial={liveMetrics?.totalLiveBoothVisits ?? 0} /><span className="ml-1">Visits</span></>, sub: "(Demo)" },
+              { icon: "🤖", label: <><LiveAnimatedCounter initial={liveMetrics?.totalLiveAiConversations ?? 0} /><span className="ml-1">AI chats</span></>, sub: "(Demo)" },
             ].map((item, i) => (
               <div key={i} className="flex flex-col items-center rounded-xl border border-default bg-surface p-4 shadow-1">
                 <span className="text-xl" aria-hidden>{item.icon}</span>

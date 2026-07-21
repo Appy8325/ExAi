@@ -7,7 +7,7 @@ import {
 
 import { getApiBaseUrl } from "@/lib/api/config";
 
-import { DemoPageHeader } from "@/components/demo/demo-page-header";
+import { DemoPageHeader, DemoTopBar } from "@/components/demo/shell";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -30,20 +30,18 @@ export default async function DemoPage() {
 
   return (
     <main className="min-h-screen bg-canvas">
-      <div className="mx-auto max-w-7xl px-6 pt-16 sm:px-10 sm:pt-24">
+      <DemoTopBar />
+      <div className="mx-auto max-w-7xl px-6 pt-8 sm:px-10 sm:pt-12">
         <div className="mx-auto max-w-3xl space-y-4 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
             <span className="inline-block size-1.5 rounded-full bg-brand" />
             ExAi product tour
           </span>
-          <DemoPageHeader />
-          <h1 className="text-balance text-4xl font-bold tracking-tight text-primary sm:text-5xl">
-            Experience ExAi
-          </h1>
-          <p className="mx-auto max-w-2xl text-base text-secondary sm:text-lg">
-            Explore the platform from each perspective. Every page is read-only,
-            powered by seeded demo data, and requires no login or editing.
-          </p>
+          <DemoPageHeader
+            eyebrow="Read-only demo"
+            title="Experience ExAi"
+            description="Explore the platform from each perspective. Every page is read-only, powered by seeded demo data, and requires no login or editing."
+          />
         </div>
 
         <div className="mx-auto mt-4 grid max-w-3xl gap-3 sm:grid-cols-3">

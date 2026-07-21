@@ -2,12 +2,14 @@
 
 import { useRef, useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
+import { LiveDemoStats } from "@/components/demo/live-demo-stats";
 
 export default function MarketingHomePage() {
   return (
     <main>
       <HeroSection />
       <PersonasSection />
+      <LiveDemoStats />
       <HowExAiWorks />
       <CTASection />
     </main>
@@ -184,7 +186,7 @@ function PersonasSection() {
       icon: OrganizerIcon,
       desc: "Full control over the event lifecycle — manage exhibitors, see real-time analytics, and generate reports from one dashboard.",
       cta: "View organizer demo",
-      href: "/org",
+      href: "/demo/organizer",
       illustration: OrganizerIllo,
     },
     {

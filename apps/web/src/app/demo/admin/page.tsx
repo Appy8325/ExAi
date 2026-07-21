@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { getApiBaseUrl } from "@/lib/api/config";
 
 type SimulationStatus = {
@@ -41,6 +41,8 @@ type EventMetrics = {
   recentActivity: Array<{ at: string; type: string; detail: string }>;
 };
 
+const MAX_EVENTS_HISTORY = 20;
+
 const API_BASE = typeof window !== "undefined" ? getApiBaseUrl() : "";
 
 async function api(path: string, method = "GET") {
@@ -53,6 +55,8 @@ export default function DemoAdminPage() {
   const [metrics, setMetrics] = useState<EventMetrics | null>(null);
   const [speed, setSpeedState] = useState(1);
   const [scenario, setScenarioState] = useState("peak_expo");
+  const [eventsHistory, setEventsHistory] = useState<number[]>([]);
+  const prevEventsGeneratedRef = useRef(0);
 
   const refresh = useCallback(async () => {
     try {
@@ -64,6 +68,13 @@ export default function DemoAdminPage() {
       setMetrics(m.eventMetrics);
       setSpeedState(s.simulation.speed);
       setScenarioState(s.simulation.scenario);
+      const newCount = s.simulation.eventsGenerated ?? 0;
+      const delta = Math.max(0, newCount - prevEventsGeneratedRef.current);
+      prevEventsGeneratedRef.current = newCount;
+      setEventsHistory((prev) => {
+        const next = [...prev, delta];
+        return next.slice(-MAX_EVENTS_HISTORY);
+      });
     } catch { /* ignore */ }
   }, []);
 
@@ -170,6 +181,33 @@ export default function DemoAdminPage() {
               <HealthRow label="Scenario" value={scenario} />
               <HealthRow label="Avg Dwell" value={`${metrics?.averageDwellSeconds ?? 0}s`} />
               <HealthRow label="AI Engagement" value={`${metrics?.aiEngagementRate ?? 0}%`} />
+            </div>
+          </section>
+
+          {/* Events Per Minute Chart */}
+          <section className="rounded-xl border border-[#222] bg-[#111] p-5">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#888]">Events / Poll</h2>
+            {eventsHistory.length > 0 ? (
+              <div className="flex items-end gap-1" style={{ height: 60 }}>
+                {eventsHistory.map((count, i) => {
+                  const max = Math.max(...eventsHistory, 1);
+                  return (
+                    <div
+                      key={i}
+                      className="flex-1 rounded-sm bg-brand transition-all duration-300"
+                      style={{ height: `${Math.max(4, (count / max) * 100)}%` }}
+                      title={`${count} events`}
+                    />
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-[#555]">Start the simulation to see event generation.</p>
+            )}
+            <div className="mt-2 flex items-center justify-between text-xs text-[#555]">
+              <span>oldest</span>
+              <span className="text-[#888]">{eventsHistory.length > 0 ? `${eventsHistory[eventsHistory.length - 1]} now` : ""}</span>
+              <span>newest</span>
             </div>
           </section>
         </div>

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { notFound } from "next/navigation";
+import QRCode from "qrcode";
 import { Card } from "@concourse/ui";
 
 import { getPublicDemoOverview } from "@concourse/api-client";
@@ -42,6 +44,15 @@ export default async function ExhibitorQrPage({
     .find((b) => b.id === eventExhibitorId);
   if (!booth) notFound();
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? `https://${process.env.VERCEL_URL ?? "exai.com"}`;
+  const qrDataUrl = booth.publicQrToken
+    ? await QRCode.toDataURL(`${baseUrl}/visit/${booth.publicQrToken}`, {
+        width: 256,
+        margin: 2,
+        color: { dark: "#111111", light: "#ffffff" },
+      })
+    : null;
+
   return (
     <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
       <DemoMobileNav
@@ -69,48 +80,22 @@ export default async function ExhibitorQrPage({
 
           <Card>
             <div className="flex flex-col items-center gap-4 text-center">
-              <div className="mx-auto flex h-44 w-44 max-w-full items-center justify-center rounded-xl bg-white p-3 shadow-1">
-                <svg viewBox="0 0 100 100" className="h-full w-full">
-                  <rect x="0" y="0" width="30" height="30" rx="3" fill="#111" />
-                  <rect x="0" y="0" width="10" height="10" rx="1.5" fill="#fff" />
-                  <rect x="20" y="0" width="10" height="10" rx="1.5" fill="#fff" />
-                  <rect x="0" y="20" width="10" height="10" rx="1.5" fill="#fff" />
-                  <rect x="10" y="10" width="10" height="10" rx="1.5" fill="#fff" />
-
-                  <rect x="70" y="0" width="30" height="30" rx="3" fill="#111" />
-                  <rect x="70" y="0" width="10" height="10" rx="1.5" fill="#fff" />
-                  <rect x="90" y="0" width="10" height="10" rx="1.5" fill="#fff" />
-                  <rect x="70" y="20" width="10" height="10" rx="1.5" fill="#fff" />
-                  <rect x="80" y="10" width="10" height="10" rx="1.5" fill="#fff" />
-
-                  <rect x="0" y="70" width="30" height="30" rx="3" fill="#111" />
-                  <rect x="0" y="70" width="10" height="10" rx="1.5" fill="#fff" />
-                  <rect x="20" y="70" width="10" height="10" rx="1.5" fill="#fff" />
-                  <rect x="0" y="90" width="10" height="10" rx="1.5" fill="#fff" />
-                  <rect x="10" y="80" width="10" height="10" rx="1.5" fill="#fff" />
-
-                  <rect x="40" y="40" width="8" height="8" rx="1" fill="#111" />
-                  <rect x="55" y="40" width="8" height="8" rx="1" fill="#111" />
-                  <rect x="45" y="55" width="8" height="8" rx="1" fill="#111" />
-
-                  <rect x="70" y="70" width="8" height="8" rx="1.5" fill="#111" />
-                  <rect x="80" y="70" width="8" height="8" rx="1.5" fill="#111" />
-                  <rect x="70" y="80" width="8" height="8" rx="1.5" fill="#111" />
-
-                  <rect x="55" y="70" width="6" height="6" rx="1" fill="#111" />
-
-                  <rect x="35" y="10" width="6" height="6" rx="1" fill="#111" />
-                  <rect x="50" y="10" width="6" height="6" rx="1" fill="#111" />
-                  <rect x="60" y="20" width="6" height="6" rx="1" fill="#111" />
-                  <rect x="45" y="25" width="6" height="6" rx="1" fill="#111" />
-
-                  <rect x="35" y="75" width="6" height="6" rx="1" fill="#111" />
-                  <rect x="90" y="50" width="6" height="6" rx="1" fill="#111" />
-                  <rect x="10" y="50" width="6" height="6" rx="1" fill="#111" />
-                </svg>
+              <div className="mx-auto flex h-44 w-44 max-w-full items-center justify-center rounded-xl bg-white p-3 shadow-1 overflow-hidden">
+                {qrDataUrl ? (
+                  <Image
+                    src={qrDataUrl}
+                    alt="Booth QR code"
+                    width={256}
+                    height={256}
+                    className="h-full w-full object-contain"
+                    unoptimized
+                  />
+                ) : (
+                  <p className="text-xs text-muted">No QR available</p>
+                )}
               </div>
               <p className="text-xs text-muted">
-                Demo QR Code
+                Scan to open booth — {baseUrl}/visit/{booth.publicQrToken}
               </p>
             </div>
           </Card>

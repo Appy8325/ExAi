@@ -68,6 +68,15 @@ export const LiveBadge = memo(function LiveBadge({ count, label }: { count: numb
   );
 });
 
+const ACTIVITY_TYPE_ICONS: Record<string, string> = {
+  visit: "👋",
+  ai_chat: "🤖",
+  lead: "📋",
+  download: "📄",
+  qr_scan: "📷",
+  product_view: "🔍",
+};
+
 export function RecentActivityFeed({ className }: { className?: string }) {
   const [activities, setActivities] = useState<DemoLiveEventMetrics["recentActivity"]>([]);
 
@@ -85,22 +94,13 @@ export function RecentActivityFeed({ className }: { className?: string }) {
 
   if (activities.length === 0) return null;
 
-  const typeIcons: Record<string, string> = {
-    visit: "👋",
-    ai_chat: "🤖",
-    lead: "📋",
-    download: "📄",
-    qr_scan: "📷",
-    product_view: "🔍",
-  };
-
   return (
     <div className={className}>
-      <h3 className="text-sm font-semibold text-primary mb-3">Live Activity Feed</h3>
+      <h3 className="mb-3 text-sm font-semibold text-primary">Live Activity Feed</h3>
       <div className="space-y-1.5">
         {activities.slice(0, 10).map((a, i) => (
           <div key={`${a.at}-${i}`} className="flex items-center gap-2 text-xs text-secondary">
-            <span>{typeIcons[a.type] ?? "•"}</span>
+            <span>{ACTIVITY_TYPE_ICONS[a.type] ?? "•"}</span>
             <span className="flex-1 truncate">{a.detail}</span>
             <RelativeTime timestamp={a.at} />
           </div>

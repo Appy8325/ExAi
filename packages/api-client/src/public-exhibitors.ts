@@ -274,7 +274,7 @@ export type PublicDemoOverview = {
     id: string;
     name: string;
     slug: string;
-    events: Array<{ eventId: string; eventSlug: string; eventExhibitorId: string }>;
+    events: Array<{ eventId: string; eventSlug: string; eventExhibitorId: string; eventName: string }>;
   }>;
   relationships: Array<{
     id: string;
@@ -311,7 +311,7 @@ export type PublicDemoExhibitorDashboard = {
     profileCompletion: number; formCompletionRate: number;
   };
   pipeline: { new: number; active: number; returning: number; needsFollowUp: number };
-  recentActivity: Array<{ id: string; at: string; type: string; relationshipId: string; label: string }>;
+  recentActivity: Array<{ id: string; at: string; type: string; relationshipId: string; label: string; attendeeName?: string }>;
   attention: Array<{ relationshipId: string; attendeeName: string; reasons: string[] }>;
   intelligenceFeed: {
     profilesEnriched: number; completeProfiles: number;
@@ -336,6 +336,28 @@ export function getPublicDemoExhibitorDashboard(client: PublicApiClient, eventEx
   return publicRequest<PublicDemoExhibitorDashboard>(
     client,
     `/v1/public/demo/exhibitor/${encodeURIComponent(eventExhibitorId)}/dashboard`,
+  );
+}
+
+export type DemoExhibitorVisitor = {
+  relationshipId: string;
+  attendeeName: string;
+  company: string | null;
+  jobTitle: string | null;
+  status: string;
+  interactionCount: number;
+  firstInteractionAt: string;
+  lastInteractionAt: string;
+  hasLead: boolean;
+  notesCount: number;
+  intentLabel: string;
+  attentionReasons: string[];
+};
+
+export function getPublicDemoExhibitorVisitors(client: PublicApiClient, eventExhibitorId: string) {
+  return publicRequest<DemoExhibitorVisitor[]>(
+    client,
+    `/v1/public/demo/exhibitor/${encodeURIComponent(eventExhibitorId)}/visitors`,
   );
 }
 

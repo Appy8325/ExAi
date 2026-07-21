@@ -20,7 +20,7 @@ const SIDEBAR = [
   { label: "Dashboard", href: "/demo/organizer" },
   { label: "Events", href: "/demo/organizer/events" },
   { label: "Analytics", href: "/demo/organizer/analytics" },
-  { label: "Heatmaps", href: "/demo/organizer/heatmaps" },
+  { label: "Booth Traffic", href: "/demo/organizer/heatmaps" },
   { label: "AI Insights", href: "/demo/organizer/ai-insights" },
   { label: "Reports", href: "/demo/organizer/reports" },
 ];

@@ -6,6 +6,11 @@ import { PublicExhibitorsService } from "./public-exhibitors.service";
 export class PublicExhibitorsController {
   constructor(private readonly exhibitors: PublicExhibitorsService) {}
 
+  @Get("demo/exhibitor/:eventExhibitorId/visitors")
+  exhibitorVisitors(@Param("eventExhibitorId") eventExhibitorId: string) {
+    return this.exhibitors.demoExhibitorVisitors(eventExhibitorId);
+  }
+
   @Get("events/slug/:slug")
   findEventBySlug(@Param("slug") slug: string) {
     return this.exhibitors.findEventBySlug(slug);

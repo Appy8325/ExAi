@@ -8,6 +8,17 @@ import { Skeleton } from "@concourse/ui";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+type LiveMetrics = {
+  totalLiveBoothVisits: number;
+  totalLiveLeadSubmissions: number;
+  totalLiveAiConversations: number;
+  totalLiveBrochureDownloads: number;
+  totalLiveProductViews: number;
+  totalLiveReturningVisitors: number;
+  averageDwellSeconds: number;
+  aiEngagementRate: number;
+};
+
 function LoadingSkeleton() {
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center gap-8 px-gutter py-16 sm:px-(--mq-space-gutter)">
@@ -27,8 +38,15 @@ function LoadingSkeleton() {
 
 export default async function HackathonLandingPage() {
   const apiBase = getApiBaseUrl();
-  const exhibitors = await getPublicShowcase({ baseUrl: apiBase }).catch(() => null);
+  const [exhibitors, liveRes] = await Promise.all([
+    getPublicShowcase({ baseUrl: apiBase }).catch(() => null),
+    fetch(`${apiBase}/v1/public/demo/live`).catch(() => null),
+  ]);
   const count = exhibitors?.length ?? 0;
+  let liveMetrics: LiveMetrics | null = null;
+  if (liveRes?.ok) {
+    try { liveMetrics = await liveRes.json(); } catch { /* ignore */ }
+  }
 
   return (
     <main className="min-h-screen bg-canvas">
@@ -47,7 +65,7 @@ export default async function HackathonLandingPage() {
       </header>
 
       {!exhibitors ? <LoadingSkeleton /> : (
-        <HackathonLandingClient exhibitors={exhibitors} count={count} />
+        <HackathonLandingClient exhibitors={exhibitors} count={count} liveMetrics={liveMetrics} />
       )}
 
       <footer className="border-t border-default bg-sunken py-6">
