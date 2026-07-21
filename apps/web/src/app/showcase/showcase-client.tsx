@@ -192,7 +192,7 @@ function ExhibitorCard({
                   <circle cx="8" cy="8" r="6" />
                   <path d="M8 5v3l2 2" />
                 </svg>
-                Ask AI
+                AI Chat at Booth
               </Link>
             ) : null}
 

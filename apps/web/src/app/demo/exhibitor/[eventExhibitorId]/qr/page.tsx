@@ -69,24 +69,48 @@ export default async function ExhibitorQrPage({
 
           <Card>
             <div className="flex flex-col items-center gap-4 text-center">
-              <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-xl bg-white p-2 shadow-1">
-                <div className="grid h-full w-full grid-cols-3 grid-rows-3 gap-1">
-                  {Array.from({ length: 9 }, (_, i) => (
-                    <div
-                      key={i}
-                      className={`rounded ${
-                        [0, 2, 6, 8].includes(i) || i === 4
-                          ? "bg-black"
-                          : i % 2 === 0
-                            ? "bg-gray-800"
-                            : "bg-gray-400"
-                      }`}
-                    />
-                  ))}
-                </div>
+              <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-xl bg-white p-3 shadow-1">
+                <svg viewBox="0 0 100 100" className="h-full w-full">
+                  <rect x="0" y="0" width="30" height="30" rx="3" fill="#111" />
+                  <rect x="0" y="0" width="10" height="10" rx="1.5" fill="#fff" />
+                  <rect x="20" y="0" width="10" height="10" rx="1.5" fill="#fff" />
+                  <rect x="0" y="20" width="10" height="10" rx="1.5" fill="#fff" />
+                  <rect x="10" y="10" width="10" height="10" rx="1.5" fill="#fff" />
+
+                  <rect x="70" y="0" width="30" height="30" rx="3" fill="#111" />
+                  <rect x="70" y="0" width="10" height="10" rx="1.5" fill="#fff" />
+                  <rect x="90" y="0" width="10" height="10" rx="1.5" fill="#fff" />
+                  <rect x="70" y="20" width="10" height="10" rx="1.5" fill="#fff" />
+                  <rect x="80" y="10" width="10" height="10" rx="1.5" fill="#fff" />
+
+                  <rect x="0" y="70" width="30" height="30" rx="3" fill="#111" />
+                  <rect x="0" y="70" width="10" height="10" rx="1.5" fill="#fff" />
+                  <rect x="20" y="70" width="10" height="10" rx="1.5" fill="#fff" />
+                  <rect x="0" y="90" width="10" height="10" rx="1.5" fill="#fff" />
+                  <rect x="10" y="80" width="10" height="10" rx="1.5" fill="#fff" />
+
+                  <rect x="40" y="40" width="8" height="8" rx="1" fill="#111" />
+                  <rect x="55" y="40" width="8" height="8" rx="1" fill="#111" />
+                  <rect x="45" y="55" width="8" height="8" rx="1" fill="#111" />
+
+                  <rect x="70" y="70" width="8" height="8" rx="1.5" fill="#111" />
+                  <rect x="80" y="70" width="8" height="8" rx="1.5" fill="#111" />
+                  <rect x="70" y="80" width="8" height="8" rx="1.5" fill="#111" />
+
+                  <rect x="55" y="70" width="6" height="6" rx="1" fill="#111" />
+
+                  <rect x="35" y="10" width="6" height="6" rx="1" fill="#111" />
+                  <rect x="50" y="10" width="6" height="6" rx="1" fill="#111" />
+                  <rect x="60" y="20" width="6" height="6" rx="1" fill="#111" />
+                  <rect x="45" y="25" width="6" height="6" rx="1" fill="#111" />
+
+                  <rect x="35" y="75" width="6" height="6" rx="1" fill="#111" />
+                  <rect x="90" y="50" width="6" height="6" rx="1" fill="#111" />
+                  <rect x="10" y="50" width="6" height="6" rx="1" fill="#111" />
+                </svg>
               </div>
               <p className="text-xs text-muted">
-                QR placeholder — generation is available in the real workspace.
+                Demo QR Code
               </p>
             </div>
           </Card>

@@ -349,6 +349,9 @@ export type DemoLiveBoothMetrics = {
   liveReturningVisitors: number;
   liveDwellSeconds: number;
   liveSuggestedQuestionClicks: number;
+  liveLeadSubmissions: number;
+  averageDwellSeconds: number;
+  aiEngagementRate: number;
 };
 
 export function getDemoLiveBoothMetrics(client: PublicApiClient, eventExhibitorId: string) {
@@ -364,7 +367,13 @@ export type DemoLiveEventMetrics = {
   totalLiveProductViews: number;
   totalLiveBoothVisits: number;
   totalLiveDwellSeconds: number;
-  liveMetricsByBooth: Record<string, { visits: number; dwell: number; chats: number; downloads: number; productViews: number }>;
+  totalLiveLeadSubmissions: number;
+  totalLiveReturningVisitors: number;
+  averageDwellSeconds: number;
+  aiEngagementRate: number;
+  topBooth: { boothId: string; visits: number } | null;
+  recentActivity: Array<{ at: string; type: string; boothId: string; detail: string }>;
+  liveMetricsByBooth: Record<string, { visits: number; dwell: number; chats: number; downloads: number; productViews: number; leads: number }>;
 };
 
 export function getDemoLiveEventMetrics(client: PublicApiClient) {

@@ -8,6 +8,7 @@ import {
   chatAtBooth,
   enrollAtBooth,
   submitBoothLead,
+  trackDemoEvent,
   updateAttendeeProfile,
 } from "@concourse/api-client";
 import type { BoothChatResponse, PublicBooth } from "@concourse/api-client";
@@ -15,6 +16,8 @@ import { Button, Card, Field, Input, StatusBadge, Textarea } from "@concourse/ui
 
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
+
+import { TrackEvent } from "@/components/demo/analytics-tracker";
 
 type Step = "landing" | "email" | "sent" | "profile" | "form" | "success";
 type Recommendation = { title: string; reason: string };
@@ -166,6 +169,7 @@ export function BoothExperience({
         responses,
       );
       setRecommendations(result.recommendations);
+      trackDemoEvent({ baseUrl: getApiBaseUrl() }, { type: "lead_submission", boothId: publicQrToken }).catch(() => {});
       setStep("success");
     }, "Could not submit. Please try again.");
   };
@@ -183,8 +187,17 @@ export function BoothExperience({
     });
   }
 
+  const dwellInterval = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  useEffect(() => {
+    dwellInterval.current = setInterval(() => {
+      trackDemoEvent({ baseUrl: getApiBaseUrl() }, { type: "dwell", boothId: publicQrToken, seconds: 30 }).catch(() => {});
+    }, 30000);
+    return () => { if (dwellInterval.current) clearInterval(dwellInterval.current); };
+  }, [publicQrToken]);
+
   return (
     <main className="min-h-screen bg-canvas px-gutter py-8 sm:px-(--mq-space-gutter)">
+      <TrackEvent event={{ type: "booth_visit", boothId: publicQrToken }} />
       <div className="mx-auto max-w-(--mq-attendee-content-max)">
         <Link href="/hackathon" className="mb-6 inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-primary">
           <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
@@ -196,7 +209,7 @@ export function BoothExperience({
         <Card className="space-y-6">
           <BoothHeader booth={booth} />
           <BoothChat publicQrToken={publicQrToken} companyName={booth.companyName} />
-          <Resources booth={booth} />
+          <Resources booth={booth} publicQrToken={publicQrToken} />
 
           {step === "landing" && (
             <Landing booth={booth} onConnect={() => setStep("email")} />
@@ -265,7 +278,7 @@ function BoothHeader({ booth }: { booth: PublicBooth }) {
   );
 }
 
-function Resources({ booth }: { booth: PublicBooth }) {
+function Resources({ booth, publicQrToken }: { booth: PublicBooth; publicQrToken: string }) {
   if (!booth.resources.length) return null;
   return (
     <section className="space-y-2 border-t border-default pt-4">
@@ -277,6 +290,9 @@ function Resources({ booth }: { booth: PublicBooth }) {
               href={resource.external ? resource.href : `${getApiBaseUrl()}${resource.href}`}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => {
+                trackDemoEvent({ baseUrl: getApiBaseUrl() }, { type: "brochure_download", boothId: publicQrToken }).catch(() => {});
+              }}
               className="flex items-center gap-2 text-sm text-link transition-colors hover:text-brand"
             >
               <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
@@ -319,6 +335,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
         setHistory((prev) =>
           prev.map((item, i) => (i === prev.length - 1 ? { ...item, a: result.answer } : item))
         );
+        trackDemoEvent({ baseUrl: getApiBaseUrl() }, { type: "ai_chat", boothId: publicQrToken, messageCount: 1 }).catch(() => {});
       } catch {
         setError("The AI could not answer. Please try again or check the resources above.");
         setHistory((prev) =>
@@ -515,17 +532,17 @@ function LeadFormStep({ booth, error, onSubmit, pending }: { booth: PublicBooth;
 function Success({ booth, recommendations }: { booth: PublicBooth; recommendations: Recommendation[] }) {
   return (
     <section className="space-y-4 border-t border-default pt-4 text-center">
-      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-status-success-subtle">
+      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-status-success-subtle animate-[mq-scale-in_200ms_ease-out]">
         <svg className="size-6 text-status-success-text" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
           <path strokeWidth="2" d="M3 8l3 3 7-7" />
         </svg>
       </div>
-      <div>
+      <div className="animate-[mq-fade-up_300ms_ease-out]">
         <h3 className="text-sm font-semibold text-primary">You&apos;re connected!</h3>
         <p className="mt-1 text-xs text-muted">Your information was sent to {booth.companyName}</p>
       </div>
       {recommendations.length > 0 && (
-        <div className="rounded-lg border border-default bg-sunken p-3 text-left">
+        <div className="rounded-lg border border-default bg-sunken p-3 text-left animate-[mq-fade-up_400ms_ease-out]">
           <p className="text-xs font-medium text-primary">Recommended next</p>
           <ul className="mt-2 space-y-1">
             {recommendations.map((r) => (

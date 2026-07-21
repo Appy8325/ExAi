@@ -15,6 +15,7 @@ import {
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
+import { LiveMetricsBar } from "@/components/demo/live-metrics";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -56,6 +57,8 @@ export default async function OrganizerDashboardPage() {
         badge="Read-only"
       />
 
+      <LiveMetricsBar />
+
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard label="Live events" value={String(overview.events.length)} />
         <MetricCard label="Booths monitored" value={String(exhibitorCount)} />
@@ -68,6 +71,20 @@ export default async function OrganizerDashboardPage() {
           value={`${analytics?.conversions.conversionRate ?? 0}%`}
         />
       </section>
+
+      {analytics && analytics.traffic.capturedVisits > 0 && (
+        <Card variant="elevated" className="border-l-4 border-l-status-info-solid">
+          <p className="text-sm text-secondary">
+            <strong className="text-primary">Insight:</strong>{" "}
+            {analytics.traffic.capturedVisits} total visits across{" "}
+            {overview.events.length} event{overview.events.length !== 1 ? "s" : ""}{" "}
+            with a {analytics.conversions.conversionRate}% conversion rate.{" "}
+            {analytics.traffic.returningVisitors > 0
+              ? `${analytics.traffic.returningVisitors} returning attendee${analytics.traffic.returningVisitors !== 1 ? "s" : ""} show${analytics.traffic.returningVisitors === 1 ? "s" : ""} strong engagement.`
+              : "Attendees are beginning to interact with booths."}
+          </p>
+        </Card>
+      )}
 
       <section>
         <SectionHeader

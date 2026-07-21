@@ -12,6 +12,7 @@ import {
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
+import { LiveMetricsBar } from "@/components/demo/live-metrics";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -62,6 +63,8 @@ export default async function ExhibitorAnalyticsPage({
         description="Performance metrics and engagement tracking — read-only demo."
         badge="Read-only"
       />
+
+      <LiveMetricsBar />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard label="QR scans" value={String(perf.qrScans)} />

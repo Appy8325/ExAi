@@ -72,6 +72,22 @@ export default async function OrganizerEventPage({
         />
       </section>
 
+      {analytics ? (
+        <Card>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
+              AI
+            </span>
+            <h2 className="text-base font-semibold text-primary">
+              Event insight
+            </h2>
+          </div>
+          <p className="mt-3 whitespace-pre-line text-sm leading-7 text-secondary">
+            {renderEventInsight(analytics, event.name)}
+          </p>
+        </Card>
+      ) : null}
+
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -165,7 +181,10 @@ export default async function OrganizerEventPage({
   );
 }
 
-function formatDate(value: string) {
+function renderEventInsight(
+  analytics: NonNullable<Awaited<ReturnType<typeof getPublicDemoAnalytics>>>,
+  eventName: string,
+) {
   try {
     return new Date(value).toLocaleDateString();
   } catch {

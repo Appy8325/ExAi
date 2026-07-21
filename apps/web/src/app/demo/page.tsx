@@ -147,9 +147,9 @@ export default async function DemoPage() {
 
         {!overview ? (
           <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
-            The demo discovery endpoint is unavailable. Run{" "}
-            <code className="rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>{" "}
-            against a seeded Supabase project to power this showcase.
+            Demo data is not available right now. Make sure your Supabase project
+            is running and seeded with{" "}
+            <code className="rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>.
           </div>
         ) : null}
 

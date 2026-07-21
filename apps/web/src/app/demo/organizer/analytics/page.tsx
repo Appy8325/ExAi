@@ -11,6 +11,7 @@ import {
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
+import { LiveMetricsBar } from "@/components/demo/live-metrics";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -46,6 +47,8 @@ export default async function OrganizerAnalyticsPage() {
         description="Captured booth interactions and lead outcomes — read-only demo."
         badge="Live"
       />
+
+      <LiveMetricsBar />
 
       {overview.events.length > 0 ? (
         <nav className="flex flex-wrap gap-2" aria-label="Events">
@@ -177,7 +180,7 @@ export default async function OrganizerAnalyticsPage() {
                   <Row key={item.name} label={item.name} value={item.count} />
                 ))}
                 {!analytics.industries.length && (
-                  <p className="text-sm text-muted">No data captured yet.</p>
+                  <p className="text-sm text-muted">Attendee industry data appears here once visitors share their profiles.</p>
                 )}
               </div>
             </Card>
@@ -190,7 +193,7 @@ export default async function OrganizerAnalyticsPage() {
                   <Row key={item.name} label={item.name} value={item.count} />
                 ))}
                 {!analytics.topics.length && (
-                  <p className="text-sm text-muted">No data captured yet.</p>
+                  <p className="text-sm text-muted">AI-analyzed conversation topics appear as attendees ask questions at booths.</p>
                 )}
               </div>
             </Card>
