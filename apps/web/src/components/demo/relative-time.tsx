@@ -20,15 +20,15 @@ function formatRelativeTime(date: Date): string {
 
 export function RelativeTime({ timestamp }: { timestamp: string }) {
   const [label, setLabel] = useState("");
-  const date = new Date(timestamp);
 
   useEffect(() => {
+    const date = new Date(timestamp);
     setLabel(formatRelativeTime(date));
     const interval = setInterval(() => {
-      setLabel(formatRelativeTime(date));
+      setLabel(formatRelativeTime(new Date(timestamp)));
     }, 30000);
     return () => clearInterval(interval);
   }, [timestamp]);
 
-  return <span title={date.toLocaleString()}>{label || formatRelativeTime(date)}</span>;
+  return <span title={new Date(timestamp).toLocaleString()}>{label || formatRelativeTime(new Date(timestamp))}</span>;
 }
