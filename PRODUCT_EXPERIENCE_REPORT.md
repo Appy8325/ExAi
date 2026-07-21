@@ -205,15 +205,23 @@
 ### Would Further Improve Product Experience
 
 1. **Framer Motion** — Consider adding for shared element transitions and layout animations (currently pure CSS)
-2. **Route prefetching** — Add `<Link prefetch={true}>` on critical navigation paths
-3. **Image optimization** — Audit images for `next/image` usage, add blur placeholders
-4. **Bundle analysis** — Run `next build --analyze` to identify large dependencies
-5. **Lighthouse CI** — Integrate into CI pipeline for performance budgets
-6. **Error boundaries** — Add React error boundaries for each route group
-7. **Font preloading** — Ensure Inter font is preloaded with correct `rel="preload"`
-8. **Streaming SSR** — Leverage Next.js streaming for data-heavy pages
-9. **Progressive enhancement** — Ensure core functionality works without JS
-10. **Analytics instrumentation** — Add RUM (Real User Monitoring) for LCP/INP/CLS
+2. **Bundle analysis** — Run `next build --analyze` to identify large dependencies for tree-shaking improvements
+3. **Lighthouse CI** — Integrate into CI pipeline with performance budgets (LCP < 2.5s, INP < 200ms, CLS < 0.1)
+4. **Error boundaries** — Add React error boundaries for each route group
+5. **Streaming SSR** — Leverage Next.js streaming for data-heavy dashboard pages
+6. **Progressive enhancement** — Ensure core functionality works without JS for text-heavy content
+7. **Analytics instrumentation** — Add RUM (Real User Monitoring) for LCP/INP/CLS tracking
+8. **Image optimization** — Audit remaining images for `next/image` usage with blur placeholders
+
+### ✅ Completed in Second Pass
+
+| Item | Fix |
+|---|---|
+| **Sidebar responsive** | Console, Admin, Portal sidebars now hidden on mobile (`hidden lg:flex`) |
+| **Profile spinner** | Replaced CSS spinner with `Skeleton` component matching profile layout |
+| **QR code width** | Added `max-w-full` to prevent overflow on narrow screens |
+| **reactStrictMode** | Enabled in `next.config.ts` |
+| **Route prefetching** | Already handled by Next.js default `<Link>` prefetch for viewport-visible links |
 
 ---
 
@@ -235,6 +243,13 @@
 | `apps/web/src/app/(admin)/layout.tsx` | Active indicator bar, consistent styling |
 | `apps/web/src/components/demo/shell.tsx` | React.memo on all 5 export components |
 | `apps/web/src/components/demo/live-metrics.tsx` | React.memo on InsightCard, LiveBadge |
+| `apps/web/next.config.ts` | Added `reactStrictMode: true` |
+| `apps/web/src/app/(console)/layout.tsx` | Sidebar hidden on mobile (`hidden lg:flex`) |
+| `apps/web/src/app/(admin)/layout.tsx` | Sidebar hidden on mobile |
+| `apps/web/src/app/(portal)/exhibit/[organizationId]/layout.tsx` | Sidebar fallback hidden on mobile |
+| `apps/web/src/app/(portal)/exhibit/[organizationId]/_components/sidebar.tsx` | Sidebar hidden on mobile |
+| `apps/web/src/app/(attendee)/account/profile/page.tsx` | CSS spinner replaced with Skeleton |
+| `apps/web/src/app/demo/exhibitor/[eventExhibitorId]/qr/page.tsx` | QR code `max-w-full` for narrow screens |
 
 ---
 
