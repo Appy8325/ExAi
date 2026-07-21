@@ -7,37 +7,44 @@
 │                 Demo Intelligence System                       │
 ├─────────────────────────────────────────────────────────────┤
 │                                                               │
-│  /scripts/generate-demo-seed.ts                               │
-│       │  Deterministic PRNG (seed=2027)                       │
+│  /scripts/generate-demo-seed.ts                                │
+│       │  Deterministic PRNG (seed=2027) — single source       │
 │       ▼                                                       │
-│  demo_seed.json  ──►  Database Seeder (demo.ts)               │
-│       │                                                       │
-│       ├── Organizers (5)                                      │
-│       ├── Exhibitors (10)                                     │
-│       ├── Attendees (120)                                     │
-│       ├── Visits (800)                                        │
-│       ├── Conversations (500)                                 │
-│       ├── Leads (250)                                         │
-│       ├── Brochures (400)                                     │
-│       ├── Meetings (70)                                       │
-│       └── Activities (300)                                    │
-│       │                                                       │
-│       ▼                                                       │
-│  Event Simulation Engine (NestJS Background Service)          │
-│       │  Generates events every 20-60 seconds                 │
-│       │  Respects scenario + time-of-day rules                │
-│       ▼                                                       │
-│  Live Analytics Engine (DemoAnalyticsStore)                   │
-│       │  In-memory event aggregation                          │
-│       │  Updates every dashboard immediately                  │
-│       ▼                                                       │
-│  DemoAdminController (/v1/public/demo/admin/*)                │
-│       │  Start/stop/pause/resume                              │
-│       │  Scenario switching                                   │
-│       │  Speed control                                        │
-│       ▼                                                       │
-│  Demo Admin Panel (/demo/admin)                               │
-│       Hidden developer page for demo control                  │
+│  ┌─────────────────────────────────┐                          │
+│  │       demo_seed.json            │  ← ONLY data definition  │
+│  │  (organizers, exhibitors,       │                          │
+│  │   attendees, products, docs)    │                          │
+│  └──────────┬──────────────────────┘                          │
+│             │                                                  │
+│             ▼                                                  │
+│  ┌──────────────────┐    ┌──────────────────────┐             │
+│  │  demo.ts         │───►│  Supabase Postgres    │             │
+│  │  (JSON importer) │    │  (orgs, users,        │             │
+│  │  No inline data  │    │   booths, rels, etc.) │             │
+│  └──────────────────┘    └──────────┬───────────┘             │
+│                                     │                          │
+│  ┌──────────────────────┐           │                          │
+│  │  Simulation Engine   │◄──────────┘                          │
+│  │  (loads from DB,     │    reads seeded entities             │
+│  │   extends live data) │                                      │
+│  └──────────┬───────────┘                                      │
+│             │  auto-starts if DEMO_SIMULATION_AUTO_START=true   │
+│             ▼                                                   │
+│  ┌──────────────────────┐                                      │
+│  │  DemoAnalyticsStore  │  single in-memory store              │
+│  │  (live metrics,      │  ← ALL dashboards read from here     │
+│  │   activity feed)     │                                      │
+│  └──────────┬───────────┘                                      │
+│             │                                                  │
+│  ┌──────────▼───────────┐                                      │
+│  │  API Controllers     │  /v1/public/demo/*                  │
+│  │  /v1/public/demo/admin/*                                    │
+│  └──────────┬───────────┘                                      │
+│             │                                                  │
+│  ┌──────────▼───────────┐                                      │
+│  │  Next.js Pages       │  /demo, /demo/organizer,            │
+│  │                      │  /demo/exhibitor, /demo/admin       │
+│  └──────────────────────┘                                      │
 │                                                               │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -211,6 +218,51 @@ All dashboards derive from a single source of truth. No fake counters.
 | Admin panel refresh | ~3s poll interval |
 | Full demo:reset  | ~30 seconds (depends on Supabase reset) |
 
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DEMO_SIMULATION_AUTO_START` | `true` in dev, unset in prod | Auto-starts the simulation engine on API boot |
+| `API_DATABASE_URL` | — | Postgres connection string (production) |
+| `API_SUPABASE_URL` | — | Supabase API URL (production) |
+| `API_SUPABASE_SERVICE_ROLE_KEY` | — | Supabase service role key (production) |
+
+## Seed Pipeline
+
+The seed pipeline has **one source of truth** — `demo_seed.json`:
+
+```
+generate-demo-seed.ts  (deterministic, seed=2027)
+         │
+         ▼
+   demo_seed.json      (the ONLY data definition)
+         │
+         ▼
+   demo.ts             (JSON importer — no inline data)
+         │
+         ▼
+   Database             (Postgres via Supabase)
+         │
+         ▼
+   Simulation Engine   (loads from DB, extends live)
+         │
+         ▼
+   Analytics           (single DemoAnalyticsStore)
+         │
+         ▼
+   Dashboards          (all pages read same store)
+```
+
+`demo.ts` no longer contains any inline exhibitor, attendee, or product definitions. All data originates from `demo_seed.json`. The database schema mapping is:
+
+| JSON entity | Database table(s) |
+|---|---|
+| `organizers[]` | `users` + `organization_memberships` |
+| `exhibitors[]` | `organizations` + `event_exhibitors` + `kb_sources` |
+| `attendees[]` | `users` + `attendee_profiles` |
+| `exhibitors.products` | Mapped as descriptive text in booth content |
+| `exhibitors.knowledgeDocuments` | `files` + `kb_sources` |
+
 ## Remaining Limitations
 
 1. **Embedding Generation**: Knowledge base embeddings require the worker process to be running for `kb_chunks` to be generated.
@@ -234,7 +286,7 @@ pnpm demo:seed
 # Full reset: generate seed → reset DB → migrate → seed → ready
 pnpm demo:reset
 
-# Legacy direct seed
+# Legacy direct seed (still works, now reads from demo_seed.json)
 pnpm db:seed
 pnpm db:seed:demo
 ```
