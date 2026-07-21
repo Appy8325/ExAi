@@ -25,6 +25,7 @@ const attendeeNames = [
   "Skyler Ahmed",
 ];
 const companies = ["OrbitWorks", "Cedar Health", "Nimble Retail", "MetroGrid"];
+const industries = ["Technology", "Healthcare", "Retail", "Infrastructure"];
 const titles = [
   "Director of Engineering",
   "Product Lead",
@@ -483,7 +484,7 @@ Social: ${Object.entries(socialLinks).map(([k, v]) => `${k}: ${v}`).join(", ")}`
             booths.length === 1 ? index : index + (booths.length - 1) * 100;
           const email = `attendee-${(attendeeIndex % 200) + 1}@techexpo.local`;
           const attendee = attendees[attendeeIndex % attendees.length]!;
-          await tx`INSERT INTO attendee_profiles(user_id,company,job_title,industry) VALUES (${attendee.id},${companies[attendeeIndex % companies.length]!},${titles[attendeeIndex % titles.length]!},'Technology') ON CONFLICT (user_id) DO NOTHING`;
+          await tx`INSERT INTO attendee_profiles(user_id,company,job_title,industry) VALUES (${attendee.id},${companies[attendeeIndex % companies.length]!},${titles[attendeeIndex % titles.length]!},${industries[attendeeIndex % industries.length]!}) ON CONFLICT (user_id) DO NOTHING`;
           await tx`INSERT INTO attendee_profile_consents(user_id,share_profile_with_exhibitors) VALUES (${attendee.id},true) ON CONFLICT (user_id) DO UPDATE SET share_profile_with_exhibitors=true`;
           const relationship = one(
             await tx`INSERT INTO exhibitor_relationships(event_exhibitor_id,attendee_user_id,interaction_count,first_interaction_at,latest_interaction_at,has_potential_duplicate) VALUES (${booth.id},${attendee.id},${(index % 3) + 1},now() - ${500 - attendeeIndex} * interval '1 minute',now() - ${attendeeIndex % 90} * interval '1 minute',${index % 19 === 0}) ON CONFLICT (event_exhibitor_id,attendee_user_id) DO UPDATE SET interaction_count=EXCLUDED.interaction_count,latest_interaction_at=EXCLUDED.latest_interaction_at RETURNING id`,

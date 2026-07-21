@@ -167,6 +167,30 @@ export class PublicExhibitorsService {
     const booths = (boothRows as unknown as Array<{ id: string; name: string; booth_number: string | null; visits: number; leads: number }>);
     const maxVisits = Math.max(...booths.map((b) => b.visits), 1);
 
+    const industryRows = await this.database.execute(
+      sql<{ name: string; count: number }>`
+        SELECT ap.industry AS name, COUNT(*)::int AS count
+        FROM attendee_profiles ap
+        JOIN attendee_profile_consents apc ON apc.user_id = ap.user_id AND apc.share_profile_with_exhibitors = true
+        WHERE ap.user_id IN (
+          SELECT DISTINCT attendee_user_id FROM exhibitor_relationships WHERE event_id = ${eventId}
+        ) AND ap.industry IS NOT NULL
+        GROUP BY ap.industry
+        ORDER BY count DESC
+      `,
+    );
+
+    const topicRows = await this.database.execute(
+      sql<{ name: string; count: number }>`
+        SELECT jsonb_array_elements_text(li.topics_discussed) AS name, COUNT(*)::int AS count
+        FROM lead_intelligence li
+        JOIN lead_submissions ls ON ls.id = li.lead_submission_id
+        WHERE li.topics_discussed IS NOT NULL AND jsonb_array_length(li.topics_discussed) > 0
+        GROUP BY name
+        ORDER BY count DESC
+      `,
+    );
+
     return {
       organizationId: "",
       event: { id: event.id, name: event.name, status: event.status, timezone: event.timezone },
@@ -192,52 +216,193 @@ export class PublicExhibitorsService {
         conversionRate: b.visits > 0 ? Number(((b.leads / b.visits) * 100).toFixed(1)) : 0,
         heat: Number(((b.visits / maxVisits) * 100).toFixed(0)),
       })),
-      industries: [
-        { name: "Technology", count: Math.round(rel.unique * 0.4) },
-        { name: "Healthcare", count: Math.round(rel.unique * 0.25) },
-        { name: "Finance", count: Math.round(rel.unique * 0.2) },
-        { name: "Manufacturing", count: Math.round(rel.unique * 0.15) },
-      ],
-      topics: [
-        { name: "AI / Machine Learning", count: Math.round(rel.total * 0.35) },
-        { name: "Cloud Infrastructure", count: Math.round(rel.total * 0.25) },
-        { name: "Data Analytics", count: Math.round(rel.total * 0.2) },
-        { name: "Cybersecurity", count: Math.round(rel.total * 0.2) },
-      ],
+      industries: (industryRows as unknown as Array<{ name: string; count: number }>).map((r) => ({ name: r.name, count: r.count })),
+      topics: (topicRows as unknown as Array<{ name: string; count: number }>).map((r) => ({ name: r.name, count: r.count })),
     };
   }
 
   async demoExhibitorDashboard(eventExhibitorId: string) {
-    const boothRows = await this.database.execute(
-      sql<{ id: string; event_id: string; organization_id: string; company_name: string }>`
-        SELECT booth.id, booth.event_id, booth.organization_id, organization.name AS company_name
-        FROM event_exhibitors booth
-        JOIN organizations organization ON organization.id = booth.organization_id
-        WHERE booth.id = ${eventExhibitorId} AND booth.status = 'ready'
-        LIMIT 1
+    const rows = await this.database.execute(
+      sql<{
+        id: string; event_id: string; organization_id: string; company_name: string;
+        rel_total: number; rel_new: number; rel_returning: number; rel_active: number;
+        rel_needs_followup: number; qr_scans: number; leads: number;
+        avg_profile_completion: number; profiles_enriched: number;
+        complete_profiles: number;
+      }>`
+        WITH booth AS (
+          SELECT booth.id, booth.event_id, booth.organization_id, org.name AS company_name
+          FROM event_exhibitors booth
+          JOIN organizations org ON org.id = booth.organization_id
+          WHERE booth.id = ${eventExhibitorId} AND booth.status = 'ready'
+          LIMIT 1
+        ),
+        rel_stats AS (
+          SELECT
+            COUNT(*)::int AS total,
+            COUNT(*) FILTER (WHERE first_interaction_at >= now() - interval '24 hours')::int AS new_today,
+            COUNT(*) FILTER (WHERE interaction_count > 1)::int AS returning,
+            COUNT(*) FILTER (WHERE status = 'active')::int AS active,
+            COUNT(*) FILTER (WHERE NOT EXISTS (
+              SELECT 1 FROM relationship_notes rn WHERE rn.relationship_id = exhibitor_relationships.id
+            ))::int AS needs_followup,
+            COUNT(*) FILTER (WHERE interaction_source = 'visitor_qr')::int AS qr_scans
+          FROM exhibitor_relationships
+          WHERE event_exhibitor_id = ${eventExhibitorId}
+        ),
+        lead_stats AS (
+          SELECT COUNT(*)::int AS count
+          FROM lead_submissions sub
+          JOIN lead_forms form ON form.id = sub.lead_form_id
+          WHERE form.event_exhibitor_id = ${eventExhibitorId}
+        ),
+        profile_stats AS (
+          SELECT
+            COUNT(*)::int AS total,
+            COUNT(*) FILTER (
+              WHERE ap.industry IS NOT NULL
+                AND ap.job_title IS NOT NULL
+                AND ap.company IS NOT NULL
+                AND ap.phone IS NOT NULL
+                AND ap.bio IS NOT NULL
+            )::int AS complete
+          FROM exhibitor_relationships rel
+          JOIN attendee_profiles ap ON ap.user_id = rel.attendee_user_id
+          WHERE rel.event_exhibitor_id = ${eventExhibitorId}
+        ),
+        enrichment_stats AS (
+          SELECT
+            COUNT(DISTINCT li.lead_submission_id)::int AS enriched,
+            COUNT(*) FILTER (WHERE li.change_type = 'profile_completed')::int AS complete_profiles
+          FROM lead_intelligence li
+          JOIN lead_submissions ls ON ls.id = li.lead_submission_id
+          JOIN lead_forms form ON form.id = ls.lead_form_id
+          WHERE form.event_exhibitor_id = ${eventExhibitorId}
+        ),
+        recent_submissions AS (
+          SELECT ls.created_at AS at, 'form_submission' AS type,
+            ls.id AS ref_id, COALESCE(ap.company, '') AS label
+          FROM lead_submissions ls
+          JOIN lead_forms form ON form.id = ls.lead_form_id
+          LEFT JOIN attendee_profiles ap ON ap.user_id = ls.submitted_by
+          WHERE form.event_exhibitor_id = ${eventExhibitorId}
+          ORDER BY ls.created_at DESC LIMIT 10
+        ),
+        recent_notes AS (
+          SELECT rn.created_at AS at, 'note_added' AS type,
+            rn.id AS ref_id, LEFT(rn.content, 80) AS label
+          FROM relationship_notes rn
+          JOIN exhibitor_relationships rel ON rel.id = rn.relationship_id
+          WHERE rel.event_exhibitor_id = ${eventExhibitorId}
+          ORDER BY rn.created_at DESC LIMIT 10
+        ),
+        recent_enrichments AS (
+          SELECT li.created_at AS at, 'enrichment' AS type,
+            li.id AS ref_id,
+            COALESCE(li.change_type || ' — ' || li.change_summary, '') AS label
+          FROM lead_intelligence li
+          JOIN lead_submissions ls ON ls.id = li.lead_submission_id
+          JOIN lead_forms form ON form.id = ls.lead_form_id
+          WHERE form.event_exhibitor_id = ${eventExhibitorId}
+          ORDER BY li.created_at DESC LIMIT 10
+        ),
+        flagged_rels AS (
+          SELECT rel.id AS relationship_id,
+            COALESCE(ap.company, 'Attendee') || ' — ' || COALESCE(rel.notes, 'needs attention') AS reason
+          FROM exhibitor_relationships rel
+          LEFT JOIN attendee_profiles ap ON ap.user_id = rel.attendee_user_id
+          WHERE rel.event_exhibitor_id = ${eventExhibitorId}
+            AND (rel.status = 'blocked' OR rel.notes ILIKE '%flag%' OR rel.notes ILIKE '%urgent%')
+        ),
+        enrich_items AS (
+          SELECT li.created_at AS at, li.change_type, li.change_summary
+          FROM lead_intelligence li
+          JOIN lead_submissions ls ON ls.id = li.lead_submission_id
+          JOIN lead_forms form ON form.id = ls.lead_form_id
+          WHERE form.event_exhibitor_id = ${eventExhibitorId}
+          ORDER BY li.created_at DESC LIMIT 20
+        ),
+        src_count AS (
+          SELECT COUNT(*)::int AS count FROM kb_sources
+          WHERE event_exhibitor_id = ${eventExhibitorId} AND status = 'indexed'
+        )
+        SELECT b.*,
+          rs.total AS rel_total, rs.new_today AS rel_new, rs.returning AS rel_returning,
+          rs.active AS rel_active, rs.needs_followup AS rel_needs_followup,
+          rs.qr_scans, ls.count AS leads,
+          CASE WHEN ps.total > 0
+            THEN ROUND(
+              (COUNT(*) FILTER (WHERE ap.industry IS NOT NULL)::numeric
+               + COUNT(*) FILTER (WHERE ap.job_title IS NOT NULL)::numeric
+               + COUNT(*) FILTER (WHERE ap.company IS NOT NULL)::numeric
+               + COUNT(*) FILTER (WHERE ap.phone IS NOT NULL)::numeric
+               + COUNT(*) FILTER (WHERE ap.bio IS NOT NULL)::numeric
+              ) / (ps.total * 5) * 100, 0
+            )::int
+            ELSE 0
+          END AS avg_profile_completion,
+          es.enriched AS profiles_enriched, es.complete_profiles
+        FROM booth b, rel_stats rs, lead_stats ls, profile_stats ps, enrichment_stats es, src_count sc
+        GROUP BY b.id, b.event_id, b.organization_id, b.company_name,
+          rs.total, rs.new_today, rs.returning, rs.active, rs.needs_followup,
+          rs.qr_scans, ls.count, ps.total, es.enriched, es.complete_profiles
       `,
     );
-    const booth = (boothRows as unknown as Array<{ id: string; event_id: string; organization_id: string; company_name: string }>)[0];
-    if (!booth) throw new NotFoundException("Booth not found.");
+    const row = (rows as unknown as Array<{
+      id: string; event_id: string; organization_id: string; company_name: string;
+      rel_total: number; rel_new: number; rel_returning: number; rel_active: number;
+      rel_needs_followup: number; qr_scans: number; leads: number;
+      avg_profile_completion: number; profiles_enriched: number; complete_profiles: number;
+    }>)[0];
+    if (!row) throw new NotFoundException("Booth not found.");
 
-    const relRows = await this.database.execute(
-      sql<{ total: number; new_today: number }>`
-        SELECT COUNT(*)::int AS total,
-          COUNT(*) FILTER (WHERE first_interaction_at >= now() - interval '24 hours')::int AS new_today
-        FROM exhibitor_relationships
-        WHERE event_exhibitor_id = ${eventExhibitorId}
-      `,
-    );
-    const rel = (relRows as unknown as Array<{ total: number; new_today: number }>)[0] ?? { total: 0, new_today: 0 };
-
-    const subRows = await this.database.execute(
-      sql<{ count: number }>`
-        SELECT COUNT(*)::int AS count FROM lead_submissions sub
-        JOIN lead_forms form ON form.id = sub.lead_form_id
+    const activityUnion = await this.database.execute(
+      sql<{ at: string; type: string; ref_id: string; label: string }>`
+        (SELECT created_at AS at, 'form_submission' AS type, id AS ref_id,
+          COALESCE((SELECT company FROM attendee_profiles WHERE user_id = submitted_by), '') AS label
+        FROM lead_submissions ls
+        JOIN lead_forms form ON form.id = ls.lead_form_id
         WHERE form.event_exhibitor_id = ${eventExhibitorId}
+        ORDER BY created_at DESC LIMIT 10)
+        UNION ALL
+        (SELECT rn.created_at AS at, 'note_added' AS type, rn.id AS ref_id, LEFT(rn.content, 80) AS label
+        FROM relationship_notes rn
+        JOIN exhibitor_relationships rel ON rel.id = rn.relationship_id
+        WHERE rel.event_exhibitor_id = ${eventExhibitorId}
+        ORDER BY rn.created_at DESC LIMIT 10)
+        UNION ALL
+        (SELECT li.created_at AS at, 'enrichment' AS type, li.id AS ref_id,
+          COALESCE(li.change_type || ' — ' || li.change_summary, '') AS label
+        FROM lead_intelligence li
+        JOIN lead_submissions ls ON ls.id = li.lead_submission_id
+        JOIN lead_forms form ON form.id = ls.lead_form_id
+        WHERE form.event_exhibitor_id = ${eventExhibitorId}
+        ORDER BY li.created_at DESC LIMIT 10)
+        ORDER BY at DESC LIMIT 20
       `,
     );
-    const leadCount = (subRows as unknown as Array<{ count: number }>)[0]?.count ?? 0;
+
+    const flagRows = await this.database.execute(
+      sql<{ relationship_id: string; reason: string }>`
+        SELECT rel.id AS relationship_id,
+          COALESCE(ap.company, 'Attendee') || ' — ' || COALESCE(rel.notes, 'needs attention') AS reason
+        FROM exhibitor_relationships rel
+        LEFT JOIN attendee_profiles ap ON ap.user_id = rel.attendee_user_id
+        WHERE rel.event_exhibitor_id = ${eventExhibitorId}
+          AND (rel.status = 'blocked' OR rel.notes ILIKE '%flag%' OR rel.notes ILIKE '%urgent%')
+      `,
+    );
+
+    const enrichItems = await this.database.execute(
+      sql<{ at: string; change_type: string; change_summary: string }>`
+        SELECT li.created_at AS at, li.change_type, li.change_summary
+        FROM lead_intelligence li
+        JOIN lead_submissions ls ON ls.id = li.lead_submission_id
+        JOIN lead_forms form ON form.id = ls.lead_form_id
+        WHERE form.event_exhibitor_id = ${eventExhibitorId}
+        ORDER BY li.created_at DESC LIMIT 20
+      `,
+    );
 
     const sourceRows = await this.database.execute(
       sql<{ count: number }>`
@@ -249,31 +414,48 @@ export class PublicExhibitorsService {
 
     return {
       performance: {
-        qrScans: rel.total,
-        relationshipsCreated: rel.total,
-        returningVisitors: Math.round(rel.total * 0.3),
-        profileCompletion: 85,
-        formCompletionRate: rel.total > 0 ? Number(((leadCount / rel.total) * 100).toFixed(0)) : 0,
+        qrScans: row.qr_scans,
+        relationshipsCreated: row.rel_total,
+        returningVisitors: row.rel_returning,
+        profileCompletion: row.avg_profile_completion,
+        formCompletionRate: row.rel_total > 0 ? Number(((row.leads / row.rel_total) * 100).toFixed(0)) : 0,
       },
       pipeline: {
-        new: rel.new_today,
-        active: Math.round(rel.total * 0.4),
-        returning: Math.round(rel.total * 0.3),
-        needsFollowUp: Math.round(rel.total * 0.15),
+        new: row.rel_new,
+        active: row.rel_active,
+        returning: row.rel_returning,
+        needsFollowUp: row.rel_needs_followup,
       },
-      recentActivity: [
-        ...(rel.total > 0
-          ? [{ id: "1", at: new Date().toISOString(), type: "relationship_created" as const, relationshipId: "", label: `${booth.company_name} received ${rel.new_today > 0 ? rel.new_today : "a new"} visit` }]
-          : []),
-      ],
-      attention: [],
+      recentActivity: (activityUnion as unknown as Array<{ at: string; type: string; ref_id: string; label: string }>).map((a) => ({
+        id: a.ref_id,
+        at: a.at,
+        type: a.type as "form_submission" | "note_added" | "enrichment",
+        relationshipId: a.ref_id,
+        label: a.label,
+      })),
+      attention: (flagRows as unknown as Array<{ relationship_id: string; reason: string }>).map((f) => ({
+        relationshipId: f.relationship_id,
+        reason: f.reason,
+      })),
       intelligenceFeed: {
-        profilesEnriched: Math.round(rel.total * 0.4),
-        completeProfiles: Math.round(rel.total * 0.25),
-        sinceLastVisited: { since: "24h", newRelationships: rel.new_today, profilesEnriched: 0, returningVisitors: 0, notesAdded: 0, completeProfiles: 0 },
-        items: [],
+        profilesEnriched: row.profiles_enriched,
+        completeProfiles: row.complete_profiles,
+        sinceLastVisited: {
+          since: "24h",
+          newRelationships: row.rel_new,
+          profilesEnriched: row.profiles_enriched,
+          returningVisitors: row.rel_returning,
+          notesAdded: (activityUnion as unknown as Array<{ at: string; type: string; ref_id: string; label: string }>).filter((a) => a.type === "note_added").length,
+          completeProfiles: row.complete_profiles,
+        },
+        items: (enrichItems as unknown as Array<{ at: string; change_type: string; change_summary: string }>).map((e) => ({
+          id: `${e.at}-${e.change_type}`,
+          at: e.at,
+          type: e.change_type as "profile_completed" | "enrichment",
+          label: e.change_summary,
+        })),
       },
-      boothInfo: { companyName: booth.company_name, sourceCount },
+      boothInfo: { companyName: row.company_name, sourceCount },
     };
   }
 

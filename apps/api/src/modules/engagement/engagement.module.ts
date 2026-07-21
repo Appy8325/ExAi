@@ -42,6 +42,7 @@ import { ExhibitorWorkspaceRepository } from "./exhibitor-workspace.repository";
 import { ExhibitorWorkspaceService } from "./exhibitor-workspace.service";
 import { LeadIntelligenceService } from "./lead-intelligence.service";
 import { OrganizerReportingService } from "./organizer-reporting.service";
+import { DemoAnalyticsStore } from "./demo-analytics.store";
 import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor";
 
 @Module({
@@ -81,6 +82,7 @@ import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor
     AttendeeRelationshipsService,
     OrganizerOverviewService,
     OrganizerReportingService,
+    DemoAnalyticsStore,
     ExhibitorWorkspaceRepository,
     ExhibitorWorkspaceService,
     { provide: TaskExecutor, useClass: DeploymentTaskExecutor },

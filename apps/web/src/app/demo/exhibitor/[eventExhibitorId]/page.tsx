@@ -13,6 +13,7 @@ import {
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
+import { TrackVisit } from "@/components/demo/analytics-tracker";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -58,16 +59,16 @@ export default async function ExhibitorDashboardPage({
     pipeline.new + pipeline.active + pipeline.returning + pipeline.needsFollowUp;
   const leadQuality =
     pipelineTotal > 0 ? Math.round((pipeline.active / pipelineTotal) * 100) : 0;
-  const engagementScore = Math.min(
-    100,
-    Math.round(
-      (perf.qrScans + perf.relationshipsCreated * 2 + perf.returningVisitors * 3) /
-        5,
-    ),
-  );
+  const engagementScore = Math.min(100, Math.round(
+    perf.profileCompletion * 0.3 +
+    perf.formCompletionRate * 0.3 +
+    Math.min(perf.relationshipsCreated, 100) * 0.2 +
+    Math.min(perf.returningVisitors, 50) * 0.2
+  ));
 
   return (
     <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
+      <TrackVisit boothId={eventExhibitorId} />
       <DemoMobileNav items={SIDEBAR(eventExhibitorId)} currentHref={`/demo/exhibitor/${eventExhibitorId}`} />
 
       <DemoPageHeader

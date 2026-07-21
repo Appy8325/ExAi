@@ -339,6 +339,55 @@ export function getPublicDemoExhibitorDashboard(client: PublicApiClient, eventEx
   );
 }
 
+export type DemoLiveBoothMetrics = {
+  liveVisits: number;
+  liveProductViews: number;
+  liveBrochureDownloads: number;
+  liveAiChats: number;
+  liveAiChatMessages: number;
+  liveQrScans: number;
+  liveReturningVisitors: number;
+  liveDwellSeconds: number;
+  liveSuggestedQuestionClicks: number;
+};
+
+export function getDemoLiveBoothMetrics(client: PublicApiClient, eventExhibitorId: string) {
+  return publicRequest<DemoLiveBoothMetrics>(
+    client,
+    `/v1/public/demo/exhibitor/${encodeURIComponent(eventExhibitorId)}/live`,
+  );
+}
+
+export type DemoLiveEventMetrics = {
+  totalLiveAiConversations: number;
+  totalLiveBrochureDownloads: number;
+  totalLiveProductViews: number;
+  totalLiveBoothVisits: number;
+  totalLiveDwellSeconds: number;
+  liveMetricsByBooth: Record<string, { visits: number; dwell: number; chats: number; downloads: number; productViews: number }>;
+};
+
+export function getDemoLiveEventMetrics(client: PublicApiClient) {
+  return publicRequest<DemoLiveEventMetrics>(client, "/v1/public/demo/live");
+}
+
+export type TrackDemoEvent =
+  | { type: "booth_visit"; boothId: string; attendeeId?: string }
+  | { type: "product_view"; boothId: string; productName?: string }
+  | { type: "brochure_download"; boothId: string }
+  | { type: "ai_chat"; boothId: string; messageCount: number }
+  | { type: "qr_scan"; boothId: string }
+  | { type: "lead_submission"; boothId: string }
+  | { type: "dwell"; boothId: string; seconds: number }
+  | { type: "suggested_question_click"; boothId: string };
+
+export function trackDemoEvent(client: PublicApiClient, event: TrackDemoEvent) {
+  return publicRequest<{ tracked: boolean }>(client, "/v1/public/demo/track", {
+    method: "POST",
+    body: JSON.stringify(event),
+  });
+}
+
 export function chatAtBooth(
   client: PublicApiClient,
   publicQrToken: string,
