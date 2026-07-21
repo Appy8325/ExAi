@@ -128,7 +128,7 @@ export class PublicExhibitorsService {
           COUNT(DISTINCT attendee_user_id)::int AS unique,
           COUNT(*) FILTER (WHERE interaction_count > 1)::int AS returning
         FROM exhibitor_relationships
-        WHERE event_id = ${eventId}
+        WHERE event_exhibitor_id IN (SELECT id FROM event_exhibitors WHERE event_id = ${eventId})
       `,
     );
     const rel = (relRows as unknown as Array<{ total: number; unique: number; returning: number }>)[0] ?? { total: 0, unique: 0, returning: 0 };
@@ -157,7 +157,7 @@ export class PublicExhibitorsService {
             COUNT(sub.id)::int AS leads
           FROM exhibitor_relationships rel
           LEFT JOIN lead_submissions sub ON sub.relationship_id = rel.id
-          WHERE rel.event_id = ${eventId}
+          WHERE rel.event_exhibitor_id IN (SELECT id FROM event_exhibitors WHERE event_id = ${eventId})
           GROUP BY rel.event_exhibitor_id
         ) rel_stats ON rel_stats.event_exhibitor_id = booth.id
         WHERE booth.event_id = ${eventId} AND booth.status = 'ready'
@@ -173,7 +173,7 @@ export class PublicExhibitorsService {
         FROM attendee_profiles ap
         JOIN attendee_profile_consents apc ON apc.user_id = ap.user_id AND apc.share_profile_with_exhibitors = true
         WHERE ap.user_id IN (
-          SELECT DISTINCT attendee_user_id FROM exhibitor_relationships WHERE event_id = ${eventId}
+          SELECT DISTINCT attendee_user_id FROM exhibitor_relationships WHERE event_exhibitor_id IN (SELECT id FROM event_exhibitors WHERE event_id = ${eventId})
         ) AND ap.industry IS NOT NULL
         GROUP BY ap.industry
         ORDER BY count DESC
