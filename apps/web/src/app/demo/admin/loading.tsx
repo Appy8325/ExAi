@@ -1,4 +1,4 @@
-import { Skeleton, SkeletonCard, SkeletonTable } from "@concourse/ui";
+import { Skeleton, SkeletonCard } from "@concourse/ui";
 
 export default function PageLoading() {
   return (

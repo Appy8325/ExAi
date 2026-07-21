@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Card, EmptyState } from "@concourse/ui";
+import { EmptyState } from "@concourse/ui";
 
 import { getPublicDemoOverview } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";

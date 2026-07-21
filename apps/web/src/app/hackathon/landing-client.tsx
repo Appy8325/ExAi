@@ -22,35 +22,6 @@ function getGradient(industry: string): string {
   return industryGradients[industry] ?? "from-brand/60 to-brand-hover";
 }
 
-function AnimatedCounter({ end, suffix = "" }: { end: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
-
-  useEffect(() => {
-    if (started) return;
-    setStarted(true);
-    const duration = 2000;
-    const startTime = performance.now();
-
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 4);
-      setCount(Math.floor(eased * end));
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-
-    requestAnimationFrame(animate);
-  }, [end, started]);
-
-  return (
-    <span>
-      {count.toLocaleString()}
-      {suffix}
-    </span>
-  );
-}
-
 function LiveAnimatedCounter({ initial, suffix = "" }: { initial: number; suffix?: string }) {
   const [count, setCount] = useState(initial);
   const prevRef = useRef(initial);
