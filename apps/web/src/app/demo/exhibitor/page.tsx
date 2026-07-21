@@ -8,6 +8,7 @@ import {
   DemoTopBar,
   DemoUnavailable,
 } from "@/components/demo/shell";
+import { UnifiedBreadcrumbs, CommandPalette } from "@/components/navigation";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -25,6 +26,11 @@ export default async function ExhibitorPickerPage() {
     <div className="min-h-screen bg-canvas">
       <DemoTopBar persona="exhibitor" />
       <div className="mx-auto max-w-7xl space-y-8 px-6 py-8 sm:px-10 sm:py-10">
+        <div className="flex items-center justify-end gap-4 border-b border-default/60 pb-4">
+          <UnifiedBreadcrumbs />
+          <CommandPalette />
+        </div>
+
         <DemoPageHeader
           eyebrow="Exhibitor workspace"
           title="Pick an exhibitor"

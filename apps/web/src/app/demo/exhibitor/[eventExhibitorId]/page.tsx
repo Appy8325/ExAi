@@ -11,9 +11,11 @@ import { getApiBaseUrl } from "@/lib/api/config";
 import {
   DemoMobileNav,
   DemoPageHeader,
+  DemoTopBar,
   DemoUnavailable,
 } from "@/components/demo/shell";
 import { TrackVisit } from "@/components/demo/analytics-tracker";
+import { UnifiedBreadcrumbs, CommandPalette } from "@/components/navigation";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -67,137 +69,174 @@ export default async function ExhibitorDashboardPage({
   ));
 
   return (
-    <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
+    <div className="min-h-screen bg-canvas">
+      <DemoTopBar persona="exhibitor" />
       <TrackVisit boothId={eventExhibitorId} />
       <DemoMobileNav items={SIDEBAR(eventExhibitorId)} currentHref={`/demo/exhibitor/${eventExhibitorId}`} />
-
-      <DemoPageHeader
-        eyebrow="Exhibitor workspace"
-        title={booth.companyName}
-        description={`Booth ${booth.boothNumber ?? "—"} · ${booth.boothName}${
-          event ? ` · ${event.name}` : ""
-        }`}
-        badge="Read-only"
-      />
-
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        <MetricCard label="New visitors" value={String(pipeline.new)} />
-        <MetricCard label="QR scans" value={String(perf.qrScans)} />
-        <MetricCard
-          label="Relationships"
-          value={String(perf.relationshipsCreated)}
-        />
-        <MetricCard label="Returning" value={String(perf.returningVisitors)} />
-        <MetricCard
-          label="Profile completion"
-          value={`${perf.profileCompletion}%`}
-        />
-        <MetricCard label="Lead quality" value={`${leadQuality}%`} />
-        <MetricCard label="Engagement" value={String(engagementScore)} />
-        <MetricCard
-          label="Source count"
-          value={String(dashboard.boothInfo.sourceCount)}
-          />
-      </section>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <div className="flex items-start justify-between gap-3">
-            <h2 className="text-base font-semibold text-primary">
-              Relationship pipeline
-            </h2>
-            <Link
-              href={`/demo/exhibitor/${eventExhibitorId}/visitors`}
-              className="text-xs font-medium text-status-info-text hover:underline"
-            >
-              View pipeline →
-            </Link>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <PipelineCard label="New" value={pipeline.new} tone="neutral" />
-            <PipelineCard label="Active" value={pipeline.active} tone="success" />
-            <PipelineCard
-              label="Returning"
-              value={pipeline.returning}
-              tone="info"
-            />
-            <PipelineCard
-              label="Follow-up"
-              value={pipeline.needsFollowUp}
-              tone="warning"
-            />
-          </div>
-        </Card>
-
-        <Card>
-          <div className="flex items-start justify-between gap-3">
-            <h2 className="text-base font-semibold text-primary">
-              AI intelligence feed
-            </h2>
-            <Link
-              href={`/demo/exhibitor/${eventExhibitorId}/ai-insights`}
-              className="text-xs font-medium text-status-ai-text hover:underline"
-            >
-              View AI insights →
-            </Link>
-          </div>
-          {dashboard.intelligenceFeed.items.length > 0 ? (
-            <ul className="mt-4 space-y-2">
-              {dashboard.intelligenceFeed.items.slice(0, 4).map((item) => (
-                <li
-                  key={item.id}
-                  className="flex items-center justify-between rounded-lg border border-default bg-sunken px-3 py-2"
-                >
-                  <span className="truncate text-sm text-secondary">
-                    {item.label}
-                  </span>
-                  <span className="text-xs text-muted">
-                    {formatTime(item.at)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mt-4 text-sm text-muted">
-              No AI intelligence activity captured yet.
-            </p>
-          )}
-        </Card>
+      <div className="flex items-center justify-end gap-4 border-b border-default/60 px-6 py-2">
+        <UnifiedBreadcrumbs />
+        <CommandPalette />
       </div>
+      <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
+        <DemoPageHeader
+          eyebrow="Exhibitor workspace"
+          title={booth.companyName}
+          description={`Booth ${booth.boothNumber ?? "—"} · ${booth.boothName}${
+            event ? ` · ${event.name}` : ""
+          }`}
+          badge="Read-only"
+        />
 
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href={`/demo/exhibitor/${eventExhibitorId}/products`}
-          className="inline-flex h-10 items-center rounded-lg bg-status-success-solid px-4 text-sm font-semibold text-on-brand"
-        >
-          Products
-        </Link>
-        <Link
-          href={`/demo/exhibitor/${eventExhibitorId}/visitors`}
-          className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
-        >
-          Visitors
-        </Link>
-        <Link
-          href={`/demo/exhibitor/${eventExhibitorId}/analytics`}
-          className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
-        >
-          Analytics
-        </Link>
-        <Link
-          href={`/demo/exhibitor/${eventExhibitorId}/qr`}
-          className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
-        >
-          QR
-        </Link>
-        {booth.publicQrToken ? (
+        <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <MetricCard label="New visitors" value={String(pipeline.new)} />
+          <MetricCard label="QR scans" value={String(perf.qrScans)} />
+          <MetricCard
+            label="Relationships"
+            value={String(perf.relationshipsCreated)}
+          />
+          <MetricCard label="Returning" value={String(perf.returningVisitors)} />
+          <MetricCard
+            label="Profile completion"
+            value={`${perf.profileCompletion}%`}
+          />
+          <MetricCard label="Lead quality" value={`${leadQuality}%`} />
+          <MetricCard label="Engagement" value={String(engagementScore)} />
+          <MetricCard
+            label="Source count"
+            value={String(dashboard.boothInfo.sourceCount)}
+            />
+        </section>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-base font-semibold text-primary">
+                Relationship pipeline
+              </h2>
+              <Link
+                href={`/demo/exhibitor/${eventExhibitorId}/visitors`}
+                className="text-xs font-medium text-status-info-text hover:underline"
+              >
+                View pipeline →
+              </Link>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <PipelineCard label="New" value={pipeline.new} tone="neutral" />
+              <PipelineCard label="Active" value={pipeline.active} tone="success" />
+              <PipelineCard
+                label="Returning"
+                value={pipeline.returning}
+                tone="info"
+              />
+              <PipelineCard
+                label="Follow-up"
+                value={pipeline.needsFollowUp}
+                tone="warning"
+              />
+            </div>
+          </Card>
+
+          {dashboard.attention.length > 0 && (
+            <Card>
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="text-base font-semibold text-primary">
+                  Needs attention
+                </h2>
+                <Link
+                  href={`/demo/exhibitor/${eventExhibitorId}/visitors`}
+                  className="text-xs font-medium text-status-warning-text hover:underline"
+                >
+                  View all →
+                </Link>
+              </div>
+              <ul className="mt-4 space-y-2">
+                {dashboard.attention.slice(0, 4).map((item) => (
+                  <li
+                    key={item.relationshipId}
+                    className="rounded-lg border border-status-warning-border bg-status-warning-subtle px-3 py-2"
+                  >
+                    <p className="text-sm font-medium text-primary">
+                      {item.attendeeName}
+                    </p>
+                    <p className="mt-1 text-xs text-secondary">
+                      {item.reasons.join(" · ")}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
+          <Card>
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-base font-semibold text-primary">
+                AI intelligence feed
+              </h2>
+              <Link
+                href={`/demo/exhibitor/${eventExhibitorId}/ai-insights`}
+                className="text-xs font-medium text-status-ai-text hover:underline"
+              >
+                View AI insights →
+              </Link>
+            </div>
+            {dashboard.intelligenceFeed.items.length > 0 ? (
+              <ul className="mt-4 space-y-2">
+                {dashboard.intelligenceFeed.items.slice(0, 4).map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex items-center justify-between rounded-lg border border-default bg-sunken px-3 py-2"
+                  >
+                    <span className="truncate text-sm text-secondary">
+                      {item.label}
+                    </span>
+                    <span className="text-xs text-muted">
+                      {formatTime(item.at)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 text-sm text-muted">
+                No AI intelligence activity captured yet.
+              </p>
+            )}
+          </Card>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
           <Link
-            href={`/visit/${booth.publicQrToken}`}
-            className="inline-flex h-10 items-center rounded-lg border border-brand/30 bg-brand-subtle px-4 text-sm font-semibold text-brand"
+            href={`/demo/exhibitor/${eventExhibitorId}/products`}
+            className="inline-flex h-10 items-center rounded-lg bg-status-success-solid px-4 text-sm font-semibold text-on-brand"
           >
-            Open public booth
+            Products
           </Link>
-        ) : null}
+          <Link
+            href={`/demo/exhibitor/${eventExhibitorId}/visitors`}
+            className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
+          >
+            Visitors
+          </Link>
+          <Link
+            href={`/demo/exhibitor/${eventExhibitorId}/analytics`}
+            className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
+          >
+            Analytics
+          </Link>
+          <Link
+            href={`/demo/exhibitor/${eventExhibitorId}/qr`}
+            className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
+          >
+            QR
+          </Link>
+          {booth.publicQrToken ? (
+            <Link
+              href={`/visit/${booth.publicQrToken}`}
+              className="inline-flex h-10 items-center rounded-lg border border-brand/30 bg-brand-subtle px-4 text-sm font-semibold text-brand"
+            >
+              Open public booth
+            </Link>
+          ) : null}
+        </div>
       </div>
     </div>
   );

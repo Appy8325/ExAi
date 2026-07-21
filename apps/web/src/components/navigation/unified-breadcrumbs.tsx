@@ -1,0 +1,242 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@concourse/ui";
+
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface BreadcrumbConfig {
+  items: BreadcrumbItem[];
+}
+
+const CONSOLE_BREADCRUMBS: Record<string, BreadcrumbConfig> = {
+  "/org": { items: [{ label: "Dashboard" }] },
+  "/org/analytics": { items: [{ label: "Dashboard", href: "/org" }, { label: "Analytics" }] },
+  "/org/settings": { items: [{ label: "Dashboard", href: "/org" }, { label: "Settings" }] },
+  "/org/users": { items: [{ label: "Dashboard", href: "/org" }, { label: "Users" }] },
+  "/org/events": { items: [{ label: "Dashboard", href: "/org" }, { label: "Events" }] },
+  "/org/events/[eventId]": {
+    items: [
+      { label: "Dashboard", href: "/org" },
+      { label: "Events", href: "/org/events" },
+      { label: "Event" },
+    ],
+  },
+};
+
+const EXHIBIT_BREADCRUMBS: Record<string, BreadcrumbConfig> = {
+  "/exhibit/[organizationId]": { items: [{ label: "Dashboard" }] },
+  "/exhibit/[organizationId]/attendees": {
+    items: [{ label: "Dashboard", href: "" }, { label: "Attendees" }],
+  },
+  "/exhibit/[organizationId]/ai-insights": {
+    items: [{ label: "Dashboard", href: "" }, { label: "AI Insights" }],
+  },
+  "/exhibit/[organizationId]/dashboard": {
+    items: [{ label: "Dashboard" }],
+  },
+  "/exhibit/[organizationId]/dashboard/[eventExhibitorId]": {
+    items: [{ label: "Dashboard" }, { label: "Booth" }],
+  },
+  "/exhibit/[organizationId]/documents": {
+    items: [{ label: "Dashboard", href: "" }, { label: "Knowledge" }],
+  },
+  "/exhibit/[organizationId]/forms": {
+    items: [{ label: "Dashboard", href: "" }, { label: "Lead Form" }],
+  },
+  "/exhibit/[organizationId]/qr": {
+    items: [{ label: "Dashboard", href: "" }, { label: "Booth QR" }],
+  },
+  "/exhibit/[organizationId]/relationships": {
+    items: [{ label: "Dashboard", href: "" }, { label: "Relationships" }],
+  },
+  "/exhibit/[organizationId]/relationships/[relationshipId]": {
+    items: [{ label: "Dashboard", href: "" }, { label: "Relationships", href: "" }, { label: "Relationship" }],
+  },
+  "/exhibit/[organizationId]/settings": {
+    items: [{ label: "Dashboard", href: "" }, { label: "Booth Settings" }],
+  },
+  "/exhibit/[organizationId]/team": {
+    items: [{ label: "Dashboard", href: "" }, { label: "Team" }],
+  },
+};
+
+const ATTENDEE_BREADCRUMBS: Record<string, BreadcrumbConfig> = {
+  "/e": { items: [{ label: "Events" }] },
+  "/e/[eventSlug]": { items: [{ label: "Events", href: "/e" }, { label: "Event" }] },
+  "/e/[eventSlug]/exhibitors": {
+    items: [{ label: "Events", href: "/e" }, { label: "Event" }, { label: "Exhibitors" }],
+  },
+  "/e/[eventSlug]/exhibitors/[exhibitorId]": {
+    items: [{ label: "Events", href: "/e" }, { label: "Event" }, { label: "Exhibitors", href: "" }, { label: "Exhibitor" }],
+  },
+  "/e/[eventSlug]/exhibitors/[exhibitorId]/insights": {
+    items: [{ label: "Events", href: "/e" }, { label: "Event" }, { label: "Exhibitors", href: "" }, { label: "Exhibitor" }, { label: "Insights" }],
+  },
+  "/e/[eventSlug]/saved": {
+    items: [{ label: "Events", href: "/e" }, { label: "Event" }, { label: "Saved" }],
+  },
+};
+
+const DEMO_BREADCRUMBS: Record<string, BreadcrumbConfig> = {
+  "/demo": { items: [{ label: "Experience ExAi" }] },
+  "/demo/organizer": { items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer" }] },
+  "/demo/organizer/events": {
+    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Events" }],
+  },
+  "/demo/organizer/analytics": {
+    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Analytics" }],
+  },
+  "/demo/organizer/heatmaps": {
+    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Heatmaps" }],
+  },
+  "/demo/organizer/ai-insights": {
+    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "AI Insights" }],
+  },
+  "/demo/organizer/reports": {
+    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Reports" }],
+  },
+  "/demo/exhibitor": { items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Exhibitor" }] },
+  "/demo/exhibitor/[eventExhibitorId]": {
+    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Exhibitor", href: "/demo/exhibitor" }, { label: "Booth" }],
+  },
+  "/demo/admin": { items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Admin" }] },
+};
+
+function matchBreadcrumb(pathname: string, patterns: Record<string, BreadcrumbConfig>): BreadcrumbConfig | null {
+  for (const [pattern, config] of Object.entries(patterns)) {
+    const regex = pattern
+      .replace(/\[([^\]]+)\]/g, "([^/]+)")
+      .replace(/\//g, "\\/");
+    const re = new RegExp(`^${regex}$`);
+    if (re.test(pathname)) {
+      return config;
+    }
+  }
+  return null;
+}
+
+function resolveBreadcrumbItems(pathname: string): BreadcrumbItem[] {
+  const segments = pathname.split("/").filter(Boolean);
+
+  if (pathname.startsWith("/org")) {
+    const match = matchBreadcrumb(pathname, CONSOLE_BREADCRUMBS);
+    if (match) {
+      return match.items.map((item) => ({
+        ...item,
+        href: item.href ?? undefined,
+      }));
+    }
+    if (segments.length === 2) {
+      return [{ label: "Dashboard" }];
+    }
+    if (segments.length === 3 && segments[1] === "events") {
+      return [
+        { label: "Dashboard", href: "/org" },
+        { label: "Events", href: "/org/events" },
+        { label: "Event" },
+      ];
+    }
+  }
+
+  if (pathname.startsWith("/exhibit")) {
+    const match = matchBreadcrumb(pathname, EXHIBIT_BREADCRUMBS);
+    if (match) {
+      const orgId = segments[1];
+      return match.items.map((item) => {
+        if (!item.href && item.label !== "Dashboard" && item.label !== "Booth" && item.label !== "Relationship") {
+          return { ...item, href: `/exhibit/${orgId}` };
+        }
+        if (item.href === "") {
+          return { ...item, href: `/exhibit/${orgId}/${item.label.toLowerCase().replace(/ /g, "-")}` };
+        }
+        return item;
+      });
+    }
+  }
+
+  if (pathname.startsWith("/e")) {
+    const match = matchBreadcrumb(pathname, ATTENDEE_BREADCRUMBS);
+    if (match) {
+      const eventSlug = segments[1];
+      return match.items.map((item) => {
+        if (!item.href) return item;
+        if (item.label === "Events") return { ...item, href: "/e" };
+        if (item.label === "Event") return { ...item, href: `/e/${eventSlug}` };
+        if (item.label === "Exhibitors") return { ...item, href: `/e/${eventSlug}/exhibitors` };
+        return item;
+      });
+    }
+  }
+
+  if (pathname.startsWith("/demo")) {
+    const match = matchBreadcrumb(pathname, DEMO_BREADCRUMBS);
+    if (match) {
+      return match.items.map((item) => ({
+        ...item,
+        href: item.href ?? undefined,
+      }));
+    }
+  }
+
+  return [];
+}
+
+export function UnifiedBreadcrumbs({ className }: { className?: string }) {
+  const pathname = usePathname();
+  const items = resolveBreadcrumbItems(pathname);
+
+  if (items.length === 0) return null;
+
+  return (
+    <nav aria-label="Breadcrumb" className={className}>
+      <ol className="flex items-center gap-2 text-sm text-muted">
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+          return (
+            <li key={index} className="flex items-center gap-2">
+              {index > 0 && (
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden
+                  className="shrink-0 text-muted/50"
+                >
+                  <path d="M4.5 2.5l3.5 3.5-3.5 3.5" />
+                </svg>
+              )}
+              {isLast || !item.href ? (
+                <span
+                  className={cn(
+                    "truncate max-w-[12rem]",
+                    isLast ? "font-medium text-primary" : "",
+                  )}
+                  aria-current={isLast ? "page" : undefined}
+                >
+                  {item.label}
+                </span>
+              ) : (
+                <Link
+                  href={item.href}
+                  className="truncate max-w-[12rem] transition-colors hover:text-primary"
+                >
+                  {item.label}
+                </Link>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
