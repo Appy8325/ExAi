@@ -18,7 +18,7 @@ const SIDEBAR = [
   { label: "Dashboard", href: "/demo/organizer" },
   { label: "Events", href: "/demo/organizer/events" },
   { label: "Analytics", href: "/demo/organizer/analytics" },
-  { label: "Heatmaps", href: "/demo/organizer/heatmaps" },
+  { label: "Booth Traffic", href: "/demo/organizer/heatmaps" },
   { label: "AI Insights", href: "/demo/organizer/ai-insights" },
   { label: "Reports", href: "/demo/organizer/reports" },
 ];
@@ -88,9 +88,21 @@ export default async function OrganizerAiInsightsPage() {
               Executive summary
             </h2>
           </div>
-          <p className="mt-4 whitespace-pre-line text-sm leading-7 text-secondary">
-            {renderSummary(analytics, firstEvent?.name ?? "showcase event")}
-          </p>
+          <div className="mt-4 rounded-xl border border-dashed border-default bg-sunken p-6 text-center">
+            <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-brand-subtle">
+              <svg className="size-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <p className="mt-3 text-sm font-semibold text-primary">
+              AI Insights — In Active Development
+            </p>
+            <p className="mt-2 text-xs text-secondary">
+              Real NVIDIA AI-powered insights are generated in the authenticated
+              organizer workspace. The metrics shown here reflect live simulation
+              data available in the demo.
+            </p>
+          </div>
         </Card>
 
         <Card>
@@ -171,32 +183,4 @@ function Recommendation({ title, body }: { title: string; body: string }) {
       <p className="mt-1 text-xs text-secondary">{body}</p>
     </li>
   );
-}
-
-function renderSummary(
-  analytics: NonNullable<ReturnType<typeof getPublicDemoAnalytics> extends Promise<infer T> ? T : never> | null,
-  eventName: string,
-) {
-  if (!analytics) return "Insights will appear once the seed data is loaded.";
-  const topBooth = [...analytics.booths].sort((a, b) => b.visits - a.visits)[0];
-  const topIndustry = analytics.industries[0]?.name;
-  const topTopic = analytics.topics[0]?.name;
-  const lines = [
-    `Executive AI summary — ${eventName}`,
-    ``,
-    `Across ${analytics.traffic.capturedVisits} captured visits from ${analytics.traffic.uniqueVisitors} unique attendees, ${analytics.conversions.leads} leads were generated at a ${analytics.conversions.conversionRate}% conversion rate.`,
-    ``,
-    topBooth
-      ? `The booth "${topBooth.name}" led traffic with ${topBooth.visits} visits and ${topBooth.leads} leads.`
-      : `Booth-level data is not yet captured.`,
-    topTopic
-      ? `The most active topic was "${topTopic}".`
-      : `Topic patterns will surface as attendees engage with AI.`,
-    topIndustry
-      ? `${topIndustry} is the strongest industry cohort.`
-      : `Industry cohorts will populate as attendees consent to share profile data.`,
-    ``,
-    `Recommendation: prioritize follow-ups within 48 hours while intent signals are still fresh.`,
-  ];
-  return lines.join("\n");
 }

@@ -18,7 +18,7 @@ const SIDEBAR = [
   { label: "Dashboard", href: "/demo/organizer" },
   { label: "Events", href: "/demo/organizer/events" },
   { label: "Analytics", href: "/demo/organizer/analytics" },
-  { label: "Heatmaps", href: "/demo/organizer/heatmaps" },
+  { label: "Booth Traffic", href: "/demo/organizer/heatmaps" },
   { label: "AI Insights", href: "/demo/organizer/ai-insights" },
   { label: "Reports", href: "/demo/organizer/reports" },
 ];
@@ -42,7 +42,7 @@ export default async function OrganizerReportsPage() {
       <DemoPageHeader
         eyebrow="Organizer workspace"
         title={event?.name ?? "Reports"}
-        description="Deterministic event metrics with an AI-generated executive summary — read-only demo."
+        description="Live event metrics with executive reporting — read-only demo."
         badge="Report"
       />
 
@@ -81,41 +81,25 @@ export default async function OrganizerReportsPage() {
                   AI-generated summary based on aggregate event data.
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full border border-status-info-border bg-status-info-subtle px-3 py-1 text-xs font-semibold text-status-info-text">
-                Ready to share
-              </span>
             </div>
-            <div className="mt-6 whitespace-pre-wrap text-sm leading-7 text-secondary">
-              {renderReport(analytics, event?.name ?? "the event")}
+            <div className="mt-6 rounded-xl border border-dashed border-default bg-sunken p-8 text-center">
+              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-brand-subtle">
+                <svg className="size-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+              </div>
+              <p className="mt-4 text-sm font-semibold text-primary">
+                AI Report Generation — In Active Development
+              </p>
+              <p className="mt-2 text-sm text-secondary">
+                Executive reports powered by real NVIDIA AI are available in the
+                authenticated organizer workspace. Connect your event data to
+                generate shareable AI insights.
+              </p>
             </div>
           </Card>
         </>
       )}
     </div>
   );
-}
-
-function renderReport(
-  analytics: NonNullable<ReturnType<typeof getPublicDemoAnalytics> extends Promise<infer T> ? T : never>,
-  eventName: string,
-) {
-  const { booths, traffic, conversions, engagement } = analytics;
-  const topBooth = [...booths].sort((a, b) => b.visits - a.visits)[0];
-  return [
-    `Executive Summary for ${eventName}`,
-    ``,
-    `This report covers ${traffic.capturedVisits} total captured visits from ${traffic.uniqueVisitors} unique attendees, with ${conversions.leads} leads generated at a ${conversions.conversionRate}% conversion rate.`,
-    ``,
-    `Traffic & Engagement: ${traffic.returningVisitors} attendees returned for repeat visits (${engagement.repeatEngagementRate}% repeat engagement rate). On average, each visitor generated ${engagement.averageInteractions} interactions.`,
-    ``,
-    `Booth Performance: ${booths.length} booths participated.${
-      topBooth
-        ? ` The highest-traffic booth was "${topBooth.name}" with ${topBooth.visits} visits and ${topBooth.leads} leads.`
-        : ""
-    }`,
-    ``,
-    `Lead Quality: ${engagement.analyzedLeads} leads were analyzed by AI. The overall conversion rate of ${conversions.conversionRate}% indicates healthy attendee-to-lead progression.`,
-    ``,
-    `Recommendation: Continue optimizing booth content and knowledge sources to drive deeper attendee engagement.`,
-  ].join("\n");
 }

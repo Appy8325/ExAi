@@ -7,6 +7,8 @@ import {
 
 import { getApiBaseUrl } from "@/lib/api/config";
 
+import { DemoPageHeader } from "@/components/demo/demo-page-header";
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -34,6 +36,7 @@ export default async function DemoPage() {
             <span className="inline-block size-1.5 rounded-full bg-brand" />
             ExAi product tour
           </span>
+          <DemoPageHeader />
           <h1 className="text-balance text-4xl font-bold tracking-tight text-primary sm:text-5xl">
             Experience ExAi
           </h1>
