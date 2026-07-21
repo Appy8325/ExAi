@@ -45,7 +45,7 @@ const NAVIGATION_ITEMS: CommandItem[] = [
   },
   {
     id: "attendee",
-    label: "Attendee Experience",
+    label: "Attendee",
     description: "Live event floor",
     category: "navigation",
     href: "/hackathon",

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getPublicShowcase } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { ShowcaseClient } from "@/app/showcase/showcase-client";
+import { GlobalNav } from "@/components/navigation/global-nav";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -14,33 +15,21 @@ export default async function HackathonExpoPage() {
 
   return (
     <main className="min-h-screen bg-canvas text-primary">
-      <header className="sticky top-0 z-(--mq-z-sticky) border-b border-default/50 bg-canvas/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 sm:px-10">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">
-              E
-            </span>
-            <span className="text-base font-semibold tracking-tight">ExAi</span>
+      <GlobalNav variant="compact" active="attendee" />
+      <div className="border-b border-default/50 bg-brand-subtle/30">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2 sm:px-8">
+          <Link
+            href="/hackathon"
+            className="rounded-lg border border-default bg-surface px-2.5 py-1 text-xs font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
+          >
+            ← Event
           </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/hackathon"
-              className="rounded-lg border border-default bg-surface px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
-            >
-              Event
-            </Link>
-            <Link
-              href="/demo"
-              className="rounded-lg border border-default bg-surface px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
-            >
-              Demo
-            </Link>
-            <span className="rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
-              Expo Floor
-            </span>
-          </div>
+          <span className="rounded-full border border-brand/20 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
+            Expo Floor
+          </span>
+          <span className="ml-auto text-xs text-muted">TechExpo 2027</span>
         </div>
-      </header>
+      </div>
 
       <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 sm:py-16">
         <div className="space-y-3 text-center">

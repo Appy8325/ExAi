@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 
+import { GlobalNav } from "@/components/navigation";
 import { MarketingNav } from "./_components/marketing-nav";
 import { MarketingFooter } from "./_components/marketing-footer";
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-canvas text-primary">
+      <GlobalNav variant="marketing" active="experience" />
       <MarketingNav
         logo={
           <Link href="/" className="flex items-center gap-2">

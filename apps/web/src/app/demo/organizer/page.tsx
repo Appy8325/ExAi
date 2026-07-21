@@ -32,17 +32,10 @@ const SIDEBAR = [
 export default async function OrganizerDashboardPage() {
   const apiBase = getApiBaseUrl();
 
-  const [overview, analytics] = await Promise.all([
-    getPublicDemoOverview({ baseUrl: apiBase }).catch(() => null),
-    getPublicDemoOverview({ baseUrl: apiBase })
-      .then((ov) => {
-        const firstEvent = ov?.events[0];
-        return firstEvent
-          ? getPublicDemoAnalytics({ baseUrl: apiBase }, firstEvent.id).catch(() => null)
-          : null;
-      })
-      .catch(() => null),
-  ]);
+  const overview = await getPublicDemoOverview({ baseUrl: apiBase }).catch(() => null);
+  const analytics = overview?.events[0]
+    ? await getPublicDemoAnalytics({ baseUrl: apiBase }, overview.events[0].id).catch(() => null)
+    : null;
 
   if (!overview) return <DemoUnavailable />;
 

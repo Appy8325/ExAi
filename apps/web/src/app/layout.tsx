@@ -15,11 +15,8 @@ const inter = Inter({
 });
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
-  ],
-  colorScheme: "light dark",
+  themeColor: "#ffffff",
+  colorScheme: "light",
 };
 
 export const metadata: Metadata = {
@@ -41,22 +38,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={inter.variable} data-theme="light" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              // Enable View Transitions API for page navigation
-              if (typeof window !== 'undefined' && 'startViewTransition' in document) {
-                window.startViewTransition = function(callback) {
-                  document.startViewTransition(callback);
-                };
-              } else {
-                window.startViewTransition = function(callback) {
-                  callback();
-                };
-              }
-            `,
+            __html: [
+              "(function(){try{var d=document.documentElement;if(d.getAttribute('data-theme')!=='light'){d.setAttribute('data-theme','light');}}catch(e){}})();",
+              "(function(){if(typeof window!=='undefined'&&'startViewTransition' in document){window.startViewTransition=function(cb){document.startViewTransition(cb);};}else{window.startViewTransition=function(cb){cb();};}})();",
+            ].join("\n"),
           }}
         />
       </head>

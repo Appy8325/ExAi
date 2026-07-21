@@ -20,6 +20,11 @@ const nav = [
   { label: "Booth settings", href: "/settings", icon: "gear" },
 ] as const;
 
+const globalNav = [
+  { label: "Experience ExAi", href: "/demo", icon: "home" },
+  { label: "Attendee", href: "/hackathon", icon: "user" },
+] as const;
+
 export function Sidebar() {
   const pathname = usePathname();
   const params = useParams();
@@ -80,6 +85,23 @@ export function Sidebar() {
           </Link>
         ))}
       </nav>
+      <div className="border-t border-default p-3">
+        <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+          Experience
+        </p>
+        <div className="mt-1 space-y-0.5">
+          {globalNav.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="group flex items-center gap-3 rounded-lg px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+            >
+              <NavIcon name={link.icon} active={false} />
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </div>
       <div className="border-t border-default p-3">
         {state === "loading" ? (
           <div className="flex items-center gap-3 rounded-lg px-3 py-2">
@@ -190,6 +212,20 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
           <rect x="14" y="3" width="7" height="7" rx="1" />
           <rect x="3" y="14" width="7" height="7" rx="1" />
           <path d="M15 15h1v1h-1zM19 15h1v4h-1zM15 19h3v1h-3z" />
+        </svg>
+      );
+    case "home":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+      );
+    case "user":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
       );
     default:

@@ -4,6 +4,7 @@ import { getPublicShowcase } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { HackathonLandingClient } from "./landing-client";
 import { Skeleton } from "@concourse/ui";
+import { GlobalNav } from "@/components/navigation/global-nav";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -50,19 +51,24 @@ export default async function HackathonLandingPage() {
 
   return (
     <main className="min-h-screen bg-canvas">
-      <header className="sticky top-0 z-(--mq-z-sticky) border-b border-default/60 bg-canvas/85 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-gutter py-4 sm:px-(--mq-space-gutter)">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-sm font-bold text-on-brand shadow-1">
-              E
-            </span>
-            <span className="text-base font-semibold text-primary">ExAi</span>
-          </Link>
+      <GlobalNav variant="compact" active="attendee" />
+      <div className="border-b border-default/50 bg-brand-subtle/30">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2 sm:px-8">
           <span className="rounded-full border border-brand/20 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
             TechExpo 2027
           </span>
+          <span className="flex items-center gap-1 text-xs text-secondary">
+            <span className="size-1.5 rounded-full bg-status-success-solid animate-pulse" />
+            Live event
+          </span>
+          <Link
+            href="/hackathon/expo"
+            className="ml-auto rounded-lg border border-default bg-surface px-2.5 py-1 text-xs font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
+          >
+            Expo floor →
+          </Link>
         </div>
-      </header>
+      </div>
 
       {!exhibitors ? <LoadingSkeleton /> : (
         <HackathonLandingClient exhibitors={exhibitors} count={count} liveMetrics={liveMetrics} />

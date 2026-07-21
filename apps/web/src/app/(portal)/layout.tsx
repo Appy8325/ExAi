@@ -1,7 +1,11 @@
 import type { ReactNode } from "react";
+import { GlobalNav } from "@/components/navigation/global-nav";
 
-// Future shell: PortalShell (docs/13-application-layout.md §1) — Exhibitor
-// Portal for Elena/Jamal, at /exhibit/[orgSlug]/events/[eventSlug]/....
 export default function PortalLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return (
+    <div className="flex min-h-screen flex-col bg-canvas">
+      <GlobalNav variant="compact" />
+      <div className="flex-1">{children}</div>
+    </div>
+  );
 }

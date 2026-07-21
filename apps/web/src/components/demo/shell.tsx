@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { memo, useEffect, useState } from "react";
 import { getApiBaseUrl } from "@/lib/api/config";
+import { WorkspaceSwitcher } from "@/components/navigation/workspace-switcher";
 
-export type DemoPersona = "organizer" | "exhibitor";
+export type DemoPersona = "organizer" | "exhibitor" | "attendee";
 
 type SimulationStatus = {
   running: boolean;
@@ -13,24 +14,35 @@ type SimulationStatus = {
   speed: number;
 };
 
-const PERSONA_META: Record<DemoPersona, { label: string; tone: string; href: string }> = {
+const PERSONA_META: Record<DemoPersona, { label: string; tone: string; href: string; short: string }> = {
   organizer: {
     label: "Organizer",
+    short: "Org",
     tone: "border-status-info-border bg-status-info-subtle text-status-info-text",
     href: "/demo/organizer",
   },
   exhibitor: {
     label: "Exhibitor",
+    short: "Exh",
     tone: "border-status-success-border bg-status-success-subtle text-status-success-text",
     href: "/demo/exhibitor",
   },
+  attendee: {
+    label: "Attendee",
+    short: "Att",
+    tone: "border-status-ai-border bg-status-ai-subtle text-status-ai-text",
+    href: "/hackathon",
+  },
 };
+
+const HOMEPAGE_HREF = "/demo";
+
 
 export const DemoTopBar = memo(function DemoTopBar({ persona }: { persona?: DemoPersona }) {
   const active = persona ? PERSONA_META[persona] : undefined;
   return (
-    <header className="sticky top-0 z-(--mq-z-sticky) border-b border-default/50 bg-canvas/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-3 sm:px-10">
+    <header className="sticky top-0 z-(--mq-z-sticky, 50) border-b border-default/50 bg-canvas/85 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2.5 sm:px-8 sm:py-3">
         <Link href="/demo" className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">
             E
@@ -38,34 +50,52 @@ export const DemoTopBar = memo(function DemoTopBar({ persona }: { persona?: Demo
           <span className="text-base font-semibold tracking-tight text-primary">ExAi</span>
           <span className="ml-1 hidden text-xs font-medium text-muted sm:inline">Demo</span>
         </Link>
-        <nav className="flex items-center gap-2">
-          {(["organizer", "exhibitor"] as const).map((p) => {
+        <nav
+          aria-label="Switch perspective"
+          className="flex items-center gap-1.5"
+        >
+          {(["organizer", "exhibitor", "attendee"] as const).map((p) => {
             const meta = PERSONA_META[p];
             const isActive = persona === p;
             return (
               <Link
                 key={p}
                 href={meta.href}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                aria-current={isActive ? "page" : undefined}
+                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors sm:px-3 sm:text-xs ${
                   isActive
                     ? meta.tone
                     : "border-default bg-surface text-secondary hover:text-primary"
                 }`}
               >
-                {meta.label}
+                <span className="hidden sm:inline">{meta.label}</span>
+                <span className="sm:hidden">{meta.short}</span>
               </Link>
             );
           })}
-          <span className="ml-2 hidden rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand sm:inline-flex">
-            Read-only demo
+          <span className="ml-1 hidden rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand lg:inline-flex">
+            Read-only
           </span>
-          <SimulationStatusBadge />
         </nav>
+        <div className="flex items-center gap-2">
+          <WorkspaceSwitcher />
+          <Link
+            href="/"
+            aria-label="Back to homepage"
+            className="hidden items-center gap-1 rounded-lg border border-default bg-surface px-2.5 py-1.5 text-xs font-medium text-secondary transition-colors hover:border-strong hover:text-primary sm:inline-flex"
+          >
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <path d="M3 8l10 0M8 3l-5 5 5 5" />
+            </svg>
+            Home
+          </Link>
+          <SimulationStatusBadge />
+        </div>
       </div>
       {active ? (
-        <div className="mx-auto max-w-7xl px-6 pb-3 sm:px-10">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 pb-2 sm:px-8">
           <Link
-            href="/demo"
+            href={HOMEPAGE_HREF}
             className="inline-flex items-center gap-1 text-xs font-medium text-link hover:underline"
           >
             <svg
@@ -78,7 +108,13 @@ export const DemoTopBar = memo(function DemoTopBar({ persona }: { persona?: Demo
             >
               <path d="M10 12l-4-4 4-4" />
             </svg>
-            Switch perspective
+            Experience ExAi
+          </Link>
+          <Link
+            href="/"
+            className="sm:hidden inline-flex items-center gap-1 text-xs font-medium text-link hover:underline"
+          >
+            ← Home
           </Link>
         </div>
       ) : null}

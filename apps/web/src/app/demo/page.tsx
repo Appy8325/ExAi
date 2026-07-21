@@ -47,15 +47,15 @@ export default async function DemoPage() {
         <div className="mx-auto mt-4 grid max-w-3xl gap-3 sm:grid-cols-3">
           <QuickStat
             label="Events in showcase"
-            value={overview ? overview.events.length : "—"}
+            value={overview ? overview.events.length : "-"}
           />
           <QuickStat
             label="Exhibitors live"
-            value={overview ? exhibitors.length : "—"}
+            value={overview ? exhibitors.length : "-"}
           />
           <QuickStat
             label="Relationships captured"
-            value={overview ? relationships.length : "—"}
+            value={overview ? relationships.length : "-"}
           />
         </div>
       </div>
@@ -123,12 +123,11 @@ export default async function DemoPage() {
 
           <PersonaCard
             tone="brand"
-            eyebrow="Live now"
+            eyebrow="Live experience"
             title="Attendee"
-            tagline="Already built. We just hand off."
+            tagline="Browse exhibitors, visit booths, and connect."
             href="/hackathon"
             cta="Launch attendee experience"
-            external
             capabilities={[
               "Public exhibitor directory",
               "Booth pages with AI assistant",
@@ -155,8 +154,8 @@ export default async function DemoPage() {
         ) : null}
 
         <footer className="mt-16 border-t border-default/60 pt-6 text-center text-xs text-muted">
-          Powered by <span className="font-semibold text-primary">ExAi</span> ·
-          Read-only showcase · Zero auth required
+          Powered by <span className="font-semibold text-primary">ExAi</span> -
+          Read-only showcase - Zero auth required
         </footer>
       </section>
     </main>
@@ -173,7 +172,6 @@ function PersonaCard({
   eyebrow,
   capabilities,
   stats,
-  external,
 }: {
   title: string;
   tagline: string;
@@ -184,7 +182,6 @@ function PersonaCard({
   eyebrow: string;
   capabilities: string[];
   stats?: Array<{ label: string; value: string | number }>;
-  external?: boolean;
 }) {
   const toneClass = {
     info: {
@@ -268,18 +265,12 @@ function PersonaCard({
           className={`inline-flex items-center gap-1 rounded-lg ${toneClass.cta} px-3 py-1.5 text-sm font-semibold`}
         >
           {cta}
-          {external ? (
-            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M5 11L11 5M11 5H6M11 5v5" />
-            </svg>
-          ) : (
-            <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M6 4l4 4-4 4" />
-            </svg>
-          )}
+          <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+            <path d="M6 4l4 4-4 4" />
+          </svg>
         </span>
         <span className="text-xs text-muted">
-          {external ? "/hackathon" : "/demo"}
+          {href}
         </span>
       </div>
     </Link>

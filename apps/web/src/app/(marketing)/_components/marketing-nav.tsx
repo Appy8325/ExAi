@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 const links = [
-  { href: "/hackathon", label: "Hackathon" },
+  { href: "/hackathon", label: "Attendee" },
   { href: "/demo", label: "Demo" },
   { href: "/auth", label: "Sign in" },
 ];
