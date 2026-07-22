@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { createApiApplication } from "./src/application";
+import { createApiApplication } from "./application";
 
 let applicationPromise: ReturnType<typeof createApiApplication> | undefined;
 
