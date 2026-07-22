@@ -1,0 +1,9 @@
+{
+  "framework": null,
+  "project": "api",
+  "installCommand": "corepack pnpm install --frozen-lockfile",
+  "buildCommand": "corepack pnpm --filter api... build",
+  "routes": [
+    { "src": "/(.*)", "dest": "/api" }
+  ]
+}
