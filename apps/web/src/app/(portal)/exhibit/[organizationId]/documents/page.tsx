@@ -1,4 +1,4 @@
-import { PageHeader } from "@concourse/ui";
+import { EmptyState, PageHeader } from "@concourse/ui";
 import { KnowledgeSources } from "../exhibitor-forms";
 import { loadExhibitorWorkspace } from "@/lib/exhibitor";
 
@@ -18,8 +18,8 @@ export default async function DocumentsPage({
     : undefined;
   if (!workspace)
     return (
-      <main className="p-6 text-secondary">
-        Exhibitor workspace unavailable.
+      <main className="p-6">
+        <EmptyState title="No knowledge sources yet" description="Upload documents to power your AI assistant." />
       </main>
     );
   return (

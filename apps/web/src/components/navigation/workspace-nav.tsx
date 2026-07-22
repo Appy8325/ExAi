@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { Skeleton } from "@concourse/ui";
 import { useAuthSession } from "@/components/auth/session-provider";
 
 export interface WorkspaceNavItem {
@@ -92,10 +93,10 @@ export function WorkspaceNav({ sections, basePath, role }: WorkspaceNavProps) {
       <div className="border-t border-default p-3">
         {state === "loading" ? (
           <div className="flex items-center gap-3 rounded-lg px-3 py-2">
-            <div className="h-7 w-7 animate-pulse rounded-full bg-sunken" />
+            <Skeleton className="size-7 rounded-full" />
             <div className="flex-1 space-y-1">
-              <div className="h-3 w-16 animate-pulse rounded bg-sunken" />
-              <div className="h-2 w-12 animate-pulse rounded bg-sunken" />
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-2 w-12" />
             </div>
           </div>
         ) : isSignedIn ? (

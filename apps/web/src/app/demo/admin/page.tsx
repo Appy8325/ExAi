@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { getApiBaseUrl } from "@/lib/api/config";
+import { StatusBadge } from "@concourse/ui";
 
 type SimulationStatus = {
   running: boolean;
@@ -95,71 +96,66 @@ export default function DemoAdminPage() {
   const sim = status?.simulation;
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] text-[#e0e0e0]">
+    <main className="min-h-screen bg-canvas text-primary">
       <div className="mx-auto max-w-6xl px-6 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Demo Admin Panel</h1>
-            <p className="mt-1 text-body text-[#888]">Simulation control center — hidden from production</p>
+            <h1 className="text-2xl font-bold text-primary">Demo Admin Panel</h1>
+            <p className="mt-1 text-body text-muted">Simulation control center &mdash; hidden from production</p>
           </div>
-          <span className="rounded-full border border-[#333] bg-[#111] px-3 py-1 text-caption font-mono text-[#666]">
-            DEMO MODE
-          </span>
+          <StatusBadge tone="neutral" className="font-mono">DEMO MODE</StatusBadge>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Simulation Controls */}
-          <section className="rounded-xl border border-[#222] bg-[#111] p-5">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-[#888]">Simulation Controls</h2>
+          <section className="rounded-xl border border-default bg-surface p-6">
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Simulation Controls</h2>
             <div className="flex flex-wrap gap-2">
               {!sim?.running ? (
-                <button onClick={start} className="rounded-lg bg-emerald-600 px-4 py-2 text-body font-medium text-white hover:bg-emerald-500">Start</button>
+                <button onClick={start} className="rounded-lg bg-status-success-solid px-4 py-2 text-body font-medium text-on-brand hover:opacity-90">Start</button>
               ) : (
                 <>
-                  <button onClick={pause} className="rounded-lg bg-amber-600 px-4 py-2 text-body font-medium text-white hover:bg-amber-500">Pause</button>
-                  <button onClick={stop} className="rounded-lg bg-red-600 px-4 py-2 text-body font-medium text-white hover:bg-red-500">Stop</button>
+                  <button onClick={pause} className="rounded-lg bg-status-warning-solid px-4 py-2 text-body font-medium text-on-brand hover:opacity-90">Pause</button>
+                  <button onClick={stop} className="rounded-lg bg-status-danger-solid px-4 py-2 text-body font-medium text-on-brand hover:opacity-90">Stop</button>
                 </>
               )}
-              <button onClick={resume} className="rounded-lg bg-blue-600 px-4 py-2 text-body font-medium text-white hover:bg-blue-500">Resume</button>
-              <button onClick={reset} className="rounded-lg border border-red-800 bg-transparent px-4 py-2 text-body font-medium text-red-400 hover:bg-red-950">Reset All</button>
+              <button onClick={resume} className="rounded-lg bg-brand px-4 py-2 text-body font-medium text-on-brand hover:opacity-90">Resume</button>
+              <button onClick={reset} className="rounded-lg border border-status-danger-border bg-transparent px-4 py-2 text-body font-medium text-status-danger-text hover:bg-status-danger-subtle">Reset All</button>
             </div>
 
             <div className="mt-4">
-              <label className="text-caption text-[#666]">Simulation Speed</label>
+              <label className="text-caption text-secondary">Simulation Speed</label>
               <div className="mt-1 flex gap-2">
                 {[1, 2, 5, 10].map((s) => (
                   <button
                     key={s}
                     onClick={() => setSpeed(s)}
-                    className={`rounded px-3 py-1 text-body font-mono ${speed === s ? "bg-brand text-white" : "bg-[#1a1a2e] text-[#888] hover:text-white"}`}
+                    className={`rounded px-3 py-1 text-body font-mono ${speed === s ? "bg-brand text-on-brand" : "bg-sunken text-muted hover:text-primary"}`}
                   >
-                    {s}×
+                    {s}x
                   </button>
                 ))}
               </div>
             </div>
           </section>
 
-          {/* Scenario Selector */}
-          <section className="rounded-xl border border-[#222] bg-[#111] p-5">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-[#888]">Scenario</h2>
+          <section className="rounded-xl border border-default bg-surface p-6">
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Scenario</h2>
             <div className="grid grid-cols-2 gap-2">
               {status?.scenarios.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => setScenario(s.id)}
-                  className={`rounded-lg border p-3 text-left transition-colors ${scenario === s.id ? "border-brand bg-brand/10" : "border-[#222] bg-[#0a0a0f] hover:border-[#444]"}`}
+                  className={`rounded-lg border p-3 text-left transition-colors ${scenario === s.id ? "border-brand bg-brand/10" : "border-default bg-canvas hover:border-strong"}`}
                 >
-                  <p className="text-body font-medium text-white">{s.label}</p>
-                  <p className="mt-0.5 text-[10px] text-[#666]">{s.description.slice(0, 60)}...</p>
+                  <p className="text-body font-medium text-primary">{s.label}</p>
+                  <p className="mt-0.5 text-[10px] text-secondary">{s.description.slice(0, 60)}...</p>
                 </button>
               ))}
             </div>
           </section>
 
-          {/* Current Statistics */}
-          <section className="rounded-xl border border-[#222] bg-[#111] p-5">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-[#888]">Current Statistics</h2>
+          <section className="rounded-xl border border-default bg-surface p-6">
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Current Statistics</h2>
             <div className="grid grid-cols-3 gap-3">
               <Stat label="Attendees" value={metrics?.totalLiveBoothVisits ?? 0} />
               <Stat label="Visits" value={metrics?.totalLiveBoothVisits ?? 0} />
@@ -170,23 +166,21 @@ export default function DemoAdminPage() {
             </div>
           </section>
 
-          {/* System Health */}
-          <section className="rounded-xl border border-[#222] bg-[#111] p-5">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-[#888]">System Health</h2>
+          <section className="rounded-xl border border-default bg-surface p-6">
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">System Health</h2>
             <div className="space-y-2 text-body">
               <HealthRow label="Status" value={sim?.running ? "RUNNING" : "STOPPED"} good={sim?.running} />
               <HealthRow label="Events Generated" value={String(sim?.eventsGenerated ?? 0)} />
               <HealthRow label="Uptime" value={sim?.uptimeSeconds ? `${Math.floor(sim.uptimeSeconds / 60)}m ${sim.uptimeSeconds % 60}s` : "0s"} />
-              <HealthRow label="Speed" value={`${sim?.speed ?? 1}×`} />
+              <HealthRow label="Speed" value={`${sim?.speed ?? 1}x`} />
               <HealthRow label="Scenario" value={scenario} />
               <HealthRow label="Avg Dwell" value={`${metrics?.averageDwellSeconds ?? 0}s`} />
               <HealthRow label="AI Engagement" value={`${metrics?.aiEngagementRate ?? 0}%`} />
             </div>
           </section>
 
-          {/* Events Per Minute Chart */}
-          <section className="rounded-xl border border-[#222] bg-[#111] p-5">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-[#888]">Events / Poll</h2>
+          <section className="rounded-xl border border-default bg-surface p-6">
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Events / Poll</h2>
             {eventsHistory.length > 0 ? (
               <div className="flex items-end gap-1" style={{ height: 60 }}>
                 {eventsHistory.map((count, i) => {
@@ -202,29 +196,28 @@ export default function DemoAdminPage() {
                 })}
               </div>
             ) : (
-              <p className="text-caption text-[#555]">Start the simulation to see event generation.</p>
+              <p className="text-caption text-muted">Start the simulation to see event generation.</p>
             )}
-            <div className="mt-2 flex items-center justify-between text-caption text-[#555]">
+            <div className="mt-2 flex items-center justify-between text-caption text-muted">
               <span>oldest</span>
-              <span className="text-[#888]">{eventsHistory.length > 0 ? `${eventsHistory[eventsHistory.length - 1]} now` : ""}</span>
+              <span className="text-muted">{eventsHistory.length > 0 ? `${eventsHistory[eventsHistory.length - 1]} now` : ""}</span>
               <span>newest</span>
             </div>
           </section>
         </div>
 
-        {/* Activity Feed */}
-        <section className="mt-6 rounded-xl border border-[#222] bg-[#111] p-5">
-          <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-[#888]">Latest Activity</h2>
+        <section className="mt-6 rounded-xl border border-default bg-surface p-6">
+          <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Latest Activity</h2>
           <div className="max-h-60 space-y-1 overflow-y-auto">
             {(metrics?.recentActivity ?? []).slice(0, 20).map((a, i) => (
-              <div key={i} className="flex items-center gap-2 text-caption font-mono text-[#888]">
-                <span className="shrink-0 text-[#555]">{new Date(a.at).toLocaleTimeString()}</span>
-                <span className="capitalize text-cyan-500">{a.type}</span>
+              <div key={i} className="flex items-center gap-2 text-caption font-mono text-muted">
+                <span className="shrink-0 text-secondary">{new Date(a.at).toLocaleTimeString()}</span>
+                <span className="capitalize text-brand">{a.type}</span>
                 <span className="truncate">{a.detail}</span>
               </div>
             ))}
             {(!metrics?.recentActivity || metrics.recentActivity.length === 0) && (
-              <p className="text-caption text-[#555]">No recent activity. Start the simulation to see live events.</p>
+              <p className="text-caption text-muted">No recent activity. Start the simulation to see live events.</p>
             )}
           </div>
         </section>
@@ -235,9 +228,9 @@ export default function DemoAdminPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-[#222] bg-[#0a0a0f] p-3">
-      <p className="text-caption text-[#666]">{label}</p>
-      <p className="mt-1 text-lg font-bold font-mono text-white">{value}</p>
+    <div className="rounded-lg border border-default bg-sunken p-3">
+      <p className="text-caption text-secondary">{label}</p>
+      <p className="mt-1 text-lg font-bold font-mono text-primary">{value}</p>
     </div>
   );
 }
@@ -245,10 +238,10 @@ function Stat({ label, value }: { label: string; value: number }) {
 function HealthRow({ label, value, good }: { label: string; value: string; good?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-[#666]">{label}</span>
-      <span className={`font-mono text-caption ${good === undefined ? "text-[#888]" : good ? "text-emerald-400" : "text-red-400"}`}>
+      <span className="text-secondary">{label}</span>
+      <span className={`font-mono text-caption ${good === undefined ? "text-muted" : good ? "text-status-success-text" : "text-status-danger-text"}`}>
         {good !== undefined && (
-          <span className={`inline-block size-1.5 rounded-full mr-1.5 ${good ? "bg-emerald-400" : "bg-red-400"}`} />
+          <span className={`inline-block size-1.5 rounded-full mr-1.5 ${good ? "bg-status-success-text" : "bg-status-danger-text"}`} />
         )}
         {value}
       </span>

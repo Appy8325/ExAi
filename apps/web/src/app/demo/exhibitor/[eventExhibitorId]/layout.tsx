@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { StatusBadge } from "@concourse/ui";
 import { getPublicDemoOverview } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { Breadcrumbs, CommandPalette, GlobalNav, WorkspaceNav } from "@/components/navigation";
@@ -85,10 +86,7 @@ export default async function ExhibitorLayout({
                       ) : null}
                     </p>
                   </div>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-status-success-border bg-status-success-subtle px-2.5 py-1 text-caption font-medium text-status-success-text">
-                    <span className="inline-block size-1.5 rounded-full bg-status-success-solid" />
-                    Read-only
-                  </span>
+                  <StatusBadge tone="success">Read-only</StatusBadge>
                 </div>
               </div>
             ) : null}

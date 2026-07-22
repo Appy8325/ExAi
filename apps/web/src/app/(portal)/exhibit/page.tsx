@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+import { EmptyState } from "@concourse/ui";
 import { loadExhibitorOverview } from "@/lib/exhibitor";
 
 export default async function PortalRootPage() {
@@ -32,7 +33,7 @@ export default async function PortalRootPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           {workspaces.map((workspace) => (
             <Link
-              className="rounded-xl border border-default bg-surface p-5 hover:border-strong"
+              className="rounded-xl border border-default bg-surface p-6 hover:border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               href={`/exhibit/${workspace.organizationId}/settings?eeId=${workspace.eventExhibitorId}`}
               key={workspace.eventExhibitorId}
             >
@@ -47,9 +48,7 @@ export default async function PortalRootPage() {
           ))}
         </div>
       ) : (
-        <p className="rounded-xl border border-default bg-surface p-6 text-secondary">
-          No accepted exhibitor invitations were found for this account.
-        </p>
+        <EmptyState title="No workspaces available" description="You don't have access to any event workspaces yet." />
       )}
     </main>
   );

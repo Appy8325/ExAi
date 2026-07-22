@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { updateAttendeeProfile } from "@concourse/api-client";
-import { Button, Input, Card, Skeleton } from "@concourse/ui";
+import { Button, EmptyState, Input, Card, Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
 
@@ -61,12 +61,7 @@ export default function AttendeeProfilePage() {
   }
 
   if (!hasSession) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-16">
-        <p className="text-body text-secondary">Sign in to manage your profile.</p>
-        <Button onClick={() => router.push("/auth")}>Sign In</Button>
-      </div>
-    );
+    return <EmptyState title="Sign in required" description="Sign in to manage your profile." />;
   }
 
   return (

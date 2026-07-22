@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { getEventExhibitor, getPublicEventBySlug } from "@concourse/api-client";
 import type { PublicExhibitor } from "@concourse/api-client";
-import { Skeleton } from "@concourse/ui";
+import { EmptyState, Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 
 export default function ExhibitorBriefingPage({ params }: { params: Promise<{ eventSlug: string; exhibitorId: string }> }) {
@@ -34,7 +34,7 @@ export default function ExhibitorBriefingPage({ params }: { params: Promise<{ ev
   return (
     <div className="space-y-6">
       <header className="flex items-center gap-3">
-        <Link href={`/e/${eventSlug}/exhibitors/${exhibitorId}`} aria-label="Back to exhibitor" className="flex h-8 w-8 items-center justify-center rounded-full border border-default text-muted hover:border-strong hover:text-primary">&larr;</Link>
+        <Link href={`/e/${eventSlug}/exhibitors/${exhibitorId}`} aria-label="Back to exhibitor" className="flex h-8 w-8 items-center justify-center rounded-full border border-default text-muted hover:border-strong hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">&larr;</Link>
         <div><p className="text-body-sm text-muted">Exhibitor briefing</p><h1 className="text-title font-semibold text-primary">{exhibitor?.companyName ?? "Unavailable"}</h1></div>
       </header>
 
@@ -50,11 +50,11 @@ export default function ExhibitorBriefingPage({ params }: { params: Promise<{ ev
             exhibitor.contactPhone ? `Phone: ${exhibitor.contactPhone}` : "Save this exhibitor to follow up after the event.",
           ]} />
         </div>
-      ) : <p className="rounded-xl border border-default bg-surface p-5 text-body text-secondary">This exhibitor briefing could not be loaded.</p>}
+      ) : <EmptyState title="Briefing not available" description="This exhibitor briefing could not be loaded." />}
     </div>
   );
 }
 
 function BriefingSection({ title, items }: { title: string; items: string[] }) {
-  return <section className="rounded-xl border border-status-ai-border bg-gradient-to-br from-status-ai-subtle/50 to-surface p-5"><h2 className="text-body font-semibold text-primary">{title}</h2><ul className="mt-3 space-y-2">{items.map((item) => <li key={item} className="flex items-start gap-2 text-body-sm text-secondary"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-status-ai-text" />{item}</li>)}</ul></section>;
+  return <section className="rounded-xl border border-status-ai-border bg-gradient-to-br from-status-ai-subtle/50 to-surface p-6"><h2 className="text-body font-semibold text-primary">{title}</h2><ul className="mt-3 space-y-2">{items.map((item) => <li key={item} className="flex items-start gap-2 text-body-sm text-secondary"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-status-ai-text" />{item}</li>)}</ul></section>;
 }

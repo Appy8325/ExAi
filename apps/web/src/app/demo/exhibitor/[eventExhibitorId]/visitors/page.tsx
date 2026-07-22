@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Card, EmptyState, MetricCard } from "@concourse/ui";
+import { Badge, Card, EmptyState, MetricCard, StatusBadge } from "@concourse/ui";
 
 import {
   getPublicDemoExhibitorDashboard,
@@ -88,12 +88,7 @@ export default async function ExhibitorVisitorsPage({
                       {v.attentionReasons.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {v.attentionReasons.map((reason) => (
-                            <span
-                              key={reason}
-                              className="inline-flex items-center rounded-full border border-status-warning-border bg-status-warning-subtle px-1.5 py-0.5 text-[10px] font-medium text-status-warning-text"
-                            >
-                              {reason}
-                            </span>
+                            <StatusBadge key={reason} tone="warning" size="sm">{reason}</StatusBadge>
                           ))}
                         </div>
                       )}
@@ -111,7 +106,7 @@ export default async function ExhibitorVisitorsPage({
                       {v.notesCount}
                     </td>
                     <td className="py-3">
-                      <StatusBadge status={v.status} />
+                      <StatusLabel status={v.status} />
                     </td>
                   </tr>
                 ))}
@@ -195,29 +190,26 @@ export default async function ExhibitorVisitorsPage({
 }
 
 function IntentBadge({ label, hasLead }: { label: string; hasLead: boolean }) {
-  const style =
-    label === "Lead" ? "bg-status-success-subtle text-status-success-text border-status-success-border" :
-    label === "High intent" ? "bg-status-danger-subtle text-status-danger-text border-status-danger-border" :
-    label === "Active" ? "bg-status-info-subtle text-status-info-text border-status-info-border" :
-    label === "Interested" ? "bg-brand-subtle text-brand border-brand/30" :
-    "bg-sunken text-secondary border-default";
+  const tone =
+    label === "Lead" ? "success" :
+    label === "High intent" ? "danger" :
+    label === "Active" ? "info" :
+    label === "Interested" ? "brand" :
+    "neutral";
   return (
-    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-caption font-medium ${style}`}>
-      {hasLead && <span className="mr-1">●</span>}
-      {label}
-    </span>
+    <StatusBadge tone={tone}>
+      {hasLead && tone !== "neutral" ? "● " : ""}{label}
+    </StatusBadge>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const style =
-    status === "active" ? "text-status-success-text" :
-    status === "blocked" ? "text-status-danger-text" :
-    "text-muted";
+function StatusLabel({ status }: { status: string }) {
+  const variant =
+    status === "active" ? "success" :
+    status === "blocked" ? "danger" :
+    "default";
   return (
-    <span className={`text-caption capitalize font-medium ${style}`}>
-      {status}
-    </span>
+    <Badge variant={variant}>{status}</Badge>
   );
 }
 

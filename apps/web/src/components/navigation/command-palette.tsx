@@ -192,7 +192,7 @@ export function CommandPalette({ children }: { children?: React.ReactNode }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-lg border border-default bg-surface px-3 py-1.5 text-body text-muted transition-colors hover:border-strong hover:text-secondary"
+        className="flex items-center gap-2 rounded-lg border border-default bg-surface px-3 py-1.5 text-body text-muted transition-colors hover:border-strong hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-label="Open command palette"
       >
         <SearchIcon className="size-4" />

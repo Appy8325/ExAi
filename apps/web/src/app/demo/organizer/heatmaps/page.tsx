@@ -1,4 +1,4 @@
-import { Card, EmptyState } from "@concourse/ui";
+import { Card, EmptyState, StatusBadge } from "@concourse/ui";
 
 import {
   getPublicDemoAnalytics,
@@ -106,9 +106,7 @@ export default async function OrganizerHeatmapsPage() {
                   Bird&rsquo;s-eye view of booth positions color-coded by traffic intensity.
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-status-info-border bg-status-info-subtle px-3 py-1 text-caption font-semibold text-status-info-text">
-                Coming in Milestone 4
-              </span>
+              <StatusBadge tone="info">Coming in Milestone 4</StatusBadge>
             </div>
             <div className="mt-6 flex flex-col items-center rounded-xl border border-dashed border-default bg-sunken p-10 text-center">
               <svg

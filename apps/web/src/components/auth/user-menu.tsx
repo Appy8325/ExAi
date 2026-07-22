@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { Skeleton } from "@concourse/ui";
 import { useAuthSession } from "./session-provider";
 
 export function UserMenu() {
@@ -31,7 +32,7 @@ export function UserMenu() {
   }, [open]);
 
   if (state === "loading") {
-    return <div className="h-9 w-20 animate-pulse rounded-md bg-sunken" aria-hidden />;
+    return <Skeleton className="h-9 w-20 rounded-md" aria-hidden />;
   }
 
   if (!user) {

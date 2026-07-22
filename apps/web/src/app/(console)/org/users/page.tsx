@@ -1,4 +1,4 @@
-import { PageHeader, StatusBadge, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@concourse/ui";
+import { EmptyState, PageHeader, StatusBadge, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@concourse/ui";
 
 import {
   loadOrganizationMembers,
@@ -53,9 +53,7 @@ export default async function UsersPage() {
           </TableBody>
         </Table>
       ) : (
-        <div className="rounded-xl border border-dashed border-default bg-surface/50 p-8 text-center text-body text-secondary">
-          No members were found.
-        </div>
+        <EmptyState title="No members found" description="Invite members to get started." />
       )}
     </div>
   );

@@ -97,7 +97,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-body font-bold text-on-brand shadow-1">
             E
           </span>
-          <span className="text-base font-semibold tracking-tight text-primary">
+          <span className="text-title-sm font-semibold tracking-tight text-primary">
             ExAi
           </span>
         </Link>
@@ -173,7 +173,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
                 key={p.id}
                 href={p.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex items-center justify-between rounded-lg px-3 py-2 text-body font-medium transition-colors ${
+                className={`flex items-center justify-between rounded-lg px-3 py-2 text-body font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   isActive
                     ? "bg-brand-subtle text-brand"
                     : "text-primary hover:bg-sunken"
@@ -194,7 +194,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
                 key={p.id}
                 href={p.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex items-center justify-between rounded-lg px-3 py-2 text-body font-medium transition-colors ${
+                className={`flex items-center justify-between rounded-lg px-3 py-2 text-body font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   isActive
                     ? "bg-brand-subtle text-brand"
                     : "text-secondary hover:bg-sunken"
@@ -207,7 +207,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
           })}
           <Link
             href="/"
-            className="mt-2 rounded-lg border border-default px-3 py-2 text-center text-body font-medium text-primary transition-colors hover:bg-sunken"
+            className="mt-2 rounded-lg border border-default px-3 py-2 text-center text-body font-medium text-primary transition-colors hover:bg-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Back to homepage
           </Link>

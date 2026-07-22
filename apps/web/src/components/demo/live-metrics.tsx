@@ -58,16 +58,6 @@ export function LiveMetricsBar() {
   );
 }
 
-export const LiveBadge = memo(function LiveBadge({ count, label }: { count: number; label: string }) {
-  if (count === 0) return null;
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-status-success-subtle px-2 py-0.5 text-caption font-medium text-status-success-text">
-      <span className="size-1.5 rounded-full bg-status-success-text animate-pulse" />
-      {count} {label}
-    </span>
-  );
-});
-
 const ACTIVITY_TYPE_ICONS: Record<string, string> = {
   visit: "👋",
   ai_chat: "🤖",

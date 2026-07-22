@@ -3,6 +3,7 @@ import {
   MetricCard,
   SectionHeader,
   Card,
+  StatusBadge,
 } from "@concourse/ui";
 
 import {
@@ -266,26 +267,13 @@ function LinkTile({
   href: string;
   tone: "info" | "success" | "warning" | "brand" | "neutral";
 }) {
-  const tones: Record<typeof tone, string> = {
-    info: "border-status-info-border bg-status-info-subtle text-status-info-text",
-    success:
-      "border-status-success-border bg-status-success-subtle text-status-success-text",
-    warning:
-      "border-status-warning-border bg-status-warning-subtle text-status-warning-text",
-    brand: "border-brand/30 bg-brand-subtle text-brand",
-    neutral: "border-default bg-surface text-primary",
-  };
   return (
     <Link
       href={href}
       className="group flex items-start justify-between gap-3 rounded-xl border-2 border-default bg-surface p-4 transition-all hover:shadow-1 hover:ring-2 hover:ring-brand/20"
     >
       <div className="min-w-0">
-        <span
-          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${tones[tone]}`}
-        >
-          {label}
-        </span>
+        <StatusBadge tone={tone === "brand" ? "brand" : tone} size="sm">{label}</StatusBadge>
         <p className="mt-2 text-body text-secondary">{description}</p>
       </div>
       <svg

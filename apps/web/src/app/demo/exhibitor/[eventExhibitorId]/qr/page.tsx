@@ -3,7 +3,7 @@ import Image from "next/image";
 
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
-import { Card } from "@concourse/ui";
+import { Card, EmptyState } from "@concourse/ui";
 
 import { getPublicDemoOverview } from "@concourse/api-client";
 
@@ -101,15 +101,10 @@ export default async function ExhibitorQrPage({
         </div>
       ) : (
         <Card>
-          <div className="rounded-xl border border-dashed border-default bg-surface p-8 text-center">
-            <p className="text-body text-muted">
-              No QR credential has been generated for this booth.
-            </p>
-            <p className="mt-1 text-caption text-secondary">
-              In the real workspace, exhibitors generate, download, and print
-              QR codes for their booths.
-            </p>
-          </div>
+          <EmptyState
+            title="No QR credential"
+            description="In the real workspace, exhibitors generate, download, and print QR codes for their booths."
+          />
         </Card>
       )}
     </div>

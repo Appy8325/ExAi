@@ -11,7 +11,7 @@ import {
   unsaveExhibitor,
 } from "@concourse/api-client";
 import type { PublicExhibitor, ShowcaseExhibitor } from "@concourse/api-client";
-import { Button, Skeleton } from "@concourse/ui";
+import { Button, EmptyState, Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
 
@@ -86,15 +86,7 @@ export default function ExhibitorProfilePage({
 
   if (!exhibitor) {
     return (
-      <div className="flex flex-col items-center gap-3 py-12">
-        <p className="text-body text-secondary">Exhibitor not found.</p>
-        <Link
-          href={`/e/${eventSlug}`}
-          className="text-body-sm font-medium text-link hover:text-brand-hover"
-        >
-          &larr; Back to directory
-        </Link>
-      </div>
+      <EmptyState title="Exhibitor not found" description="This exhibitor may no longer be participating." />
     );
   }
 
@@ -102,12 +94,12 @@ export default function ExhibitorProfilePage({
 
   return (
     <div className="space-y-6">
-      <div className="relative h-48 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-100 to-sky-100">
+      <div className="relative h-48 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-subtle to-status-info-subtle">
         {exhibitor.logoUrl ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/5">
+          <div className="absolute inset-0 flex items-center justify-center bg-overlay/10">
             <Image
               alt={`${exhibitor.companyName} logo`}
-              className="size-20 rounded-2xl border-2 border-white/80 object-contain bg-white shadow-3"
+              className="size-20 rounded-2xl border-2 border-surface object-contain bg-surface shadow-3"
               height={80}
               src={exhibitor.logoUrl}
               unoptimized
@@ -116,7 +108,7 @@ export default function ExhibitorProfilePage({
           </div>
         ) : (
           <div className="flex h-full items-center justify-center">
-            <div className="flex size-20 items-center justify-center rounded-2xl bg-white/80 text-title-lg font-bold text-brand shadow-3">
+            <div className="flex size-20 items-center justify-center rounded-2xl bg-surface/80 text-title-lg font-bold text-brand shadow-3">
               {initials}
             </div>
           </div>
@@ -136,7 +128,7 @@ export default function ExhibitorProfilePage({
         <button
           onClick={toggleSave}
           disabled={saving}
-          className={`flex size-10 shrink-0 items-center justify-center rounded-full border transition-all duration-[var(--mq-duration-fast)] ${
+          className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 flex size-10 shrink-0 items-center justify-center rounded-full border transition-all duration-[var(--mq-duration-fast)] ${
             saved
               ? "border-brand bg-brand text-on-brand shadow-1"
               : "border-default text-muted hover:border-strong hover:text-primary"
@@ -168,7 +160,7 @@ export default function ExhibitorProfilePage({
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg border border-default bg-surface px-3 py-1.5 text-body-sm text-link hover:bg-sunken transition-colors"
+                className="rounded-lg border border-default bg-surface px-3 py-1.5 text-body-sm text-link hover:bg-sunken transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 {key}
               </a>
@@ -182,7 +174,7 @@ export default function ExhibitorProfilePage({
           href={exhibitor.website}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 rounded-xl border border-default bg-surface p-3 text-body-sm text-link hover:bg-sunken transition-colors"
+          className="flex items-center gap-2 rounded-xl border border-default bg-surface p-3 text-body-sm text-link hover:bg-sunken transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <circle cx="12" cy="12" r="10" />

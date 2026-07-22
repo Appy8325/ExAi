@@ -1,12 +1,9 @@
+import "reflect-metadata";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { createApiApplication } from "./application";
 
-/**
- * Bootstrap — NestJS 11 on the Fastify adapter (docs/18-api-architecture.md §1).
- * This is real Milestone-0 infrastructure (not a placeholder): a minimal,
- * correct app bootstrap. Business logic (guards, interceptors, versioning,
- * the RFC 9457 exception filter, etc.) is wired in the milestone that
- * implements each concern.
- */
+let applicationPromise: ReturnType<typeof createApiApplication> | undefined;
+
 async function bootstrap(): Promise<void> {
   const app = await createApiApplication();
   const port = process.env.API_PORT ? Number(process.env.API_PORT) : 3001;
@@ -15,4 +12,18 @@ async function bootstrap(): Promise<void> {
   await app.listen(port, "0.0.0.0");
 }
 
-bootstrap();
+async function getApplication() {
+  applicationPromise ??= createApiApplication();
+  return applicationPromise;
+}
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  const app = await getApplication();
+  const instance = app.getHttpAdapter().getInstance();
+  await instance.ready();
+  instance.server.emit("request", req, res);
+}
+
+if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+  bootstrap();
+}

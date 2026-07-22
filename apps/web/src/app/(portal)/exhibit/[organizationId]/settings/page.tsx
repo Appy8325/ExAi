@@ -1,4 +1,4 @@
-import { PageHeader } from "@concourse/ui";
+import { EmptyState, PageHeader } from "@concourse/ui";
 import { BoothProfileForm, PublishBoothPanel } from "../exhibitor-forms";
 import { loadExhibitorWorkspace } from "@/lib/exhibitor";
 
@@ -33,9 +33,7 @@ export default async function SettingsPage({
 function Unavailable() {
   return (
     <main className="mx-auto max-w-3xl p-6">
-      <div className="rounded-xl border border-default bg-surface p-6 text-body text-secondary">
-        Choose an accepted exhibitor event from the exhibitor home page.
-      </div>
+      <EmptyState title="Settings unavailable" description="Booth settings could not be loaded." />
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import type { RelationshipWorkspace } from "@concourse/api-client";
 import { NotesPanel } from "./notes-panel";
 import Link from "next/link";
+import { Badge, EmptyState, StatusBadge } from "@concourse/ui";
 
 export function WorkspaceScreen({ workspace, organizationId }: { workspace: RelationshipWorkspace; organizationId: string }) {
   const shared = workspace.attendee.consentStatus === "shared";
@@ -17,7 +18,7 @@ export function WorkspaceScreen({ workspace, organizationId }: { workspace: Rela
       </div>
 
       <header className="rounded-xl border border-default bg-surface p-6">
-        <div className="flex items-start gap-5">
+        <div className="flex items-start gap-6">
           <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-sunken text-title font-semibold text-primary">
             {initials(attendee.name)}
           </div>
@@ -62,7 +63,7 @@ export function WorkspaceScreen({ workspace, organizationId }: { workspace: Rela
 
       <div className="rounded-xl border border-default bg-sunken p-4">
         <div className="flex items-center gap-2">
-          <span className="inline-flex size-5 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] text-status-ai-text">AI</span>
+          <Badge variant="ai">AI</Badge>
           <p className="text-body-sm font-medium text-primary">Lead Intelligence</p>
         </div>
         {workspace.intelligence?.status === "complete" ? <div className="mt-2 space-y-3 text-body-sm text-secondary">
@@ -75,12 +76,13 @@ export function WorkspaceScreen({ workspace, organizationId }: { workspace: Rela
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
-        <section className="rounded-xl border border-default bg-surface p-5">
+        <section className="rounded-xl border border-default bg-surface p-6">
           <h2 className="text-body font-semibold text-primary">Interaction Timeline</h2>
           {workspace.timeline.length === 0 ? (
-            <div className="mt-5 flex min-h-32 items-center justify-center rounded-lg border border-dashed border-default">
-              <p className="text-body-sm text-muted">Submissions and interactions will appear here.</p>
-            </div>
+            <EmptyState
+              title="No interactions yet"
+              description="Submissions and interactions will appear here."
+            />
           ) : (
             <ol className="mt-5 space-y-5 border-l border-default pl-5">
               {workspace.timeline.map((entry) => (
@@ -117,15 +119,6 @@ function Metric({ label, value }: { label: string; value: string }) {
       <p className="mt-1 text-body font-medium text-primary">{value}</p>
     </div>
   );
-}
-
-function StatusBadge({ tone, children }: { tone: "success" | "neutral" | "info"; children: string }) {
-  const colors = {
-    success: "border-status-success-border bg-status-success-subtle text-status-success-text",
-    neutral: "border-default bg-sunken text-secondary",
-    info: "border-status-info-border bg-status-info-subtle text-status-info-text",
-  };
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-caption font-medium ${colors[tone]}`}>{children}</span>;
 }
 
 function computeScore(w: RelationshipWorkspace) {

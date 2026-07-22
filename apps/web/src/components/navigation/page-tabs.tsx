@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Badge } from "@concourse/ui";
 
 export interface PageTab {
   id: string;
@@ -33,7 +34,7 @@ export function PageTabs({ tabs, className }: PageTabsProps) {
               key={tab.id}
               href={tab.href}
               aria-current={isActive ? "page" : undefined}
-              className={`relative flex items-center gap-1.5 px-4 py-2.5 text-body font-medium transition-colors ${
+              className={`relative flex items-center gap-1.5 px-4 py-2.5 text-body font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset ${
                 isActive
                   ? "text-brand"
                   : "text-secondary hover:text-primary"
@@ -44,13 +45,7 @@ export function PageTabs({ tabs, className }: PageTabsProps) {
               )}
               {tab.label}
               {tab.count !== undefined && (
-                <span className={`inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-medium tabular-nums ${
-                  isActive
-                    ? "bg-brand text-on-brand"
-                    : "bg-sunken text-muted"
-                }`}>
-                  {tab.count}
-                </span>
+                <Badge variant={isActive ? "brand" : "default"}>{tab.count}</Badge>
               )}
             </Link>
           );

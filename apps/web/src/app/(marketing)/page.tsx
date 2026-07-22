@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect, type ReactNode } from "react";
 import Link from "next/link";
+import { StatusBadge } from "@concourse/ui";
 import { LiveDemoStats } from "@/components/demo/live-demo-stats";
 
 export default function MarketingHomePage() {
@@ -64,23 +65,17 @@ function HeroSection() {
     <section className="relative overflow-hidden px-6 pb-24 pt-20 sm:px-10 sm:pb-32 sm:pt-28">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-40 -z-10 mx-auto h-[600px] max-w-5xl rounded-full bg-gradient-to-tr from-brand/40 via-violet-500/25 to-sky-400/25 blur-3xl"
+        className="pointer-events-none absolute inset-x-0 -top-40 -z-10 mx-auto h-[600px] max-w-5xl rounded-full bg-gradient-to-tr from-brand/40 via-status-ai-solid/25 to-status-info-solid/25 blur-3xl"
       />
       <div className="mx-auto max-w-4xl text-center">
         <FadeIn>
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-caption font-semibold text-brand">
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
-              <span className="relative inline-flex size-2 rounded-full bg-brand" />
-            </span>
-            AI-native trade show intelligence
-          </span>
+          <StatusBadge tone="brand">AI-native trade show intelligence</StatusBadge>
         </FadeIn>
 
         <FadeIn delay={100}>
           <h1 className="mt-8 text-4xl font-bold tracking-tight text-primary sm:text-5xl lg:text-6xl">
             Trade shows that{" "}
-            <span className="bg-gradient-to-br from-brand to-violet-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-brand to-status-ai-solid bg-clip-text text-transparent">
               think
             </span>
           </h1>
@@ -98,14 +93,14 @@ function HeroSection() {
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/demo"
-              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-title-sm font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
+              className="btn-press focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 inline-flex h-12 items-center rounded-xl bg-brand px-8 text-title-sm font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
             >
               Try the live demo
               <ChevronRight className="ml-2 size-4" />
             </Link>
             <Link
               href="/auth"
-              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-body-lg font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
+              className="btn-press focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-body-lg font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
             >
               Sign in
             </Link>
@@ -235,7 +230,7 @@ function PersonasSection() {
                 <p className="mt-2 text-body leading-relaxed text-secondary">{p.desc}</p>
                 <Link
                   href={p.href}
-                  className="mt-5 inline-flex items-center gap-1 text-body font-medium text-brand transition-colors hover:text-brand-hover"
+                  className="mt-5 inline-flex items-center gap-1 text-body font-medium text-brand transition-colors hover:text-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {p.cta}
                   <ChevronRight className="size-3.5 transition-transform duration-[var(--mq-duration-fast)] group-hover:translate-x-0.5" />
@@ -390,14 +385,14 @@ function CTASection() {
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/demo"
-              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-title-sm font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
+              className="btn-press focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 inline-flex h-12 items-center rounded-xl bg-brand px-8 text-title-sm font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
             >
               Open demo
               <ChevronRight className="ml-2 size-4" />
             </Link>
             <Link
               href="/auth"
-              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-body-lg font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
+              className="btn-press focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-body-lg font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
             >
               Sign in
             </Link>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { memo, useEffect, useState } from "react";
 import { getApiBaseUrl } from "@/lib/api/config";
+import { StatusBadge } from "@concourse/ui";
 
 type SimulationStatus = {
   running: boolean;
@@ -36,10 +37,7 @@ export const DemoPageHeader = memo(function DemoPageHeader({
         ) : null}
       </div>
       {badge ? (
-        <span className="inline-flex items-center gap-1 rounded-full border border-default bg-surface px-2.5 py-1 text-caption font-medium text-secondary">
-          <span className="inline-block size-1.5 rounded-full bg-status-ai-solid" />
-          {badge}
-        </span>
+        <StatusBadge tone="neutral">{badge}</StatusBadge>
       ) : null}
     </div>
   );
@@ -84,21 +82,10 @@ export function SimulationStatusBadge() {
   if (!status) return null;
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-caption font-semibold ${
-        status.running
-          ? "border-status-success-border bg-status-success-subtle text-status-success-text"
-          : "border-default bg-sunken text-muted"
-      }`}
-    >
-      <span
-        className={`size-1.5 rounded-full ${
-          status.running ? "bg-status-success-text animate-pulse" : "bg-muted"
-        }`}
-      />
+    <StatusBadge tone={status.running ? "success" : "neutral"}>
       {status.running
-        ? `Live · ${status.scenario} · ${status.speed}\u00d7`
+        ? `Live \u00b7 ${status.scenario} \u00b7 ${status.speed}\u00d7`
         : "Simulation stopped"}
-    </span>
+    </StatusBadge>
   );
 }

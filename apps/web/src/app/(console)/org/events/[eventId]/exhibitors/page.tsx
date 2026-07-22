@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PageHeader, SectionHeader, StatusBadge, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@concourse/ui";
+import { EmptyState, PageHeader, SectionHeader, StatusBadge, Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@concourse/ui";
 import { getEventExhibitors } from "@concourse/api-client";
 
 import { getApiBaseUrl } from "@/lib/api/config";
@@ -85,7 +85,7 @@ export default async function ExhibitorsPage({
                 <TableCell>
                   <Link
                     href={`/org/events/${eventId}/exhibitors/${exhibitor.id}`}
-                    className="font-medium text-link hover:text-brand-hover transition-colors"
+                    className="font-medium text-link hover:text-brand-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {exhibitor.companyName}
                   </Link>
@@ -103,9 +103,7 @@ export default async function ExhibitorsPage({
           </TableBody>
         </Table>
       ) : (
-        <div className="rounded-xl border border-dashed border-default bg-surface/50 p-8 text-center text-body text-secondary">
-          No exhibitors have accepted yet.
-        </div>
+        <EmptyState title="No exhibitors yet" description="No exhibitors have accepted yet." />
       )}
     </div>
   );

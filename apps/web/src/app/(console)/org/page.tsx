@@ -36,7 +36,7 @@ export default async function OrgDashboardPage() {
           action={
             <Link
               href="/org/events"
-              className="inline-flex items-center gap-1 text-body-sm font-medium text-link hover:text-brand-hover transition-colors"
+              className="inline-flex items-center gap-1 text-body-sm font-medium text-link hover:text-brand-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               View all
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -50,7 +50,7 @@ export default async function OrgDashboardPage() {
             <Link
               key={event.id}
               href={`/org/events/${event.id}`}
-              className="group flex items-center justify-between rounded-lg border border-default bg-surface p-4 shadow-1 transition-all duration-[var(--mq-duration-moderate)] hover:border-strong hover:shadow-card-hover"
+              className="group flex items-center justify-between rounded-lg border border-default bg-surface p-4 shadow-1 transition-all duration-[var(--mq-duration-moderate)] hover:border-strong hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <span>
                 <strong className="block text-primary group-hover:text-brand transition-colors">{event.name}</strong>

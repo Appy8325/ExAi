@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Card, MetricCard } from "@concourse/ui";
+import { Badge, Card, MetricCard } from "@concourse/ui";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -69,9 +69,7 @@ export default async function OrganizerEventPage({
       {analytics ? (
         <Card>
           <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-              AI
-            </span>
+            <Badge variant="ai">AI</Badge>
             <h2 className="text-title-sm font-semibold text-primary">
               Event insight
             </h2>

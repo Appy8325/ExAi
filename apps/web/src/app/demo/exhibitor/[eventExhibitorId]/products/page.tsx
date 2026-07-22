@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Card, EmptyState } from "@concourse/ui";
+import { Card, EmptyState, StatusBadge } from "@concourse/ui";
 
 import { getPublicBooth, getPublicDemoOverview } from "@concourse/api-client";
 
@@ -70,9 +70,7 @@ export default async function ExhibitorProductsPage({
               to answer attendee questions.
             </p>
           </div>
-          <span className="inline-flex items-center gap-1 rounded-full border border-default bg-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted">
-            {publicBooth?.resources?.length ?? 0} sources
-          </span>
+          <StatusBadge tone="neutral">{publicBooth?.resources?.length ?? 0} sources</StatusBadge>
         </div>
 
         {publicBooth?.resources && publicBooth.resources.length > 0 ? (

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Card } from "@concourse/ui";
+import { Badge, Card } from "@concourse/ui";
 
 import {
   getPublicDemoExhibitorDashboard,
@@ -94,9 +94,7 @@ export default async function ExhibitorAiInsightsPage({
         {intelligence ? (
           <Card className={`border-2 ${HEALTH_BG[intelligence.healthLabel]}`}>
             <div className="flex items-center gap-2">
-              <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-                AI
-              </span>
+              <Badge variant="ai">AI</Badge>
               <h2 className="text-title-sm font-semibold text-primary">
                 Booth health score
               </h2>
@@ -126,9 +124,7 @@ export default async function ExhibitorAiInsightsPage({
         ) : (
           <Card>
             <div className="flex items-center gap-2">
-              <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-                AI
-              </span>
+              <Badge variant="ai">AI</Badge>
               <h2 className="text-title-sm font-semibold text-primary">Booth health score</h2>
             </div>
             <p className="mt-4 text-body text-muted">Health scoring activates as relationships are captured.</p>
@@ -137,9 +133,7 @@ export default async function ExhibitorAiInsightsPage({
 
         <Card>
           <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-              AI
-            </span>
+            <Badge variant="ai">AI</Badge>
             <h2 className="text-title-sm font-semibold text-primary">Since you last visited</h2>
           </div>
           <p className="mt-2 text-caption text-muted">
@@ -157,9 +151,7 @@ export default async function ExhibitorAiInsightsPage({
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-              AI
-            </span>
+            <Badge variant="ai">AI</Badge>
             <h2 className="text-title-sm font-semibold text-primary">
               Buying intent signals
             </h2>
@@ -188,9 +180,7 @@ export default async function ExhibitorAiInsightsPage({
 
         <Card>
           <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-              AI
-            </span>
+            <Badge variant="ai">AI</Badge>
             <h2 className="text-title-sm font-semibold text-primary">
               Lead scoring
             </h2>
@@ -230,9 +220,7 @@ export default async function ExhibitorAiInsightsPage({
       {intelligence && intelligence.recommendedActions.length > 0 && (
         <Card>
           <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-              AI
-            </span>
+            <Badge variant="ai">AI</Badge>
             <h2 className="text-title-sm font-semibold text-primary">Recommended actions</h2>
           </div>
           <ul className="mt-4 space-y-2">

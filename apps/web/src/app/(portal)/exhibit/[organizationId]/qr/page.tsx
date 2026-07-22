@@ -1,4 +1,4 @@
-import { PageHeader } from "@concourse/ui";
+import { EmptyState, PageHeader } from "@concourse/ui";
 import { QrPanel } from "../exhibitor-forms";
 import { loadExhibitorWorkspace } from "@/lib/exhibitor";
 
@@ -18,8 +18,8 @@ export default async function QrPage({
     : undefined;
   if (!workspace)
     return (
-      <main className="p-6 text-secondary">
-        Exhibitor workspace unavailable.
+      <main className="p-6">
+        <EmptyState title="No QR credentials" description="QR codes are generated once your booth is set up." />
       </main>
     );
   return (

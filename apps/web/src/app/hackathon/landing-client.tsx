@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { EmptyState, StatusBadge } from "@concourse/ui";
 
 import type { ShowcaseExhibitor } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
@@ -15,7 +16,7 @@ const industryGradients: Record<string, string> = {
   Semiconductors: "from-status-warning-solid to-status-danger-solid",
   "Enterprise Software": "from-status-info-text to-brand",
   Software: "from-status-danger-solid to-status-warning-solid",
-  "Industrial Technology": "from-slate-600 to-slate-700",
+  "Industrial Technology": "from-viz-cat-8 to-viz-cat-8/60",
 };
 
 function getGradient(industry: string): string {
@@ -238,10 +239,7 @@ export function HackathonLandingClient({
             <EventQR />
           </div>
 
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-status-info-border bg-status-info-subtle px-4 py-1.5 text-caption font-semibold text-status-info-text">
-            <span className="size-1.5 rounded-full bg-status-info-solid animate-pulse" />
-            Live Event • September 2027
-          </span>
+          <StatusBadge tone="info">Live Event • September 2027</StatusBadge>
 
           <h1 className="text-center text-5xl font-bold tracking-tight text-primary sm:text-6xl lg:text-7xl">
             TechExpo{" "}
@@ -387,9 +385,7 @@ export function HackathonLandingClient({
           </div>
 
           {filtered.length === 0 && (
-            <div className="mt-12 text-center">
-              <p className="text-muted">No exhibitors found matching your search.</p>
-            </div>
+            <EmptyState title="No exhibitors found" description="Try adjusting your search or filters." />
           )}
         </div>
       </section>

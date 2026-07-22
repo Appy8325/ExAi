@@ -1,5 +1,7 @@
+import { Skeleton, SkeletonCard } from "@concourse/ui";
+
 export function WorkspaceLoading() {
-  return <main aria-label="Loading relationship workspace" className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6"><div className="h-40 animate-pulse rounded-xl bg-sunken" /><div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <div className="h-24 animate-pulse rounded-xl bg-sunken" key={index} />)}</div><div className="h-80 animate-pulse rounded-xl bg-sunken" /></main>;
+  return <main aria-label="Loading relationship workspace" className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6"><Skeleton className="h-40 rounded-xl" /><div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{Array.from({ length: 4 }, (_, index) => <SkeletonCard key={index} className="h-24" />)}</div><Skeleton className="h-80 rounded-xl" /></main>;
 }
 
 export function WorkspaceMessage({ title, detail }: { title: string; detail: string }) {

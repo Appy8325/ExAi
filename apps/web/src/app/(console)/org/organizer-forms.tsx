@@ -60,7 +60,7 @@ export function CreateEventForm({
   const [pending, startTransition] = useTransition();
   return (
     <form
-      className="grid gap-5 rounded-xl border border-default bg-surface p-6 shadow-1 sm:grid-cols-2"
+      className="grid gap-6 rounded-xl border border-default bg-surface p-6 shadow-1 sm:grid-cols-2"
       onSubmit={(event) => {
         event.preventDefault();
         const form = event.currentTarget;
@@ -133,7 +133,7 @@ export function EventSettingsForm({
   const [pending, startTransition] = useTransition();
   return (
     <form
-      className="grid gap-5 rounded-xl border border-default bg-surface p-6 shadow-1 sm:grid-cols-2"
+      className="grid gap-6 rounded-xl border border-default bg-surface p-6 shadow-1 sm:grid-cols-2"
       onSubmit={(submitEvent) => {
         submitEvent.preventDefault();
         const form = submitEvent.currentTarget;

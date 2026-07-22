@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { EmptyState, StatusBadge } from "@concourse/ui";
 
 import { getPublicShowcase } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
@@ -20,7 +21,7 @@ export default async function HackathonExpoPage() {
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2 sm:px-8">
           <Link
             href="/hackathon"
-            className="rounded-lg border border-default bg-surface px-2.5 py-1 text-caption font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
+            className="rounded-lg border border-default bg-surface px-2.5 py-1 text-caption font-medium text-secondary transition-colors hover:border-strong hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             ← Event
           </Link>
@@ -33,10 +34,7 @@ export default async function HackathonExpoPage() {
 
       <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 sm:py-16">
         <div className="space-y-3 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-caption font-semibold text-brand">
-            <span className="size-1.5 rounded-full bg-brand" />
-            TechExpo 2027 — Expo Floor
-          </span>
+          <StatusBadge tone="brand">TechExpo 2027 — Expo Floor</StatusBadge>
           <h1 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
             Discover the future of technology
           </h1>
@@ -64,11 +62,7 @@ export default async function HackathonExpoPage() {
         </div>
 
         {!exhibitors ? (
-          <section className="mt-12 rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-body text-status-danger-text">
-            The showcase endpoint is unavailable right now. Run{" "}
-            <code className="rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>{" "}
-            against a running Supabase project.
-          </section>
+          <EmptyState title="Expo unavailable" description="The expo floor could not be loaded." />
         ) : (
           <ShowcaseClient exhibitors={exhibitors} />
         )}

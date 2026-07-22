@@ -12,8 +12,8 @@ export const MarketingFooter = memo(function MarketingFooter() {
           ExAi
         </div>
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-          <Link href="/demo" className="hover:text-primary">Demo</Link>
-          <Link href="/auth" className="hover:text-primary">Sign in</Link>
+          <Link href="/demo" className="hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Demo</Link>
+          <Link href="/auth" className="hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Sign in</Link>
         </nav>
         <p>&copy; {new Date().getFullYear()} ExAi</p>
       </div>

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getPublicEventBySlug, getSavedRelationships } from "@concourse/api-client";
 import type { SavedRelationship } from "@concourse/api-client";
-import { Skeleton } from "@concourse/ui";
+import { EmptyState, Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
 
@@ -62,20 +62,7 @@ export default function SavedExhibitorsPage({
       </header>
 
       {saved.length === 0 && (
-        <div className="flex flex-col items-center gap-3 py-12">
-          <div className="flex size-12 items-center justify-center rounded-full bg-sunken text-muted">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
-          </div>
-          <p className="text-body text-secondary">No saved exhibitors yet.</p>
-          <Link
-            href={`/e/${eventSlug}`}
-            className="text-body-sm font-medium text-link hover:text-brand-hover"
-          >
-            Browse exhibitors
-          </Link>
-        </div>
+        <EmptyState title="No saved exhibitors" description="Browse the exhibitor directory and save the ones you want to visit." />
       )}
 
       <div className="space-y-2">
@@ -83,7 +70,7 @@ export default function SavedExhibitorsPage({
           <Link
             key={item.relationshipId}
             href={`/e/${eventSlug}/exhibitors/${item.exhibitor.id}`}
-            className="group flex items-center gap-4 rounded-xl border border-default bg-surface p-4 shadow-1 transition-all duration-[var(--mq-duration-moderate)] hover:border-strong hover:shadow-card-hover"
+            className="group flex items-center gap-4 rounded-xl border border-default bg-surface p-4 shadow-1 transition-all duration-[var(--mq-duration-moderate)] hover:border-strong hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {item.exhibitor.logoUrl ? (
               <Image

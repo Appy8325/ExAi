@@ -3,7 +3,7 @@
 import { Suspense, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Input } from "@concourse/ui";
+import { Button, Input, Skeleton, StatusBadge } from "@concourse/ui";
 
 import { createClient } from "@/lib/supabase/client";
 
@@ -79,9 +79,7 @@ function AuthForm() {
   return (
     <div className="w-full space-y-8">
       <div className="space-y-3 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-caption font-medium text-brand">
-          <span className="size-1.5 rounded-full bg-brand" /> Secure Magic Link
-        </span>
+        <StatusBadge tone="brand">Secure Magic Link</StatusBadge>
         <h1 className="text-3xl font-semibold tracking-tight text-primary sm:text-4xl">
           Sign in to ExAi
         </h1>
@@ -156,13 +154,13 @@ function AuthForm() {
                 setPhase("request");
                 setError(null);
               }}
-              className="text-body font-medium text-brand hover:underline"
+              className="text-body font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               Use a different email
             </button>
             <Link
               href="/"
-              className="text-caption text-secondary transition-colors hover:text-primary"
+              className="text-caption text-secondary transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               Return to home
             </Link>
@@ -182,8 +180,8 @@ function AuthFallback() {
         </h1>
       </div>
       <div className="rounded-2xl border border-default bg-surface p-6 shadow-1">
-        <div className="h-10 w-full animate-pulse rounded bg-sunken" />
-        <div className="mt-4 h-3 w-3/4 animate-pulse rounded bg-sunken" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="mt-4 h-3 w-3/4" />
       </div>
     </div>
   );

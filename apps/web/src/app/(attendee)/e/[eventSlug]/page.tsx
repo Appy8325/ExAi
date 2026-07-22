@@ -193,7 +193,7 @@ function ExhibitorCard({
   return (
     <Link
       href={`/e/${eventSlug}/exhibitors/${exhibitor.id}`}
-      className={`group flex items-center gap-4 rounded-xl border border-default bg-surface p-4 shadow-1 transition-all duration-[var(--mq-duration-moderate)] hover:border-strong hover:shadow-card-hover ${
+      className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group flex items-center gap-4 rounded-xl border border-default bg-surface p-4 shadow-1 transition-all duration-[var(--mq-duration-moderate)] hover:border-strong hover:shadow-card-hover ${
         compact ? "min-h-16" : ""
       }`}
     >

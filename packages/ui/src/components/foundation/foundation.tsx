@@ -405,6 +405,7 @@ const statusBadgeVariants = cva(
   {
     variants: {
       tone: {
+        brand: "border-brand/30 bg-brand-subtle text-brand",
         neutral: "border-default bg-sunken text-secondary",
         success: "border-status-success-border bg-status-success-subtle text-status-success-text",
         warning: "border-status-warning-border bg-status-warning-subtle text-status-warning-text",
@@ -433,6 +434,7 @@ export function StatusBadge({ className, tone, size, ...props }: StatusBadgeProp
         <span
           aria-hidden="true"
           className={cn("size-1.5 rounded-full", {
+            "bg-brand": tone === "brand",
             "bg-status-success-text": tone === "success",
             "bg-status-warning-text": tone === "warning",
             "bg-status-danger-text": tone === "danger",

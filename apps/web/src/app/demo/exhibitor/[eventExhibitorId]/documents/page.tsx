@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
+import { EmptyState } from "@concourse/ui";
 import { getPublicBooth, getPublicDemoOverview } from "@concourse/api-client";
+
 import { getApiBaseUrl } from "@/lib/api/config";
 
 export const dynamic = "force-dynamic";
@@ -61,12 +62,10 @@ export default async function DemoExhibitorDocumentsPage({ params }: { params: P
           ))}
         </section>
       ) : (
-        <div className="mt-8 rounded-xl border border-dashed border-default bg-surface p-8 text-center">
-          <p className="text-body text-muted">No knowledge sources published yet.</p>
-          <p className="mt-1 text-caption text-secondary">
-            Exhibitors upload PDFs, add websites, or link documents that the AI uses to answer attendee questions.
-          </p>
-        </div>
+        <EmptyState
+          title="No knowledge sources"
+          description="Exhibitors upload PDFs, add websites, or link documents that the AI uses to answer attendee questions."
+        />
       )}
 
       {!publicBooth && (

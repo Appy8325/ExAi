@@ -2,6 +2,8 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@concourse/config/typescript/node.json",
   "compilerOptions": {
+    "moduleResolution": "Bundler",
+    "module": "preserve",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "outDir": "./dist",

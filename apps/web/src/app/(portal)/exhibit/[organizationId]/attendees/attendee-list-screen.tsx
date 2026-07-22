@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import type { ExhibitorDashboard } from "@concourse/api-client";
 import Link from "next/link";
+import { StatusBadge } from "@concourse/ui";
 
 export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: ExhibitorDashboard; organizationId: string }) {
   const [search, setSearch] = useState("");
@@ -145,14 +146,14 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { tone: string; label: string }> = {
-    new: { tone: "border-status-info-border bg-status-info-subtle text-status-info-text", label: "New" },
-    active: { tone: "border-status-success-border bg-status-success-subtle text-status-success-text", label: "Active" },
-    returning: { tone: "border-status-ai-border bg-status-ai-subtle text-status-ai-text", label: "Returning" },
-    "needs-followup": { tone: "border-status-warning-border bg-status-warning-subtle text-status-warning-text", label: "Needs Follow-up" },
+  const map: Record<string, { tone: "info" | "success" | "ai" | "warning" | "neutral"; label: string }> = {
+    new: { tone: "info", label: "New" },
+    active: { tone: "success", label: "Active" },
+    returning: { tone: "ai", label: "Returning" },
+    "needs-followup": { tone: "warning", label: "Needs Follow-up" },
   };
-  const s = map[status] ?? { tone: "border-default bg-sunken text-secondary", label: status };
-  return <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-caption font-medium ${s.tone}`}>{s.label}</span>;
+  const s = map[status] ?? { tone: "neutral", label: status };
+  return <StatusBadge tone={s.tone}>{s.label}</StatusBadge>;
 }
 
 function computeScore(reasons: string[]) {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { StatusBadge } from "@concourse/ui";
 
 import {
   type PublicDemoOverview,
@@ -33,10 +34,7 @@ export default async function DemoPage() {
       <GlobalNav variant="marketing" active="experience" />
       <div className="mx-auto max-w-7xl px-6 pt-8 sm:px-10 sm:pt-12">
         <div className="mx-auto max-w-3xl space-y-4 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-caption font-semibold text-brand">
-            <span className="inline-block size-1.5 rounded-full bg-brand" />
-            ExAi product tour
-          </span>
+          <StatusBadge tone="brand">ExAi product tour</StatusBadge>
           <DemoPageHeader
             eyebrow="Read-only demo"
             title="Experience ExAi"
@@ -67,7 +65,7 @@ export default async function DemoPage() {
           </h2>
         </div>
 
-        <div className="mt-4 grid gap-5 lg:grid-cols-3">
+        <div className="mt-4 grid gap-6 lg:grid-cols-3">
           <PersonaCard
             tone="info"
             eyebrow="Read-only"
@@ -186,19 +184,16 @@ function PersonaCard({
   const toneClass = {
     info: {
       border: "border-status-info-border hover:ring-status-info-border/40",
-      badge: "bg-status-info-subtle text-status-info-text",
       cta: "bg-status-info-solid text-on-brand",
       accent: "text-status-info-text",
     },
     success: {
       border: "border-status-success-border hover:ring-status-success-border/40",
-      badge: "bg-status-success-subtle text-status-success-text",
       cta: "bg-status-success-solid text-on-brand",
       accent: "text-status-success-text",
     },
     brand: {
       border: "border-brand/30 hover:ring-brand/40",
-      badge: "bg-brand-subtle text-brand",
       cta: "bg-brand text-on-brand",
       accent: "text-brand",
     },
@@ -210,11 +205,7 @@ function PersonaCard({
       className={`group flex h-full flex-col rounded-2xl border-2 ${toneClass.border} bg-surface p-6 shadow-1 transition-all hover:shadow-2 hover:ring-2 sm:p-7`}
     >
       <div className="flex items-center justify-between gap-3">
-        <span
-          className={`inline-flex items-center rounded-full px-3 py-1 text-caption font-semibold ${toneClass.badge}`}
-        >
-          {tone === "brand" ? "Live experience" : `${title} workspace`}
-        </span>
+        <StatusBadge tone={tone === "brand" ? "brand" : tone}>{tone === "brand" ? "Live experience" : `${title} workspace`}</StatusBadge>
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
           {eyebrow}
         </span>

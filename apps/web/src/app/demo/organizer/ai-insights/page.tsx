@@ -1,4 +1,4 @@
-import { Card } from "@concourse/ui";
+import { Badge, Card } from "@concourse/ui";
 
 import {
   getPublicDemoAnalytics,
@@ -93,9 +93,7 @@ export default async function OrganizerAiInsightsPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className="lg:col-span-2">
             <div className="flex items-center gap-2">
-              <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-                AI
-              </span>
+              <Badge variant="ai">AI</Badge>
               <h2 className="text-title-sm font-semibold text-primary">
                 Executive briefing
               </h2>
@@ -130,9 +128,7 @@ export default async function OrganizerAiInsightsPage() {
 
           <Card>
             <div className="flex items-center gap-2">
-              <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-                AI
-              </span>
+              <Badge variant="ai">AI</Badge>
               <h2 className="text-title-sm font-semibold text-primary">
                 What to focus on
               </h2>
@@ -172,21 +168,11 @@ function InsightCard({
   note: string;
   accent: "info" | "success" | "warning" | "brand";
 }) {
-  const accents: Record<typeof accent, string> = {
-    info: "bg-status-info-subtle text-status-info-text",
-    success: "bg-status-success-subtle text-status-success-text",
-    warning: "bg-status-warning-subtle text-status-warning-text",
-    brand: "bg-brand-subtle text-brand",
-  };
   return (
     <div className="rounded-xl border border-default bg-surface p-4">
       <div className="flex items-center justify-between">
         <p className="text-caption font-medium text-secondary">{label}</p>
-        <span
-          className={`inline-flex size-5 items-center justify-center rounded-full text-[10px] font-semibold ${accents[accent]}`}
-        >
-          AI
-        </span>
+        <Badge variant={accent}>AI</Badge>
       </div>
       <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{value}</p>
       <p className="mt-1 text-caption text-muted">{note}</p>

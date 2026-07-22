@@ -8,6 +8,7 @@ import {
   DialogClose,
   DialogContent,
   DialogTitle,
+  EmptyState,
 } from "@concourse/ui";
 
 type ShowcaseExhibitorCard = {
@@ -29,14 +30,14 @@ type ShowcaseExhibitorCard = {
 };
 
 const industryColors: Record<string, string> = {
-  Technology: "from-blue-600 to-indigo-600",
-  "Semiconductors & AI": "from-green-600 to-emerald-600",
-  "Networking & Security": "from-cyan-500 to-teal-600",
-  "Enterprise Software": "from-sky-500 to-blue-600",
-  Software: "from-red-500 to-rose-600",
-  "Technology & Consulting": "from-indigo-500 to-purple-600",
-  Semiconductors: "from-amber-500 to-orange-600",
-  "Industrial Technology": "from-slate-600 to-gray-700",
+  Technology: "from-viz-cat-1 to-viz-cat-1/60",
+  "Semiconductors & AI": "from-viz-cat-3 to-viz-cat-3/60",
+  "Networking & Security": "from-viz-cat-7 to-viz-cat-7/60",
+  "Enterprise Software": "from-viz-cat-2 to-viz-cat-2/60",
+  Software: "from-viz-cat-6 to-viz-cat-6/60",
+  "Technology & Consulting": "from-viz-cat-5 to-viz-cat-5/60",
+  Semiconductors: "from-viz-cat-4 to-viz-cat-4/60",
+  "Industrial Technology": "from-viz-cat-8 to-viz-cat-8/60",
 };
 
 function getGradient(industry: string): string {
@@ -82,7 +83,7 @@ export function ShowcaseClient({
             placeholder="Search exhibitors, industries, keywords..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-default bg-surface py-2.5 pl-10 pr-4 text-body text-primary placeholder-muted outline-none transition-colors focus:border-brand"
+            className="w-full rounded-xl border border-default bg-surface py-2.5 pl-10 pr-4 text-body text-primary placeholder-muted outline-none transition-colors focus:border-brand focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -93,7 +94,7 @@ export function ShowcaseClient({
               onClick={() =>
                 setSelectedIndustry(selectedIndustry === ind ? null : ind)
               }
-              className={`rounded-full border px-3 py-1.5 text-caption font-medium transition-all ${
+              className={`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full border px-3 py-1.5 text-caption font-medium transition-all ${
                 selectedIndustry === ind
                   ? "border-brand bg-brand text-on-brand"
                   : "border-default bg-surface text-secondary hover:border-brand/50 hover:text-brand"
@@ -106,7 +107,7 @@ export function ShowcaseClient({
             <button
               type="button"
               onClick={() => setSelectedIndustry(null)}
-              className="rounded-full border border-default bg-surface px-3 py-1.5 text-caption font-medium text-muted transition-colors hover:bg-sunken hover:text-primary"
+              className="rounded-full border border-default bg-surface px-3 py-1.5 text-caption font-medium text-muted transition-colors hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Clear
             </button>
@@ -121,11 +122,7 @@ export function ShowcaseClient({
       </div>
 
       {filtered.length === 0 && (
-        <div className="mt-12 rounded-2xl border border-dashed border-default p-12 text-center">
-          <p className="text-body text-secondary">
-            No exhibitors match your search.
-          </p>
-        </div>
+        <EmptyState title="No exhibitors match your search." />
       )}
     </>
   );
@@ -144,14 +141,14 @@ function ExhibitorCard({
     <>
       <div className="group relative overflow-hidden rounded-2xl border border-default bg-surface shadow-1 transition-all hover:shadow-premium hover:-translate-y-0.5">
         <div
-          className={`h-24 bg-gradient-to-br ${gradient} p-5`}
+          className={`h-24 bg-gradient-to-br ${gradient} p-6`}
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-lg font-bold text-white shadow-sm backdrop-blur-sm">
             {exhibitor.companyName.charAt(0)}
           </div>
         </div>
 
-        <div className="p-5">
+        <div className="p-6">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h3 className="truncate text-lg font-semibold text-primary">
@@ -174,7 +171,7 @@ function ExhibitorCard({
             {exhibitor.publicQrToken ? (
               <Link
                 href={`/visit/${exhibitor.publicQrToken}`}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand-subtle px-3.5 py-2 text-body font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand-subtle px-3.5 py-2 text-body font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M8 3v10M3 8h10" />
@@ -186,7 +183,7 @@ function ExhibitorCard({
             {exhibitor.publicQrToken ? (
               <Link
                 href={`/visit/${exhibitor.publicQrToken}`}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="8" cy="8" r="6" />
@@ -200,7 +197,7 @@ function ExhibitorCard({
               href={exhibitor.website || `https://${exhibitor.companyName.toLowerCase().replace(/[^a-z0-9]/g, "")}.com`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 2h8v8M8 8l6-6M2 8v6h6" />
@@ -212,7 +209,7 @@ function ExhibitorCard({
               <button
                 type="button"
                 onClick={() => setProductsOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M2 4h12M2 8h12M2 12h12" />
@@ -242,7 +239,7 @@ function ExhibitorCard({
           <DialogClose asChild>
             <button
               type="button"
-              className="mt-6 rounded-lg border border-default bg-surface px-4 py-2 text-body font-medium text-primary transition-colors hover:bg-sunken"
+              className="mt-6 rounded-lg border border-default bg-surface px-4 py-2 text-body font-medium text-primary transition-colors hover:bg-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               Close
             </button>

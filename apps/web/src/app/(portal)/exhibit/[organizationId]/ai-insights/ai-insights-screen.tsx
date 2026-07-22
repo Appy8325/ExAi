@@ -11,7 +11,7 @@ export function AiInsightsScreen({ dashboard, organizationId: _organizationId }:
         <p className="mt-1 text-body-sm text-muted">Intelligence-driven recommendations and opportunities for your booth.</p>
       </div>
 
-      <section className="rounded-xl border border-default bg-surface p-5">
+      <section className="rounded-xl border border-default bg-surface p-6">
         <h2 className="mb-4 text-body font-semibold text-primary">Intelligence Feed</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           <MetricBox label="Profiles Enriched" value={String(dashboard.intelligenceFeed.profilesEnriched)} />

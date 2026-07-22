@@ -1,4 +1,4 @@
-import { PageHeader } from "@concourse/ui";
+import { EmptyState, PageHeader } from "@concourse/ui";
 import { LeadFormEditor } from "../exhibitor-forms";
 import { loadExhibitorWorkspace } from "@/lib/exhibitor";
 
@@ -18,8 +18,8 @@ export default async function LeadFormsPage({
     : undefined;
   if (!workspace)
     return (
-      <main className="p-6 text-secondary">
-        Exhibitor workspace unavailable.
+      <main className="p-6">
+        <EmptyState title="No lead forms yet" description="Create your first lead capture form to start collecting visitor information." />
       </main>
     );
   return (
