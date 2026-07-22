@@ -51,3 +51,18 @@ docs/            the architecture blueprint (source of truth)
 **Frozen at Version 1.0** (`docs/00-foundation.md` §14, Amendment A4). Do not modify any numbered document in `docs/00`–`docs/46` without following the amendment process in `docs/ENGINEERING_GUIDE.md` §8.
 
 > **Note:** `docs/00-foundation.md` §14 Amendments A5–A6 adopt Supabase as the managed platform for Database, Auth, Storage, and Realtime. The detailed, operative designs are in `docs/19-authentication-strategy.md`, `docs/20-session-strategy.md`, `docs/26-file-storage.md`, and `docs/18-api-architecture.md` §7.
+
+## Built with Codex
+
+ExAi was developed with the assistance of [Codex](https://openai.com/codex), an AI engineering tool used to accelerate and streamline the software development process. Codex contributed to several key areas of the project:
+
+- **Architecture and design**: Codex helped architect the application structure, making decisions around monorepo organization, service boundaries, and technology stack selection.
+- **Frontend and backend development**: Codex assisted with building and refactoring features across the Next.js frontend and NestJS backend, including component design, API routes, and data models.
+- **Technology integration**: Codex provided guidance and implementation support for Next.js, NestJS, Supabase, and TypeScript throughout the stack.
+- **Debugging and deployment**: Codex helped diagnose and resolve deployment configurations, monorepo tooling issues, and environment-specific bugs.
+- **Code review and technical debt**: Codex reviewed architectural decisions and identified opportunities to reduce technical debt and improve maintainability.
+- **Documentation and planning**: Codex generated engineering documentation, implementation roadmaps, and architecture decision records to support the development process.
+- **UX and production readiness**: Codex audited navigation flows, user experience patterns, and production readiness to ensure the platform meets quality standards.
+- **Iterative development**: Codex accelerated the iteration cycle through AI-assisted engineering, enabling faster prototyping and refinement of features.
+
+This collaboration allowed the development team to focus on high-level design decisions while leveraging AI assistance for implementation details, code quality, and documentation.
