@@ -3,11 +3,5 @@
   "project": "api",
   "installCommand": "cd ../.. && corepack pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && corepack pnpm --filter api... build",
-  "outputDirectory": "dist",
-  "builds": [
-    { "src": "dist/main.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "main.js" }
-  ]
+  "outputDirectory": "dist"
 }
