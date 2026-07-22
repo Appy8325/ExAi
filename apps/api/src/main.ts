@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { NestFactory } from "@nestjs/core";
 import { createApiApplication } from "./application";
 
 let applicationPromise: ReturnType<typeof createApiApplication> | undefined;

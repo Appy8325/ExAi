@@ -4,16 +4,16 @@ export function QuickActions() {
   return (
     <div className="flex flex-wrap gap-3">
       <Link
-        href="visitors"
+        href="qr"
         className="inline-flex h-10 items-center rounded-lg bg-primary px-5 text-body-sm font-semibold text-on-brand transition-colors hover:bg-primary-hover"
       >
-        View Visitors
+        Share QR Code
       </Link>
       <Link
-        href="qr"
+        href="visitors"
         className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-5 text-body-sm font-semibold text-primary transition-colors hover:bg-sunken"
       >
-        Share QR Code
+        View Visitors
       </Link>
       <Link
         href="products"

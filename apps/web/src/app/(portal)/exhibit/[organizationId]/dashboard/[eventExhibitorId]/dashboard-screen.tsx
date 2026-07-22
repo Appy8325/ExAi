@@ -6,25 +6,43 @@ import { QuickActions } from "../../_components/quick-actions";
 import { ActivityFeed } from "../../_components/activity-feed";
 import { AiInsightCards } from "../../_components/ai-insight-cards";
 
-export function DashboardScreen({ dashboard, organizationId }: { dashboard: ExhibitorDashboard; organizationId?: string }) {
+type BoothInfo = {
+  companyName: string;
+  eventName: string;
+  boothName: string;
+  boothNumber: string | null;
+};
+
+export function DashboardScreen({
+  dashboard,
+  organizationId,
+  boothInfo,
+}: {
+  dashboard: ExhibitorDashboard;
+  organizationId?: string;
+  boothInfo: BoothInfo | null;
+}) {
   const perf = dashboard.performance;
   const pipeline = dashboard.pipeline;
-  const pipelineTotal = pipeline.new + pipeline.active + pipeline.returning + pipeline.needsFollowUp;
-  const scanRate = pipelineTotal > 0 ? Math.round((perf.qrScans / Math.max(pipeline.new, 1)) * 100) : 0;
-  const leadQuality = pipelineTotal > 0 ? Math.round((pipeline.active / pipelineTotal) * 100) : 0;
-  const hasTrend = dashboard.sinceLastVisited.since !== null;
+  const scansPerVisitor = pipeline.new > 0 ? perf.qrScans / pipeline.new : 0;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-caption font-medium text-secondary">Exhibitor workspace</p>
-          <h1 className="mt-1 text-title font-semibold text-primary">Booth Dashboard</h1>
+          <h1 className="text-title font-semibold text-primary">
+            {boothInfo ? boothInfo.companyName : "Your Booth"}
+            {boothInfo?.boothNumber && (
+              <span className="ml-2 text-caption font-normal text-muted">
+                · Booth {boothInfo.boothNumber}
+              </span>
+            )}
+          </h1>
+          {boothInfo && (
+            <p className="mt-0.5 text-caption text-secondary">{boothInfo.eventName}</p>
+          )}
         </div>
         <div className="flex items-center gap-3">
-          {perf.profileCompletion < 100 && (
-            <span className="text-caption text-muted">Profile {perf.profileCompletion}%</span>
-          )}
           <StatusBadge tone="success">Live</StatusBadge>
         </div>
       </div>
@@ -34,23 +52,40 @@ export function DashboardScreen({ dashboard, organizationId }: { dashboard: Exhi
           label="Visitors Today"
           value={String(pipeline.new)}
           detail={`${perf.qrScans} scans · ${perf.returningVisitors} returning`}
-          trend={hasTrend && dashboard.sinceLastVisited.returningVisitors > 0 ? { value: `${dashboard.sinceLastVisited.returningVisitors} returning since last visit`, positive: true } : undefined}
         />
         <KpiCard
-          label="Scan Rate"
-          value={`${scanRate}%`}
-          detail={`${perf.qrScans} total scans`}
+          label="Scans per Visitor"
+          value={scansPerVisitor > 0 ? `${scansPerVisitor.toFixed(1)}×` : "—"}
+          detail={
+            perf.qrScans > 0 && pipeline.new > 0
+              ? `${perf.qrScans} scans across ${pipeline.new} visitors`
+              : perf.qrScans > 0
+              ? `${perf.qrScans} scans recorded`
+              : "Waiting for first scan"
+          }
         />
         <KpiCard
           label="Relationships"
           value={String(perf.relationshipsCreated)}
-          detail={dashboard.sinceLastVisited.newRelationships > 0 ? `${dashboard.sinceLastVisited.newRelationships} new since last visit` : undefined}
-          trend={dashboard.sinceLastVisited.newRelationships > 0 ? { value: `${dashboard.sinceLastVisited.newRelationships} new`, positive: true } : undefined}
+          detail={
+            dashboard.sinceLastVisited.newRelationships > 0
+              ? `${dashboard.sinceLastVisited.newRelationships} new since last visit`
+              : undefined
+          }
+          trend={
+            dashboard.sinceLastVisited.newRelationships > 0
+              ? { value: `${dashboard.sinceLastVisited.newRelationships} new`, positive: true }
+              : undefined
+          }
         />
         <KpiCard
-          label="Pipeline Health"
-          value={`${pipeline.active} active`}
-          detail={`${pipeline.needsFollowUp} need follow-up`}
+          label="Profile Completion"
+          value={`${perf.profileCompletion}%`}
+          detail={
+            perf.profileCompletion < 100
+              ? "Complete your profile to attract more visitors"
+              : "Profile is fully complete"
+          }
         />
       </KpiGrid>
 
