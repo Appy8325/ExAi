@@ -33,7 +33,7 @@ export function PageTabs({ tabs, className }: PageTabsProps) {
               key={tab.id}
               href={tab.href}
               aria-current={isActive ? "page" : undefined}
-              className={`relative flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors ${
+              className={`relative flex items-center gap-1.5 px-4 py-2.5 text-body font-medium transition-colors ${
                 isActive
                   ? "text-brand"
                   : "text-secondary hover:text-primary"

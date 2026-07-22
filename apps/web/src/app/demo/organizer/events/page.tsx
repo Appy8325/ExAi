@@ -52,13 +52,13 @@ export default async function OrganizerEventsPage() {
               <Card key={event.id}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">
+                    <p className="text-caption font-semibold uppercase tracking-[0.2em] text-brand">
                       {event.status}
                     </p>
                     <h2 className="mt-1 text-xl font-bold tracking-tight text-primary">
                       {event.name}
                     </h2>
-                    <p className="mt-1 text-sm text-secondary">
+                    <p className="mt-1 text-body text-secondary">
                       {formatDate(event.startAt)} – {formatDate(event.endAt)} ·{" "}
                       {event.timezone}
                       {organizer ? ` · ${organizer}` : ""}
@@ -66,7 +66,7 @@ export default async function OrganizerEventsPage() {
                   </div>
                   <Link
                     href={`/demo/organizer/event/${event.slug}`}
-                    className="inline-flex h-9 items-center rounded-lg bg-status-info-solid px-3 text-xs font-semibold text-on-brand"
+                    className="inline-flex h-9 items-center rounded-lg bg-status-info-solid px-3 text-caption font-semibold text-on-brand"
                   >
                     Open event
                   </Link>
@@ -91,19 +91,19 @@ export default async function OrganizerEventsPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link
                     href="/demo/organizer/analytics"
-                    className="inline-flex h-8 items-center rounded-md border border-default bg-surface px-2.5 text-xs font-medium text-primary"
+                    className="inline-flex h-8 items-center rounded-md border border-default bg-surface px-2.5 text-caption font-medium text-primary"
                   >
                     Analytics
                   </Link>
                   <Link
                     href="/demo/organizer/heatmaps"
-                    className="inline-flex h-8 items-center rounded-md border border-default bg-surface px-2.5 text-xs font-medium text-primary"
+                    className="inline-flex h-8 items-center rounded-md border border-default bg-surface px-2.5 text-caption font-medium text-primary"
                   >
                     Heatmap
                   </Link>
                   <Link
                     href={`/e/${event.slug}`}
-                    className="inline-flex h-8 items-center rounded-md border border-default bg-surface px-2.5 text-xs font-medium text-primary"
+                    className="inline-flex h-8 items-center rounded-md border border-default bg-surface px-2.5 text-caption font-medium text-primary"
                   >
                     Public event page
                   </Link>
@@ -120,7 +120,7 @@ export default async function OrganizerEventsPage() {
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div>
-      <dt className="text-xs text-muted">{label}</dt>
+      <dt className="text-caption text-muted">{label}</dt>
       <dd className="text-lg font-bold tabular-nums text-primary">{value}</dd>
     </div>
   );

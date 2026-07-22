@@ -72,11 +72,11 @@ export default async function OrganizerEventPage({
             <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
               AI
             </span>
-            <h2 className="text-base font-semibold text-primary">
+            <h2 className="text-title-sm font-semibold text-primary">
               Event insight
             </h2>
           </div>
-          <p className="mt-3 whitespace-pre-line text-sm leading-7 text-secondary">
+          <p className="mt-3 whitespace-pre-line text-body leading-7 text-secondary">
             {renderEventInsight(analytics, event.name)}
           </p>
         </Card>
@@ -85,41 +85,41 @@ export default async function OrganizerEventPage({
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-primary">
+            <h2 className="text-title-sm font-semibold text-primary">
               Move forward
             </h2>
-            <p className="mt-1 text-sm text-secondary">
+            <p className="mt-1 text-body text-secondary">
               Deep dive into the analytics & reporting tools.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
               href="/demo/organizer/analytics"
-              className="inline-flex h-9 items-center rounded-lg bg-status-info-solid px-3 text-xs font-semibold text-on-brand"
+              className="inline-flex h-9 items-center rounded-lg bg-status-info-solid px-3 text-caption font-semibold text-on-brand"
             >
               Analytics
             </Link>
             <Link
               href="/demo/organizer/heatmaps"
-              className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-xs font-semibold text-primary"
+              className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-caption font-semibold text-primary"
             >
               Heatmaps
             </Link>
             <Link
               href="/demo/organizer/ai-insights"
-              className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-xs font-semibold text-primary"
+              className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-caption font-semibold text-primary"
             >
               AI Insights
             </Link>
             <Link
               href="/demo/organizer/reports"
-              className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-xs font-semibold text-primary"
+              className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-caption font-semibold text-primary"
             >
               Report
             </Link>
             <Link
               href={`/e/${event.slug}`}
-              className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-xs font-semibold text-primary"
+              className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-caption font-semibold text-primary"
             >
               Public event page
             </Link>
@@ -128,7 +128,7 @@ export default async function OrganizerEventPage({
       </Card>
 
       <section>
-        <h2 className="text-base font-semibold text-primary">
+        <h2 className="text-title-sm font-semibold text-primary">
           Booths ({event.exhibitors.length})
         </h2>
         {event.exhibitors.length > 0 ? (
@@ -142,7 +142,7 @@ export default async function OrganizerEventPage({
                   <p className="truncate font-semibold text-primary">
                     {booth.companyName}
                   </p>
-                  <p className="text-sm text-muted">
+                  <p className="text-body text-muted">
                     Booth {booth.boothNumber ?? "—"} · {booth.boothName}
                   </p>
                 </div>
@@ -150,14 +150,14 @@ export default async function OrganizerEventPage({
                   {booth.publicQrToken ? (
                     <Link
                       href={`/visit/${booth.publicQrToken}`}
-                      className="rounded-lg border border-brand/30 bg-brand-subtle px-3 py-1.5 text-xs font-semibold text-brand"
+                      className="rounded-lg border border-brand/30 bg-brand-subtle px-3 py-1.5 text-caption font-semibold text-brand"
                     >
                       Public booth
                     </Link>
                   ) : null}
                   <Link
                     href={`/demo/exhibitor/${booth.id}`}
-                    className="rounded-lg border border-default bg-surface px-3 py-1.5 text-xs font-medium text-primary"
+                    className="rounded-lg border border-default bg-surface px-3 py-1.5 text-caption font-medium text-primary"
                   >
                     Details
                   </Link>
@@ -166,7 +166,7 @@ export default async function OrganizerEventPage({
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-secondary">
+          <p className="mt-4 text-body text-secondary">
             No exhibitors for this event.
           </p>
         )}

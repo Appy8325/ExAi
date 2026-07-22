@@ -32,11 +32,11 @@ export const DemoPageHeader = memo(function DemoPageHeader({
           {title}
         </h1>
         {description ? (
-          <p className="mt-1 max-w-2xl text-sm text-secondary">{description}</p>
+          <p className="mt-1 max-w-2xl text-body text-secondary">{description}</p>
         ) : null}
       </div>
       {badge ? (
-        <span className="inline-flex items-center gap-1 rounded-full border border-default bg-surface px-2.5 py-1 text-xs font-medium text-secondary">
+        <span className="inline-flex items-center gap-1 rounded-full border border-default bg-surface px-2.5 py-1 text-caption font-medium text-secondary">
           <span className="inline-block size-1.5 rounded-full bg-status-ai-solid" />
           {badge}
         </span>
@@ -48,10 +48,10 @@ export const DemoPageHeader = memo(function DemoPageHeader({
 export const DemoUnavailable = memo(function DemoUnavailable({ backHref = "/demo" }: { backHref?: string }) {
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 sm:px-10">
-      <Link href={backHref} className="text-sm text-link hover:underline">
+      <Link href={backHref} className="text-body text-link hover:underline">
         Back to demo
       </Link>
-      <p className="mt-6 rounded-xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
+      <p className="mt-6 rounded-xl border border-status-danger-border bg-status-danger-subtle p-6 text-body text-status-danger-text">
         Demo data is unavailable right now. Run{" "}
         <code className="rounded bg-surface px-1.5 py-0.5 text-primary">
           pnpm db:seed
@@ -85,7 +85,7 @@ export function SimulationStatusBadge() {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-caption font-semibold ${
         status.running
           ? "border-status-success-border bg-status-success-subtle text-status-success-text"
           : "border-default bg-sunken text-muted"

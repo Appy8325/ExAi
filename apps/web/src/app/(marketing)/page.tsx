@@ -68,7 +68,7 @@ function HeroSection() {
       />
       <div className="mx-auto max-w-4xl text-center">
         <FadeIn>
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-caption font-semibold text-brand">
             <span className="relative flex size-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
               <span className="relative inline-flex size-2 rounded-full bg-brand" />
@@ -98,14 +98,14 @@ function HeroSection() {
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/demo"
-              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-base font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
+              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-title-sm font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
             >
               Try the live demo
               <ChevronRight className="ml-2 size-4" />
             </Link>
             <Link
               href="/auth"
-              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-base font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
+              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-body-lg font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
             >
               Sign in
             </Link>
@@ -232,10 +232,10 @@ function PersonasSection() {
                   <p.icon className={`size-6 ${p.color === "bg-brand" ? "text-brand" : p.color === "bg-status-success-solid" ? "text-status-success-text" : "text-status-ai-text"}`} />
                 </div>
                 <h3 className="text-lg font-semibold text-primary">{p.role}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-secondary">{p.desc}</p>
+                <p className="mt-2 text-body leading-relaxed text-secondary">{p.desc}</p>
                 <Link
                   href={p.href}
-                  className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-brand transition-colors hover:text-brand-hover"
+                  className="mt-5 inline-flex items-center gap-1 text-body font-medium text-brand transition-colors hover:text-brand-hover"
                 >
                   {p.cta}
                   <ChevronRight className="size-3.5 transition-transform duration-[var(--mq-duration-fast)] group-hover:translate-x-0.5" />
@@ -317,7 +317,7 @@ function HowExAiWorks() {
         <div className="relative mt-16 grid gap-8 md:grid-cols-2 md:gap-12">
           {/* Left: How it works flow */}
           <div>
-            <h3 className="mb-8 text-sm font-semibold uppercase tracking-widest text-muted">The flow</h3>
+            <h3 className="mb-8 text-body font-semibold uppercase tracking-widest text-muted">The flow</h3>
             <div className="space-y-8">
               {steps.map((step, i) => (
                 <FadeIn key={step.title} delay={i * 80}>
@@ -326,8 +326,8 @@ function HowExAiWorks() {
                       <step.icon className="size-5 text-brand" />
                     </div>
                     <div className="min-w-0 pt-1">
-                      <h4 className="text-sm font-semibold text-primary">{step.title}</h4>
-                      <p className="mt-0.5 text-sm leading-relaxed text-secondary">{step.desc}</p>
+                      <h4 className="text-body font-semibold text-primary">{step.title}</h4>
+                      <p className="mt-0.5 text-body leading-relaxed text-secondary">{step.desc}</p>
                     </div>
                   </div>
                 </FadeIn>
@@ -337,7 +337,7 @@ function HowExAiWorks() {
 
           {/* Right: Benefits */}
           <div>
-            <h3 className="mb-8 text-sm font-semibold uppercase tracking-widest text-muted">What you get</h3>
+            <h3 className="mb-8 text-body font-semibold uppercase tracking-widest text-muted">What you get</h3>
             <div className="space-y-8">
               {benefits.map((b, i) => (
                 <FadeIn key={b.title} delay={i * 80}>
@@ -346,8 +346,8 @@ function HowExAiWorks() {
                       <b.icon className="size-5" />
                     </div>
                     <div className="min-w-0 pt-1">
-                      <h4 className="text-sm font-semibold text-primary">{b.title}</h4>
-                      <p className="mt-0.5 text-sm leading-relaxed text-secondary">{b.desc}</p>
+                      <h4 className="text-body font-semibold text-primary">{b.title}</h4>
+                      <p className="mt-0.5 text-body leading-relaxed text-secondary">{b.desc}</p>
                     </div>
                   </div>
                 </FadeIn>
@@ -390,14 +390,14 @@ function CTASection() {
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/demo"
-              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-base font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
+              className="btn-press inline-flex h-12 items-center rounded-xl bg-brand px-8 text-title-sm font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-brand-hover hover:shadow-3 hover:scale-[1.02]"
             >
               Open demo
               <ChevronRight className="ml-2 size-4" />
             </Link>
             <Link
               href="/auth"
-              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-base font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
+              className="btn-press inline-flex h-12 items-center rounded-xl border border-strong bg-surface px-8 text-body-lg font-medium text-primary transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform hover:bg-sunken hover:scale-[1.02]"
             >
               Sign in
             </Link>

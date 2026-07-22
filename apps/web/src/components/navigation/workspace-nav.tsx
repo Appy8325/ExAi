@@ -49,10 +49,10 @@ export function WorkspaceNav({ sections, basePath, role }: WorkspaceNavProps) {
         href="/"
         className="flex h-14 items-center gap-2.5 border-b border-default px-4 transition-colors hover:bg-sunken/50"
       >
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-body font-bold text-on-brand shadow-1">
           E
         </div>
-        <span className="text-sm font-semibold text-primary">ExAi</span>
+        <span className="text-body font-semibold text-primary">ExAi</span>
       </Link>
       <nav aria-label={`${role} workspace navigation`} className="flex-1 space-y-0.5 p-3">
         {sections.map((section, si) => (
@@ -71,7 +71,7 @@ export function WorkspaceNav({ sections, basePath, role }: WorkspaceNavProps) {
                     key={item.label}
                     href={href}
                     aria-current={active ? "page" : undefined}
-                    className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-body font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       active
                         ? "bg-brand-subtle text-brand"
                         : "text-secondary hover:bg-sunken/70 hover:text-primary"
@@ -100,20 +100,20 @@ export function WorkspaceNav({ sections, basePath, role }: WorkspaceNavProps) {
           </div>
         ) : isSignedIn ? (
           <div className="space-y-1">
-            <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-secondary">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sunken text-xs font-medium text-primary">
+            <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-body text-secondary">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-sunken text-caption font-medium text-primary">
                 {initials}
               </div>
               <div className="min-w-0 flex-1 truncate">
-                <p className="truncate text-sm font-medium text-primary">{displayName}</p>
-                <p className="truncate text-xs text-muted capitalize">{role}</p>
+                <p className="truncate text-body font-medium text-primary">{displayName}</p>
+                <p className="truncate text-caption text-muted capitalize">{role}</p>
               </div>
             </div>
             <button
               type="button"
               onClick={handleSignOut}
               aria-label="Sign out"
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs text-secondary transition-colors hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-caption text-secondary transition-colors hover:bg-sunken hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -126,7 +126,7 @@ export function WorkspaceNav({ sections, basePath, role }: WorkspaceNavProps) {
         ) : (
           <Link
             href="/auth"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />

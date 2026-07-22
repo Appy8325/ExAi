@@ -82,7 +82,7 @@ export function ShowcaseClient({
             placeholder="Search exhibitors, industries, keywords..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-default bg-surface py-2.5 pl-10 pr-4 text-sm text-primary placeholder-muted outline-none transition-colors focus:border-brand"
+            className="w-full rounded-xl border border-default bg-surface py-2.5 pl-10 pr-4 text-body text-primary placeholder-muted outline-none transition-colors focus:border-brand"
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -93,7 +93,7 @@ export function ShowcaseClient({
               onClick={() =>
                 setSelectedIndustry(selectedIndustry === ind ? null : ind)
               }
-              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
+              className={`rounded-full border px-3 py-1.5 text-caption font-medium transition-all ${
                 selectedIndustry === ind
                   ? "border-brand bg-brand text-on-brand"
                   : "border-default bg-surface text-secondary hover:border-brand/50 hover:text-brand"
@@ -106,7 +106,7 @@ export function ShowcaseClient({
             <button
               type="button"
               onClick={() => setSelectedIndustry(null)}
-              className="rounded-full border border-default bg-surface px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:bg-sunken hover:text-primary"
+              className="rounded-full border border-default bg-surface px-3 py-1.5 text-caption font-medium text-muted transition-colors hover:bg-sunken hover:text-primary"
             >
               Clear
             </button>
@@ -122,7 +122,7 @@ export function ShowcaseClient({
 
       {filtered.length === 0 && (
         <div className="mt-12 rounded-2xl border border-dashed border-default p-12 text-center">
-          <p className="text-sm text-secondary">
+          <p className="text-body text-secondary">
             No exhibitors match your search.
           </p>
         </div>
@@ -157,7 +157,7 @@ function ExhibitorCard({
               <h3 className="truncate text-lg font-semibold text-primary">
                 {exhibitor.companyName}
               </h3>
-              <p className="mt-0.5 text-sm text-muted">
+              <p className="mt-0.5 text-body text-muted">
                 Booth {exhibitor.boothNumber ?? "\u2014"}
               </p>
             </div>
@@ -166,7 +166,7 @@ function ExhibitorCard({
             </span>
           </div>
 
-          <p className="mt-3 line-clamp-2 text-sm text-secondary leading-relaxed">
+          <p className="mt-3 line-clamp-2 text-body text-secondary leading-relaxed">
             {exhibitor.tagline}
           </p>
 
@@ -174,7 +174,7 @@ function ExhibitorCard({
             {exhibitor.publicQrToken ? (
               <Link
                 href={`/visit/${exhibitor.publicQrToken}`}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand-subtle px-3.5 py-2 text-sm font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand/30 bg-brand-subtle px-3.5 py-2 text-body font-semibold text-brand transition-colors hover:bg-brand hover:text-on-brand"
               >
                 <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M8 3v10M3 8h10" />
@@ -186,7 +186,7 @@ function ExhibitorCard({
             {exhibitor.publicQrToken ? (
               <Link
                 href={`/visit/${exhibitor.publicQrToken}`}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
               >
                 <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="8" cy="8" r="6" />
@@ -200,7 +200,7 @@ function ExhibitorCard({
               href={exhibitor.website || `https://${exhibitor.companyName.toLowerCase().replace(/[^a-z0-9]/g, "")}.com`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
             >
               <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M6 2h8v8M8 8l6-6M2 8v6h6" />
@@ -212,7 +212,7 @@ function ExhibitorCard({
               <button
                 type="button"
                 onClick={() => setProductsOpen(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-sm font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-default bg-surface px-3.5 py-2 text-body font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
               >
                 <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M2 4h12M2 8h12M2 12h12" />
@@ -233,7 +233,7 @@ function ExhibitorCard({
             {exhibitor.products.map((product) => (
               <li
                 key={product}
-                className="rounded-xl border border-default bg-surface px-4 py-3 text-sm text-primary"
+                className="rounded-xl border border-default bg-surface px-4 py-3 text-body text-primary"
               >
                 {product}
               </li>
@@ -242,7 +242,7 @@ function ExhibitorCard({
           <DialogClose asChild>
             <button
               type="button"
-              className="mt-6 rounded-lg border border-default bg-surface px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-sunken"
+              className="mt-6 rounded-lg border border-default bg-surface px-4 py-2 text-body font-medium text-primary transition-colors hover:bg-sunken"
             >
               Close
             </button>

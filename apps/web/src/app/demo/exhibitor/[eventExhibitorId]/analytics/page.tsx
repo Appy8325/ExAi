@@ -65,7 +65,7 @@ export default async function ExhibitorAnalyticsPage({
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <h2 className="text-base font-semibold text-primary">
+          <h2 className="text-title-sm font-semibold text-primary">
             Pipeline distribution
           </h2>
           <div className="mt-4 space-y-4">
@@ -121,10 +121,10 @@ export default async function ExhibitorAnalyticsPage({
         </Card>
 
         <Card>
-          <h2 className="text-base font-semibold text-primary">
+          <h2 className="text-title-sm font-semibold text-primary">
             Performance summary
           </h2>
-          <dl className="mt-4 space-y-4 text-sm">
+          <dl className="mt-4 space-y-4 text-body">
             <Stat
               label="Profile completion rate"
               value={`${perf.profileCompletion}%`}
@@ -168,7 +168,7 @@ function Bar({
   const pct = Math.round((value / Math.max(1, max)) * 100);
   return (
     <div>
-      <div className="mb-1 flex justify-between text-sm">
+      <div className="mb-1 flex justify-between text-body">
         <span className="text-secondary">{label}</span>
         <span className="font-medium text-primary">{value}</span>
       </div>

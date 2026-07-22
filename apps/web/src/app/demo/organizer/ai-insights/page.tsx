@@ -87,7 +87,7 @@ export default async function OrganizerAiInsightsPage() {
 
       {!briefing ? (
         <Card>
-          <p className="text-sm text-secondary">AI intelligence unavailable. Run the demo seed to populate data.</p>
+          <p className="text-body text-secondary">AI intelligence unavailable. Run the demo seed to populate data.</p>
         </Card>
       ) : (
         <div className="grid gap-6 lg:grid-cols-3">
@@ -96,34 +96,34 @@ export default async function OrganizerAiInsightsPage() {
               <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
                 AI
               </span>
-              <h2 className="text-base font-semibold text-primary">
+              <h2 className="text-title-sm font-semibold text-primary">
                 Executive briefing
               </h2>
             </div>
             <div className="mt-4 space-y-4">
               <div className="rounded-lg border border-default bg-sunken p-4">
-                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Event Summary</p>
-                <p className="text-sm text-secondary">{briefing.summary}</p>
+                <p className="text-caption font-medium text-muted uppercase tracking-wide mb-1">Event Summary</p>
+                <p className="text-body text-secondary">{briefing.summary}</p>
               </div>
               <div className="rounded-lg border border-default bg-sunken p-4">
-                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Traffic Analysis</p>
-                <p className="text-sm text-secondary">{briefing.trafficAnalysis}</p>
+                <p className="text-caption font-medium text-muted uppercase tracking-wide mb-1">Traffic Analysis</p>
+                <p className="text-body text-secondary">{briefing.trafficAnalysis}</p>
               </div>
               <div className="rounded-lg border border-default bg-sunken p-4">
-                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Conversion Performance</p>
-                <p className="text-sm text-secondary">{briefing.conversionAnalysis}</p>
+                <p className="text-caption font-medium text-muted uppercase tracking-wide mb-1">Conversion Performance</p>
+                <p className="text-body text-secondary">{briefing.conversionAnalysis}</p>
               </div>
               <div className="rounded-lg border border-default bg-sunken p-4">
-                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Booth Highlights</p>
-                <p className="text-sm text-secondary">{briefing.boothHighlights}</p>
+                <p className="text-caption font-medium text-muted uppercase tracking-wide mb-1">Booth Highlights</p>
+                <p className="text-body text-secondary">{briefing.boothHighlights}</p>
               </div>
               <div className="rounded-lg border border-default bg-sunken p-4">
-                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Returning Attendee Signals</p>
-                <p className="text-sm text-secondary">{briefing.returningAnalysis}</p>
+                <p className="text-caption font-medium text-muted uppercase tracking-wide mb-1">Returning Attendee Signals</p>
+                <p className="text-body text-secondary">{briefing.returningAnalysis}</p>
               </div>
               <div className="rounded-lg border border-default bg-sunken p-4">
-                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Industry & Topic Trends</p>
-                <p className="text-sm text-secondary">{briefing.industryInsight}</p>
+                <p className="text-caption font-medium text-muted uppercase tracking-wide mb-1">Industry & Topic Trends</p>
+                <p className="text-body text-secondary">{briefing.industryInsight}</p>
               </div>
             </div>
           </Card>
@@ -133,7 +133,7 @@ export default async function OrganizerAiInsightsPage() {
               <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
                 AI
               </span>
-              <h2 className="text-base font-semibold text-primary">
+              <h2 className="text-title-sm font-semibold text-primary">
                 What to focus on
               </h2>
             </div>
@@ -141,17 +141,17 @@ export default async function OrganizerAiInsightsPage() {
               {briefing.recommendations.map((rec, i) => (
                 <li key={i} className={`rounded-lg border border-default bg-sunken p-3 border-l-4 ${PRIORITY_COLORS[rec.priority]}`}>
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold text-primary">{rec.title}</p>
+                    <p className="text-body font-semibold text-primary">{rec.title}</p>
                     <span className={`shrink-0 text-[10px] font-semibold uppercase ${PRIORITY_LABEL_COLORS[rec.priority]}`}>
                       {rec.priority}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-secondary">{rec.finding}</p>
+                  <p className="mt-1 text-caption text-secondary">{rec.finding}</p>
                   <p className="mt-0.5 text-[10px] text-muted font-mono">{rec.metric}</p>
                 </li>
               ))}
               {briefing.recommendations.length === 0 && (
-                <p className="text-sm text-muted">Recommendations populate as booth interactions are recorded.</p>
+                <p className="text-body text-muted">Recommendations populate as booth interactions are recorded.</p>
               )}
             </ul>
           </Card>
@@ -181,7 +181,7 @@ function InsightCard({
   return (
     <div className="rounded-xl border border-default bg-surface p-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium text-secondary">{label}</p>
+        <p className="text-caption font-medium text-secondary">{label}</p>
         <span
           className={`inline-flex size-5 items-center justify-center rounded-full text-[10px] font-semibold ${accents[accent]}`}
         >
@@ -189,7 +189,7 @@ function InsightCard({
         </span>
       </div>
       <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{value}</p>
-      <p className="mt-1 text-xs text-muted">{note}</p>
+      <p className="mt-1 text-caption text-muted">{note}</p>
     </div>
   );
 }

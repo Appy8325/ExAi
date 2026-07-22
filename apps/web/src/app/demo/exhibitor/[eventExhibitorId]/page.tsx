@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import { notFound } from "next/navigation";
 import { Card, MetricCard } from "@concourse/ui";
@@ -61,8 +61,8 @@ export default async function ExhibitorDashboardPage({
       <DemoPageHeader
         eyebrow="Exhibitor workspace"
         title={booth.companyName}
-        description={`Booth ${booth.boothNumber ?? "—"} · ${booth.boothName}${
-          event ? ` · ${event.name}` : ""
+        description={`Booth ${booth.boothNumber ?? "�"} � ${booth.boothName}${
+          event ? ` � ${event.name}` : ""
         }`}
         badge="Read-only"
       />
@@ -90,14 +90,14 @@ export default async function ExhibitorDashboardPage({
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <div className="flex items-start justify-between gap-3">
-              <h2 className="text-base font-semibold text-primary">
+              <h2 className="text-title-sm font-semibold text-primary">
                 Relationship pipeline
               </h2>
               <Link
                 href={`/demo/exhibitor/${eventExhibitorId}/visitors`}
-                className="text-xs font-medium text-status-info-text hover:underline"
+                className="text-caption font-medium text-status-info-text hover:underline"
               >
-                View pipeline →
+                View pipeline ?
               </Link>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -119,14 +119,14 @@ export default async function ExhibitorDashboardPage({
           {dashboard.attention.length > 0 && (
             <Card>
               <div className="flex items-start justify-between gap-3">
-                <h2 className="text-base font-semibold text-primary">
+                <h2 className="text-title-sm font-semibold text-primary">
                   Needs attention
                 </h2>
                 <Link
                   href={`/demo/exhibitor/${eventExhibitorId}/visitors`}
-                  className="text-xs font-medium text-status-warning-text hover:underline"
+                  className="text-caption font-medium text-status-warning-text hover:underline"
                 >
-                  View all →
+                  View all ?
                 </Link>
               </div>
               <ul className="mt-4 space-y-2">
@@ -135,11 +135,11 @@ export default async function ExhibitorDashboardPage({
                     key={item.relationshipId}
                     className="rounded-lg border border-status-warning-border bg-status-warning-subtle px-3 py-2"
                   >
-                    <p className="text-sm font-medium text-primary">
+                    <p className="text-body font-medium text-primary">
                       {item.attendeeName}
                     </p>
-                    <p className="mt-1 text-xs text-secondary">
-                      {item.reasons.join(" · ")}
+                    <p className="mt-1 text-caption text-secondary">
+                      {item.reasons.join(" � ")}
                     </p>
                   </li>
                 ))}
@@ -149,14 +149,14 @@ export default async function ExhibitorDashboardPage({
 
           <Card>
             <div className="flex items-start justify-between gap-3">
-              <h2 className="text-base font-semibold text-primary">
+              <h2 className="text-title-sm font-semibold text-primary">
                 AI intelligence feed
               </h2>
               <Link
                 href={`/demo/exhibitor/${eventExhibitorId}/ai-insights`}
-                className="text-xs font-medium text-status-ai-text hover:underline"
+                className="text-caption font-medium text-status-ai-text hover:underline"
               >
-                View AI insights →
+                View AI insights ?
               </Link>
             </div>
             {dashboard.intelligenceFeed.items.length > 0 ? (
@@ -166,17 +166,17 @@ export default async function ExhibitorDashboardPage({
                     key={item.id}
                     className="flex items-center justify-between rounded-lg border border-default bg-sunken px-3 py-2"
                   >
-                    <span className="truncate text-sm text-secondary">
+                    <span className="truncate text-body text-secondary">
                       {item.label}
                     </span>
-                    <span className="text-xs text-muted">
+                    <span className="text-caption text-muted">
                       {formatTime(item.at)}
                     </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-4 text-sm text-muted">
+              <p className="mt-4 text-body text-muted">
                 No AI intelligence activity captured yet.
               </p>
             )}
@@ -186,32 +186,32 @@ export default async function ExhibitorDashboardPage({
         <div className="flex flex-wrap gap-3">
           <Link
             href={`/demo/exhibitor/${eventExhibitorId}/products`}
-            className="inline-flex h-10 items-center rounded-lg bg-status-success-solid px-4 text-sm font-semibold text-on-brand"
+            className="inline-flex h-10 items-center rounded-lg bg-status-success-solid px-4 text-body font-semibold text-on-brand"
           >
             Products
           </Link>
           <Link
             href={`/demo/exhibitor/${eventExhibitorId}/visitors`}
-            className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
+            className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-body font-semibold text-primary"
           >
             Visitors
           </Link>
           <Link
             href={`/demo/exhibitor/${eventExhibitorId}/analytics`}
-            className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
+            className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-body font-semibold text-primary"
           >
             Analytics
           </Link>
           <Link
             href={`/demo/exhibitor/${eventExhibitorId}/qr`}
-            className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
+            className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-body font-semibold text-primary"
           >
             QR
           </Link>
           {booth.publicQrToken ? (
             <Link
               href={`/visit/${booth.publicQrToken}`}
-              className="inline-flex h-10 items-center rounded-lg border border-brand/30 bg-brand-subtle px-4 text-sm font-semibold text-brand"
+              className="inline-flex h-10 items-center rounded-lg border border-brand/30 bg-brand-subtle px-4 text-body font-semibold text-brand"
             >
               Open public booth
             </Link>
@@ -240,7 +240,7 @@ function PipelineCard({
   };
   return (
     <div className={`rounded-lg border p-3 ${tones[tone]}`}>
-      <p className="text-xs font-medium">{label}</p>
+      <p className="text-caption font-medium">{label}</p>
       <p className="mt-1 text-xl font-semibold tabular-nums text-primary">
         {value}
       </p>

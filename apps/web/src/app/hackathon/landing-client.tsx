@@ -80,7 +80,7 @@ function EventQR() {
           E
         </div>
       </div>
-      <p className="mt-3 text-xs text-muted">Scan to enter TechExpo 2027</p>
+      <p className="mt-3 text-caption text-muted">Scan to enter TechExpo 2027</p>
     </div>
   );
 }
@@ -102,10 +102,10 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-base font-semibold text-primary">
+            <h3 className="truncate text-title-sm font-semibold text-primary">
               {exhibitor.companyName}
             </h3>
-            <p className="mt-0.5 text-xs text-muted">
+            <p className="mt-0.5 text-caption text-muted">
               Booth {exhibitor.boothNumber ?? "—"}
             </p>
           </div>
@@ -114,7 +114,7 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
           </span>
         </div>
 
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-secondary">
+        <p className="mt-2 line-clamp-2 text-body leading-relaxed text-secondary">
           {exhibitor.tagline}
         </p>
 
@@ -136,13 +136,13 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
             <>
               <Link
                 href={`/visit/${exhibitor.publicQrToken}`}
-                className="flex items-center justify-center gap-1 rounded-lg bg-brand px-2 py-2 text-center text-xs font-semibold text-on-brand shadow-1 transition-colors hover:bg-brand-hover"
+                className="flex items-center justify-center gap-1 rounded-lg bg-brand px-2 py-2 text-center text-caption font-semibold text-on-brand shadow-1 transition-colors hover:bg-brand-hover"
               >
                 Visit Booth
               </Link>
               <Link
                 href={`/visit/${exhibitor.publicQrToken}`}
-                className="flex items-center justify-center gap-1 rounded-lg border border-default bg-surface px-2 py-2 text-xs font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
+                className="flex items-center justify-center gap-1 rounded-lg border border-default bg-surface px-2 py-2 text-caption font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
               >
                 <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
                   <circle cx="8" cy="8" r="6" strokeWidth="1.5" />
@@ -152,7 +152,7 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
               </Link>
             </>
           ) : (
-            <span className="col-span-2 flex items-center justify-center rounded-lg border border-dashed border-default bg-sunken px-2 py-2 text-xs text-muted">
+            <span className="col-span-2 flex items-center justify-center rounded-lg border border-dashed border-default bg-sunken px-2 py-2 text-caption text-muted">
               Booth not available
             </span>
           )}
@@ -161,7 +161,7 @@ function ExhibitorCard({ exhibitor }: { exhibitor: ShowcaseExhibitor }) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center justify-center gap-1 rounded-lg border border-default bg-surface px-2 py-2 text-xs font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
+            className="flex items-center justify-center gap-1 rounded-lg border border-default bg-surface px-2 py-2 text-caption font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
           >
             <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
               <path strokeWidth="1.5" d="M6 2h8v8M8 8l6-6M2 8v6h6" />
@@ -238,7 +238,7 @@ export function HackathonLandingClient({
             <EventQR />
           </div>
 
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-status-info-border bg-status-info-subtle px-4 py-1.5 text-xs font-semibold text-status-info-text">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-status-info-border bg-status-info-subtle px-4 py-1.5 text-caption font-semibold text-status-info-text">
             <span className="size-1.5 rounded-full bg-status-info-solid animate-pulse" />
             Live Event • September 2027
           </span>
@@ -254,14 +254,14 @@ export function HackathonLandingClient({
             Experience the Future of AI-Powered Trade Shows
           </p>
 
-          <p className="mt-3 max-w-lg text-center text-sm leading-relaxed text-muted">
+          <p className="mt-3 max-w-lg text-center text-body leading-relaxed text-muted">
             A live demonstration of AI-powered attendee engagement
           </p>
 
           <button
             type="button"
             onClick={scrollToExhibition}
-            className="mt-10 inline-flex h-14 items-center gap-3 rounded-2xl bg-brand px-10 text-base font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-slow)] ease-[var(--mq-ease-enter)] hover:bg-brand-hover hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="mt-10 inline-flex h-14 items-center gap-3 rounded-2xl bg-brand px-10 text-title-sm font-semibold text-on-brand shadow-2 transition-all duration-[var(--mq-duration-slow)] ease-[var(--mq-ease-enter)] hover:bg-brand-hover hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             Enter Exhibition
             <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
@@ -275,7 +275,7 @@ export function HackathonLandingClient({
               <h2 className="mt-2 text-xl font-semibold text-primary">
                 Welcome to TechExpo 2027
               </h2>
-              <p className="mt-1 text-sm text-muted">New here? Follow this journey.</p>
+              <p className="mt-1 text-body text-muted">New here? Follow this journey.</p>
             </div>
 
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-5">
@@ -285,13 +285,13 @@ export function HackathonLandingClient({
                   className="rounded-xl border border-default bg-surface p-4 text-center shadow-1 transition-all duration-[var(--mq-duration-moderate)] ease-[var(--mq-ease-standard)] hover:border-strong hover:shadow-card-hover"
                 >
                   <span className="text-2xl" aria-hidden>{step.icon}</span>
-                  <p className="mt-2 text-xs font-semibold text-primary">{step.title}</p>
-                  <p className="mt-1 text-xs text-muted">{step.desc}</p>
+                  <p className="mt-2 text-caption font-semibold text-primary">{step.title}</p>
+                  <p className="mt-1 text-caption text-muted">{step.desc}</p>
                 </div>
               ))}
             </div>
 
-            <p className="mt-6 text-center text-sm text-muted">
+            <p className="mt-6 text-center text-body text-muted">
               <span className="font-medium text-secondary">Estimated time:</span> 2–3 minutes
             </p>
           </div>
@@ -306,10 +306,10 @@ export function HackathonLandingClient({
             ].map((item, i) => (
               <div key={i} className="flex flex-col items-center rounded-xl border border-default bg-surface p-4 shadow-1">
                 <span className="text-xl" aria-hidden>{item.icon}</span>
-                <p className="mt-1 text-sm font-semibold text-primary">
+                <p className="mt-1 text-body font-semibold text-primary">
                   {typeof item.label === 'object' ? item.label : item.label}
                 </p>
-                <p className="text-xs text-muted">{item.sub}</p>
+                <p className="text-caption text-muted">{item.sub}</p>
               </div>
             ))}
           </div>
@@ -354,7 +354,7 @@ export function HackathonLandingClient({
                 type="button"
                 onClick={() => setSelectedIndustry(null)}
                 aria-pressed={!selectedIndustry}
-                className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`rounded-full border px-4 py-1.5 text-caption font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                   !selectedIndustry
                     ? "border-brand bg-brand text-on-brand"
                     : "border-default bg-surface text-secondary hover:border-strong hover:text-primary"
@@ -368,7 +368,7 @@ export function HackathonLandingClient({
                   type="button"
                   onClick={() => setSelectedIndustry(selectedIndustry === ind ? null : ind)}
                   aria-pressed={selectedIndustry === ind}
-                  className={`rounded-full border px-4 py-1.5 text-xs font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  className={`rounded-full border px-4 py-1.5 text-caption font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                     selectedIndustry === ind
                       ? "border-brand bg-brand text-on-brand"
                       : "border-default bg-surface text-secondary hover:border-strong hover:text-primary"
@@ -396,7 +396,7 @@ export function HackathonLandingClient({
 
       <footer className="border-t border-default bg-surface py-8">
         <div className="mx-auto max-w-7xl px-gutter text-center sm:px-(--mq-space-gutter)">
-          <p className="text-sm text-muted">
+          <p className="text-body text-muted">
             TechExpo 2027 • Powered by ExAi • No sign-up required
           </p>
         </div>

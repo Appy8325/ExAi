@@ -199,7 +199,7 @@ export function BoothExperience({
     <main className="min-h-screen bg-canvas px-gutter py-8 sm:px-(--mq-space-gutter)">
       <TrackEvent event={{ type: "booth_visit", boothId: publicQrToken }} />
       <div className="mx-auto max-w-(--mq-attendee-content-max)">
-        <Link href="/hackathon" className="mb-6 inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-primary">
+        <Link href="/hackathon" className="mb-6 inline-flex items-center gap-2 text-body text-muted transition-colors hover:text-primary">
           <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
             <path strokeWidth="2" d="M10 12l-4-4 4-4" />
           </svg>
@@ -255,10 +255,10 @@ function BoothHeader({ booth }: { booth: PublicBooth }) {
         <div>
           <StatusBadge tone="info">Booth {booth.boothNumber ?? ""}</StatusBadge>
           <h1 className="mt-1 text-title-lg font-bold text-primary">{booth.companyName}</h1>
-          <p className="text-sm text-muted">{booth.boothName}</p>
+          <p className="text-body text-muted">{booth.boothName}</p>
         </div>
       </div>
-      <p className="text-sm leading-relaxed text-secondary">
+      <p className="text-body leading-relaxed text-secondary">
         {booth.description ?? "Learn more about this exhibitor's products and services."}
       </p>
       {booth.website && (
@@ -266,7 +266,7 @@ function BoothHeader({ booth }: { booth: PublicBooth }) {
           href={booth.website}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-link transition-colors hover:text-brand"
+          className="inline-flex items-center gap-1.5 text-body font-medium text-link transition-colors hover:text-brand"
         >
           <svg className="size-4" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
             <path strokeWidth="1.5" d="M6 2h8v8M8 8l6-6M2 8v6h6" />
@@ -282,7 +282,7 @@ function Resources({ booth, publicQrToken }: { booth: PublicBooth; publicQrToken
   if (!booth.resources.length) return null;
   return (
     <section className="space-y-2 border-t border-default pt-4">
-      <h3 className="text-sm font-semibold text-primary">Published Resources</h3>
+      <h3 className="text-body font-semibold text-primary">Published Resources</h3>
       <ul className="space-y-1">
         {booth.resources.map((resource) => (
           <li key={resource.id}>
@@ -293,7 +293,7 @@ function Resources({ booth, publicQrToken }: { booth: PublicBooth; publicQrToken
               onClick={() => {
                 trackDemoEvent({ baseUrl: getApiBaseUrl() }, { type: "brochure_download", boothId: publicQrToken }).catch(() => {});
               }}
-              className="flex items-center gap-2 text-sm text-link transition-colors hover:text-brand"
+              className="flex items-center gap-2 text-body text-link transition-colors hover:text-brand"
             >
               <svg className="size-3" fill="none" stroke="currentColor" viewBox="0 0 16 16" aria-hidden>
                 <path strokeWidth="1.5" d="M6 2h8v8M8 8l6-6M2 8v6h6" />
@@ -348,26 +348,26 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
   return (
     <section className="space-y-4 rounded-xl border border-default bg-sunken p-4">
       <div>
-        <h3 className="text-sm font-semibold text-primary">AI Assistant</h3>
-        <p className="text-xs text-muted">Ask about {companyName}&apos;s products and services</p>
+        <h3 className="text-body font-semibold text-primary">AI Assistant</h3>
+        <p className="text-caption text-muted">Ask about {companyName}&apos;s products and services</p>
       </div>
 
       <div className="max-h-64 space-y-3 overflow-y-auto">
         {history.length === 0 && (
           <div className="py-4 text-center">
-            <p className="text-xs text-muted">Try one of these questions:</p>
+            <p className="text-caption text-muted">Try one of these questions:</p>
           </div>
         )}
         {history.map((item, i) => (
           <div key={i} className="space-y-2">
             <div className="flex justify-end">
-              <span className="rounded-lg bg-brand px-3 py-1.5 text-xs text-on-brand">
+              <span className="rounded-lg bg-brand px-3 py-1.5 text-caption text-on-brand">
                 {item.q}
               </span>
             </div>
             {item.a && (
               <div className="flex justify-start">
-                <span className="whitespace-pre-wrap rounded-lg border border-default bg-surface px-3 py-1.5 text-xs text-primary shadow-1">
+                <span className="whitespace-pre-wrap rounded-lg border border-default bg-surface px-3 py-1.5 text-caption text-primary shadow-1">
                   {item.a}
                 </span>
               </div>
@@ -391,7 +391,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
             type="button"
             disabled={pending}
             onClick={() => submit(s)}
-            className="rounded-full border border-default bg-surface px-3 py-1 text-xs text-secondary transition-colors duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] hover:border-strong hover:text-primary hover:shadow-1 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-full border border-default bg-surface px-3 py-1 text-caption text-secondary transition-colors duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] hover:border-strong hover:text-primary hover:shadow-1 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {s}
           </button>
@@ -413,7 +413,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
       </form>
 
       {error && (
-        <p className="text-xs text-status-danger-text" role="alert">{error}</p>
+        <p className="text-caption text-status-danger-text" role="alert">{error}</p>
       )}
     </section>
   );
@@ -422,7 +422,7 @@ function BoothChat({ publicQrToken, companyName }: { publicQrToken: string; comp
 function Landing({ booth, onConnect }: { booth: PublicBooth; onConnect: () => void }) {
   return (
     <section className="space-y-4 border-t border-default pt-4">
-      <p className="text-sm text-secondary">
+      <p className="text-body text-secondary">
         Connect with <strong className="text-primary">{booth.companyName}</strong> to receive personalized information and follow-ups.
       </p>
       <Button onClick={onConnect} className="w-full">
@@ -436,14 +436,14 @@ function EmailStep({ error, onSubmit, pending }: { error?: string; onSubmit: (e:
   return (
     <section className="space-y-4 border-t border-default pt-4">
       <div>
-        <h3 className="text-sm font-semibold text-primary">Connect with this exhibitor</h3>
-        <p className="text-xs text-muted">Enter your email for a secure magic link</p>
+        <h3 className="text-body font-semibold text-primary">Connect with this exhibitor</h3>
+        <p className="text-caption text-muted">Enter your email for a secure magic link</p>
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
         <Field label="Work email">
           <Input type="email" name="email" required autoComplete="email" />
         </Field>
-        {error && <p className="text-xs text-status-danger-text" role="alert">{error}</p>}
+        {error && <p className="text-caption text-status-danger-text" role="alert">{error}</p>}
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Sending..." : "Send Magic Link"}
         </Button>
@@ -461,8 +461,8 @@ function MagicLinkSent({ onBack }: { onBack: () => void }) {
         </svg>
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-primary">Check your email</h3>
-        <p className="mt-1 text-xs text-muted">Open the magic link to securely connect</p>
+        <h3 className="text-body font-semibold text-primary">Check your email</h3>
+        <p className="mt-1 text-caption text-muted">Open the magic link to securely connect</p>
       </div>
       <Button variant="ghost" onClick={onBack} className="w-full">
         Use a different email
@@ -475,8 +475,8 @@ function ProfileStep({ companyName, error, onSubmit, pending }: { companyName: s
   return (
     <section className="space-y-4 border-t border-default pt-4">
       <div>
-        <h3 className="text-sm font-semibold text-primary">Complete your profile</h3>
-        <p className="text-xs text-muted">Review what you share before connecting</p>
+        <h3 className="text-body font-semibold text-primary">Complete your profile</h3>
+        <p className="text-caption text-muted">Review what you share before connecting</p>
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
         <Field label="Full name">
@@ -488,11 +488,11 @@ function ProfileStep({ companyName, error, onSubmit, pending }: { companyName: s
         <Field label="Job title">
           <Input name="jobTitle" required />
         </Field>
-        <label className="flex items-start gap-2 text-xs text-secondary">
+        <label className="flex items-start gap-2 text-caption text-secondary">
           <input type="checkbox" name="shareProfileWithExhibitors" defaultChecked className="mt-0.5" />
           <span>Share my profile with {companyName}</span>
         </label>
-        {error && <p className="text-xs text-status-danger-text" role="alert">{error}</p>}
+        {error && <p className="text-caption text-status-danger-text" role="alert">{error}</p>}
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Saving..." : "Continue"}
         </Button>
@@ -506,8 +506,8 @@ function LeadFormStep({ booth, error, onSubmit, pending }: { booth: PublicBooth;
   return (
     <section className="space-y-4 border-t border-default pt-4">
       <div>
-        <h3 className="text-sm font-semibold text-primary">{form.name}</h3>
-        {form.description && <p className="text-xs text-muted">{form.description}</p>}
+        <h3 className="text-body font-semibold text-primary">{form.name}</h3>
+        {form.description && <p className="text-caption text-muted">{form.description}</p>}
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
         {form.fields.map((field) => (
@@ -519,8 +519,8 @@ function LeadFormStep({ booth, error, onSubmit, pending }: { booth: PublicBooth;
             )}
           </Field>
         ))}
-        {form.consentText && <p className="text-xs text-muted">{form.consentText}</p>}
-        {error && <p className="text-xs text-status-danger-text" role="alert">{error}</p>}
+        {form.consentText && <p className="text-caption text-muted">{form.consentText}</p>}
+        {error && <p className="text-caption text-status-danger-text" role="alert">{error}</p>}
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Submitting..." : "Submit"}
         </Button>
@@ -538,15 +538,15 @@ function Success({ booth, recommendations }: { booth: PublicBooth; recommendatio
         </svg>
       </div>
       <div className="animate-[mq-fade-up_300ms_ease-out]">
-        <h3 className="text-sm font-semibold text-primary">You&apos;re connected!</h3>
-        <p className="mt-1 text-xs text-muted">Your information was sent to {booth.companyName}</p>
+        <h3 className="text-body font-semibold text-primary">You&apos;re connected!</h3>
+        <p className="mt-1 text-caption text-muted">Your information was sent to {booth.companyName}</p>
       </div>
       {recommendations.length > 0 && (
         <div className="rounded-lg border border-default bg-sunken p-3 text-left animate-[mq-fade-up_400ms_ease-out]">
-          <p className="text-xs font-medium text-primary">Recommended next</p>
+          <p className="text-caption font-medium text-primary">Recommended next</p>
           <ul className="mt-2 space-y-1">
             {recommendations.map((r) => (
-              <li key={r.title} className="text-xs text-secondary">
+              <li key={r.title} className="text-caption text-secondary">
                 • {r.title}
               </li>
             ))}

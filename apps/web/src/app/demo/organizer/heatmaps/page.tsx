@@ -43,10 +43,10 @@ export default async function OrganizerHeatmapsPage() {
         <>
           <Card>
             <div className="mb-4">
-              <h2 className="text-base font-semibold text-primary">
+              <h2 className="text-title-sm font-semibold text-primary">
                 Traffic breakdown
               </h2>
-              <p className="text-sm text-secondary">
+              <p className="text-body text-secondary">
                 All {analytics.booths.length} booths ranked by heat score — a normalized index of visitor engagement.
               </p>
             </div>
@@ -57,11 +57,11 @@ export default async function OrganizerHeatmapsPage() {
                   className="rounded-xl border border-default bg-surface p-4"
                 >
                   <div className="flex items-baseline justify-between gap-2">
-                    <p className="truncate text-sm font-semibold text-primary">
+                    <p className="truncate text-body font-semibold text-primary">
                       {booth.name}
                       {booth.boothNumber ? ` · ${booth.boothNumber}` : ""}
                     </p>
-                    <span className="text-xs font-bold text-status-warning-text">
+                    <span className="text-caption font-bold text-status-warning-text">
                       {booth.heat}%
                     </span>
                   </div>
@@ -71,7 +71,7 @@ export default async function OrganizerHeatmapsPage() {
                       style={{ width: `${booth.heat}%` }}
                     />
                   </div>
-                  <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                  <dl className="mt-3 grid grid-cols-3 gap-2 text-caption">
                     <div>
                       <dt className="text-muted">Visits</dt>
                       <dd className="font-semibold text-primary tabular-nums">
@@ -99,14 +99,14 @@ export default async function OrganizerHeatmapsPage() {
           <Card>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-semibold text-primary">
+                <h2 className="text-title-sm font-semibold text-primary">
                   Spatial floor map
                 </h2>
-                <p className="mt-1 text-sm text-secondary">
+                <p className="mt-1 text-body text-secondary">
                   Bird&rsquo;s-eye view of booth positions color-coded by traffic intensity.
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-status-info-border bg-status-info-subtle px-3 py-1 text-xs font-semibold text-status-info-text">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-status-info-border bg-status-info-subtle px-3 py-1 text-caption font-semibold text-status-info-text">
                 Coming in Milestone 4
               </span>
             </div>
@@ -129,10 +129,10 @@ export default async function OrganizerHeatmapsPage() {
                 <rect x="22" y="52" width="20" height="8" rx="2" />
                 <path d="M0 8h64M0 20h24M28 20h36M0 40h64M0 52h18M22 52h44" strokeDasharray="2 3" strokeWidth="0.8" opacity="0.4" />
               </svg>
-              <p className="mt-4 text-sm font-semibold text-primary">
+              <p className="mt-4 text-body font-semibold text-primary">
                 Spatial booth mapping
               </p>
-              <p className="mt-1 text-xs text-secondary max-w-xs">
+              <p className="mt-1 text-caption text-secondary max-w-xs">
                 Assign booths to floor positions and see visitor flow visualized as color gradients — red for high traffic, blue for low.
               </p>
             </div>

@@ -38,7 +38,7 @@ export function UserMenu() {
     return (
       <Link
         href="/auth"
-        className="inline-flex h-9 items-center justify-center rounded-md border border-strong bg-surface px-4 text-sm font-medium text-primary transition-colors hover:bg-sunken"
+        className="inline-flex h-9 items-center justify-center rounded-md border border-strong bg-surface px-4 text-body font-medium text-primary transition-colors hover:bg-sunken"
       >
         Sign in
       </Link>
@@ -58,7 +58,7 @@ export function UserMenu() {
         type="button"
         aria-expanded={open}
         aria-haspopup="menu"
-        className="inline-flex h-9 items-center gap-2 rounded-md border border-default bg-surface px-2 pr-3 text-sm font-medium text-primary transition-colors hover:bg-sunken"
+        className="inline-flex h-9 items-center gap-2 rounded-md border border-default bg-surface px-2 pr-3 text-body font-medium text-primary transition-colors hover:bg-sunken"
         onClick={() => setOpen((value) => !value)}
       >
         <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-[11px] font-semibold text-on-brand">
@@ -77,12 +77,12 @@ export function UserMenu() {
           className="absolute right-0 z-40 mt-2 w-56 rounded-xl border border-default bg-raised p-1 shadow-3"
         >
           <div className="border-b border-default px-3 py-2">
-            <p className="truncate text-sm font-medium text-primary">{user.displayName}</p>
-            {user.email && <p className="truncate text-xs text-muted">{user.email}</p>}
+            <p className="truncate text-body font-medium text-primary">{user.displayName}</p>
+            {user.email && <p className="truncate text-caption text-muted">{user.email}</p>}
           </div>
           <Link
             href="/demo"
-            className="block rounded-lg px-3 py-2 text-sm text-primary hover:bg-sunken"
+            className="block rounded-lg px-3 py-2 text-body text-primary hover:bg-sunken"
             onClick={() => setOpen(false)}
             role="menuitem"
           >
@@ -90,7 +90,7 @@ export function UserMenu() {
           </Link>
           <Link
             href="/account/profile"
-            className="block rounded-lg px-3 py-2 text-sm text-primary hover:bg-sunken"
+            className="block rounded-lg px-3 py-2 text-body text-primary hover:bg-sunken"
             onClick={() => setOpen(false)}
             role="menuitem"
           >
@@ -98,7 +98,7 @@ export function UserMenu() {
           </Link>
           <button
             type="button"
-            className="block w-full rounded-lg px-3 py-2 text-left text-sm text-primary hover:bg-sunken"
+            className="block w-full rounded-lg px-3 py-2 text-left text-body text-primary hover:bg-sunken"
             onClick={handleSignOut}
             role="menuitem"
           >

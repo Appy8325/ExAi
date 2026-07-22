@@ -54,10 +54,10 @@ export default async function ExhibitorQrPage({
       {booth.publicQrToken ? (
         <div className="space-y-6">
           <Card>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+            <p className="text-caption font-medium uppercase tracking-wide text-muted">
               Public QR token
             </p>
-            <p className="mt-2 break-all font-mono text-base text-primary">
+            <p className="mt-2 break-all font-mono text-body-lg text-primary">
               {booth.publicQrToken}
             </p>
           </Card>
@@ -75,10 +75,10 @@ export default async function ExhibitorQrPage({
                     unoptimized
                   />
                 ) : (
-                  <p className="text-xs text-muted">No QR available</p>
+                  <p className="text-caption text-muted">No QR available</p>
                 )}
               </div>
-              <p className="text-xs text-muted">
+              <p className="text-caption text-muted">
                 Scan to open booth — {baseUrl}/visit/{booth.publicQrToken}
               </p>
             </div>
@@ -87,13 +87,13 @@ export default async function ExhibitorQrPage({
           <div className="flex flex-wrap gap-3">
             <Link
               href={`/visit/${booth.publicQrToken}`}
-              className="inline-flex h-10 items-center rounded-lg bg-status-success-solid px-4 text-sm font-semibold text-on-brand"
+              className="inline-flex h-10 items-center rounded-lg bg-status-success-solid px-4 text-body font-semibold text-on-brand"
             >
               Open public booth page
             </Link>
             <Link
               href={`/demo/exhibitor/${eventExhibitorId}/preview`}
-              className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-sm font-semibold text-primary"
+              className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-body font-semibold text-primary"
             >
               Booth Preview
             </Link>
@@ -102,10 +102,10 @@ export default async function ExhibitorQrPage({
       ) : (
         <Card>
           <div className="rounded-xl border border-dashed border-default bg-surface p-8 text-center">
-            <p className="text-sm text-muted">
+            <p className="text-body text-muted">
               No QR credential has been generated for this booth.
             </p>
-            <p className="mt-1 text-xs text-secondary">
+            <p className="mt-1 text-caption text-secondary">
               In the real workspace, exhibitors generate, download, and print
               QR codes for their booths.
             </p>

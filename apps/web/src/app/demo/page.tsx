@@ -33,7 +33,7 @@ export default async function DemoPage() {
       <GlobalNav variant="marketing" active="experience" />
       <div className="mx-auto max-w-7xl px-6 pt-8 sm:px-10 sm:pt-12">
         <div className="mx-auto max-w-3xl space-y-4 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-caption font-semibold text-brand">
             <span className="inline-block size-1.5 rounded-full bg-brand" />
             ExAi product tour
           </span>
@@ -62,7 +62,7 @@ export default async function DemoPage() {
 
       <section className="mx-auto mt-12 max-w-7xl px-6 pb-20 sm:px-10">
         <div className="mx-auto max-w-3xl">
-          <h2 className="text-base font-semibold uppercase tracking-[0.18em] text-muted">
+          <h2 className="text-title-sm font-semibold uppercase tracking-[0.18em] text-muted">
             Choose your perspective
           </h2>
         </div>
@@ -146,14 +146,14 @@ export default async function DemoPage() {
         </div>
 
         {!overview ? (
-          <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
+          <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-body text-status-danger-text">
             Demo data is not available right now. Make sure your Supabase project
             is running and seeded with{" "}
             <code className="rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>.
           </div>
         ) : null}
 
-        <footer className="mt-16 border-t border-default/60 pt-6 text-center text-xs text-muted">
+        <footer className="mt-16 border-t border-default/60 pt-6 text-center text-caption text-muted">
           Powered by <span className="font-semibold text-primary">ExAi</span> -
           Read-only showcase - Zero auth required
         </footer>
@@ -211,7 +211,7 @@ function PersonaCard({
     >
       <div className="flex items-center justify-between gap-3">
         <span
-          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${toneClass.badge}`}
+          className={`inline-flex items-center rounded-full px-3 py-1 text-caption font-semibold ${toneClass.badge}`}
         >
           {tone === "brand" ? "Live experience" : `${title} workspace`}
         </span>
@@ -222,13 +222,13 @@ function PersonaCard({
       <h3 className="mt-4 text-2xl font-bold tracking-tight text-primary">
         {title}
       </h3>
-      <p className="mt-1 text-sm text-secondary">{tagline}</p>
+      <p className="mt-1 text-body text-secondary">{tagline}</p>
       {description ? (
-        <p className="mt-2 text-sm text-muted">{description}</p>
+        <p className="mt-2 text-body text-muted">{description}</p>
       ) : null}
       <ul className="mt-5 space-y-2">
         {capabilities.map((cap) => (
-          <li key={cap} className="flex items-start gap-2 text-sm text-secondary">
+          <li key={cap} className="flex items-start gap-2 text-body text-secondary">
             <svg
               className={`mt-0.5 size-4 shrink-0 ${toneClass.accent}`}
               viewBox="0 0 16 16"
@@ -250,7 +250,7 @@ function PersonaCard({
               key={s.label}
               className="min-w-0 text-center sm:text-left"
             >
-              <p className="truncate text-base font-bold tabular-nums text-primary sm:text-lg">
+              <p className="truncate text-body-lg font-bold tabular-nums text-primary sm:text-lg">
                 {s.value}
               </p>
               <p className="truncate text-[11px] uppercase tracking-wide text-muted">
@@ -262,14 +262,14 @@ function PersonaCard({
       ) : null}
       <div className="mt-6 flex items-center justify-between">
         <span
-          className={`inline-flex items-center gap-1 rounded-lg ${toneClass.cta} px-3 py-1.5 text-sm font-semibold`}
+          className={`inline-flex items-center gap-1 rounded-lg ${toneClass.cta} px-3 py-1.5 text-body font-semibold`}
         >
           {cta}
           <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
             <path d="M6 4l4 4-4 4" />
           </svg>
         </span>
-        <span className="text-xs text-muted">
+        <span className="text-caption text-muted">
           {href}
         </span>
       </div>
@@ -281,7 +281,7 @@ function QuickStat({ label, value }: { label: string; value: string | number }) 
   return (
     <div className="rounded-xl border border-default bg-surface px-4 py-3 text-left">
       <p className="text-xl font-bold tabular-nums text-primary">{value}</p>
-      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
+      <p className="text-caption uppercase tracking-wide text-muted">{label}</p>
     </div>
   );
 }

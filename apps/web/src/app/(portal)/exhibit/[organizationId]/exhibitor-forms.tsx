@@ -121,7 +121,7 @@ export function BoothProfileForm({
         defaultValue={booth.primaryColor}
         required
       />
-      <label className="grid gap-1 text-sm text-secondary sm:col-span-2">
+      <label className="grid gap-1 text-body text-secondary sm:col-span-2">
         Public booth description
         <textarea
           className="min-h-32 rounded-md border border-default bg-surface p-3 text-primary"
@@ -151,14 +151,14 @@ export function PublishBoothPanel({
   return (
     <section className="rounded-xl border border-default bg-surface p-6">
       <h2 className="font-semibold text-primary">Publication</h2>
-      <p className="mt-2 text-sm text-secondary">
+      <p className="mt-2 text-body text-secondary">
         {published
           ? "This booth is published and available to attendees."
           : "A complete profile and published lead form are required."}
       </p>
       <div className="mt-4 flex items-center gap-3">
         <button
-          className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-on-brand disabled:opacity-60"
+          className="rounded-md bg-brand px-4 py-2 text-body font-medium text-on-brand disabled:opacity-60"
           disabled={pending || published}
           onClick={() =>
             startTransition(async () => {
@@ -256,7 +256,7 @@ export function KnowledgeSources({
           });
         }}
       >
-        <label className="grid gap-1 text-sm text-secondary">
+        <label className="grid gap-1 text-body text-secondary">
           Source type
           <select
             className="h-10 rounded-md border border-default bg-surface px-3 text-primary"
@@ -281,7 +281,7 @@ export function KnowledgeSources({
             required
           />
         ) : (
-          <label className="grid gap-1 text-sm text-secondary sm:col-span-2">
+          <label className="grid gap-1 text-body text-secondary sm:col-span-2">
             File
             <input
               className="rounded-md border border-default bg-surface p-2 text-primary"
@@ -314,21 +314,21 @@ export function KnowledgeSources({
               >
                 <div>
                   <p className="font-medium text-primary">{source.title}</p>
-                  <p className="mt-1 text-xs text-secondary">
+                  <p className="mt-1 text-caption text-secondary">
                     {source.sourceType} ·{" "}
                     {source.fileStatus === "scanning"
                       ? "security scan pending"
                       : source.status.replaceAll("_", " ")}
                   </p>
                   {source.errorMessage ? (
-                    <p className="mt-1 max-w-xl text-xs text-status-danger-text">
+                    <p className="mt-1 max-w-xl text-caption text-status-danger-text">
                       {source.errorMessage}
                     </p>
                   ) : null}
                 </div>
                 <div className="flex gap-3">
                   {source.status === "failed" ? (
-                    <button className="text-sm text-brand hover:underline" disabled={pending}
+                    <button className="text-body text-brand hover:underline" disabled={pending}
                       onClick={() => startTransition(async () => {
                         try {
                           await retryExhibitorSource(await apiClient(), workspace.organization.id,
@@ -338,7 +338,7 @@ export function KnowledgeSources({
                       })} type="button">Retry</button>
                   ) : null}
                   <button
-                    className="text-sm text-status-danger-text hover:underline"
+                    className="text-body text-status-danger-text hover:underline"
                     disabled={pending}
                     onClick={() => startTransition(async () => {
                       try {
@@ -455,7 +455,7 @@ export function LeadFormEditor({
           }
         />
       </div>
-      <label className="grid gap-1 text-sm text-secondary">
+      <label className="grid gap-1 text-body text-secondary">
         Consent text
         <textarea
           className="min-h-20 rounded-md border border-default bg-surface p-3 text-primary"
@@ -471,7 +471,7 @@ export function LeadFormEditor({
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-primary">Fields</h2>
           <button
-            className="rounded-md border border-default px-3 py-2 text-sm text-primary"
+            className="rounded-md border border-default px-3 py-2 text-body text-primary"
             onClick={() =>
               setFields((current) => [
                 ...current,
@@ -495,30 +495,30 @@ export function LeadFormEditor({
             className="grid gap-3 rounded-lg border border-default p-4 sm:grid-cols-4"
             key={field.id}
           >
-            <label className="grid gap-1 text-xs text-secondary">
+            <label className="grid gap-1 text-caption text-secondary">
               Key
               <input
-                className="h-9 rounded-md border border-default bg-surface px-2 text-sm text-primary"
+                className="h-9 rounded-md border border-default bg-surface px-2 text-body text-primary"
                 value={field.key}
                 onChange={(event) =>
                   update(field.id, { key: event.target.value })
                 }
               />
             </label>
-            <label className="grid gap-1 text-xs text-secondary">
+            <label className="grid gap-1 text-caption text-secondary">
               Label
               <input
-                className="h-9 rounded-md border border-default bg-surface px-2 text-sm text-primary"
+                className="h-9 rounded-md border border-default bg-surface px-2 text-body text-primary"
                 value={field.label}
                 onChange={(event) =>
                   update(field.id, { label: event.target.value })
                 }
               />
             </label>
-            <label className="grid gap-1 text-xs text-secondary">
+            <label className="grid gap-1 text-caption text-secondary">
               Type
               <select
-                className="h-9 rounded-md border border-default bg-surface px-2 text-sm text-primary"
+                className="h-9 rounded-md border border-default bg-surface px-2 text-body text-primary"
                 value={field.type}
                 onChange={(event) =>
                   update(field.id, { type: event.target.value })
@@ -535,7 +535,7 @@ export function LeadFormEditor({
               </select>
             </label>
             <div className="flex items-end justify-between gap-2">
-              <label className="flex h-9 items-center gap-2 text-sm text-secondary">
+              <label className="flex h-9 items-center gap-2 text-body text-secondary">
                 <input
                   checked={field.required}
                   onChange={(event) =>
@@ -546,7 +546,7 @@ export function LeadFormEditor({
                 Required
               </label>
               <button
-                className="h-9 text-sm text-status-danger-text"
+                className="h-9 text-body text-status-danger-text"
                 disabled={fields.length === 1}
                 onClick={() =>
                   setFields((current) =>
@@ -564,7 +564,7 @@ export function LeadFormEditor({
       <div className="flex flex-wrap items-center gap-3">
         <Submit pending={pending}>Save draft</Submit>
         <button
-          className="rounded-md border border-brand px-4 py-2 text-sm font-medium text-brand disabled:opacity-60"
+          className="rounded-md border border-brand px-4 py-2 text-body font-medium text-brand disabled:opacity-60"
           disabled={pending || workspace.leadForm?.status === "published"}
           onClick={() =>
             startTransition(async () => {
@@ -612,12 +612,12 @@ export function QrPanel({ workspace }: { workspace: ExhibitorWorkspace }) {
             <h2 className="text-xl font-semibold text-primary">
               Booth QR is active
             </h2>
-            <p className="mt-2 break-all text-sm text-secondary">
+            <p className="mt-2 break-all text-body text-secondary">
               {qr.publicUrl}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <a
-                className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-on-brand"
+                className="rounded-md bg-brand px-4 py-2 text-body font-medium text-on-brand"
                 href={qr.publicUrl}
                 target="_blank"
                 rel="noreferrer"
@@ -625,14 +625,14 @@ export function QrPanel({ workspace }: { workspace: ExhibitorWorkspace }) {
                 Test QR
               </a>
               <a
-                className="rounded-md border border-default px-4 py-2 text-sm text-primary"
+                className="rounded-md border border-default px-4 py-2 text-body text-primary"
                 download="booth-qr.png"
                 href={qr.imageDataUrl}
               >
                 Download PNG
               </a>
               <button
-                className="rounded-md border border-default px-4 py-2 text-sm text-primary"
+                className="rounded-md border border-default px-4 py-2 text-body text-primary"
                 onClick={async () => {
                   await navigator.clipboard.writeText(qr.publicUrl);
                   setNotice("Link copied.");
@@ -649,12 +649,12 @@ export function QrPanel({ workspace }: { workspace: ExhibitorWorkspace }) {
           <h2 className="text-xl font-semibold text-primary">
             Generate booth QR
           </h2>
-          <p className="mt-2 text-sm text-secondary">
+          <p className="mt-2 text-body text-secondary">
             Publish the booth first. The generated credential is opaque and
             revocable.
           </p>
           <button
-            className="mt-4 rounded-md bg-brand px-4 py-2 text-sm font-medium text-on-brand disabled:opacity-60"
+            className="mt-4 rounded-md bg-brand px-4 py-2 text-body font-medium text-on-brand disabled:opacity-60"
             disabled={pending}
             onClick={() =>
               startTransition(async () => {
@@ -700,7 +700,7 @@ function Field({
   required?: boolean;
 }) {
   return (
-    <label className="grid gap-1 text-sm text-secondary">
+    <label className="grid gap-1 text-body text-secondary">
       {label}
       <input
         className="h-10 rounded-md border border-default bg-surface px-3 text-primary"
@@ -722,7 +722,7 @@ function Submit({
 }) {
   return (
     <button
-      className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-on-brand disabled:opacity-60"
+      className="rounded-md bg-brand px-4 py-2 text-body font-medium text-on-brand disabled:opacity-60"
       disabled={pending}
       type="submit"
     >
@@ -733,7 +733,7 @@ function Submit({
 
 function Notice({ value }: { value: string }) {
   return value ? (
-    <p aria-live="polite" className="text-sm text-secondary">
+    <p aria-live="polite" className="text-body text-secondary">
       {value}
     </p>
   ) : null;

@@ -61,32 +61,32 @@ export default async function ExhibitorAiInsightsPage({
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <p className="text-xs font-medium text-secondary">Profiles enriched</p>
+          <p className="text-caption font-medium text-secondary">Profiles enriched</p>
           <p className="mt-1 text-2xl font-bold tabular-nums text-primary">
             {dashboard.intelligenceFeed.profilesEnriched}
           </p>
-          <p className="mt-1 text-xs text-muted">With recent data updates</p>
+          <p className="mt-1 text-caption text-muted">With recent data updates</p>
         </Card>
         <Card>
-          <p className="text-xs font-medium text-secondary">Complete profiles</p>
+          <p className="text-caption font-medium text-secondary">Complete profiles</p>
           <p className="mt-1 text-2xl font-bold tabular-nums text-primary">
             {dashboard.intelligenceFeed.completeProfiles}
           </p>
-          <p className="mt-1 text-xs text-muted">Full contact data</p>
+          <p className="mt-1 text-caption text-muted">Full contact data</p>
         </Card>
         <Card>
-          <p className="text-xs font-medium text-secondary">Active leads</p>
+          <p className="text-caption font-medium text-secondary">Active leads</p>
           <p className="mt-1 text-2xl font-bold tabular-nums text-primary">
             {dashboard.pipeline.active}
           </p>
-          <p className="mt-1 text-xs text-muted">In active conversations</p>
+          <p className="mt-1 text-caption text-muted">In active conversations</p>
         </Card>
         <Card>
-          <p className="text-xs font-medium text-secondary">Follow-up</p>
+          <p className="text-caption font-medium text-secondary">Follow-up</p>
           <p className="mt-1 text-2xl font-bold tabular-nums text-primary">
             {dashboard.pipeline.needsFollowUp}
           </p>
-          <p className="mt-1 text-xs text-muted">Flagged for outreach</p>
+          <p className="mt-1 text-caption text-muted">Flagged for outreach</p>
         </Card>
       </section>
 
@@ -97,7 +97,7 @@ export default async function ExhibitorAiInsightsPage({
               <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
                 AI
               </span>
-              <h2 className="text-base font-semibold text-primary">
+              <h2 className="text-title-sm font-semibold text-primary">
                 Booth health score
               </h2>
             </div>
@@ -106,15 +106,15 @@ export default async function ExhibitorAiInsightsPage({
                 <p className={`text-4xl font-bold tabular-nums ${HEALTH_COLORS[intelligence.healthLabel]}`}>
                   {intelligence.healthScore}
                 </p>
-                <p className="text-xs text-muted mt-1">/ 100</p>
+                <p className="text-caption text-muted mt-1">/ 100</p>
               </div>
               <div className="flex-1">
-                <p className={`text-sm font-semibold ${HEALTH_COLORS[intelligence.healthLabel]}`}>
+                <p className={`text-body font-semibold ${HEALTH_COLORS[intelligence.healthLabel]}`}>
                   {intelligence.healthLabel === "healthy" ? "Healthy" : intelligence.healthLabel === "watch" ? "Needs attention" : "Critical"}
                 </p>
                 <ul className="mt-2 space-y-1">
                   {intelligence.healthFindings.slice(0, 3).map((finding, i) => (
-                    <li key={i} className="text-xs text-secondary flex items-start gap-1.5">
+                    <li key={i} className="text-caption text-secondary flex items-start gap-1.5">
                       <span className="mt-0.5 size-1 rounded-full bg-muted shrink-0" />
                       {finding}
                     </li>
@@ -129,9 +129,9 @@ export default async function ExhibitorAiInsightsPage({
               <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
                 AI
               </span>
-              <h2 className="text-base font-semibold text-primary">Booth health score</h2>
+              <h2 className="text-title-sm font-semibold text-primary">Booth health score</h2>
             </div>
-            <p className="mt-4 text-sm text-muted">Health scoring activates as relationships are captured.</p>
+            <p className="mt-4 text-body text-muted">Health scoring activates as relationships are captured.</p>
           </Card>
         )}
 
@@ -140,9 +140,9 @@ export default async function ExhibitorAiInsightsPage({
             <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
               AI
             </span>
-            <h2 className="text-base font-semibold text-primary">Since you last visited</h2>
+            <h2 className="text-title-sm font-semibold text-primary">Since you last visited</h2>
           </div>
-          <p className="mt-2 text-xs text-muted">
+          <p className="mt-2 text-caption text-muted">
             {intelligence ? `Last checked ${intelligence.elapsed}` : "Loading..."}
           </p>
           <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -160,28 +160,28 @@ export default async function ExhibitorAiInsightsPage({
             <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
               AI
             </span>
-            <h2 className="text-base font-semibold text-primary">
+            <h2 className="text-title-sm font-semibold text-primary">
               Buying intent signals
             </h2>
           </div>
           {intelligence && intelligence.buyingSignals.length > 0 ? (
             <ul className="mt-4 space-y-2">
               {intelligence.buyingSignals.map((signal, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-secondary">
+                <li key={i} className="flex items-start gap-2 text-body text-secondary">
                   <span className="mt-1.5 size-1.5 rounded-full bg-status-success-text shrink-0" />
                   {signal}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="mt-4 text-sm text-muted">
+            <p className="mt-4 text-body text-muted">
               Buying signals emerge as attendees return to the booth or complete profiles with company data.
             </p>
           )}
           {intelligence && intelligence.topStrength && (
             <div className="mt-4 rounded-lg border border-default bg-sunken p-3">
-              <p className="text-xs font-medium text-muted uppercase tracking-wide">Top strength</p>
-              <p className="mt-1 text-sm text-primary">{intelligence.topStrength}</p>
+              <p className="text-caption font-medium text-muted uppercase tracking-wide">Top strength</p>
+              <p className="mt-1 text-body text-primary">{intelligence.topStrength}</p>
             </div>
           )}
         </Card>
@@ -191,11 +191,11 @@ export default async function ExhibitorAiInsightsPage({
             <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
               AI
             </span>
-            <h2 className="text-base font-semibold text-primary">
+            <h2 className="text-title-sm font-semibold text-primary">
               Lead scoring
             </h2>
           </div>
-          <p className="mt-3 text-sm text-secondary">
+          <p className="mt-3 text-body text-secondary">
             Relationships are scored on engagement depth, profile completeness, and returning behavior.
           </p>
           <div className="mt-4 grid grid-cols-3 gap-3">
@@ -203,25 +203,25 @@ export default async function ExhibitorAiInsightsPage({
               <p className="text-lg font-bold text-status-success-text">
                 {dashboard.pipeline.active}
               </p>
-              <p className="text-xs text-muted">Active</p>
+              <p className="text-caption text-muted">Active</p>
             </div>
             <div className="rounded-lg border border-default p-3 text-center">
               <p className="text-lg font-bold text-status-warning-text">
                 {dashboard.pipeline.needsFollowUp}
               </p>
-              <p className="text-xs text-muted">Follow-up</p>
+              <p className="text-caption text-muted">Follow-up</p>
             </div>
             <div className="rounded-lg border border-default p-3 text-center">
               <p className="text-lg font-bold text-status-info-text">
                 {dashboard.pipeline.returning}
               </p>
-              <p className="text-xs text-muted">Returning</p>
+              <p className="text-caption text-muted">Returning</p>
             </div>
           </div>
           {intelligence && intelligence.topOpportunity && (
             <div className="mt-4 rounded-lg border border-default bg-sunken p-3">
-              <p className="text-xs font-medium text-muted uppercase tracking-wide">Top opportunity</p>
-              <p className="mt-1 text-sm text-primary">{intelligence.topOpportunity}</p>
+              <p className="text-caption font-medium text-muted uppercase tracking-wide">Top opportunity</p>
+              <p className="mt-1 text-body text-primary">{intelligence.topOpportunity}</p>
             </div>
           )}
         </Card>
@@ -233,11 +233,11 @@ export default async function ExhibitorAiInsightsPage({
             <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
               AI
             </span>
-            <h2 className="text-base font-semibold text-primary">Recommended actions</h2>
+            <h2 className="text-title-sm font-semibold text-primary">Recommended actions</h2>
           </div>
           <ul className="mt-4 space-y-2">
             {intelligence.recommendedActions.map((action, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-secondary">
+              <li key={i} className="flex items-start gap-2 text-body text-secondary">
                 <span className="mt-1.5 size-1.5 rounded-full bg-brand shrink-0" />
                 {action}
               </li>
@@ -252,8 +252,8 @@ export default async function ExhibitorAiInsightsPage({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs text-muted">{label}</dt>
-      <dd className="text-base font-bold tabular-nums text-primary">{value}</dd>
+      <dt className="text-caption text-muted">{label}</dt>
+      <dd className="text-body-lg font-bold tabular-nums text-primary">{value}</dd>
     </div>
   );
 }

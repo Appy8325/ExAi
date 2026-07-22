@@ -67,12 +67,12 @@ export function LiveDemoStats() {
       <div className="rounded-2xl border border-brand/20 bg-brand-subtle/50 p-4 backdrop-blur-sm">
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-center">
           {simStatus?.running ? (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand">
+            <span className="inline-flex items-center gap-1.5 text-caption font-semibold text-brand">
               <span className="size-1.5 rounded-full bg-brand animate-pulse" />
               Live simulation · {simStatus.scenario} · {simStatus.speed}×
             </span>
           ) : (
-            <span className="text-xs font-medium text-muted">Simulation stopped</span>
+            <span className="text-caption font-medium text-muted">Simulation stopped</span>
           )}
           <span className="hidden text-muted">|</span>
           {metrics ? (
@@ -86,7 +86,7 @@ export function LiveDemoStats() {
               <Stat label="Products viewed" value={metrics.totalLiveProductViews} />
             </>
           ) : (
-            <span className="text-xs text-muted">Loading live metrics…</span>
+            <span className="text-caption text-muted">Loading live metrics…</span>
           )}
         </div>
       </div>
@@ -96,7 +96,7 @@ export function LiveDemoStats() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <span className="text-xs">
+    <span className="text-caption">
       <span className="font-semibold tabular-nums text-primary">{value.toLocaleString()}</span>
       <span className="ml-1 text-muted">{label}</span>
     </span>

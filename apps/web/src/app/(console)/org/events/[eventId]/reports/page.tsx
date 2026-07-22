@@ -30,13 +30,13 @@ export default async function EventReportsPage({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-muted">
+          <p className="text-body font-medium uppercase tracking-[0.2em] text-muted">
             Executive reporting
           </p>
           <h1 className="mt-1 text-2xl font-semibold text-primary">
             {event.name}
           </h1>
-          <p className="mt-1 text-sm text-secondary">
+          <p className="mt-1 text-body text-secondary">
             Deterministic event metrics with an AI-generated executive summary.
           </p>
         </div>
@@ -70,7 +70,7 @@ export default async function EventReportsPage({
             <h2 className="text-lg font-semibold text-primary">
               Executive AI report
             </h2>
-            <p className="mt-1 text-sm text-secondary">
+            <p className="mt-1 text-body text-secondary">
               Numeric claims cite the aggregate metric snapshot used at
               generation time.
             </p>
@@ -78,29 +78,29 @@ export default async function EventReportsPage({
           {report?.status === "complete" && (
             <a
               href={`/org/events/${eventId}/reports/download`}
-              className="rounded-lg border border-default px-4 py-2 text-sm font-medium text-primary"
+              className="rounded-lg border border-default px-4 py-2 text-body font-medium text-primary"
             >
               Download PDF
             </a>
           )}
         </div>
         {report?.status === "complete" && report.content ? (
-          <div className="mt-6 whitespace-pre-wrap text-sm leading-7 text-secondary">
+          <div className="mt-6 whitespace-pre-wrap text-body leading-7 text-secondary">
             {report.content}
           </div>
         ) : report?.status === "failed" ? (
-          <p className="mt-6 text-sm text-danger">
+          <p className="mt-6 text-body text-danger">
             The previous AI generation failed. Live metrics remain available;
             try generating again.
           </p>
         ) : (
-          <p className="mt-6 text-sm text-muted">
+          <p className="mt-6 text-body text-muted">
             Generate a report to turn the current event snapshot into cited
             outcomes, trends, limitations, and recommended next actions.
           </p>
         )}
         {report?.generatedAt && (
-          <p className="mt-6 text-xs text-muted">
+          <p className="mt-6 text-caption text-muted">
             Generated {new Date(report.generatedAt).toLocaleString()} using{" "}
             {report.model}.
           </p>

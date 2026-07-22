@@ -27,7 +27,7 @@ export function LiveMetricsBar() {
   const activeBooths = metrics ? Object.keys(metrics.liveMetricsByBooth).length : 0;
 
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-lg border border-status-success-border bg-status-success-subtle/50 px-4 py-2 text-xs">
+    <div className="flex flex-wrap items-center gap-4 rounded-lg border border-status-success-border bg-status-success-subtle/50 px-4 py-2 text-caption">
       <span className="flex items-center gap-1.5 font-medium text-status-success-text">
         <span className="size-1.5 rounded-full bg-status-success-text animate-pulse" />
         Live
@@ -61,7 +61,7 @@ export function LiveMetricsBar() {
 export const LiveBadge = memo(function LiveBadge({ count, label }: { count: number; label: string }) {
   if (count === 0) return null;
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-status-success-subtle px-2 py-0.5 text-xs font-medium text-status-success-text">
+    <span className="inline-flex items-center gap-1 rounded-full bg-status-success-subtle px-2 py-0.5 text-caption font-medium text-status-success-text">
       <span className="size-1.5 rounded-full bg-status-success-text animate-pulse" />
       {count} {label}
     </span>
@@ -96,10 +96,10 @@ export function RecentActivityFeed({ className }: { className?: string }) {
 
   return (
     <div className={className}>
-      <h3 className="mb-3 text-sm font-semibold text-primary">Live Activity Feed</h3>
+      <h3 className="mb-3 text-body font-semibold text-primary">Live Activity Feed</h3>
       <div className="space-y-1.5">
         {activities.slice(0, 10).map((a, i) => (
-          <div key={`${a.at}-${i}`} className="flex items-center gap-2 text-xs text-secondary">
+          <div key={`${a.at}-${i}`} className="flex items-center gap-2 text-caption text-secondary">
             <span>{ACTIVITY_TYPE_ICONS[a.type] ?? "•"}</span>
             <span className="flex-1 truncate">{a.detail}</span>
             <RelativeTime timestamp={a.at} />

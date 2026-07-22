@@ -14,7 +14,7 @@ export default async function PortalRootPage() {
   return (
     <main className="mx-auto max-w-4xl space-y-6 p-6">
       <header>
-        <p className="text-sm font-medium text-secondary">
+        <p className="text-body font-medium text-secondary">
           Exhibitor workspace
         </p>
         <h1 className="mt-1 text-2xl font-semibold text-primary">
@@ -36,11 +36,11 @@ export default async function PortalRootPage() {
               href={`/exhibit/${workspace.organizationId}/settings?eeId=${workspace.eventExhibitorId}`}
               key={workspace.eventExhibitorId}
             >
-              <p className="text-sm text-secondary">{workspace.eventName}</p>
+              <p className="text-body text-secondary">{workspace.eventName}</p>
               <h2 className="mt-1 font-semibold text-primary">
                 {workspace.boothName}
               </h2>
-              <p className="mt-3 text-xs uppercase tracking-wide text-muted">
+              <p className="mt-3 text-caption uppercase tracking-wide text-muted">
                 {workspace.status.replaceAll("_", " ")}
               </p>
             </Link>

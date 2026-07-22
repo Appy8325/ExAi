@@ -58,15 +58,15 @@ export default async function ExhibitorVisitorsPage({
       {visitors && visitors.length > 0 ? (
         <Card>
           <div className="mb-4">
-            <h2 className="text-base font-semibold text-primary">
+            <h2 className="text-title-sm font-semibold text-primary">
               {visitors.length} attendees captured
             </h2>
-            <p className="text-sm text-secondary">
+            <p className="text-body text-secondary">
               AI-enriched profiles with intent signals and engagement history.
             </p>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-body">
               <thead>
                 <tr className="border-b border-default text-left">
                   <th className="pb-3 pr-4 font-medium text-muted">Attendee</th>
@@ -83,7 +83,7 @@ export default async function ExhibitorVisitorsPage({
                     <td className="py-3 pr-4">
                       <p className="font-medium text-primary">{v.attendeeName}</p>
                       {v.jobTitle && (
-                        <p className="text-xs text-muted">{v.jobTitle}</p>
+                        <p className="text-caption text-muted">{v.jobTitle}</p>
                       )}
                       {v.attentionReasons.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
@@ -130,7 +130,7 @@ export default async function ExhibitorVisitorsPage({
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <h2 className="text-base font-semibold text-primary">
+          <h2 className="text-title-sm font-semibold text-primary">
             Recent activity
           </h2>
           {dashboard.recentActivity.length > 0 ? (
@@ -140,11 +140,11 @@ export default async function ExhibitorVisitorsPage({
                   key={item.id}
                   className="flex items-center justify-between rounded-lg border border-default bg-sunken px-3 py-2"
                 >
-                  <span className="truncate text-sm text-secondary">
+                  <span className="truncate text-body text-secondary">
                     <span className="font-medium text-primary">{item.attendeeName ?? ""}</span>
                     {item.label.replace(item.attendeeName ?? "", "").trim()}
                   </span>
-                  <span className="ml-2 shrink-0 text-xs text-muted">
+                  <span className="ml-2 shrink-0 text-caption text-muted">
                     {formatDateTime(item.at)}
                   </span>
                 </li>
@@ -159,7 +159,7 @@ export default async function ExhibitorVisitorsPage({
         </Card>
 
         <Card>
-          <h2 className="text-base font-semibold text-primary">
+          <h2 className="text-title-sm font-semibold text-primary">
             Needs attention
           </h2>
           {dashboard.attention.length > 0 ? (
@@ -169,10 +169,10 @@ export default async function ExhibitorVisitorsPage({
                   key={item.relationshipId}
                   className="rounded-lg border border-status-warning-border bg-status-warning-subtle px-3 py-2"
                 >
-                  <p className="text-sm font-medium text-primary">
+                  <p className="text-body font-medium text-primary">
                     {item.attendeeName}
                   </p>
-                  <p className="mt-1 text-xs text-secondary">
+                  <p className="mt-1 text-caption text-secondary">
                     {item.reasons.join(" · ")}
                   </p>
                 </li>
@@ -187,7 +187,7 @@ export default async function ExhibitorVisitorsPage({
         </Card>
       </div>
 
-      <p className="text-xs text-muted">
+      <p className="text-caption text-muted">
         {total} relationships captured in this pipeline during the demo event.
       </p>
     </div>
@@ -202,7 +202,7 @@ function IntentBadge({ label, hasLead }: { label: string; hasLead: boolean }) {
     label === "Interested" ? "bg-brand-subtle text-brand border-brand/30" :
     "bg-sunken text-secondary border-default";
   return (
-    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${style}`}>
+    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-caption font-medium ${style}`}>
       {hasLead && <span className="mr-1">●</span>}
       {label}
     </span>
@@ -215,7 +215,7 @@ function StatusBadge({ status }: { status: string }) {
     status === "blocked" ? "text-status-danger-text" :
     "text-muted";
   return (
-    <span className={`text-xs capitalize font-medium ${style}`}>
+    <span className={`text-caption capitalize font-medium ${style}`}>
       {status}
     </span>
   );

@@ -117,28 +117,28 @@ export default async function OrganizerDashboardPage() {
           <Card className="mt-4">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-base font-semibold text-primary">
+                <p className="text-title-sm font-semibold text-primary">
                   {firstEvent.name}
                 </p>
-                <p className="text-sm text-secondary">
+                <p className="text-body text-secondary">
                   {firstEvent.status} · {formatDate(firstEvent.startAt)} –{" "}
                   {formatDate(firstEvent.endAt)} · {firstEvent.timezone}
                 </p>
-                <dl className="mt-3 grid grid-cols-3 gap-4 text-sm">
+                <dl className="mt-3 grid grid-cols-3 gap-4 text-body">
                   <div>
-                    <dt className="text-xs text-muted">Booths</dt>
+                    <dt className="text-caption text-muted">Booths</dt>
                     <dd className="font-semibold text-primary">
                       {firstEvent.exhibitors.length}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-muted">Visits</dt>
+                    <dt className="text-caption text-muted">Visits</dt>
                     <dd className="font-semibold text-primary">
                       {analytics?.traffic.capturedVisits ?? 0}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-muted">Leads</dt>
+                    <dt className="text-caption text-muted">Leads</dt>
                     <dd className="font-semibold text-primary">
                       {analytics?.conversions.leads ?? 0}
                     </dd>
@@ -148,13 +148,13 @@ export default async function OrganizerDashboardPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <Link
                   href="/demo/organizer/analytics"
-                  className="inline-flex h-9 items-center rounded-lg bg-status-info-solid px-3 text-xs font-semibold text-on-brand"
+                  className="inline-flex h-9 items-center rounded-lg bg-status-info-solid px-3 text-caption font-semibold text-on-brand"
                 >
                   Analytics
                 </Link>
                 <Link
                   href="/demo/organizer/reports"
-                  className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-xs font-semibold text-primary"
+                  className="inline-flex h-9 items-center rounded-lg border border-default bg-surface px-3 text-caption font-semibold text-primary"
                 >
                   Report
                 </Link>
@@ -174,16 +174,16 @@ export default async function OrganizerDashboardPage() {
             <Card key={event.id}>
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-primary">
+                  <p className="truncate text-body font-semibold text-primary">
                     {event.name}
                   </p>
-                  <p className="text-xs text-muted">
+                  <p className="text-caption text-muted">
                     {event.status} · {event.exhibitors.length} booths
                   </p>
                 </div>
                 <Link
                   href={`/demo/organizer/event/${event.slug}`}
-                  className="text-xs font-medium text-status-info-text hover:underline"
+                  className="text-caption font-medium text-status-info-text hover:underline"
                 >
                   Open →
                 </Link>
@@ -212,7 +212,7 @@ function ExecutiveInsight({
   if (traffic.capturedVisits === 0) {
     return (
       <Card variant="elevated" className="border-l-4 border-l-status-info-solid">
-        <p className="text-sm text-secondary">
+        <p className="text-body text-secondary">
           <strong className="text-primary">Live:</strong> Event is running. No booth visits recorded yet — start the demo simulation to generate traffic.
         </p>
       </Card>
@@ -247,7 +247,7 @@ function ExecutiveInsight({
   }
   return (
     <Card variant="elevated" className="border-l-4 border-l-status-info-solid">
-      <p className="text-sm text-secondary">
+      <p className="text-body text-secondary">
         <strong className="text-primary">Executive:</strong>{" "}
         {lines.join(" ")}
       </p>
@@ -286,7 +286,7 @@ function LinkTile({
         >
           {label}
         </span>
-        <p className="mt-2 text-sm text-secondary">{description}</p>
+        <p className="mt-2 text-body text-secondary">{description}</p>
       </div>
       <svg
         className="size-4 text-muted transition-transform group-hover:translate-x-0.5"

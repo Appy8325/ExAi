@@ -48,7 +48,7 @@ export default async function OrganizerReportsPage() {
 
       {!analytics ? (
         <Card>
-          <p className="text-sm text-secondary">Event report unavailable.</p>
+          <p className="text-body text-secondary">Event report unavailable.</p>
         </Card>
       ) : (
         <>
@@ -77,22 +77,22 @@ export default async function OrganizerReportsPage() {
                 <h2 className="text-lg font-semibold text-primary">
                   Executive AI report
                 </h2>
-                <p className="mt-1 text-sm text-secondary">
+                <p className="mt-1 text-body text-secondary">
                   AI-generated summary based on aggregate event data.
                 </p>
               </div>
               {report?.generatedAt && (
-                <span className="text-xs text-muted">
+                <span className="text-caption text-muted">
                   Generated {new Date(report.generatedAt).toLocaleString()}
                 </span>
               )}
             </div>
             {report?.content ? (
-              <pre className="mt-6 whitespace-pre-wrap text-sm leading-7 text-secondary font-mono">
+              <pre className="mt-6 whitespace-pre-wrap text-body leading-7 text-secondary font-mono">
                 {report.content}
               </pre>
             ) : (
-              <p className="mt-6 text-sm text-muted">
+              <p className="mt-6 text-body text-muted">
                 Generating report from live analytics data...
               </p>
             )}

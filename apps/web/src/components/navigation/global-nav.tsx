@@ -94,7 +94,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
           aria-label="ExAi home"
           className="flex items-center gap-2 transition-opacity hover:opacity-80"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-body font-bold text-on-brand shadow-1">
             E
           </span>
           <span className="text-base font-semibold tracking-tight text-primary">
@@ -112,7 +112,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
         <div className="hidden items-center gap-2 md:flex">
           <Link
             href="/auth"
-            className="inline-flex h-8 items-center rounded-lg bg-brand px-3 text-xs font-semibold text-on-brand shadow-1 transition-all hover:bg-brand-hover"
+            className="inline-flex h-8 items-center rounded-lg bg-brand px-3 text-caption font-semibold text-on-brand shadow-1 transition-all hover:bg-brand-hover"
           >
             Sign in
           </Link>
@@ -173,7 +173,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
                 key={p.id}
                 href={p.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                className={`flex items-center justify-between rounded-lg px-3 py-2 text-body font-medium transition-colors ${
                   isActive
                     ? "bg-brand-subtle text-brand"
                     : "text-primary hover:bg-sunken"
@@ -194,7 +194,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
                 key={p.id}
                 href={p.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                className={`flex items-center justify-between rounded-lg px-3 py-2 text-body font-medium transition-colors ${
                   isActive
                     ? "bg-brand-subtle text-brand"
                     : "text-secondary hover:bg-sunken"
@@ -207,7 +207,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
           })}
           <Link
             href="/"
-            className="mt-2 rounded-lg border border-default px-3 py-2 text-center text-sm font-medium text-primary transition-colors hover:bg-sunken"
+            className="mt-2 rounded-lg border border-default px-3 py-2 text-center text-body font-medium text-primary transition-colors hover:bg-sunken"
           >
             Back to homepage
           </Link>
@@ -241,7 +241,7 @@ function PerspectiveRow({
             key={p.id}
             href={p.href}
             aria-current={isActive ? "page" : undefined}
-            className={`relative rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            className={`relative rounded-full border px-3 py-1.5 text-caption font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               isActive
                 ? "border-brand bg-brand-subtle text-brand"
                 : "border-transparent bg-surface text-secondary hover:text-primary"

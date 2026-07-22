@@ -158,7 +158,7 @@ export function computeExhibitorIntelligence(dashboard: {
 type NavItem = { label: string; href: string };
 export function DemoMobileNav({ items, currentHref }: { items: NavItem[]; currentHref: string }) {
   return (
-    <nav className="flex gap-1 overflow-x-auto pb-1 text-sm" aria-label="Demo navigation">
+    <nav className="flex gap-1 overflow-x-auto pb-1 text-body" aria-label="Demo navigation">
       {items.map((item) => {
         const active = currentHref === item.href;
         return (

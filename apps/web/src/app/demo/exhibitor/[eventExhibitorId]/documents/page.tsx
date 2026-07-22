@@ -24,7 +24,7 @@ export default async function DemoExhibitorDocumentsPage({ params }: { params: P
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12 sm:px-10">
-      <Link href={`/demo/exhibitor/${eventExhibitorId}`} className="inline-flex items-center gap-1 text-sm text-link hover:underline">
+      <Link href={`/demo/exhibitor/${eventExhibitorId}`} className="inline-flex items-center gap-1 text-body text-link hover:underline">
         <svg className="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M10 12l-4-4 4-4" />
         </svg>
@@ -36,7 +36,7 @@ export default async function DemoExhibitorDocumentsPage({ params }: { params: P
           Knowledge sources
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary">Documents</h1>
-        <p className="mt-1 text-sm text-secondary">
+        <p className="mt-1 text-body text-secondary">
           Published knowledge sources that power the booth AI assistant &mdash; read-only demo.
         </p>
       </header>
@@ -47,13 +47,13 @@ export default async function DemoExhibitorDocumentsPage({ params }: { params: P
             <div key={resource.id} className="flex items-center justify-between rounded-xl border border-default bg-surface p-4">
               <div>
                 <p className="font-medium text-primary">{resource.title}</p>
-                <p className="text-sm text-muted capitalize">{resource.sourceType.replaceAll("_", " ")}</p>
+                <p className="text-body text-muted capitalize">{resource.sourceType.replaceAll("_", " ")}</p>
               </div>
               <a
                 href={resource.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg border border-default bg-sunken px-3 py-1.5 text-sm font-medium text-primary"
+                className="rounded-lg border border-default bg-sunken px-3 py-1.5 text-body font-medium text-primary"
               >
                 View
               </a>
@@ -62,15 +62,15 @@ export default async function DemoExhibitorDocumentsPage({ params }: { params: P
         </section>
       ) : (
         <div className="mt-8 rounded-xl border border-dashed border-default bg-surface p-8 text-center">
-          <p className="text-sm text-muted">No knowledge sources published yet.</p>
-          <p className="mt-1 text-xs text-secondary">
+          <p className="text-body text-muted">No knowledge sources published yet.</p>
+          <p className="mt-1 text-caption text-secondary">
             Exhibitors upload PDFs, add websites, or link documents that the AI uses to answer attendee questions.
           </p>
         </div>
       )}
 
       {!publicBooth && (
-        <div className="mt-8 rounded-xl border border-default bg-surface p-6 text-sm text-secondary">
+        <div className="mt-8 rounded-xl border border-default bg-surface p-6 text-body text-secondary">
           This exhibitor has no published booth yet.
         </div>
       )}
@@ -81,8 +81,8 @@ export default async function DemoExhibitorDocumentsPage({ params }: { params: P
 function Unavailable() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 sm:px-10">
-      <Link href="/demo" className="text-sm text-link hover:underline">Back to demo</Link>
-      <p className="mt-6 rounded-xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
+      <Link href="/demo" className="text-body text-link hover:underline">Back to demo</Link>
+      <p className="mt-6 rounded-xl border border-status-danger-border bg-status-danger-subtle p-6 text-body text-status-danger-text">
         Demo data is unavailable right now.
       </p>
     </div>

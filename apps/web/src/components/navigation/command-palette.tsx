@@ -192,12 +192,12 @@ export function CommandPalette({ children }: { children?: React.ReactNode }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-lg border border-default bg-surface px-3 py-1.5 text-sm text-muted transition-colors hover:border-strong hover:text-secondary"
+        className="flex items-center gap-2 rounded-lg border border-default bg-surface px-3 py-1.5 text-body text-muted transition-colors hover:border-strong hover:text-secondary"
         aria-label="Open command palette"
       >
         <SearchIcon className="size-4" />
         <span className="hidden sm:inline">Search...</span>
-        <kbd className="hidden rounded border border-default bg-sunken px-1.5 py-0.5 text-xs font-medium text-muted sm:inline">
+        <kbd className="hidden rounded border border-default bg-sunken px-1.5 py-0.5 text-caption font-medium text-muted sm:inline">
           Ctrl+K
         </kbd>
       </button>
@@ -213,22 +213,22 @@ export function CommandPalette({ children }: { children?: React.ReactNode }) {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Search pages, actions..."
-              className="flex-1 bg-transparent text-sm text-primary placeholder:text-muted outline-none"
+              className="flex-1 bg-transparent text-body text-primary placeholder:text-muted outline-none"
             />
-            <kbd className="rounded border border-default bg-sunken px-1.5 py-0.5 text-xs font-medium text-muted">
+            <kbd className="rounded border border-default bg-sunken px-1.5 py-0.5 text-caption font-medium text-muted">
               ESC
             </kbd>
           </div>
 
           <div className="max-h-80 overflow-y-auto p-2">
             {filteredItems.length === 0 ? (
-              <p className="p-4 text-center text-sm text-muted">No results found</p>
+              <p className="p-4 text-center text-body text-muted">No results found</p>
             ) : (
               <div className="space-y-4">
                 {Object.entries(grouped).map(([category, items]) =>
                   items.length > 0 ? (
                     <div key={category}>
-                      <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted">
+                      <p className="px-3 py-1.5 text-caption font-semibold uppercase tracking-wider text-muted">
                         {category === "navigation" ? "Navigation" : category}
                       </p>
                       <div role="listbox" aria-label={category}>
@@ -241,7 +241,7 @@ export function CommandPalette({ children }: { children?: React.ReactNode }) {
                               role="option"
                               aria-selected={isSelected}
                               onClick={() => handleSelect(item)}
-                              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-body transition-colors ${
                                 isSelected
                                   ? "bg-brand-subtle text-brand"
                                   : "text-primary hover:bg-sunken"
@@ -251,7 +251,7 @@ export function CommandPalette({ children }: { children?: React.ReactNode }) {
                               <div className="min-w-0 flex-1">
                                 <p className="font-medium">{item.label}</p>
                                 {item.description && (
-                                  <p className="truncate text-xs text-muted">{item.description}</p>
+                                  <p className="truncate text-caption text-muted">{item.description}</p>
                                 )}
                               </div>
                               <svg
@@ -275,7 +275,7 @@ export function CommandPalette({ children }: { children?: React.ReactNode }) {
             )}
           </div>
 
-          <div className="flex items-center justify-between border-t border-default px-4 py-2 text-xs text-muted">
+          <div className="flex items-center justify-between border-t border-default px-4 py-2 text-caption text-muted">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
                 <kbd className="rounded border border-default bg-sunken px-1">↑</kbd>

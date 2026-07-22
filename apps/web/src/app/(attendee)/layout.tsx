@@ -31,7 +31,7 @@ export default function AttendeeLayout({ children }: { children: ReactNode }) {
             <Link
               href="/"
               aria-label="Home"
-              className="inline-flex min-h-10 items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
+              className="inline-flex min-h-10 items-center gap-1 rounded-md px-2.5 py-1 text-caption font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
             >
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                 <path d="M3 8l10 0M8 3l-5 5 5 5" />
@@ -67,7 +67,7 @@ export default function AttendeeLayout({ children }: { children: ReactNode }) {
                     key={label}
                     href={href}
                     aria-current={isActive ? "page" : undefined}
-                    className={`flex min-h-12 min-w-20 items-center justify-center rounded-lg px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    className={`flex min-h-12 min-w-20 items-center justify-center rounded-lg px-4 text-body font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       isActive
                         ? "bg-brand text-on-brand"
                         : "text-muted hover:text-primary"

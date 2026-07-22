@@ -89,7 +89,7 @@ export default function InvitationCallbackPage() {
         <h1 className="text-xl font-semibold text-primary">
           Accepting invitation
         </h1>
-        <p className="mt-2 text-sm text-secondary">
+        <p className="mt-2 text-body text-secondary">
           {error || "Confirming your account and access…"}
         </p>
       </div>

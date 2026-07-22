@@ -44,7 +44,7 @@ export default async function OrganizerAnalyticsPage() {
             <Link
               key={event.id}
               href={`/demo/organizer/event/${event.slug}`}
-              className={`rounded-full border px-4 py-2 text-sm ${
+              className={`rounded-full border px-4 py-2 text-body ${
                 event.id === firstEvent?.id
                   ? "border-status-info-border bg-status-info-solid text-on-brand"
                   : "border-default bg-surface text-secondary hover:text-primary"
@@ -58,7 +58,7 @@ export default async function OrganizerAnalyticsPage() {
 
       {!analytics ? (
         <Card>
-          <p className="text-sm text-secondary">
+          <p className="text-body text-secondary">
             No event analytics are available yet.
           </p>
         </Card>
@@ -90,13 +90,13 @@ export default async function OrganizerAnalyticsPage() {
                   <h2 className="text-lg font-semibold text-primary">
                     Pipeline distribution
                   </h2>
-                  <p className="mt-1 text-sm text-secondary">
+                  <p className="mt-1 text-body text-secondary">
                     Where captured visits land on the funnel.
                   </p>
                 </div>
                 <Link
                   href="/demo/organizer/heatmaps"
-                  className="text-xs font-medium text-status-info-text hover:underline"
+                  className="text-caption font-medium text-status-info-text hover:underline"
                 >
                   Heatmaps →
                 </Link>
@@ -137,7 +137,7 @@ export default async function OrganizerAnalyticsPage() {
 
             <Card>
               <h2 className="text-lg font-semibold text-primary">Engagement</h2>
-              <dl className="mt-4 space-y-3 text-sm">
+              <dl className="mt-4 space-y-3 text-body">
                 <Stat
                   label="Returning attendees"
                   value={String(analytics.traffic.returningVisitors)}
@@ -160,7 +160,7 @@ export default async function OrganizerAnalyticsPage() {
 
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
-              <h2 className="text-base font-semibold text-primary">
+              <h2 className="text-title-sm font-semibold text-primary">
                 Popular industries
               </h2>
               <div className="mt-4 space-y-3">
@@ -168,12 +168,12 @@ export default async function OrganizerAnalyticsPage() {
                   <Row key={item.name} label={item.name} value={item.count} />
                 ))}
                 {!analytics.industries.length && (
-                  <p className="text-sm text-muted">Attendee industry data appears here once visitors share their profiles.</p>
+                  <p className="text-body text-muted">Attendee industry data appears here once visitors share their profiles.</p>
                 )}
               </div>
             </Card>
             <Card>
-              <h2 className="text-base font-semibold text-primary">
+              <h2 className="text-title-sm font-semibold text-primary">
                 Popular topics
               </h2>
               <div className="mt-4 space-y-3">
@@ -181,13 +181,13 @@ export default async function OrganizerAnalyticsPage() {
                   <Row key={item.name} label={item.name} value={item.count} />
                 ))}
                 {!analytics.topics.length && (
-                  <p className="text-sm text-muted">AI-analyzed conversation topics appear as attendees ask questions at booths.</p>
+                  <p className="text-body text-muted">AI-analyzed conversation topics appear as attendees ask questions at booths.</p>
                 )}
               </div>
             </Card>
           </div>
 
-          <p className="text-xs text-muted">
+          <p className="text-caption text-muted">
             Updated {new Date(analytics.generatedAt).toLocaleString()} · Industry
             data includes only attendees who consented to profile sharing.
           </p>
@@ -211,7 +211,7 @@ function Bar({
   const pct = Math.round((value / Math.max(1, max)) * 100);
   return (
     <div>
-      <div className="mb-1 flex justify-between text-sm">
+      <div className="mb-1 flex justify-between text-body">
         <span className="text-secondary">{label}</span>
         <span className="font-medium text-primary">{value}</span>
       </div>
@@ -236,7 +236,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function Row({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="flex justify-between text-sm">
+    <div className="flex justify-between text-body">
       <span className="text-secondary">{label}</span>
       <strong className="text-primary">{value}</strong>
     </div>

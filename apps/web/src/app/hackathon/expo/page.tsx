@@ -20,27 +20,27 @@ export default async function HackathonExpoPage() {
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2 sm:px-8">
           <Link
             href="/hackathon"
-            className="rounded-lg border border-default bg-surface px-2.5 py-1 text-xs font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
+            className="rounded-lg border border-default bg-surface px-2.5 py-1 text-caption font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
           >
             ← Event
           </Link>
-          <span className="rounded-full border border-brand/20 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
+          <span className="rounded-full border border-brand/20 bg-brand-subtle px-3 py-1 text-caption font-semibold text-brand">
             Expo Floor
           </span>
-          <span className="ml-auto text-xs text-muted">TechExpo 2027</span>
+          <span className="ml-auto text-caption text-muted">TechExpo 2027</span>
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 sm:py-16">
         <div className="space-y-3 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-xs font-semibold text-brand">
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-4 py-1.5 text-caption font-semibold text-brand">
             <span className="size-1.5 rounded-full bg-brand" />
             TechExpo 2027 — Expo Floor
           </span>
           <h1 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
             Discover the future of technology
           </h1>
-          <p className="mx-auto max-w-2xl text-base text-secondary">
+          <p className="mx-auto max-w-2xl text-body-lg text-secondary">
             Browse exhibitors, open any booth, and experience AI-powered product
             intelligence — all from a single scan.
           </p>
@@ -56,7 +56,7 @@ export default async function HackathonExpoPage() {
               className="rounded-lg border border-default"
               unoptimized
             />
-            <div className="text-left text-xs">
+            <div className="text-left text-caption">
               <p className="font-medium text-primary">Event Entrance</p>
               <p className="text-muted mt-0.5">Scan to enter TechExpo 2027</p>
             </div>
@@ -64,7 +64,7 @@ export default async function HackathonExpoPage() {
         </div>
 
         {!exhibitors ? (
-          <section className="mt-12 rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-sm text-status-danger-text">
+          <section className="mt-12 rounded-2xl border border-status-danger-border bg-status-danger-subtle p-6 text-body text-status-danger-text">
             The showcase endpoint is unavailable right now. Run{" "}
             <code className="rounded bg-surface px-1.5 py-0.5">pnpm db:seed</code>{" "}
             against a running Supabase project.

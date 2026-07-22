@@ -15,14 +15,14 @@ export function AuthShell({ children }: { children: ReactNode }) {
 
       <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 sm:px-10">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-body font-bold text-on-brand shadow-1">
             E
           </div>
-          <span className="text-base font-semibold tracking-tight">ExAi</span>
+          <span className="text-title-sm font-semibold tracking-tight">ExAi</span>
         </Link>
         <Link
           href="/"
-          className="text-sm font-medium text-secondary transition-colors hover:text-primary"
+          className="text-body font-medium text-secondary transition-colors hover:text-primary"
         >
            Back to home
         </Link>

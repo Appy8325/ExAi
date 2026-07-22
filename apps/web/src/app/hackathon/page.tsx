@@ -54,16 +54,16 @@ export default async function HackathonLandingPage() {
       <GlobalNav variant="compact" active="attendee" />
       <div className="border-b border-default/50 bg-brand-subtle/30">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2 sm:px-8">
-          <span className="rounded-full border border-brand/20 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">
+          <span className="rounded-full border border-brand/20 bg-brand-subtle px-3 py-1 text-caption font-semibold text-brand">
             TechExpo 2027
           </span>
-          <span className="flex items-center gap-1 text-xs text-secondary">
+          <span className="flex items-center gap-1 text-caption text-secondary">
             <span className="size-1.5 rounded-full bg-status-success-solid animate-pulse" />
             Live event
           </span>
           <Link
             href="/hackathon/expo"
-            className="ml-auto rounded-lg border border-default bg-surface px-2.5 py-1 text-xs font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
+            className="ml-auto rounded-lg border border-default bg-surface px-2.5 py-1 text-caption font-medium text-secondary transition-colors hover:border-strong hover:text-primary"
           >
             Expo floor →
           </Link>
@@ -75,7 +75,7 @@ export default async function HackathonLandingPage() {
       )}
 
       <footer className="border-t border-default bg-sunken py-6">
-        <div className="mx-auto max-w-7xl px-gutter text-center text-xs text-muted sm:px-(--mq-space-gutter)">
+        <div className="mx-auto max-w-7xl px-gutter text-center text-caption text-muted sm:px-(--mq-space-gutter)">
           TechExpo 2027 · Powered by ExAi · No sign-up required
         </div>
       </footer>

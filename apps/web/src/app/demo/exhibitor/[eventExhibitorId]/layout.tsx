@@ -68,7 +68,7 @@ export default async function ExhibitorLayout({
               <div className="mb-6 border-b border-default/60 bg-canvas pb-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-xs text-muted">
+                    <p className="text-caption text-muted">
                       <Link
                         href="/demo/exhibitor"
                         className="text-link hover:underline"
@@ -85,7 +85,7 @@ export default async function ExhibitorLayout({
                       ) : null}
                     </p>
                   </div>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-status-success-border bg-status-success-subtle px-2.5 py-1 text-xs font-medium text-status-success-text">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-status-success-border bg-status-success-subtle px-2.5 py-1 text-caption font-medium text-status-success-text">
                     <span className="inline-block size-1.5 rounded-full bg-status-success-solid" />
                     Read-only
                   </span>

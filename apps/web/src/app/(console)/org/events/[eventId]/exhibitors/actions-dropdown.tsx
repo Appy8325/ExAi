@@ -68,7 +68,7 @@ export function ActionsDropdown({
                   key={item.label}
                   href={item.href}
                   role="menuitem"
-                  className="block px-3 py-1.5 text-sm text-primary hover:bg-sunken"
+                  className="block px-3 py-1.5 text-body text-primary hover:bg-sunken"
                   onClick={close}
                 >
                   {item.label}
@@ -78,7 +78,7 @@ export function ActionsDropdown({
                   key={item.label}
                   type="button"
                   role="menuitem"
-                  className="block w-full px-3 py-1.5 text-left text-sm text-primary hover:bg-sunken"
+                  className="block w-full px-3 py-1.5 text-left text-body text-primary hover:bg-sunken"
                   onClick={close}
                 >
                   {item.label}

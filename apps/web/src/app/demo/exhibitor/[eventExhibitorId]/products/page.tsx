@@ -46,12 +46,12 @@ export default async function ExhibitorProductsPage({
 
       {publicBooth?.description ? (
         <Card>
-          <h2 className="text-base font-semibold text-primary">
+          <h2 className="text-title-sm font-semibold text-primary">
             About this booth
           </h2>
-          <p className="mt-2 text-sm text-secondary">{publicBooth.description}</p>
+          <p className="mt-2 text-body text-secondary">{publicBooth.description}</p>
           {publicBooth.website ? (
-            <p className="mt-2 text-xs">
+            <p className="mt-2 text-caption">
               <span className="text-muted">Website: </span>
               <span className="text-link">{publicBooth.website}</span>
             </p>
@@ -62,10 +62,10 @@ export default async function ExhibitorProductsPage({
       <Card>
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-primary">
+            <h2 className="text-title-sm font-semibold text-primary">
               Knowledge sources
             </h2>
-            <p className="text-sm text-secondary">
+            <p className="text-body text-secondary">
               Each item is one product, brochure, or document the booth AI uses
               to answer attendee questions.
             </p>
@@ -83,10 +83,10 @@ export default async function ExhibitorProductsPage({
                 className="flex items-center justify-between rounded-xl border border-default bg-surface p-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-primary">
+                  <p className="truncate text-body font-semibold text-primary">
                     {resource.title}
                   </p>
-                  <p className="text-xs capitalize text-muted">
+                  <p className="text-caption capitalize text-muted">
                     {resource.sourceType.replaceAll("_", " ")}
                   </p>
                 </div>
@@ -94,7 +94,7 @@ export default async function ExhibitorProductsPage({
                   href={resource.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg border border-default bg-sunken px-3 py-1.5 text-xs font-medium text-primary"
+                  className="rounded-lg border border-default bg-sunken px-3 py-1.5 text-caption font-medium text-primary"
                 >
                   View
                 </a>
@@ -111,12 +111,12 @@ export default async function ExhibitorProductsPage({
 
       {publicBooth?.leadForm ? (
         <Card>
-          <h2 className="text-base font-semibold text-primary">Lead form</h2>
-          <p className="mt-1 text-xs text-muted">
+          <h2 className="text-title-sm font-semibold text-primary">Lead form</h2>
+          <p className="mt-1 text-caption text-muted">
             {publicBooth.leadForm.name} — read-only preview
           </p>
           {publicBooth.leadForm.consentText ? (
-            <p className="mt-2 text-sm italic text-secondary">
+            <p className="mt-2 text-body italic text-secondary">
               {publicBooth.leadForm.consentText}
             </p>
           ) : null}
@@ -126,17 +126,17 @@ export default async function ExhibitorProductsPage({
                 key={field.key}
                 className="rounded-xl border border-default bg-surface px-4 py-3"
               >
-                <span className="text-sm font-medium text-primary">
+                <span className="text-body font-medium text-primary">
                   {field.label}
                   {field.required ? (
                     <span className="ml-1 text-status-danger-text">*</span>
                   ) : null}
                 </span>
-                <span className="ml-2 rounded bg-sunken px-1.5 py-0.5 text-xs text-muted">
+                <span className="ml-2 rounded bg-sunken px-1.5 py-0.5 text-caption text-muted">
                   {field.type}
                 </span>
                 {field.helpText ? (
-                  <p className="mt-0.5 text-xs text-muted">{field.helpText}</p>
+                  <p className="mt-0.5 text-caption text-muted">{field.helpText}</p>
                 ) : null}
               </li>
             ))}
