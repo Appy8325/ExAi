@@ -42,7 +42,6 @@ const PERSPECTIVES: GlobalPerspective[] = [
 ];
 
 const SECONDARY: GlobalPerspective[] = [
-  { id: "admin", label: "Demo Admin", href: "/demo/admin", short: "Admin" },
   { id: "auth", label: "Sign in", href: "/auth", short: "Sign in" },
 ];
 
@@ -111,17 +110,6 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
         />
 
         <div className="hidden items-center gap-2 md:flex">
-          <Link
-            href="/demo/admin"
-            aria-label="Demo admin"
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-              resolvedActive === "admin"
-                ? "border-brand bg-brand-subtle text-brand"
-                : "border-default bg-surface text-secondary hover:text-primary"
-            }`}
-          >
-            Demo admin
-          </Link>
           <Link
             href="/auth"
             className="inline-flex h-8 items-center rounded-lg bg-brand px-3 text-xs font-semibold text-on-brand shadow-1 transition-all hover:bg-brand-hover"

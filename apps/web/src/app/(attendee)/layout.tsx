@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { GlobalNav } from "@/components/navigation/global-nav";
+import { BackLink } from "@/components/navigation/back-link";
 
 function eventSlugFrom(pathname: string) {
   const seg = pathname.split("/").filter(Boolean);
@@ -26,16 +27,7 @@ export default function AttendeeLayout({ children }: { children: ReactNode }) {
       {isVisitPage ? (
         <div className="sticky top-0 z-40 border-b border-default/50 bg-canvas/95 backdrop-blur-xl">
           <div className="flex items-center justify-between gap-2 px-4 py-2.5">
-            <Link
-              href="/hackathon"
-              aria-label="Back to exhibition"
-              className="inline-flex min-h-10 items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
-            >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                <path d="M10 12l-4-4 4-4" />
-              </svg>
-              Exhibition
-            </Link>
+            <BackLink label="Exhibition" href={`/e/${slug}`} />
             <Link
               href="/"
               aria-label="Home"

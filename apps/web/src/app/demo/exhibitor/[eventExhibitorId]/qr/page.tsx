@@ -9,23 +9,12 @@ import { getPublicDemoOverview } from "@concourse/api-client";
 
 import { getApiBaseUrl } from "@/lib/api/config";
 import {
-  DemoMobileNav,
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const sid = (id: string) => [
-  { label: "Dashboard", href: `/demo/exhibitor/${id}` },
-  { label: "Products", href: `/demo/exhibitor/${id}/products` },
-  { label: "Visitors", href: `/demo/exhibitor/${id}/visitors` },
-  { label: "Analytics", href: `/demo/exhibitor/${id}/analytics` },
-  { label: "AI Insights", href: `/demo/exhibitor/${id}/ai-insights` },
-  { label: "QR", href: `/demo/exhibitor/${id}/qr` },
-  { label: "Booth Preview", href: `/demo/exhibitor/${id}/preview` },
-];
 
 export default async function ExhibitorQrPage({
   params,
@@ -54,12 +43,7 @@ export default async function ExhibitorQrPage({
     : null;
 
   return (
-    <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
-      <DemoMobileNav
-        items={sid(eventExhibitorId)}
-        currentHref={`/demo/exhibitor/${eventExhibitorId}/qr`}
-      />
-
+    <div className="space-y-8">
       <DemoPageHeader
         eyebrow="Exhibitor workspace"
         title="Booth QR"

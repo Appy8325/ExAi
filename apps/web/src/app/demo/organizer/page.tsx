@@ -11,7 +11,6 @@ import {
 } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import {
-  DemoMobileNav,
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
@@ -19,15 +18,6 @@ import { LiveMetricsBar } from "@/components/demo/live-metrics";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const SIDEBAR = [
-  { label: "Dashboard", href: "/demo/organizer" },
-  { label: "Events", href: "/demo/organizer/events" },
-  { label: "Analytics", href: "/demo/organizer/analytics" },
-  { label: "Booth Traffic", href: "/demo/organizer/heatmaps" },
-  { label: "AI Insights", href: "/demo/organizer/ai-insights" },
-  { label: "Reports", href: "/demo/organizer/reports" },
-];
 
 export default async function OrganizerDashboardPage() {
   const apiBase = getApiBaseUrl();
@@ -46,9 +36,7 @@ export default async function OrganizerDashboardPage() {
   );
 
   return (
-    <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
-      <DemoMobileNav items={SIDEBAR} currentHref="/demo/organizer" />
-
+    <div className="space-y-8">
       <DemoPageHeader
         eyebrow="Organizer workspace"
         title={overview.organizers[0]?.name ?? "Organizer"}
@@ -71,18 +59,8 @@ export default async function OrganizerDashboardPage() {
         />
       </section>
 
-      {analytics && analytics.traffic.capturedVisits > 0 && (
-        <Card variant="elevated" className="border-l-4 border-l-status-info-solid">
-          <p className="text-sm text-secondary">
-            <strong className="text-primary">Insight:</strong>{" "}
-            {analytics.traffic.capturedVisits} total visits across{" "}
-            {overview.events.length} event{overview.events.length !== 1 ? "s" : ""}{" "}
-            with a {analytics.conversions.conversionRate}% conversion rate.{" "}
-            {analytics.traffic.returningVisitors > 0
-              ? `${analytics.traffic.returningVisitors} returning attendee${analytics.traffic.returningVisitors !== 1 ? "s" : ""} show${analytics.traffic.returningVisitors === 1 ? "s" : ""} strong engagement.`
-              : "Attendees are beginning to interact with booths."}
-          </p>
-        </Card>
+      {analytics && analytics.traffic.capturedVisits >= 0 && (
+        <ExecutiveInsight analytics={analytics} eventCount={overview.events.length} />
       )}
 
       <section>
@@ -215,6 +193,65 @@ export default async function OrganizerDashboardPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function ExecutiveInsight({
+  analytics,
+  eventCount,
+}: {
+  analytics: {
+    traffic: { capturedVisits: number; uniqueVisitors: number; returningVisitors: number };
+    conversions: { leads: number; conversionRate: number };
+    engagement: { repeatEngagementRate: number; averageInteractions: number };
+    booths: Array<{ name: string; visits: number; leads: number; heat: number }>;
+  };
+  eventCount: number;
+}) {
+  const { traffic, conversions, engagement, booths } = analytics;
+  if (traffic.capturedVisits === 0) {
+    return (
+      <Card variant="elevated" className="border-l-4 border-l-status-info-solid">
+        <p className="text-sm text-secondary">
+          <strong className="text-primary">Live:</strong> Event is running. No booth visits recorded yet — start the demo simulation to generate traffic.
+        </p>
+      </Card>
+    );
+  }
+  const topBooth = booths.reduce((best, b) => b.visits > (best?.visits ?? 0) ? b : best, booths[0]);
+  const zeroLeadBooths = booths.filter(b => b.leads === 0 && b.visits > 0);
+  const lines: string[] = [];
+  if (conversions.conversionRate >= 15) {
+    lines.push(`${conversions.conversionRate}% conversion rate is strong — ${conversions.leads} leads captured from ${traffic.capturedVisits} visits.`);
+  } else if (conversions.conversionRate > 0) {
+    lines.push(`${conversions.conversionRate}% conversion rate across ${traffic.capturedVisits} visits. ${traffic.uniqueVisitors} unique attendees.`);
+  }
+  if (topBooth && topBooth.heat >= 70) {
+    lines.push(`"${topBooth.name}" is driving ${topBooth.heat}% of booth traffic${topBooth.leads > 0 ? ` with ${topBooth.leads} leads` : ""}.`);
+  }
+  if (engagement.repeatEngagementRate >= 20 && traffic.returningVisitors > 0) {
+    lines.push(`${traffic.returningVisitors} returning visitors (${engagement.repeatEngagementRate}% repeat rate) signals strong booth appeal.`);
+  }
+  if (zeroLeadBooths.length > 0 && zeroLeadBooths.length >= booths.length * 0.4) {
+    lines.push(`${zeroLeadBooths.length} booths have visits but zero leads — improve lead capture to expand the funnel.`);
+  }
+  if (traffic.capturedVisits >= 20 && booths.filter(b => b.leads > 0).length === 0) {
+    lines.push("No leads captured despite 20+ visits — review form placement and booth engagement.");
+  }
+  if (lines.length === 0) {
+    if (engagement.averageInteractions > 1) {
+      lines.push(`${traffic.capturedVisits} visits recorded across ${booths.length} booths. Average ${engagement.averageInteractions} interactions per attendee.`);
+    } else {
+      lines.push(`${traffic.capturedVisits} visits captured across ${eventCount} event${eventCount !== 1 ? "s" : ""} with ${conversions.conversionRate}% conversion.`);
+    }
+  }
+  return (
+    <Card variant="elevated" className="border-l-4 border-l-status-info-solid">
+      <p className="text-sm text-secondary">
+        <strong className="text-primary">Executive:</strong>{" "}
+        {lines.join(" ")}
+      </p>
+    </Card>
   );
 }
 

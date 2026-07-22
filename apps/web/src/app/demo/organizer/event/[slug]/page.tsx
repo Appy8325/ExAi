@@ -14,22 +14,12 @@ import {
 } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import {
-  DemoMobileNav,
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const SIDEBAR = [
-  { label: "Dashboard", href: "/demo/organizer" },
-  { label: "Events", href: "/demo/organizer/events" },
-  { label: "Analytics", href: "/demo/organizer/analytics" },
-  { label: "Booth Traffic", href: "/demo/organizer/heatmaps" },
-  { label: "AI Insights", href: "/demo/organizer/ai-insights" },
-  { label: "Reports", href: "/demo/organizer/reports" },
-];
 
 export default async function OrganizerEventPage({
   params,
@@ -55,9 +45,7 @@ export default async function OrganizerEventPage({
   ).catch(() => null);
 
   return (
-    <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
-      <DemoMobileNav items={SIDEBAR} currentHref="/demo/organizer/events" />
-
+    <div className="space-y-8">
       <DemoPageHeader
         eyebrow="Event overview"
         title={event.name}

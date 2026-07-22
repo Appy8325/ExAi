@@ -4,11 +4,11 @@ import { Card } from "@concourse/ui";
 import {
   getPublicDemoExhibitorDashboard,
   getPublicDemoOverview,
-} from "@concourse/api-client";
+} from '@concourse/api-client';
+import { computeExhibitorIntelligence } from '@/lib/demo-intelligence';
 
 import { getApiBaseUrl } from "@/lib/api/config";
 import {
-  DemoMobileNav,
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
@@ -16,15 +16,17 @@ import {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const sid = (id: string) => [
-  { label: "Dashboard", href: `/demo/exhibitor/${id}` },
-  { label: "Products", href: `/demo/exhibitor/${id}/products` },
-  { label: "Visitors", href: `/demo/exhibitor/${id}/visitors` },
-  { label: "Analytics", href: `/demo/exhibitor/${id}/analytics` },
-  { label: "AI Insights", href: `/demo/exhibitor/${id}/ai-insights` },
-  { label: "QR", href: `/demo/exhibitor/${id}/qr` },
-  { label: "Booth Preview", href: `/demo/exhibitor/${id}/preview` },
-];
+const HEALTH_COLORS = {
+  healthy: "text-status-success-text",
+  watch: "text-status-warning-text",
+  critical: "text-status-danger-text",
+};
+
+const HEALTH_BG = {
+  healthy: "bg-status-success-subtle border-status-success-border",
+  watch: "bg-status-warning-subtle border-status-warning-border",
+  critical: "bg-status-danger-subtle border-status-danger-border",
+};
 
 export default async function ExhibitorAiInsightsPage({
   params,
@@ -35,10 +37,12 @@ export default async function ExhibitorAiInsightsPage({
   const apiBase = getApiBaseUrl();
   const [overview, dashboard] = await Promise.all([
     getPublicDemoOverview({ baseUrl: apiBase }).catch(() => null),
-    getPublicDemoExhibitorDashboard({ baseUrl: apiBase }, eventExhibitorId).catch(
-      () => null,
-    ),
+    getPublicDemoExhibitorDashboard({ baseUrl: apiBase }, eventExhibitorId).catch(() => null),
   ]);
+  const intelligence = dashboard ? computeExhibitorIntelligence({
+    ...dashboard,
+    attention: dashboard.attention,
+  }) : null;
   if (!overview || !dashboard) return <DemoUnavailable />;
 
   const booth = overview.events
@@ -46,15 +50,8 @@ export default async function ExhibitorAiInsightsPage({
     .find((b) => b.id === eventExhibitorId);
   if (!booth) notFound();
 
-  const since = dashboard.intelligenceFeed.sinceLastVisited;
-
   return (
-    <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
-      <DemoMobileNav
-        items={sid(eventExhibitorId)}
-        currentHref={`/demo/exhibitor/${eventExhibitorId}/ai-insights`}
-      />
-
+    <div className="space-y-8">
       <DemoPageHeader
         eyebrow="Exhibitor workspace"
         title="AI insights"
@@ -93,25 +90,69 @@ export default async function ExhibitorAiInsightsPage({
         </Card>
       </section>
 
-      <Card>
-        <div className="flex items-center gap-2">
-          <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-            AI
-          </span>
-          <h2 className="text-base font-semibold text-primary">
-            Since you last visited
-          </h2>
-        </div>
-        <p className="mt-2 text-xs text-muted">
-          Last visited {formatDateTime(since.since)}
-        </p>
-        <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat label="New relationships" value={String(since.newRelationships)} />
-          <Stat label="Profiles enriched" value={String(since.profilesEnriched)} />
-          <Stat label="Returning visitors" value={String(since.returningVisitors)} />
-          <Stat label="Notes added" value={String(since.notesAdded)} />
-        </dl>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-2">
+        {intelligence ? (
+          <Card className={`border-2 ${HEALTH_BG[intelligence.healthLabel]}`}>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
+                AI
+              </span>
+              <h2 className="text-base font-semibold text-primary">
+                Booth health score
+              </h2>
+            </div>
+            <div className="mt-4 flex items-center gap-4">
+              <div className="text-center">
+                <p className={`text-4xl font-bold tabular-nums ${HEALTH_COLORS[intelligence.healthLabel]}`}>
+                  {intelligence.healthScore}
+                </p>
+                <p className="text-xs text-muted mt-1">/ 100</p>
+              </div>
+              <div className="flex-1">
+                <p className={`text-sm font-semibold ${HEALTH_COLORS[intelligence.healthLabel]}`}>
+                  {intelligence.healthLabel === "healthy" ? "Healthy" : intelligence.healthLabel === "watch" ? "Needs attention" : "Critical"}
+                </p>
+                <ul className="mt-2 space-y-1">
+                  {intelligence.healthFindings.slice(0, 3).map((finding, i) => (
+                    <li key={i} className="text-xs text-secondary flex items-start gap-1.5">
+                      <span className="mt-0.5 size-1 rounded-full bg-muted shrink-0" />
+                      {finding}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </Card>
+        ) : (
+          <Card>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
+                AI
+              </span>
+              <h2 className="text-base font-semibold text-primary">Booth health score</h2>
+            </div>
+            <p className="mt-4 text-sm text-muted">Health scoring activates as relationships are captured.</p>
+          </Card>
+        )}
+
+        <Card>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
+              AI
+            </span>
+            <h2 className="text-base font-semibold text-primary">Since you last visited</h2>
+          </div>
+          <p className="mt-2 text-xs text-muted">
+            {intelligence ? `Last checked ${intelligence.elapsed}` : "Loading..."}
+          </p>
+          <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <Stat label="New relationships" value={String(dashboard.intelligenceFeed.sinceLastVisited.newRelationships)} />
+            <Stat label="Profiles enriched" value={String(dashboard.intelligenceFeed.sinceLastVisited.profilesEnriched)} />
+            <Stat label="Returning visitors" value={String(dashboard.intelligenceFeed.sinceLastVisited.returningVisitors)} />
+            <Stat label="Notes added" value={String(dashboard.intelligenceFeed.sinceLastVisited.notesAdded)} />
+          </dl>
+        </Card>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -120,17 +161,29 @@ export default async function ExhibitorAiInsightsPage({
               AI
             </span>
             <h2 className="text-base font-semibold text-primary">
-              Attendee intelligence
+              Buying intent signals
             </h2>
           </div>
-          <p className="mt-3 text-sm text-secondary">
-            AI enriches attendee profiles with company data, social signals, and
-            intent indicators.
-          </p>
-          <p className="mt-4 text-sm leading-7 text-secondary">
-            Recommendation: prioritize attendees whose companies operate in
-            your strongest segment to maximize conversion.
-          </p>
+          {intelligence && intelligence.buyingSignals.length > 0 ? (
+            <ul className="mt-4 space-y-2">
+              {intelligence.buyingSignals.map((signal, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-secondary">
+                  <span className="mt-1.5 size-1.5 rounded-full bg-status-success-text shrink-0" />
+                  {signal}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-4 text-sm text-muted">
+              Buying signals emerge as attendees return to the booth or complete profiles with company data.
+            </p>
+          )}
+          {intelligence && intelligence.topStrength && (
+            <div className="mt-4 rounded-lg border border-default bg-sunken p-3">
+              <p className="text-xs font-medium text-muted uppercase tracking-wide">Top strength</p>
+              <p className="mt-1 text-sm text-primary">{intelligence.topStrength}</p>
+            </div>
+          )}
         </Card>
 
         <Card>
@@ -143,8 +196,7 @@ export default async function ExhibitorAiInsightsPage({
             </h2>
           </div>
           <p className="mt-3 text-sm text-secondary">
-            Each relationship is scored on buying intent, engagement level, and
-            fit. Prioritize follow-ups with AI-ranked leads.
+            Relationships are scored on engagement depth, profile completeness, and returning behavior.
           </p>
           <div className="mt-4 grid grid-cols-3 gap-3">
             <div className="rounded-lg border border-default p-3 text-center">
@@ -166,8 +218,33 @@ export default async function ExhibitorAiInsightsPage({
               <p className="text-xs text-muted">Returning</p>
             </div>
           </div>
+          {intelligence && intelligence.topOpportunity && (
+            <div className="mt-4 rounded-lg border border-default bg-sunken p-3">
+              <p className="text-xs font-medium text-muted uppercase tracking-wide">Top opportunity</p>
+              <p className="mt-1 text-sm text-primary">{intelligence.topOpportunity}</p>
+            </div>
+          )}
         </Card>
       </div>
+
+      {intelligence && intelligence.recommendedActions.length > 0 && (
+        <Card>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
+              AI
+            </span>
+            <h2 className="text-base font-semibold text-primary">Recommended actions</h2>
+          </div>
+          <ul className="mt-4 space-y-2">
+            {intelligence.recommendedActions.map((action, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-secondary">
+                <span className="mt-1.5 size-1.5 rounded-full bg-brand shrink-0" />
+                {action}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
     </div>
   );
 }
@@ -179,12 +256,4 @@ function Stat({ label, value }: { label: string; value: string }) {
       <dd className="text-base font-bold tabular-nums text-primary">{value}</dd>
     </div>
   );
-}
-
-function formatDateTime(value: string) {
-  try {
-    return new Date(value).toLocaleString();
-  } catch {
-    return value;
-  }
 }

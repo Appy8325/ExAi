@@ -339,6 +339,7 @@ export function getPublicDemoExhibitorDashboard(client: PublicApiClient, eventEx
   );
 }
 
+
 export type DemoExhibitorVisitor = {
   relationshipId: string;
   attendeeName: string;

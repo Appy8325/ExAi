@@ -1,11 +1,22 @@
 import type { ReactNode } from "react";
 import { Suspense } from "react";
-import { ConsoleNav } from "./console-nav";
 import {
+  Breadcrumbs,
   CommandPalette,
   GlobalNav,
-  UnifiedBreadcrumbs,
+  WorkspaceNav,
 } from "@/components/navigation";
+
+const organizerSections = [
+  {
+    items: [
+      { label: "Dashboard", href: "/org", icon: "grid" },
+      { label: "Events", href: "/org/events", icon: "calendar" },
+      { label: "Analytics", href: "/org/analytics", icon: "chart" },
+      { label: "Settings", href: "/org/settings", icon: "gear" },
+    ],
+  },
+];
 
 export default function ConsoleLayout({ children }: { children: ReactNode }) {
   return (
@@ -14,22 +25,14 @@ export default function ConsoleLayout({ children }: { children: ReactNode }) {
       <div className="flex min-h-[calc(100vh-3.5rem)] flex-1">
         <div className="hidden lg:flex">
           <Suspense fallback={<aside className="w-60 border-r border-default bg-surface" />}>
-            <ConsoleNav />
+            <WorkspaceNav sections={organizerSections} basePath="/org" role="organizer" />
           </Suspense>
         </div>
-        <main
-          id="main"
-          className="flex-1 overflow-auto scrollbar-thin"
-        >
+        <main id="main" className="flex-1 overflow-auto scrollbar-thin">
           <div className="mx-auto max-w-(--mq-content-max) p-(--mq-space-gutter) sm:p-6 lg:p-8">
             <div className="mb-6 flex items-center justify-between gap-4">
-              <UnifiedBreadcrumbs />
-              <div className="flex items-center gap-3">
-                <span className="hidden rounded-full border border-status-info-border bg-status-info-subtle px-2.5 py-1 text-xs font-semibold text-status-info-text sm:inline-flex">
-                  Organizer
-                </span>
-                <CommandPalette />
-              </div>
+              <Breadcrumbs />
+              <CommandPalette />
             </div>
             {children}
           </div>

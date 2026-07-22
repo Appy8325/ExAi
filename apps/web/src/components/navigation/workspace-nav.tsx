@@ -2,29 +2,32 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-
 import { useAuthSession } from "@/components/auth/session-provider";
 
-const navItems = [
-  { label: "Dashboard", href: "/org", icon: "grid" },
-  { label: "Events", href: "/org/events", icon: "calendar" },
-  { label: "Users", href: "/org/users", icon: "users" },
-  { label: "Analytics", href: "/org/analytics", icon: "chart" },
-  { label: "Settings", href: "/org/settings", icon: "gear" },
-];
+export interface WorkspaceNavItem {
+  label: string;
+  href: string;
+  icon: string;
+}
 
-const GLOBAL_LINKS = [
-  { label: "Experience ExAi", href: "/demo", icon: "home" },
-  { label: "Attendee", href: "/hackathon", icon: "user" },
-];
+export interface WorkspaceNavSection {
+  title?: string;
+  items: WorkspaceNavItem[];
+}
 
-export function ConsoleNav() {
+export interface WorkspaceNavProps {
+  sections: WorkspaceNavSection[];
+  basePath: string;
+  role: "organizer" | "exhibitor" | "admin";
+}
+
+export function WorkspaceNav({ sections, basePath, role }: WorkspaceNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut, state } = useAuthSession();
 
-  const displayName = user?.displayName ?? "Organizer";
-  const initials = user?.initials ?? "O";
+  const displayName = user?.displayName ?? role === "organizer" ? "Organizer" : "Exhibitor";
+  const initials = user?.initials ?? role === "organizer" ? "O" : "EX";
   const isSignedIn = user !== null;
 
   const handleSignOut = async () => {
@@ -33,54 +36,59 @@ export function ConsoleNav() {
     router.refresh();
   };
 
+  const isActive = (href: string) => {
+    if (href === basePath || href === "") {
+      return pathname === href || pathname.startsWith(`${basePath}/dashboard/`);
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
   return (
     <aside className="flex w-60 flex-col border-r border-default bg-surface">
-      <Link href="/" className="flex h-14 items-center gap-2.5 border-b border-default px-4 transition-colors hover:bg-sunken/50">
+      <Link
+        href="/"
+        className="flex h-14 items-center gap-2.5 border-b border-default px-4 transition-colors hover:bg-sunken/50"
+      >
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-sm font-bold text-on-brand shadow-1">
           E
         </div>
         <span className="text-sm font-semibold text-primary">ExAi</span>
       </Link>
-      <nav aria-label="Primary navigation" className="flex-1 space-y-0.5 p-3">
-        {navItems.map((item) => {
-          const active = pathname === item.href || (item.href !== "/org" && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={active ? "page" : undefined}
-              className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                active
-                  ? "bg-brand-subtle text-brand"
-                  : "text-secondary hover:bg-sunken/70 hover:text-primary"
-              }`}
-            >
-              {active && (
-                <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-brand" />
-              )}
-              <NavIcon name={item.icon} active={active} />
-              {item.label}
-            </Link>
-          );
-        })}
+      <nav aria-label={`${role} workspace navigation`} className="flex-1 space-y-0.5 p-3">
+        {sections.map((section, si) => (
+          <div key={si} className={si > 0 ? "mt-4" : ""}>
+            {section.title && (
+              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+                {section.title}
+              </p>
+            )}
+            <div className={section.title ? "mt-1 space-y-0.5" : "space-y-0.5"}>
+              {section.items.map((item) => {
+                const href = item.href || basePath;
+                const active = isActive(href);
+                return (
+                  <Link
+                    key={item.label}
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      active
+                        ? "bg-brand-subtle text-brand"
+                        : "text-secondary hover:bg-sunken/70 hover:text-primary"
+                    }`}
+                  >
+                    {active && (
+                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-brand" />
+                    )}
+                    <NavIcon name={item.icon} active={active} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
-      <div className="border-t border-default p-3">
-        <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
-          Experience
-        </p>
-        <div className="mt-1 space-y-0.5">
-          {GLOBAL_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="group flex items-center gap-3 rounded-lg px-3 py-1.5 text-xs font-medium text-secondary transition-colors hover:bg-sunken hover:text-primary"
-            >
-              <NavIcon name={link.icon} active={false} />
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </div>
       <div className="border-t border-default p-3">
         {state === "loading" ? (
           <div className="flex items-center gap-3 rounded-lg px-3 py-2">
@@ -98,7 +106,7 @@ export function ConsoleNav() {
               </div>
               <div className="min-w-0 flex-1 truncate">
                 <p className="truncate text-sm font-medium text-primary">{displayName}</p>
-                <p className="truncate text-xs text-muted">Organizer</p>
+                <p className="truncate text-xs text-muted capitalize">{role}</p>
               </div>
             </div>
             <button
@@ -171,11 +179,51 @@ function NavIcon({ name, active }: { name: string; active: boolean }) {
           <line x1="6" y1="20" x2="6" y2="14" />
         </svg>
       );
+    case "sparkle":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
+          <path d="M19 16l.7 1.3 1.3.7-1.3.7L19 20l-.7-1.3-1.3-.7 1.3-.7.7-1.3z" />
+        </svg>
+      );
+    case "file":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="8" y1="13" x2="16" y2="13" />
+          <line x1="8" y1="17" x2="16" y2="17" />
+        </svg>
+      );
     case "gear":
       return (
         <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <circle cx="12" cy="12" r="3" />
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      );
+    case "box":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+          <line x1="12" y1="22.08" x2="12" y2="12" />
+        </svg>
+      );
+    case "qr":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <path d="M15 15h1v1h-1zM19 15h1v4h-1zM15 19h3v1h-3z" />
+        </svg>
+      );
+    case "eye":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <circle cx="12" cy="12" r="3" />
         </svg>
       );
     case "home":

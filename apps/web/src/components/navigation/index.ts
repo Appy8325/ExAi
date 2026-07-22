@@ -1,5 +1,11 @@
-export { UnifiedBreadcrumbs } from "./unified-breadcrumbs";
-export { CommandPalette } from "./command-palette";
-export { BackButton, NextAction } from "./back-button";
 export { GlobalNav } from "./global-nav";
-export { WorkspaceSwitcher } from "./workspace-switcher";
+export { WorkspaceNav } from "./workspace-nav";
+export type { WorkspaceNavItem, WorkspaceNavSection, WorkspaceNavProps } from "./workspace-nav";
+export { Breadcrumbs } from "./breadcrumbs";
+export type { BreadcrumbItem } from "./breadcrumbs";
+export { PageTabs } from "./page-tabs";
+export type { PageTab, PageTabsProps } from "./page-tabs";
+export { BackLink } from "./back-link";
+export type { BackLinkProps } from "./back-link";
+export { CommandPalette } from "./command-palette";
+export { UnifiedBreadcrumbs } from "./unified-breadcrumbs";

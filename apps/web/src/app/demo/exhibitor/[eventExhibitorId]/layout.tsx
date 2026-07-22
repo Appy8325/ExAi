@@ -1,19 +1,32 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
-
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getPublicDemoOverview } from "@concourse/api-client";
-
 import { getApiBaseUrl } from "@/lib/api/config";
-import {
-  DemoSideNav,
-  DemoTopBar,
-} from "@/components/demo/shell";
+import { Breadcrumbs, CommandPalette, GlobalNav, WorkspaceNav } from "@/components/navigation";
+
+function buildDemoExhibitorSections(basePath: string) {
+  return [
+    {
+      items: [
+        { label: "Dashboard", href: `${basePath}`, icon: "grid" },
+        { label: "Products", href: `${basePath}/products`, icon: "box" },
+        { label: "Visitors", href: `${basePath}/visitors`, icon: "users" },
+        { label: "Analytics", href: `${basePath}/analytics`, icon: "chart" },
+        { label: "AI Insights", href: `${basePath}/ai-insights`, icon: "sparkle" },
+        { label: "QR Codes", href: `${basePath}/qr`, icon: "qr" },
+        { label: "Booth Preview", href: `${basePath}/preview`, icon: "eye" },
+      ],
+    },
+  ];
+}
 
 export default async function ExhibitorLayout({
   children,
   params,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   params: Promise<{ eventExhibitorId: string }>;
 }) {
   const { eventExhibitorId } = await params;
@@ -33,66 +46,55 @@ export default async function ExhibitorLayout({
 
   if (overview && !org) notFound();
 
-  const items = [
-    { label: "Dashboard", href: `/demo/exhibitor/${eventExhibitorId}` },
-    { label: "Products", href: `/demo/exhibitor/${eventExhibitorId}/products` },
-    {
-      label: "Visitors",
-      href: `/demo/exhibitor/${eventExhibitorId}/visitors`,
-    },
-    {
-      label: "Analytics",
-      href: `/demo/exhibitor/${eventExhibitorId}/analytics`,
-    },
-    {
-      label: "AI Insights",
-      href: `/demo/exhibitor/${eventExhibitorId}/ai-insights`,
-    },
-    { label: "QR", href: `/demo/exhibitor/${eventExhibitorId}/qr` },
-    {
-      label: "Booth Preview",
-      href: booth?.publicQrToken
-        ? `/visit/${booth.publicQrToken}`
-        : `/demo/exhibitor/${eventExhibitorId}/preview`,
-    },
-  ];
+  const basePath = `/demo/exhibitor/${eventExhibitorId}`;
+  const sections = buildDemoExhibitorSections(basePath);
 
   return (
-    <div className="min-h-screen bg-canvas">
-      <DemoTopBar persona="exhibitor" />
-      <div className="mx-auto flex max-w-7xl">
-        <DemoSideNav title={org?.name ?? "Exhibitor"} items={items} />
-        <div className="min-w-0 flex-1">
-          {org && booth ? (
-            <div className="border-b border-default/60 bg-canvas px-6 py-3 sm:px-10">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-xs text-muted">
-                    <Link
-                      href="/demo/exhibitor"
-                      className="text-link hover:underline"
-                    >
-                      All exhibitors
-                    </Link>
-                    <span className="mx-2">/</span>
-                    <span className="text-primary">{booth.companyName}</span>
-                    {event ? (
-                      <>
-                        <span className="mx-2">·</span>
-                        <span className="text-secondary">{event.name}</span>
-                      </>
-                    ) : null}
-                  </p>
-                </div>
-                <span className="inline-flex items-center gap-1 rounded-full border border-status-success-border bg-status-success-subtle px-2.5 py-1 text-xs font-medium text-status-success-text">
-                  <span className="inline-block size-1.5 rounded-full bg-status-success-solid" />
-                  Read-only
-                </span>
-              </div>
-            </div>
-          ) : null}
-          {children}
+    <div className="flex min-h-screen flex-col bg-canvas">
+      <GlobalNav variant="console" active="exhibitor" />
+      <div className="flex min-h-[calc(100vh-3.5rem)] flex-1">
+        <div className="hidden lg:flex">
+          <Suspense fallback={<aside className="w-60 border-r border-default bg-surface" />}>
+            <WorkspaceNav sections={sections} basePath={basePath} role="exhibitor" />
+          </Suspense>
         </div>
+        <main id="main" className="flex-1 overflow-auto scrollbar-thin">
+          <div className="mx-auto max-w-(--mq-content-max) p-(--mq-space-gutter) sm:p-6 lg:p-8">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <Breadcrumbs />
+              <CommandPalette />
+            </div>
+            {org && booth ? (
+              <div className="mb-6 border-b border-default/60 bg-canvas pb-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted">
+                      <Link
+                        href="/demo/exhibitor"
+                        className="text-link hover:underline"
+                      >
+                        All exhibitors
+                      </Link>
+                      <span className="mx-2">/</span>
+                      <span className="text-primary font-medium">{booth.companyName}</span>
+                      {event ? (
+                        <>
+                          <span className="mx-2">·</span>
+                          <span className="text-secondary">{event.name}</span>
+                        </>
+                      ) : null}
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-status-success-border bg-status-success-subtle px-2.5 py-1 text-xs font-medium text-status-success-text">
+                    <span className="inline-block size-1.5 rounded-full bg-status-success-solid" />
+                    Read-only
+                  </span>
+                </div>
+              </div>
+            ) : null}
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

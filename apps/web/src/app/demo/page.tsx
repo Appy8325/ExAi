@@ -6,8 +6,8 @@ import {
 } from "@concourse/api-client";
 
 import { getApiBaseUrl } from "@/lib/api/config";
-
-import { DemoPageHeader, DemoTopBar } from "@/components/demo/shell";
+import { GlobalNav } from "@/components/navigation/global-nav";
+import { DemoPageHeader } from "@/components/demo/shell";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -30,7 +30,7 @@ export default async function DemoPage() {
 
   return (
     <main className="min-h-screen bg-canvas">
-      <DemoTopBar />
+      <GlobalNav variant="marketing" active="experience" />
       <div className="mx-auto max-w-7xl px-6 pt-8 sm:px-10 sm:pt-12">
         <div className="mx-auto max-w-3xl space-y-4 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand-subtle px-3 py-1 text-xs font-semibold text-brand">

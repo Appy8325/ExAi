@@ -7,7 +7,7 @@
 ### Pipeline Trace
 
 ```
-Browser (Vercel deployed frontend)
+Browser (Vercel deployed frontend at https://ex-ai-web.vercel.app)
   ↓ calls https://api.exai.app/v1/public/demo
   ↓ DNS resolution FAILED - api.exai.app doesn't exist
   ↓ connection fails immediately
@@ -16,61 +16,76 @@ Browser (Vercel deployed frontend)
   ↓ <DemoUnavailable /> renders
 ```
 
-### Step-by-Step Failure Analysis
+## Deployment Steps Required
 
-| Step | Status | Notes |
-|------|--------|-------|
-| 1. Browser loads /demo/exhibitor/... | PASS | Frontend deployed to Vercel |
-| 2. getApiBaseUrl() returns | PASS | Uses NEXT_PUBLIC_API_BASE_URL = "https://api.exai.app" |
-| 3. Fetch to api.exai.app | FAIL | DNS lookup fails - no such domain exists |
-| 4. API call catches error | PASS | .catch(() => null) returns null |
-| 5. Both overview and dashboard are null | PASS | null check triggers DemoUnavailable |
+### Step 1: Deploy API to Railway
 
-### Why Local Works
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
 
-Local environment:
-- `pnpm dev` starts API at localhost:3001
-- `NEXT_PUBLIC_API_BASE_URL` falls back to localhost origin
-- API connects to local Supabase (seeded with demo data)
-- Returns valid JSON from demoOverview() and demoExhibitorDashboard()
+# Login
+railway login
 
-### Why Production Fails
+# Initialize project (in repo root)
+railway init
 
-Production environment:
-- Frontend deployed to Vercel (ex-ai-web.vercel.app)
-- `NEXT_PUBLIC_API_BASE_URL=https://api.exai.app` (Vercel env var)
-- DNS lookup for api.exai.app fails - domain not registered
-- API server doesn't exist anywhere
-- Fetch fails silently, DemoUnavailable renders
+# Add API service
+railway add --service api
 
-### Files Involved
+# Set environment variables
+railway variables set \
+  API_DATABASE_URL="postgresql://postgres:<PASSWORD>@db.<REF>.supabase.co:6543/postgres?pgbouncer=true" \
+  API_SUPABASE_URL="https://<REF>.supabase.co" \
+  API_SUPABASE_SERVICE_ROLE_KEY="<SERVICE_ROLE_KEY>" \
+  API_CORS_ORIGIN="https://ex-ai-web.vercel.app" \
+  API_PUBLIC_WEB_ORIGIN="https://ex-ai-web.vercel.app" \
+  DEMO_SIMULATION_AUTO_START="true"
 
-1. `apps/web/src/lib/api/config.ts` - Determines API URL
-2. `apps/web/src/app/demo/exhibitor/[eventExhibitorId]/page.tsx` - Shows DemoUnavailable on null
-3. `apps/api/src/modules/engagement/public-demo.controller.ts` - API endpoint (not deployed)
-4. `apps/api/src/modules/engagement/public-exhibitors.service.ts` - Returns demo data
-5. `packages/database/seed/demo.ts` - Seeds demo data (not run in production)
+# Deploy
+railway up
+```
 
-### What Needs to Happen
+### Step 2: Get API URL and Configure DNS
 
-For the demo to work in production:
+```bash
+railway domain
+# Returns: api.exai.app or a random URL like xxx.up.railway.app
 
-1. **Deploy API backend** to Railway or Render
-   - Set environment variables (API_DATABASE_URL, API_SUPABASE_URL, etc.)
-   - Health check at /healthz
+# If using custom domain api.exai.app:
+# Add CNAME record in DNS provider pointing to the railway.app URL
+```
 
-2. **Configure DNS** for api.exai.app
-   - CNAME to Railway/Render deployment URL
+### Step 3: Seed Production Database
 
-3. **Seed production database**
-   - Run `API_DATABASE_URL="..." pnpm db:seed:demo`
-   - Creates TechExpo 2027, 10 exhibitors, 120 attendees, relationships
+```bash
+# Get the database URL from Supabase dashboard
+export API_DATABASE_URL="postgresql://postgres:<PASSWORD>@db.<REF>.supabase.co:6543/postgres"
 
-4. **Verify**
-   - curl https://api.exai.app/healthz returns 200
-   - curl https://api.exai.app/v1/public/demo returns exhibitor data
+# Run demo seed
+pnpm db:seed:demo
+```
 
-### Verification Commands
+### Step 4: Verify
+
+```bash
+curl https://api.exai.app/healthz
+# Expected: {"status":"ok"}
+
+curl https://api.exai.app/v1/public/demo
+# Expected: JSON with exhibitorOrganizations array
+```
+
+## Alternative: Deploy to Render
+
+1. Go to render.com and connect your GitHub repo
+2. Create a Web Service for `apps/api`
+3. Set build command: `pnpm install && pnpm --filter api... build`
+4. Set start command: `node apps/api/dist/main.js`
+5. Add environment variables from Step 1
+6. Deploy
+
+## Verification Commands
 
 ```bash
 # Should return 200 if API is deployed
@@ -80,20 +95,27 @@ curl https://api.exai.app/healthz
 curl https://api.exai.app/v1/public/demo
 ```
 
-### Status: Deployment Infrastructure Required
+## Current Status
 
-This is NOT a code bug. The code works correctly in local environment.
-The production deployment is incomplete - the backend API was never deployed.
+| Component | URL | Status |
+|-----------|-----|--------|
+| Frontend (Vercel) | https://ex-ai-web.vercel.app | DEPLOYED |
+| API Backend | https://api.exai.app | NOT DEPLOYED |
+| Production DB | Supabase Cloud | NOT SEEDED |
 
-### Files Changed During Investigation
+## What Works
 
-- `packages/database/seed/demo.ts` - Fixed interval expression bugs
-- `packages/database/seed/demo_seed.json` - Regenerated with 10 exhibitors
-- No changes to API or frontend code - they work correctly
+- Local demo works perfectly (database seeded, simulation running)
+- API code is correct and complete
+- Frontend code is correct and deployed
 
-### Next Steps
+## What Doesn't Work in Production
 
-1. Deploy API to Railway/Render using DEPLOY_RUNBOOK.md instructions
-2. Run database migrations and demo seed against production
-3. Verify api.exai.app is accessible
-4. Redeploy frontend if needed to pick up new environment
+- `api.exai.app` - DNS lookup fails
+- Demo data not seeded in production Supabase
+
+## Files Involved
+
+- `apps/api/` - NestJS API (needs deployment)
+- `apps/web/` - Next.js frontend (deployed to Vercel)
+- `packages/database/seed/demo.ts` - Seeds demo data (needs to run against production)

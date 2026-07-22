@@ -1,31 +1,43 @@
+import type { ReactNode } from "react";
+import { Suspense } from "react";
 import {
-  DemoTopBar,
-  DemoSideNav,
-  type PersonaNavItem,
-} from "@/components/demo/shell";
-import { UnifiedBreadcrumbs, CommandPalette } from "@/components/navigation";
+  Breadcrumbs,
+  CommandPalette,
+  GlobalNav,
+  WorkspaceNav,
+} from "@/components/navigation";
 
-export default function OrganizerLayout({ children }: { children: React.ReactNode }) {
-  const nav: PersonaNavItem[] = [
-    { label: "Dashboard", href: "/demo/organizer" },
-    { label: "Events", href: "/demo/organizer/events" },
-    { label: "Analytics", href: "/demo/organizer/analytics" },
-    { label: "Booth Traffic", href: "/demo/organizer/heatmaps" },
-    { label: "AI Insights", href: "/demo/organizer/ai-insights" },
-    { label: "Reports", href: "/demo/organizer/reports" },
-  ];
+const organizerSections = [
+  {
+    items: [
+      { label: "Dashboard", href: "/demo/organizer", icon: "grid" },
+      { label: "Events", href: "/demo/organizer/events", icon: "calendar" },
+      { label: "Analytics", href: "/demo/organizer/analytics", icon: "chart" },
+      { label: "AI Insights", href: "/demo/organizer/ai-insights", icon: "sparkle" },
+      { label: "Reports", href: "/demo/organizer/reports", icon: "file" },
+    ],
+  },
+];
+
+export default function OrganizerLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-canvas">
-      <DemoTopBar persona="organizer" />
-      <div className="mx-auto flex max-w-7xl">
-        <DemoSideNav title="Organizer" items={nav} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-end gap-4 border-b border-default/60 px-6 py-3">
-            <UnifiedBreadcrumbs />
-            <CommandPalette />
-          </div>
-          <div className="p-6 lg:p-8">{children}</div>
+    <div className="flex min-h-screen flex-col bg-canvas">
+      <GlobalNav variant="console" active="organizer" />
+      <div className="flex min-h-[calc(100vh-3.5rem)] flex-1">
+        <div className="hidden lg:flex">
+          <Suspense fallback={<aside className="w-60 border-r border-default bg-surface" />}>
+            <WorkspaceNav sections={organizerSections} basePath="/demo/organizer" role="organizer" />
+          </Suspense>
         </div>
+        <main id="main" className="flex-1 overflow-auto scrollbar-thin">
+          <div className="mx-auto max-w-(--mq-content-max) p-(--mq-space-gutter) sm:p-6 lg:p-8">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <Breadcrumbs />
+              <CommandPalette />
+            </div>
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

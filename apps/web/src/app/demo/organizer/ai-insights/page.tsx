@@ -6,10 +6,10 @@ import {
 } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import {
-  DemoMobileNav,
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
+import { computeOrganizerBriefing, DemoMobileNav } from "@/lib/demo-intelligence";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -23,6 +23,18 @@ const SIDEBAR = [
   { label: "Reports", href: "/demo/organizer/reports" },
 ];
 
+const PRIORITY_COLORS = {
+  high: "border-l-status-danger-solid",
+  medium: "border-l-status-warning-solid",
+  low: "border-l-status-info-solid",
+} as const;
+
+const PRIORITY_LABEL_COLORS = {
+  high: "text-status-danger-text",
+  medium: "text-status-warning-text",
+  low: "text-status-info-text",
+} as const;
+
 export default async function OrganizerAiInsightsPage() {
   const apiBase = getApiBaseUrl();
   const overview = await getPublicDemoOverview({ baseUrl: apiBase }).catch(() => null);
@@ -30,15 +42,10 @@ export default async function OrganizerAiInsightsPage() {
 
   const firstEvent = overview.events[0];
   const analytics = firstEvent
-    ? await getPublicDemoAnalytics({ baseUrl: apiBase }, firstEvent.id).catch(
-        () => null,
-      )
+    ? await getPublicDemoAnalytics({ baseUrl: apiBase }, firstEvent.id).catch(() => null)
     : null;
 
-  const industries = analytics?.industries ?? [];
-  const topics = analytics?.topics ?? [];
-  const topIndustry = industries[0]?.name;
-  const topTopic = topics[0]?.name;
+  const briefing = analytics ? computeOrganizerBriefing(analytics) : null;
 
   return (
     <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
@@ -78,67 +85,78 @@ export default async function OrganizerAiInsightsPage() {
         />
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-              AI
-            </span>
-            <h2 className="text-base font-semibold text-primary">
-              Executive summary
-            </h2>
-          </div>
-          <div className="mt-4 rounded-xl border border-dashed border-default bg-sunken p-6 text-center">
-            <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-brand-subtle">
-              <svg className="size-4 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-            </div>
-            <p className="mt-3 text-sm font-semibold text-primary">
-              AI Insights — In Active Development
-            </p>
-            <p className="mt-2 text-xs text-secondary">
-              Real NVIDIA AI-powered insights are generated in the authenticated
-              organizer workspace. The metrics shown here reflect live simulation
-              data available in the demo.
-            </p>
-          </div>
-        </Card>
-
+      {!briefing ? (
         <Card>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
-              AI
-            </span>
-            <h2 className="text-base font-semibold text-primary">
-              What to focus on
-            </h2>
-          </div>
-          <ul className="mt-4 space-y-3 text-sm">
-            <Recommendation
-              title="Double down on top topics"
-              body={
-                topTopic
-                  ? `"${topTopic}" is the most discussed topic among attendees.` +
-                    " Allocate stage time and booth coverage accordingly."
-                  : "Once attendees ask questions, AI will surface the topics with the highest intent here."
-              }
-            />
-            <Recommendation
-              title="Target the strongest industry"
-              body={
-                topIndustry
-                  ? `${topIndustry} attendees are most active. Engage these booths programmatically before close-of-show.`
-                  : "Industry data populates as consented attendees arrive."
-              }
-            />
-            <Recommendation
-              title="Strengthen mid-funnel"
-              body={`${analytics?.engagement.analyzedLeads ?? 0} leads were AI-scored. Send a follow-up sequence before the post-event window closes.`}
-            />
-          </ul>
+          <p className="text-sm text-secondary">AI intelligence unavailable. Run the demo seed to populate data.</p>
         </Card>
-      </div>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
+                AI
+              </span>
+              <h2 className="text-base font-semibold text-primary">
+                Executive briefing
+              </h2>
+            </div>
+            <div className="mt-4 space-y-4">
+              <div className="rounded-lg border border-default bg-sunken p-4">
+                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Event Summary</p>
+                <p className="text-sm text-secondary">{briefing.summary}</p>
+              </div>
+              <div className="rounded-lg border border-default bg-sunken p-4">
+                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Traffic Analysis</p>
+                <p className="text-sm text-secondary">{briefing.trafficAnalysis}</p>
+              </div>
+              <div className="rounded-lg border border-default bg-sunken p-4">
+                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Conversion Performance</p>
+                <p className="text-sm text-secondary">{briefing.conversionAnalysis}</p>
+              </div>
+              <div className="rounded-lg border border-default bg-sunken p-4">
+                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Booth Highlights</p>
+                <p className="text-sm text-secondary">{briefing.boothHighlights}</p>
+              </div>
+              <div className="rounded-lg border border-default bg-sunken p-4">
+                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Returning Attendee Signals</p>
+                <p className="text-sm text-secondary">{briefing.returningAnalysis}</p>
+              </div>
+              <div className="rounded-lg border border-default bg-sunken p-4">
+                <p className="text-xs font-medium text-muted uppercase tracking-wide mb-1">Industry & Topic Trends</p>
+                <p className="text-sm text-secondary">{briefing.industryInsight}</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex size-6 items-center justify-center rounded-full bg-status-ai-subtle text-[10px] font-semibold text-status-ai-text">
+                AI
+              </span>
+              <h2 className="text-base font-semibold text-primary">
+                What to focus on
+              </h2>
+            </div>
+            <ul className="mt-4 space-y-3">
+              {briefing.recommendations.map((rec, i) => (
+                <li key={i} className={`rounded-lg border border-default bg-sunken p-3 border-l-4 ${PRIORITY_COLORS[rec.priority]}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm font-semibold text-primary">{rec.title}</p>
+                    <span className={`shrink-0 text-[10px] font-semibold uppercase ${PRIORITY_LABEL_COLORS[rec.priority]}`}>
+                      {rec.priority}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-secondary">{rec.finding}</p>
+                  <p className="mt-0.5 text-[10px] text-muted font-mono">{rec.metric}</p>
+                </li>
+              ))}
+              {briefing.recommendations.length === 0 && (
+                <p className="text-sm text-muted">Recommendations populate as booth interactions are recorded.</p>
+              )}
+            </ul>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
@@ -173,14 +191,5 @@ function InsightCard({
       <p className="mt-1 text-xl font-semibold tabular-nums text-primary">{value}</p>
       <p className="mt-1 text-xs text-muted">{note}</p>
     </div>
-  );
-}
-
-function Recommendation({ title, body }: { title: string; body: string }) {
-  return (
-    <li className="rounded-lg border border-default bg-sunken p-3">
-      <p className="text-sm font-semibold text-primary">{title}</p>
-      <p className="mt-1 text-xs text-secondary">{body}</p>
-    </li>
   );
 }

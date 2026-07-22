@@ -1,6 +1,0 @@
-{
-  "framework": "nextjs",
-  "buildCommand": "cd ../.. && corepack pnpm install --frozen-lockfile --prod=false && corepack pnpm --filter web... build",
-  "installCommand": "echo skip",
-  "outputDirectory": ".next"
-}

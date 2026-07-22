@@ -49,3 +49,6 @@ supabase/.temp/
 # Demo generated artifacts (QR codes)
 demo/qr/
 .vercel/
+
+.vercel
+.env*

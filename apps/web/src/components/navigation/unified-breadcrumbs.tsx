@@ -15,14 +15,15 @@ interface BreadcrumbConfig {
 }
 
 const CONSOLE_BREADCRUMBS: Record<string, BreadcrumbConfig> = {
-  "/org": { items: [{ label: "Dashboard" }] },
-  "/org/analytics": { items: [{ label: "Dashboard", href: "/org" }, { label: "Analytics" }] },
-  "/org/settings": { items: [{ label: "Dashboard", href: "/org" }, { label: "Settings" }] },
-  "/org/users": { items: [{ label: "Dashboard", href: "/org" }, { label: "Users" }] },
-  "/org/events": { items: [{ label: "Dashboard", href: "/org" }, { label: "Events" }] },
+  "/org": { items: [{ label: "Organizer" }] },
+  "/org/analytics": { items: [{ label: "Organizer", href: "/org" }, { label: "Analytics" }] },
+  "/org/settings": { items: [{ label: "Organizer", href: "/org" }, { label: "Settings" }] },
+  "/org/ai-insights": { items: [{ label: "Organizer", href: "/org" }, { label: "AI Insights" }] },
+  "/org/reports": { items: [{ label: "Organizer", href: "/org" }, { label: "Reports" }] },
+  "/org/events": { items: [{ label: "Organizer", href: "/org" }, { label: "Events" }] },
   "/org/events/[eventId]": {
     items: [
-      { label: "Dashboard", href: "/org" },
+      { label: "Organizer", href: "/org" },
       { label: "Events", href: "/org/events" },
       { label: "Event" },
     ],
@@ -30,39 +31,33 @@ const CONSOLE_BREADCRUMBS: Record<string, BreadcrumbConfig> = {
 };
 
 const EXHIBIT_BREADCRUMBS: Record<string, BreadcrumbConfig> = {
-  "/exhibit/[organizationId]": { items: [{ label: "Dashboard" }] },
-  "/exhibit/[organizationId]/attendees": {
-    items: [{ label: "Dashboard", href: "" }, { label: "Attendees" }],
+  "/exhibit/[organizationId]": { items: [{ label: "Exhibitor" }] },
+  "/exhibit/[organizationId]/visitors": {
+    items: [{ label: "Exhibitor", href: "" }, { label: "Visitors" }],
   },
-  "/exhibit/[organizationId]/ai-insights": {
-    items: [{ label: "Dashboard", href: "" }, { label: "AI Insights" }],
+  "/exhibit/[organizationId]/analytics": {
+    items: [{ label: "Exhibitor", href: "" }, { label: "Analytics" }],
+  },
+  "/exhibit/[organizationId]/ai-assistant": {
+    items: [{ label: "Exhibitor", href: "" }, { label: "AI Assistant" }],
+  },
+  "/exhibit/[organizationId]/products": {
+    items: [{ label: "Exhibitor", href: "" }, { label: "Products" }],
+  },
+  "/exhibit/[organizationId]/knowledge": {
+    items: [{ label: "Exhibitor", href: "" }, { label: "Knowledge" }],
   },
   "/exhibit/[organizationId]/dashboard": {
-    items: [{ label: "Dashboard" }],
+    items: [{ label: "Exhibitor" }],
   },
   "/exhibit/[organizationId]/dashboard/[eventExhibitorId]": {
-    items: [{ label: "Dashboard" }, { label: "Booth" }],
-  },
-  "/exhibit/[organizationId]/documents": {
-    items: [{ label: "Dashboard", href: "" }, { label: "Knowledge" }],
-  },
-  "/exhibit/[organizationId]/forms": {
-    items: [{ label: "Dashboard", href: "" }, { label: "Lead Form" }],
-  },
-  "/exhibit/[organizationId]/qr": {
-    items: [{ label: "Dashboard", href: "" }, { label: "Booth QR" }],
-  },
-  "/exhibit/[organizationId]/relationships": {
-    items: [{ label: "Dashboard", href: "" }, { label: "Relationships" }],
-  },
-  "/exhibit/[organizationId]/relationships/[relationshipId]": {
-    items: [{ label: "Dashboard", href: "" }, { label: "Relationships", href: "" }, { label: "Relationship" }],
+    items: [{ label: "Exhibitor" }, { label: "Booth" }],
   },
   "/exhibit/[organizationId]/settings": {
-    items: [{ label: "Dashboard", href: "" }, { label: "Booth Settings" }],
+    items: [{ label: "Exhibitor", href: "" }, { label: "Settings" }],
   },
   "/exhibit/[organizationId]/team": {
-    items: [{ label: "Dashboard", href: "" }, { label: "Team" }],
+    items: [{ label: "Exhibitor", href: "" }, { label: "Team" }],
   },
 };
 
@@ -84,28 +79,27 @@ const ATTENDEE_BREADCRUMBS: Record<string, BreadcrumbConfig> = {
 };
 
 const DEMO_BREADCRUMBS: Record<string, BreadcrumbConfig> = {
-  "/demo": { items: [{ label: "Experience ExAi" }] },
-  "/demo/organizer": { items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer" }] },
+  "/demo": { items: [{ label: "Experience" }] },
+  "/demo/organizer": { items: [{ label: "Experience", href: "/demo" }, { label: "Organizer" }] },
   "/demo/organizer/events": {
-    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Events" }],
+    items: [{ label: "Experience", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Events" }],
   },
   "/demo/organizer/analytics": {
-    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Analytics" }],
+    items: [{ label: "Experience", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Analytics" }],
   },
   "/demo/organizer/heatmaps": {
-    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Heatmaps" }],
+    items: [{ label: "Experience", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Heatmaps" }],
   },
   "/demo/organizer/ai-insights": {
-    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "AI Insights" }],
+    items: [{ label: "Experience", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "AI Insights" }],
   },
   "/demo/organizer/reports": {
-    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Reports" }],
+    items: [{ label: "Experience", href: "/demo" }, { label: "Organizer", href: "/demo/organizer" }, { label: "Reports" }],
   },
-  "/demo/exhibitor": { items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Exhibitor" }] },
+  "/demo/exhibitor": { items: [{ label: "Experience", href: "/demo" }, { label: "Exhibitor" }] },
   "/demo/exhibitor/[eventExhibitorId]": {
-    items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Exhibitor", href: "/demo/exhibitor" }, { label: "Booth" }],
+    items: [{ label: "Experience", href: "/demo" }, { label: "Exhibitor", href: "/demo/exhibitor" }, { label: "Booth" }],
   },
-  "/demo/admin": { items: [{ label: "Experience ExAi", href: "/demo" }, { label: "Admin" }] },
 };
 
 function matchBreadcrumb(pathname: string, patterns: Record<string, BreadcrumbConfig>): BreadcrumbConfig | null {
@@ -133,11 +127,11 @@ function resolveBreadcrumbItems(pathname: string): BreadcrumbItem[] {
       }));
     }
     if (segments.length === 2) {
-      return [{ label: "Dashboard" }];
+      return [{ label: "Organizer" }];
     }
     if (segments.length === 3 && segments[1] === "events") {
       return [
-        { label: "Dashboard", href: "/org" },
+        { label: "Organizer", href: "/org" },
         { label: "Events", href: "/org/events" },
         { label: "Event" },
       ];
@@ -149,7 +143,7 @@ function resolveBreadcrumbItems(pathname: string): BreadcrumbItem[] {
     if (match) {
       const orgId = segments[1];
       return match.items.map((item) => {
-        if (!item.href && item.label !== "Dashboard" && item.label !== "Booth" && item.label !== "Relationship") {
+        if (!item.href && item.label !== "Exhibitor" && item.label !== "Booth") {
           return { ...item, href: `/exhibit/${orgId}` };
         }
         if (item.href === "") {

@@ -9,26 +9,13 @@ import {
 } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import {
-  DemoMobileNav,
   DemoPageHeader,
-  DemoTopBar,
   DemoUnavailable,
 } from "@/components/demo/shell";
 import { TrackVisit } from "@/components/demo/analytics-tracker";
-import { UnifiedBreadcrumbs, CommandPalette } from "@/components/navigation";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const SIDEBAR = (id: string) => [
-  { label: "Dashboard", href: `/demo/exhibitor/${id}` },
-  { label: "Products", href: `/demo/exhibitor/${id}/products` },
-  { label: "Visitors", href: `/demo/exhibitor/${id}/visitors` },
-  { label: "Analytics", href: `/demo/exhibitor/${id}/analytics` },
-  { label: "AI Insights", href: `/demo/exhibitor/${id}/ai-insights` },
-  { label: "QR", href: `/demo/exhibitor/${id}/qr` },
-  { label: "Booth Preview", href: `/demo/exhibitor/${id}/preview` },
-];
 
 export default async function ExhibitorDashboardPage({
   params,
@@ -69,23 +56,16 @@ export default async function ExhibitorDashboardPage({
   ));
 
   return (
-    <div className="min-h-screen bg-canvas">
-      <DemoTopBar persona="exhibitor" />
+    <div className="space-y-8">
       <TrackVisit boothId={eventExhibitorId} />
-      <DemoMobileNav items={SIDEBAR(eventExhibitorId)} currentHref={`/demo/exhibitor/${eventExhibitorId}`} />
-      <div className="flex items-center justify-end gap-4 border-b border-default/60 px-6 py-2">
-        <UnifiedBreadcrumbs />
-        <CommandPalette />
-      </div>
-      <div className="space-y-8 px-6 py-8 sm:px-10 sm:py-10">
-        <DemoPageHeader
-          eyebrow="Exhibitor workspace"
-          title={booth.companyName}
-          description={`Booth ${booth.boothNumber ?? "—"} · ${booth.boothName}${
-            event ? ` · ${event.name}` : ""
-          }`}
-          badge="Read-only"
-        />
+      <DemoPageHeader
+        eyebrow="Exhibitor workspace"
+        title={booth.companyName}
+        description={`Booth ${booth.boothNumber ?? "—"} · ${booth.boothName}${
+          event ? ` · ${event.name}` : ""
+        }`}
+        badge="Read-only"
+      />
 
         <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           <MetricCard label="New visitors" value={String(pipeline.new)} />
@@ -236,7 +216,6 @@ export default async function ExhibitorDashboardPage({
               Open public booth
             </Link>
           ) : null}
-        </div>
       </div>
     </div>
   );

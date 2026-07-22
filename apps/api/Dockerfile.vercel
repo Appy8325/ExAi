@@ -1,0 +1,15 @@
+FROM node:22-alpine
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json apps/api/
+COPY packages/*/package.json packages/
+
+RUN pnpm install --frozen-lockfile --filter api... --filter "./packages/**" --include-workspace-root
+
+COPY . .
+RUN pnpm build --filter api...
+
+EXPOSE 3001
+CMD ["node", "apps/api/dist/main.js"]

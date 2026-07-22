@@ -4,10 +4,9 @@ import { getPublicDemoOverview } from "@concourse/api-client";
 import { getApiBaseUrl } from "@/lib/api/config";
 import {
   DemoPageHeader,
-  DemoTopBar,
   DemoUnavailable,
 } from "@/components/demo/shell";
-import { UnifiedBreadcrumbs, CommandPalette } from "@/components/navigation";
+import { Breadcrumbs, CommandPalette } from "@/components/navigation";
 import { ExhibitorSearch } from "./exhibitor-search";
 
 export const dynamic = "force-dynamic";
@@ -24,10 +23,9 @@ export default async function ExhibitorPickerPage() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      <DemoTopBar persona="exhibitor" />
       <div className="mx-auto max-w-7xl space-y-8 px-6 py-8 sm:px-10 sm:py-10">
         <div className="flex items-center justify-end gap-4 border-b border-default/60 pb-4">
-          <UnifiedBreadcrumbs />
+          <Breadcrumbs />
           <CommandPalette />
         </div>
 
