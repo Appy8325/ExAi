@@ -29,6 +29,7 @@ import { AttendeeRelationshipsService } from "./attendee-relationships.service";
 import { OrganizerOverviewController } from "./organizer-overview.controller";
 import { OrganizerOverviewService } from "./organizer-overview.service";
 import { EventsModule } from "../events/events.module";
+import { ExhibitorsModule } from "../exhibitors/exhibitors.module";
 import { AiModule } from "../ai/ai.module";
 import { AgendaModule } from "../agenda/agenda.module";
 import {
@@ -50,7 +51,7 @@ import { DemoAdminController } from "./demo-admin.controller";
 import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor";
 
 @Module({
-  imports: [AuthModule, OrganizationsModule, EventsModule, AiModule, AgendaModule],
+  imports: [AuthModule, OrganizationsModule, EventsModule, ExhibitorsModule, AiModule, AgendaModule],
   controllers: [
     RelationshipWorkspaceController,
     ExhibitorDashboardController,
