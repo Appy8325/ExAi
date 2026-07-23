@@ -47,9 +47,6 @@ import { DemoAnalyticsStore } from "./demo-analytics.store";
 import { DemoSimulationService } from "./demo-simulation.service";
 import { DemoScenarioService } from "./demo-scenario.service";
 import { DemoAdminController } from "./demo-admin.controller";
-import { SessionsController } from "./sessions.controller";
-import { SpeakersController } from "./speakers.controller";
-import { RegistrationsController } from "./registrations.controller";
 import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor";
 
 @Module({
@@ -70,9 +67,6 @@ import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor
     OrganizerManagementController,
     ExhibitorBootstrapController,
     ExhibitorWorkspaceController,
-    SessionsController,
-    SpeakersController,
-    RegistrationsController,
   ],
   providers: [
     { provide: DATABASE_CLIENT, useValue: db },
