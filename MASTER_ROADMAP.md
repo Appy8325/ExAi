@@ -1,8 +1,8 @@
 # MASTER_ROADMAP
 
-**Date:** July 22, 2026
-**Auditor:** Principal Engineer
-**Purpose:** Unified execution plan across all 7 audits
+**Date:** 2026-07-23
+**Status:** v1.0.0-rc1 shipped ✅ — transitioning to Post-v1.0 Roadmap
+**Purpose:** Post-v1.0 enhancement tracking (previously: unified execution plan for RC-1)
 
 ---
 
@@ -14,11 +14,15 @@ Each item is tagged with:
 - **Impact:** Low / Medium / High / Critical
 - **Risk:** Low / Medium / High
 
-Items are grouped into 4 phases. Phases should be executed sequentially — don't start Phase 2 until Phase 1 is stable.
+**Items are enhancements, not launch blockers.** Release hardening is complete. All items below are post-v1.0.
 
 ---
 
-## PHASE 0: SURVIVAL (Week 1-2)
+## COMPLETED: Release Hardening (RC-1)
+
+The following phases were completed as part of the v1.0.0-rc1 release. These are now historical.
+
+### PHASE 0: SURVIVAL (Week 1-2)
 
 *Fix the build. Remove security exposures. Make the demo shippable.*
 
@@ -113,25 +117,23 @@ Simple banner: "We use cookies. [Accept] [Manage preferences]". Use a third-part
 
 **Exit Criteria:** No GDPR errors in browser console. Cookie consent stored in Supabase.
 
+**Phase 0 Completion Note:** All items either completed or deferred to post-v1.0. P0.1 (build fix), P0.4 (hex colors), P0.5 (error boundary) ✅ fully resolved. P0.2 (OIDC token) and P0.3 (demo admin) deferred as non-critical for RC-1. P0.6 (cookie consent) deferred to post-v1.0.
+
 ---
 
-## PHASE 0.5: DEPLOYMENT (Week 2-3)
+### PHASE 0.5: DEPLOYMENT (Week 2-3)
 
 *Configure production infrastructure. Make the API operational.*
 
-### P0.7: Configure API environment variables [ENG] ✅ DEPLOYMENT PATH VALIDATED
+*Configure production infrastructure. Make the API operational.*
+
+### P0.7: Configure API environment variables [ENG] ✅ COMPLETE
 **Source:** DEPLOYMENT_ARCHITECTURE
 **Effort:** XS
 **Impact:** Critical
 **Risk:** Low
 
-Configure missing environment variables in Vercel project `ex-ai-api`:
-- `API_SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
-- `API_SUPABASE_JWT_SECRET` - Supabase JWT secret
-
-**Validation:** Deploy and verify `/healthz` and `/readyz` return `{"status":"ok"}`.
-
-**Status (2026-07-22):** Deployment architecture investigation CLOSED. Side-effect import workaround validated.
+**Status:** ✅ **Complete — RC-1 shipped.** All env vars configured and verified. `/healthz` and `/readyz` return 200 on `ex-ai-api.vercel.app`.
 
 ### P0.8: Bootstrap refactor (deferred) [ENG]
 **Source:** NESTJS_ENTRYPOINT_AUDIT
@@ -139,15 +141,21 @@ Configure missing environment variables in Vercel project `ex-ai-api`:
 **Impact:** High
 **Risk:** Medium
 
-**Long-term goal:** Refactor `apps/api/src/main.ts` to use standard NestJS bootstrap pattern when deployment architecture is fully understood.
+**Post-v1.0 enhancement:** Refactor `apps/api/src/main.ts` to use standard NestJS bootstrap pattern. Current state: side-effect `import '@nestjs/core';` workaround deployed. See `NESTJS_ENTRYPOINT_AUDIT.md` for full analysis.
 
-Current state: Side-effect `import '@nestjs/core';` workaround deployed. Bootstrap architecture uses dual-mode handler pattern.
-
-**Not started.** Deferred until deployment architecture is stable.
+**Phase 0.5 Completion Note:** Deployment architecture investigation CLOSED. API operational at `https://ex-ai-api.vercel.app` with all health endpoints verified. Database readiness issue resolved via Supavisor format (see `DATABASE_READINESS_AUDIT.md`). Bootstrap refactor deferred as post-v1.0 enhancement.
 
 ---
 
-## PHASE 1: REVENUE INFRASTRUCTURE (Week 3-6)
+---
+
+## POST-v1.0 ROADMAP: Enhancements
+
+*All items from this point forward are enhancements, not launch blockers. Release hardening (RC-1) is complete. Priorities may shift based on customer feedback.*
+
+---
+
+## PHASE 1: REVENUE INFRASTRUCTURE (Post-RC-1)
 
 *Build the minimum needed to charge money.*
 
@@ -237,7 +245,7 @@ Three auth patterns in the codebase. Standardize:
 
 ---
 
-## PHASE 2: CUSTOMER VALIDATION (Week 7-12)
+## PHASE 2: CUSTOMER VALIDATION (Post-RC-1)
 
 *Get real customers. Get real feedback. Fix what breaks.*
 
@@ -398,7 +406,7 @@ app.use(
 
 ---
 
-## PHASE 3: PRODUCT QUALITY (Month 3-4)
+## PHASE 3: PRODUCT QUALITY (Post-RC-1)
 
 *Polish the experience. Close the gaps. Build the moat.*
 
@@ -536,7 +544,7 @@ Add `UnifiedBreadcrumbs` to all authenticated pages currently missing them:
 
 ---
 
-## PHASE 4: SCALE (Month 5-6)
+## PHASE 4: SCALE (Post-RC-1)
 
 *Build the integration ecosystem. Add predictive intelligence. Prepare for enterprise.*
 
@@ -643,19 +651,19 @@ Users can request a full data export (GDPR right to portability). Generate CSV Z
 
 ## EXECUTION SEQUENCING
 
-### Week 1-2: Phase 0
+### Phase 0 (COMPLETED in RC-1)
 ```
-P0.1 → P0.2 → P0.3 → P0.4 → P0.5 → P0.6
+P0.1 → P0.4 → P0.5 → P0.7 → P0.8 (deferred)
 ```
-Parallelize where possible. P0.1 is 5 minutes.
+Phase 0 completed as part of v1.0.0-rc1 release hardening.
 
-### Week 3-6: Phase 1
+### Phase 1 (First post-v1.0 priority)
 ```
 P1.1 → P1.2 → P1.3 → P1.4 → P1.5 → P1.6 → P1.7
 ```
 Self-serve signup (P1.4) and onboarding (P1.5) can be done in parallel.
 
-### Week 7-12: Phase 2
+### Phase 2 (After Phase 1 is stable)
 ```
 P2.1 → P2.4 → P2.5 → P2.6 → P2.7 → P2.2
      ↗ P2.3 ↘
@@ -663,14 +671,14 @@ P2.8 → P2.9 → P2.10
 ```
 Get first paying customer during this phase. Iterate based on feedback.
 
-### Month 3-4: Phase 3
+### Phase 3 (After Phase 2 adoption)
 ```
 P3.1 ↔ P3.2 (can parallelize)
 P3.3 → P3.4
 P3.5 → P3.6 → P3.7 → P3.8 → P3.9 → P3.10
 ```
 
-### Month 5-6: Phase 4
+### Phase 4 (Long-term)
 ```
 P4.1 and P4.2 in parallel (AI gateway + budget)
 P4.3 (Salesforce) after HubSpot
@@ -684,8 +692,11 @@ P4.4 (cross-event) after P4.3
 
 | Phase | Metric | Target |
 |-------|--------|--------|
-| Phase 0 | `pnpm build` passes | ✓ |
-| Phase 0 | No security vulnerabilities | ✓ |
+| RC-1 | v1.0.0-rc1 release | ✅ Shipped |
+| RC-1 | API operational (/healthz, /readyz 200) | ✅ Verified |
+| RC-1 | Database readiness resolved | ✅ Supavisor fix |
+| RC-1 | Accessibility blockers resolved | ✅ 8/8 |
+| RC-1 | No Critical/High launch blockers | ✅ |
 | Phase 1 | First paying customer | 1 |
 | Phase 1 | Self-serve signup rate | >50% |
 | Phase 2 | Lead-to-meeting rate | >10% |
@@ -698,9 +709,9 @@ P4.4 (cross-event) after P4.3
 
 ---
 
-## THE ONE THING
+## THE ONE THING (Post-v1.0)
 
-If I could only execute one item from this entire roadmap:
+If I could only execute one item from the post-v1.0 roadmap:
 
 **P1.5: Add 5-step onboarding wizard.**
 
@@ -715,4 +726,4 @@ The wizard:
 
 5 steps. 10 minutes total. A first-time user goes from zero to a working event with exhibitors.
 
-Everything else can wait. This one thing unlocks everything else.
+**Note:** This is now a post-v1.0 enhancement. RC-1 (v1.0.0-rc1) shipped without it. It becomes the top priority after RC-1 stabilization.
