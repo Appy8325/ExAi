@@ -66,6 +66,12 @@ export class EventsService {
     return this.eventsRepository.findById(organizationId, eventId, actorUserId);
   }
 
+  async duplicate(organizationId: string, eventId: string, actorUserId: string) {
+    const event = await this.findById(organizationId, eventId, actorUserId);
+    if (!event) throw new NotFoundException("Event not found.");
+    return this.create({ organizationId, actorUserId, name: `${event.name} copy`, timezone: event.timezone, startAt: event.startAt, endAt: event.endAt });
+  }
+
   async update(input: UpdateEventInput) {
     const name = input.name === undefined ? undefined : requireName(input.name);
     const slug =

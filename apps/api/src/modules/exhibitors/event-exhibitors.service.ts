@@ -50,6 +50,10 @@ export class EventExhibitorsService {
     });
   }
 
+  list(eventId: string, scopeOrganizationId: string, actorUserId: string) {
+    return this.exhibitorsRepository.list(eventId, scopeOrganizationId, actorUserId);
+  }
+
   findById(exhibitorId: string, scopeOrganizationId: string, actorUserId: string) {
     return this.exhibitorsRepository.findById(exhibitorId, scopeOrganizationId, actorUserId);
   }

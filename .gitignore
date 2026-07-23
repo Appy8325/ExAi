@@ -4,6 +4,7 @@ node_modules/
 # Build, framework, and test artifacts
 .turbo/
 .next/
+apps/web/.next*/
 dist/
 build/
 coverage/

@@ -1,4 +1,45 @@
-# PRODUCT_ROADMAP
+# ExAi RC3 Product Roadmap
+
+**Status:** Phase -1 proposal — approval required before implementation
+
+This replaces the prior execution roadmap as the product-facing source of truth for RC3. Existing engineering hardening remains prerequisite work where it is required for a phase to be safe.
+
+## Current
+
+1. Phase -1: product information architecture — this document set; no implementation.
+2. Phase 0: isolated temporary email/password authentication and redirect to `/organizer`.
+3. Phase 1: organization workspace — dashboard, navigation, and organization context.
+4. Phase 2: event management — event list and create/edit/archive/duplicate flows, then event dashboard.
+5. Phase 3: exhibitor management — event exhibitor list and exhibitor workspace.
+6. Phase 4: users placeholder.
+7. Phase 5: settings placeholders.
+8. Phase 6: organization and event analytics dashboards.
+
+## Next
+
+- Complete data-backed versions of the current workspace collections and their operations.
+- Import exhibitors, attendees, and sessions after the corresponding core management flows are stable.
+- Replace temporary authentication with the existing production authentication boundary.
+
+## Future
+
+- User invitations, roles, permissions, and audit log.
+- Full settings sections: branding, registration, badge design, email, venue, QR, AI, integrations, and security.
+- Public registration, email automation, integrations, and AI copilot.
+
+## Post-v1
+
+- Multi-organization switching.
+- Billing and subscription management.
+- Marketplace and partner ecosystem.
+
+## Delivery rule
+
+Each phase begins with `PHASE_X_IMPLEMENTATION_PLAN.md`, ends with `PHASE_X_COMPLETION_REPORT.md`, and stops for approval. A phase is not complete until its validation, documentation, typecheck, lint, and build are complete.
+
+---
+
+# Historical roadmap below is retained as engineering context only; RC3's active product roadmap is the section above.
 
 **Date:** July 22, 2026
 **Horizon:** 0-3 months (MVP), 3-6 months (Growth), 6-12 months (Scale)

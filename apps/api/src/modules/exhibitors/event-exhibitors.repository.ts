@@ -35,6 +35,13 @@ export interface UpdateEventExhibitorRecord {
 
 @Injectable()
 export class EventExhibitorsRepository {
+  async list(eventId: string, scopeOrganizationId: string, actorUserId: string) {
+    return db.transaction(async (tx) => {
+      await setRlsContext(tx, scopeOrganizationId, actorUserId);
+      return tx.select().from(eventExhibitors).where(and(eq(eventExhibitors.eventId, eventId), eq(eventExhibitors.organizerOrganizationId, scopeOrganizationId), ne(eventExhibitors.status, "archived")));
+    });
+  }
+
   async create(input: CreateEventExhibitorRecord) {
     try {
       return await db.transaction(async (tx) => {

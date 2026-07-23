@@ -4,6 +4,7 @@ import {
   Get,
   Headers,
   Inject,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -20,6 +21,7 @@ import {
   type AuthenticatedRequest,
 } from "../auth/supabase-request-context.guard";
 import { EventsService } from "../events/events.service";
+import { EventExhibitorsService } from "../exhibitors/event-exhibitors.service";
 import { InvitationsService } from "../organizations/invitations.service";
 import { MembershipsService } from "../organizations/memberships.service";
 import { OrganizationAuthorizationGuard } from "../organizations/organization-authorization.guard";
@@ -33,6 +35,8 @@ export class OrganizerBootstrapController {
     private readonly auth: SupabaseAuthService,
     @Inject(OrganizationsService)
     private readonly organizations: OrganizationsService,
+    @Inject(EventExhibitorsService)
+    private readonly exhibitors: EventExhibitorsService,
     @Inject(InvitationsService)
     private readonly invitations: InvitationsService,
   ) {}
@@ -85,6 +89,10 @@ export class OrganizerManagementController {
     private readonly invitations: InvitationsService,
     @Inject(MembershipsService)
     private readonly memberships: MembershipsService,
+    @Inject(OrganizationsService)
+    private readonly organizations: OrganizationsService,
+    @Inject(EventExhibitorsService)
+    private readonly exhibitors: EventExhibitorsService,
   ) {}
 
   @Get("members")
@@ -144,6 +152,69 @@ export class OrganizerManagementController {
     });
   }
 
+  @Post("exhibitor-organizations")
+  @RequireOrganizationPermissions("organizations:update")
+  createExhibitorOrganization(
+    @Req() request: AuthenticatedRequest,
+    @Body() body: { name?: string },
+  ) {
+    return this.organizations.create({
+      ownerUserId: request.requestContext!.principal.userId!,
+      name: body.name ?? "",
+      kind: "exhibitor",
+    });
+  }
+
+  @Get("events/:eventId/exhibitors")
+  @RequireOrganizationPermissions("organizations:read")
+  listExhibitors(
+    @Param("organizationId") organizationId: string,
+    @Param("eventId") eventId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.exhibitors.list(eventId, organizationId, request.requestContext!.principal.userId!);
+  }
+
+  @Post("events/:eventId/exhibitors")
+  @RequireOrganizationPermissions("organizations:update")
+  createExhibitor(@Param("organizationId") organizerOrganizationId: string, @Param("eventId") eventId: string, @Req() request: AuthenticatedRequest, @Body() body: { organizationId?: string; boothName?: string; boothNumber?: string; logoUrl?: string; description?: string; contactEmail?: string; contactPhone?: string }) {
+    return this.exhibitors.create({ organizerOrganizationId, eventId, actorUserId: request.requestContext!.principal.userId!, organizationId: body.organizationId ?? "", boothName: body.boothName ?? "", boothNumber: body.boothNumber, logoUrl: body.logoUrl, description: body.description, contactEmail: body.contactEmail, contactPhone: body.contactPhone });
+  }
+
+  @Get("events/:eventId/exhibitors/:exhibitorId")
+  @RequireOrganizationPermissions("organizations:read")
+  getExhibitor(@Param("organizationId") organizationId: string, @Param("exhibitorId") exhibitorId: string, @Req() request: AuthenticatedRequest) { return this.exhibitors.findById(exhibitorId, organizationId, request.requestContext!.principal.userId!); }
+
+  @Patch("events/:eventId/exhibitors/:exhibitorId")
+  @RequireOrganizationPermissions("organizations:update")
+  updateExhibitor(@Param("organizationId") scopeOrganizationId: string, @Param("eventId") eventId: string, @Param("exhibitorId") exhibitorId: string, @Req() request: AuthenticatedRequest, @Body() body: { boothName?: string; boothNumber?: string | null; logoUrl?: string | null; description?: string | null; contactEmail?: string | null; contactPhone?: string | null }) { return this.exhibitors.update({ ...body, scopeOrganizationId, eventId, exhibitorId, actorUserId: request.requestContext!.principal.userId! }); }
+
+  @Post("events/:eventId/exhibitors/:exhibitorId/archive")
+  @RequireOrganizationPermissions("organizations:update")
+  archiveExhibitor(@Param("organizationId") organizationId: string, @Param("eventId") eventId: string, @Param("exhibitorId") exhibitorId: string, @Req() request: AuthenticatedRequest) { return this.exhibitors.archive(exhibitorId, eventId, organizationId, request.requestContext!.principal.userId!); }
+
+  @Get("events/:eventId")
+  @RequireOrganizationPermissions("organizations:read")
+  async getEvent(
+    @Param("organizationId") organizationId: string,
+    @Param("eventId") eventId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    const event = await this.events.findById(organizationId, eventId, request.requestContext!.principal.userId!);
+    if (!event) throw new NotFoundException("Event not found.");
+    return event;
+  }
+
+  @Post("events/:eventId/duplicate")
+  @RequireOrganizationPermissions("organizations:update")
+  duplicateEvent(
+    @Param("organizationId") organizationId: string,
+    @Param("eventId") eventId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.events.duplicate(organizationId, eventId, request.requestContext!.principal.userId!);
+  }
+
   @Patch("events/:eventId")
   @RequireOrganizationPermissions("organizations:update")
   updateEvent(
@@ -178,6 +249,20 @@ export class OrganizerManagementController {
     @Req() request: AuthenticatedRequest,
   ) {
     return this.events.publish(
+      organizationId,
+      eventId,
+      request.requestContext!.principal.userId!,
+    );
+  }
+
+  @Post("events/:eventId/archive")
+  @RequireOrganizationPermissions("organizations:update")
+  archiveEvent(
+    @Param("organizationId") organizationId: string,
+    @Param("eventId") eventId: string,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.events.archive(
       organizationId,
       eventId,
       request.requestContext!.principal.userId!,

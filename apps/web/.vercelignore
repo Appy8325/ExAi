@@ -1,0 +1,7 @@
+.next
+.next-build
+.next-verify
+node_modules
+.turbo
+*.log
+tsconfig.tsbuildinfo
