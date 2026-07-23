@@ -12,14 +12,14 @@
     background:
       radial-gradient(
         circle at 16% -10%,
-        rgb(99 102 241 / 0.08),
+        var(--mq-bg-brand-glow),
         transparent 30rem
       ),
       var(--mq-bg-canvas);
   }
 
   ::selection {
-    background: rgb(99 102 241 / 0.2);
+    background: var(--mq-bg-selection);
   }
 
   :focus-visible {
@@ -56,9 +56,7 @@
   }
 
   .focus-premium:focus-visible {
-    box-shadow:
-      0 0 0 4px rgb(99 102 241 / 0.18),
-      0 0 0 1px rgb(79 70 229 / 0.65);
+    box-shadow: var(--mq-shadow-focus-premium);
   }
 
   /*
@@ -66,32 +64,32 @@
    * Apply staggered delays for cascading reveal.
    */
   .animate-enter {
-    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: mq-fade-up var(--mq-duration-slow) var(--mq-ease-enter) both;
   }
 
   .animate-enter-delay-1 {
-    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 60ms both;
+    animation: mq-fade-up var(--mq-duration-slow) var(--mq-ease-enter) 60ms both;
   }
 
   .animate-enter-delay-2 {
-    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
+    animation: mq-fade-up var(--mq-duration-slow) var(--mq-ease-enter) 120ms both;
   }
 
   .animate-enter-delay-3 {
-    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+    animation: mq-fade-up var(--mq-duration-slow) var(--mq-ease-enter) 180ms both;
   }
 
   .animate-enter-delay-4 {
-    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 240ms both;
+    animation: mq-fade-up var(--mq-duration-slow) var(--mq-ease-enter) 240ms both;
   }
 
   .animate-enter-delay-5 {
-    animation: mq-fade-up 350ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both;
+    animation: mq-fade-up var(--mq-duration-slow) var(--mq-ease-enter) 300ms both;
   }
 
   /* Stagger children with data-delay attributes */
   .stagger-children > * {
-    animation: mq-stagger-fade-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: mq-stagger-fade-in var(--mq-duration-slow) var(--mq-ease-enter) both;
   }
 
   .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
@@ -107,11 +105,11 @@
    */
   @supports (view-transition-name: none) {
     ::view-transition-old(root) {
-      animation: mq-fade-out 200ms cubic-bezier(0.4, 0, 0.2, 1) both;
+      animation: var(--mq-animate-fade-out);
     }
 
     ::view-transition-new(root) {
-      animation: mq-scale-in 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: var(--mq-animate-scale-in);
     }
   }
 
@@ -150,7 +148,7 @@
 
   /* Card hover lift effect */
   .card-hover {
-    transition: transform 200ms ease, box-shadow 200ms ease;
+    transition: transform var(--mq-duration-moderate) var(--mq-ease-standard), box-shadow var(--mq-duration-moderate) var(--mq-ease-standard);
   }
   .card-hover:hover {
     transform: translateY(-2px);
@@ -175,7 +173,7 @@
     width: 0;
     height: 2px;
     background: currentColor;
-    transition: width 200ms ease;
+    transition: width var(--mq-duration-moderate) var(--mq-ease-standard);
   }
   .link-animate:hover::after {
     width: 100%;
@@ -183,12 +181,12 @@
 
   /* Nav item highlight */
   .nav-item {
-    transition: background-color 150ms ease, color 150ms ease;
+    transition: background-color var(--mq-duration-base) var(--mq-ease-standard), color var(--mq-duration-base) var(--mq-ease-standard);
   }
 
   /* Table row hover */
   .table-row-hover {
-    transition: background-color 100ms ease;
+    transition: background-color var(--mq-duration-fast) var(--mq-ease-standard);
   }
 
   /* Skeleton shimmer effect */
@@ -196,22 +194,12 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgb(255 255 255 / 0.4) 50%,
+      var(--mq-bg-skeleton-highlight) 50%,
       transparent 100%
     );
     background-size: 200% 100%;
-    animation: mq-shimmer 1.5s ease-in-out infinite;
+    animation: mq-shimmer 1.5s var(--mq-ease-standard) infinite;
     pointer-events: none;
-  }
-
-  [data-theme="dark"] .skeleton-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgb(255 255 255 / 0.06) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
   }
 
   /* Will-change hint for animated elements */
@@ -222,58 +210,16 @@
   /* Smooth number transition */
   .tabular-nums-smooth {
     font-variant-numeric: tabular-nums;
-    transition: all 200ms ease;
+    transition: all var(--mq-duration-moderate) var(--mq-ease-standard);
   }
 
   /* Subtle scale on badge for notification dots */
   .badge-dot {
-    transition: transform 150ms ease;
+    transition: transform var(--mq-duration-base) var(--mq-ease-standard);
   }
   .badge-dot:hover {
     transform: scale(1.15);
   }
-}
-
-@keyframes mq-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes mq-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes mq-fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes mq-scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes mq-skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-@keyframes mq-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

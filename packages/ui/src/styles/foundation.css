@@ -51,6 +51,7 @@
   --mq-shadow-premium: 0 25px 50px -12px rgb(15 23 42 / 0.12), 0 0 0 1px rgb(255 255 255 / 0.8) inset;
   --mq-shadow-card-hover: 0 8px 20px -5px rgb(15 23 42 / 0.08), 0 2px 8px -2px rgb(15 23 42 / 0.04);
   --mq-shadow-focus: 0 0 0 3px rgb(99 102 241 / 0.35);
+  --mq-shadow-focus-premium: 0 0 0 4px rgb(99 102 241 / 0.18), 0 0 0 1px rgb(79 70 229 / 0.65);
   --mq-shadow-inset: inset 0 2px 4px 0 rgb(15 23 42 / 0.03);
 
   /* Motion and layering */
@@ -72,6 +73,7 @@
 
   /* Animation keyframes */
   --mq-animate-fade-in: mq-fade-in var(--mq-duration-moderate) var(--mq-ease-standard) both;
+  --mq-animate-fade-out: mq-fade-out var(--mq-duration-moderate) var(--mq-ease-exit) both;
   --mq-animate-fade-up: mq-fade-up var(--mq-duration-slow) var(--mq-ease-enter) both;
   --mq-animate-fade-down: mq-fade-down var(--mq-duration-moderate) var(--mq-ease-exit) both;
   --mq-animate-scale-in: mq-scale-in var(--mq-duration-moderate) var(--mq-ease-enter) both;
@@ -95,6 +97,11 @@
 @keyframes mq-fade-up {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes mq-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes mq-scale-in {
@@ -212,6 +219,7 @@
   --mq-shadow-premium: 0 25px 50px -12px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.05) inset;
   --mq-shadow-card-hover: 0 8px 20px -5px rgb(0 0 0 / 0.12), 0 2px 8px -2px rgb(0 0 0 / 0.05);
   --mq-shadow-focus: 0 0 0 3px rgb(129 140 248 / 0.4);
+  --mq-shadow-focus-premium: 0 0 0 4px rgb(129 140 248 / 0.22), 0 0 0 1px rgb(165 180 252 / 0.7);
   --mq-shadow-inset: inset 0 2px 4px 0 rgb(0 0 0 / 0.06);
 }
 

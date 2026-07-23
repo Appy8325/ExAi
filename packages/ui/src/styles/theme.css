@@ -22,6 +22,9 @@
   --color-bg-brand: var(--mq-bg-brand);
   --color-bg-brand-hover: var(--mq-bg-brand-hover);
   --color-bg-brand-subtle: var(--mq-bg-brand-subtle);
+  --color-bg-brand-glow: var(--mq-bg-brand-glow);
+  --color-bg-selection: var(--mq-bg-selection);
+  --color-bg-skeleton-highlight: var(--mq-bg-skeleton-highlight);
   --color-bg-inverse: var(--mq-bg-inverse);
 
   /* text */
@@ -127,11 +130,13 @@
   --shadow-premium: var(--mq-shadow-premium);
   --shadow-card-hover: var(--mq-shadow-card-hover);
   --shadow-focus: var(--mq-shadow-focus);
+  --shadow-focus-premium: var(--mq-shadow-focus-premium);
   --shadow-inset: var(--mq-shadow-inset);
   --spacing-section-lg: var(--mq-space-section-lg);
   --z-dropdown: var(--mq-z-dropdown);
   --z-tooltip: var(--mq-z-tooltip);
   --animate-fade-in: var(--mq-animate-fade-in);
+  --animate-fade-out: var(--mq-animate-fade-out);
   --animate-fade-up: var(--mq-animate-fade-up);
   --animate-fade-down: var(--mq-animate-fade-down);
   --animate-scale-in: var(--mq-animate-scale-in);

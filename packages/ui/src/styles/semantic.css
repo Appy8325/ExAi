@@ -21,6 +21,9 @@
   --mq-bg-brand: var(--mq-indigo-600);
   --mq-bg-brand-hover: var(--mq-indigo-700);
   --mq-bg-brand-subtle: var(--mq-indigo-50);
+  --mq-bg-brand-glow: color-mix(in srgb, var(--mq-indigo-500) 8%, transparent);
+  --mq-bg-selection: color-mix(in srgb, var(--mq-indigo-500) 20%, transparent);
+  --mq-bg-skeleton-highlight: rgb(255 255 255 / 0.4);
   --mq-bg-inverse: var(--mq-slate-900);
 
   --mq-text-primary: var(--mq-slate-900);
@@ -97,6 +100,9 @@
   --mq-bg-brand: var(--mq-indigo-500);
   --mq-bg-brand-hover: var(--mq-indigo-400);
   --mq-bg-brand-subtle: var(--mq-indigo-950);
+  --mq-bg-brand-glow: color-mix(in srgb, var(--mq-indigo-400) 12%, transparent);
+  --mq-bg-selection: color-mix(in srgb, var(--mq-indigo-400) 28%, transparent);
+  --mq-bg-skeleton-highlight: rgb(255 255 255 / 0.06);
   --mq-bg-inverse: var(--mq-slate-50);
 
   --mq-text-primary: var(--mq-slate-50);
