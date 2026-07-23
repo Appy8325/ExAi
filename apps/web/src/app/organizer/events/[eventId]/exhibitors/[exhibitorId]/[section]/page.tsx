@@ -1,8 +1,7 @@
 import { PageHeader } from "@concourse/ui";
 
-export default async function ExhibitorSectionPage({ params }: { params: Promise<{ section?: string[] }> }) {
+export default async function ExhibitorSectionPage({ params }: { params: Promise<{ section: string }> }) {
   const { section } = await params;
-  const title = section?.[0] ? `${section[0][0]!.toUpperCase()}${section[0].slice(1)}` : "Exhibitor";
-
+  const title = `${section[0]!.toUpperCase()}${section.slice(1)}`;
   return <div className="space-y-6"><PageHeader title={title} description={`${title} is available in a later approved phase.`} /><div className="rounded-xl border border-default bg-surface p-6 text-body text-secondary">Coming soon.</div></div>;
 }
