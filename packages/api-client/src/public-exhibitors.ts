@@ -396,7 +396,7 @@ export type DemoLiveEventMetrics = {
   aiEngagementRate: number;
   topBooth: { boothId: string; visits: number } | null;
   recentActivity: Array<{ at: string; type: string; boothId: string; detail: string }>;
-  liveMetricsByBooth: Record<string, { visits: number; dwell: number; chats: number; downloads: number; productViews: number; leads: number }>;
+  liveMetricsByBooth: Record<string, { visits: number; dwell: number; chats: number; downloads: number; productViews: number; leads: number; scans: number }>;
 };
 
 export function getDemoLiveEventMetrics(client: PublicApiClient) {
