@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@concourse/ui";
+import { Breadcrumbs as SharedBreadcrumbs } from "@concourse/ui";
 
 export interface BreadcrumbItem {
   label: string;
@@ -252,49 +251,5 @@ export function Breadcrumbs({ className }: { className?: string }) {
 
   if (items.length === 0) return null;
 
-  return (
-    <nav aria-label="Breadcrumb" className={className}>
-      <ol className="flex items-center gap-2 text-body text-muted">
-        {items.map((item, index) => {
-          const isLast = index === items.length - 1;
-          return (
-            <li key={index} className="flex items-center gap-2">
-              {index > 0 && (
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  aria-hidden
-                  className="shrink-0 text-muted/50"
-                >
-                  <path d="M4.5 2.5l3.5 3.5-3.5 3.5" />
-                </svg>
-              )}
-              {isLast || !item.href ? (
-                <span
-                  className={cn(
-                    "truncate max-w-[12rem]",
-                    isLast ? "font-medium text-primary" : "",
-                  )}
-                  aria-current={isLast ? "page" : undefined}
-                >
-                  {item.label}
-                </span>
-              ) : (
-                <Link
-                  href={item.href}
-                  className="truncate max-w-[12rem] transition-colors hover:text-primary"
-                >
-                  {item.label}
-                </Link>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
-  );
+  return <SharedBreadcrumbs items={items} className={`text-body [&_svg]:text-muted/50 ${className ?? ""}`} />;
 }
