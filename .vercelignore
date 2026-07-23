@@ -1,0 +1,14 @@
+.next
+.next-build
+.next-verify
+apps/*/.next-build
+apps/*/.next-demo
+apps/*/.next-phase0-verify
+apps/*/.next-verify
+.turbo
+node_modules
+apps/*/node_modules
+apps/*/.turbo
+packages/*/node_modules
+packages/*/.turbo
+*.log
