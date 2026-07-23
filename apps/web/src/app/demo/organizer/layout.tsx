@@ -23,6 +23,9 @@ export default function OrganizerLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
       <GlobalNav variant="console" active="organizer" />
+      <Suspense>
+        <WorkspaceNav sections={organizerSections} basePath="/demo/organizer" role="organizer" variant="mobile" />
+      </Suspense>
       <div className="flex min-h-[calc(100vh-3.5rem)] flex-1">
         <div className="hidden lg:flex">
           <Suspense fallback={<aside className="w-60 border-r border-default bg-surface" />}>

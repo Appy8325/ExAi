@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { getApiBaseUrl } from "@/lib/api/config";
-import { StatusBadge } from "@concourse/ui";
+import { Button, PageHeader, StatusBadge } from "@concourse/ui";
 
 type SimulationStatus = {
   running: boolean;
@@ -76,7 +76,9 @@ export default function DemoAdminPage() {
         const next = [...prev, delta];
         return next.slice(-MAX_EVENTS_HISTORY);
       });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   useEffect(() => {
@@ -85,51 +87,98 @@ export default function DemoAdminPage() {
     return () => clearInterval(interval);
   }, [refresh]);
 
-  const start = async () => { await api("/v1/public/demo/admin/start", "POST"); refresh(); };
-  const pause = async () => { await api("/v1/public/demo/admin/pause", "POST"); refresh(); };
-  const resume = async () => { await api("/v1/public/demo/admin/resume", "POST"); refresh(); };
-  const stop = async () => { await api("/v1/public/demo/admin/stop", "POST"); refresh(); };
-  const reset = async () => { await api("/v1/public/demo/admin/reset", "POST"); refresh(); };
-  const setSpeed = async (s: number) => { await api(`/v1/public/demo/admin/speed?multiplier=${s}`, "POST"); refresh(); };
-  const setScenario = async (s: string) => { await api(`/v1/public/demo/admin/scenario?id=${s}`, "POST"); refresh(); };
+  const start = async () => {
+    await api("/v1/public/demo/admin/start", "POST");
+    refresh();
+  };
+  const pause = async () => {
+    await api("/v1/public/demo/admin/pause", "POST");
+    refresh();
+  };
+  const resume = async () => {
+    await api("/v1/public/demo/admin/resume", "POST");
+    refresh();
+  };
+  const stop = async () => {
+    await api("/v1/public/demo/admin/stop", "POST");
+    refresh();
+  };
+  const reset = async () => {
+    await api("/v1/public/demo/admin/reset", "POST");
+    refresh();
+  };
+  const setSpeed = async (s: number) => {
+    await api(`/v1/public/demo/admin/speed?multiplier=${s}`, "POST");
+    refresh();
+  };
+  const setScenario = async (s: string) => {
+    await api(`/v1/public/demo/admin/scenario?id=${s}`, "POST");
+    refresh();
+  };
 
   const sim = status?.simulation;
 
   return (
     <main className="min-h-screen bg-canvas text-primary">
-      <div className="mx-auto max-w-6xl px-6 py-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-primary">Demo Admin Panel</h1>
-            <p className="mt-1 text-body text-muted">Simulation control center &mdash; hidden from production</p>
-          </div>
-          <StatusBadge tone="neutral" className="font-mono">DEMO MODE</StatusBadge>
-        </div>
+      <div className="mx-auto max-w-6xl space-y-section px-6 py-8">
+        <PageHeader
+          title="Demo Admin Panel"
+          description="Simulation control center — hidden from production"
+          actions={<StatusBadge tone="neutral" className="font-mono">DEMO MODE</StatusBadge>}
+        />
 
         <div className="grid gap-6 lg:grid-cols-2">
           <section className="rounded-xl border border-default bg-surface p-6">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Simulation Controls</h2>
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">
+              Simulation Controls
+            </h2>
             <div className="flex flex-wrap gap-2">
               {!sim?.running ? (
-                <button onClick={start} className="rounded-lg bg-status-success-solid px-4 py-2 text-body font-medium text-on-brand hover:opacity-90">Start</button>
+                <Button
+                  onClick={start}
+                >
+                  Start
+                </Button>
               ) : (
                 <>
-                  <button onClick={pause} className="rounded-lg bg-status-warning-solid px-4 py-2 text-body font-medium text-on-brand hover:opacity-90">Pause</button>
-                  <button onClick={stop} className="rounded-lg bg-status-danger-solid px-4 py-2 text-body font-medium text-on-brand hover:opacity-90">Stop</button>
+                  <Button
+                    onClick={pause}
+                    variant="secondary"
+                  >
+                    Pause
+                  </Button>
+                  <Button
+                    onClick={stop}
+                    variant="danger"
+                  >
+                    Stop
+                  </Button>
                 </>
               )}
-              <button onClick={resume} className="rounded-lg bg-brand px-4 py-2 text-body font-medium text-on-brand hover:opacity-90">Resume</button>
-              <button onClick={reset} className="rounded-lg border border-status-danger-border bg-transparent px-4 py-2 text-body font-medium text-status-danger-text hover:bg-status-danger-subtle">Reset All</button>
+              <Button
+                onClick={resume}
+              >
+                Resume
+              </Button>
+              <Button
+                onClick={reset}
+                variant="danger"
+              >
+                Reset All
+              </Button>
             </div>
 
             <div className="mt-4">
-              <label className="text-caption text-secondary">Simulation Speed</label>
+              <label className="text-caption text-secondary">
+                Simulation Speed
+              </label>
               <div className="mt-1 flex gap-2">
                 {[1, 2, 5, 10].map((s) => (
                   <button
                     key={s}
                     onClick={() => setSpeed(s)}
-                    className={`rounded px-3 py-1 text-body font-mono ${speed === s ? "bg-brand text-on-brand" : "bg-sunken text-muted hover:text-primary"}`}
+                    aria-pressed={speed === s}
+                    className={`rounded-lg px-3 py-1.5 text-body font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${speed === s ? "bg-brand text-on-brand" : "bg-sunken text-muted hover:text-primary"}`}
                   >
                     {s}x
                   </button>
@@ -139,48 +188,96 @@ export default function DemoAdminPage() {
           </section>
 
           <section className="rounded-xl border border-default bg-surface p-6">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Scenario</h2>
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">
+              Scenario
+            </h2>
             <div className="grid grid-cols-2 gap-2">
               {status?.scenarios.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => setScenario(s.id)}
-                  className={`rounded-lg border p-3 text-left transition-colors ${scenario === s.id ? "border-brand bg-brand/10" : "border-default bg-canvas hover:border-strong"}`}
+                  aria-pressed={scenario === s.id}
+                  className={`rounded-lg border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${scenario === s.id ? "border-brand bg-brand-subtle" : "border-default bg-canvas hover:border-strong hover:bg-sunken"}`}
                 >
-                  <p className="text-body font-medium text-primary">{s.label}</p>
-                  <p className="mt-0.5 text-[10px] text-secondary">{s.description.slice(0, 60)}...</p>
+                  <p className="text-body font-medium text-primary">
+                    {s.label}
+                  </p>
+                  <p className="mt-0.5 text-[10px] text-secondary">
+                    {s.description.slice(0, 60)}...
+                  </p>
                 </button>
               ))}
             </div>
           </section>
 
           <section className="rounded-xl border border-default bg-surface p-6">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Current Statistics</h2>
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">
+              Current Statistics
+            </h2>
             <div className="grid grid-cols-3 gap-3">
-              <Stat label="Attendees" value={metrics?.totalLiveBoothVisits ?? 0} />
+              <Stat
+                label="Returning visitors"
+                value={metrics?.totalLiveReturningVisitors ?? 0}
+              />
               <Stat label="Visits" value={metrics?.totalLiveBoothVisits ?? 0} />
-              <Stat label="Leads" value={metrics?.totalLiveLeadSubmissions ?? 0} />
-              <Stat label="AI Chats" value={metrics?.totalLiveAiConversations ?? 0} />
-              <Stat label="Meetings" value={metrics?.totalLiveLeadSubmissions ?? 0} />
-              <Stat label="Brochures" value={metrics?.totalLiveBrochureDownloads ?? 0} />
+              <Stat
+                label="Leads"
+                value={metrics?.totalLiveLeadSubmissions ?? 0}
+              />
+              <Stat
+                label="AI Chats"
+                value={metrics?.totalLiveAiConversations ?? 0}
+              />
+              <Stat
+                label="Product views"
+                value={metrics?.totalLiveProductViews ?? 0}
+              />
+              <Stat
+                label="Brochures"
+                value={metrics?.totalLiveBrochureDownloads ?? 0}
+              />
             </div>
           </section>
 
           <section className="rounded-xl border border-default bg-surface p-6">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">System Health</h2>
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">
+              System Health
+            </h2>
             <div className="space-y-2 text-body">
-              <HealthRow label="Status" value={sim?.running ? "RUNNING" : "STOPPED"} good={sim?.running} />
-              <HealthRow label="Events Generated" value={String(sim?.eventsGenerated ?? 0)} />
-              <HealthRow label="Uptime" value={sim?.uptimeSeconds ? `${Math.floor(sim.uptimeSeconds / 60)}m ${sim.uptimeSeconds % 60}s` : "0s"} />
+              <HealthRow
+                label="Status"
+                value={sim?.running ? "RUNNING" : "STOPPED"}
+                good={sim?.running}
+              />
+              <HealthRow
+                label="Events Generated"
+                value={String(sim?.eventsGenerated ?? 0)}
+              />
+              <HealthRow
+                label="Uptime"
+                value={
+                  sim?.uptimeSeconds
+                    ? `${Math.floor(sim.uptimeSeconds / 60)}m ${sim.uptimeSeconds % 60}s`
+                    : "0s"
+                }
+              />
               <HealthRow label="Speed" value={`${sim?.speed ?? 1}x`} />
               <HealthRow label="Scenario" value={scenario} />
-              <HealthRow label="Avg Dwell" value={`${metrics?.averageDwellSeconds ?? 0}s`} />
-              <HealthRow label="AI Engagement" value={`${metrics?.aiEngagementRate ?? 0}%`} />
+              <HealthRow
+                label="Avg Dwell"
+                value={`${metrics?.averageDwellSeconds ?? 0}s`}
+              />
+              <HealthRow
+                label="AI Engagement"
+                value={`${metrics?.aiEngagementRate ?? 0}%`}
+              />
             </div>
           </section>
 
           <section className="rounded-xl border border-default bg-surface p-6">
-            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Events / Poll</h2>
+            <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">
+              Events / Poll
+            </h2>
             {eventsHistory.length > 0 ? (
               <div className="flex items-end gap-1" style={{ height: 60 }}>
                 {eventsHistory.map((count, i) => {
@@ -196,28 +293,44 @@ export default function DemoAdminPage() {
                 })}
               </div>
             ) : (
-              <p className="text-caption text-muted">Start the simulation to see event generation.</p>
+              <p className="text-caption text-muted">
+                Start the simulation to see event generation.
+              </p>
             )}
             <div className="mt-2 flex items-center justify-between text-caption text-muted">
               <span>oldest</span>
-              <span className="text-muted">{eventsHistory.length > 0 ? `${eventsHistory[eventsHistory.length - 1]} now` : ""}</span>
+              <span className="text-muted">
+                {eventsHistory.length > 0
+                  ? `${eventsHistory[eventsHistory.length - 1]} now`
+                  : ""}
+              </span>
               <span>newest</span>
             </div>
           </section>
         </div>
 
         <section className="mt-6 rounded-xl border border-default bg-surface p-6">
-          <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">Latest Activity</h2>
+          <h2 className="mb-4 text-body font-semibold uppercase tracking-wider text-muted">
+            Latest Activity
+          </h2>
           <div className="max-h-60 space-y-1 overflow-y-auto">
             {(metrics?.recentActivity ?? []).slice(0, 20).map((a, i) => (
-              <div key={i} className="flex items-center gap-2 text-caption font-mono text-muted">
-                <span className="shrink-0 text-secondary">{new Date(a.at).toLocaleTimeString()}</span>
+              <div
+                key={i}
+                className="flex items-center gap-2 text-caption font-mono text-muted"
+              >
+                <span className="shrink-0 text-secondary">
+                  {new Date(a.at).toLocaleTimeString()}
+                </span>
                 <span className="capitalize text-brand">{a.type}</span>
                 <span className="truncate">{a.detail}</span>
               </div>
             ))}
-            {(!metrics?.recentActivity || metrics.recentActivity.length === 0) && (
-              <p className="text-caption text-muted">No recent activity. Start the simulation to see live events.</p>
+            {(!metrics?.recentActivity ||
+              metrics.recentActivity.length === 0) && (
+              <p className="text-caption text-muted">
+                No recent activity. Start the simulation to see live events.
+              </p>
             )}
           </div>
         </section>
@@ -235,13 +348,25 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function HealthRow({ label, value, good }: { label: string; value: string; good?: boolean }) {
+function HealthRow({
+  label,
+  value,
+  good,
+}: {
+  label: string;
+  value: string;
+  good?: boolean;
+}) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-secondary">{label}</span>
-      <span className={`font-mono text-caption ${good === undefined ? "text-muted" : good ? "text-status-success-text" : "text-status-danger-text"}`}>
+      <span
+        className={`font-mono text-caption ${good === undefined ? "text-muted" : good ? "text-status-success-text" : "text-status-danger-text"}`}
+      >
         {good !== undefined && (
-          <span className={`inline-block size-1.5 rounded-full mr-1.5 ${good ? "bg-status-success-text" : "bg-status-danger-text"}`} />
+          <span
+            className={`inline-block size-1.5 rounded-full mr-1.5 ${good ? "bg-status-success-text" : "bg-status-danger-text"}`}
+          />
         )}
         {value}
       </span>

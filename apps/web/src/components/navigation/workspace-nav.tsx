@@ -20,15 +20,16 @@ export interface WorkspaceNavProps {
   sections: WorkspaceNavSection[];
   basePath: string;
   role: "organizer" | "exhibitor" | "admin";
+  variant?: "sidebar" | "mobile";
 }
 
-export function WorkspaceNav({ sections, basePath, role }: WorkspaceNavProps) {
+export function WorkspaceNav({ sections, basePath, role, variant = "sidebar" }: WorkspaceNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut, state } = useAuthSession();
 
-  const displayName = user?.displayName ?? role === "organizer" ? "Organizer" : "Exhibitor";
-  const initials = user?.initials ?? role === "organizer" ? "O" : "EX";
+  const displayName = user?.displayName ?? (role === "organizer" ? "Organizer" : role === "admin" ? "Admin" : "Exhibitor");
+  const initials = user?.initials ?? (role === "organizer" ? "O" : role === "admin" ? "A" : "EX");
   const isSignedIn = user !== null;
 
   const handleSignOut = async () => {
@@ -44,6 +45,58 @@ export function WorkspaceNav({ sections, basePath, role }: WorkspaceNavProps) {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
+  const navigation = (
+    <nav aria-label={`${role} workspace navigation`} className="space-y-0.5 p-3">
+      {sections.map((section, si) => (
+        <div key={si} className={si > 0 ? "mt-4" : ""}>
+          {section.title && (
+            <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+              {section.title}
+            </p>
+          )}
+          <div className={section.title ? "mt-1 space-y-0.5" : "space-y-0.5"}>
+            {section.items.map((item) => {
+              const href = item.href || basePath;
+              const active = isActive(href);
+              return (
+                <Link
+                  key={item.label}
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-body font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    active
+                      ? "bg-brand-subtle text-brand"
+                      : "text-secondary hover:bg-sunken/70 hover:text-primary"
+                  }`}
+                >
+                  {active && (
+                    <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-brand" />
+                  )}
+                  <NavIcon name={item.icon} active={active} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
+
+  if (variant === "mobile") {
+    return (
+      <details className="border-b border-default bg-surface lg:hidden">
+        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-body font-medium text-primary marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring">
+          Workspace navigation
+          <svg className="size-4 text-muted" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="m4 6 4 4 4-4" />
+          </svg>
+        </summary>
+        <div className="border-t border-default">{navigation}</div>
+      </details>
+    );
+  }
+
   return (
     <aside className="flex w-60 flex-col border-r border-default bg-surface">
       <Link
@@ -55,41 +108,7 @@ export function WorkspaceNav({ sections, basePath, role }: WorkspaceNavProps) {
         </div>
         <span className="text-body font-semibold text-primary">ExAi</span>
       </Link>
-      <nav aria-label={`${role} workspace navigation`} className="flex-1 space-y-0.5 p-3">
-        {sections.map((section, si) => (
-          <div key={si} className={si > 0 ? "mt-4" : ""}>
-            {section.title && (
-              <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
-                {section.title}
-              </p>
-            )}
-            <div className={section.title ? "mt-1 space-y-0.5" : "space-y-0.5"}>
-              {section.items.map((item) => {
-                const href = item.href || basePath;
-                const active = isActive(href);
-                return (
-                  <Link
-                    key={item.label}
-                    href={href}
-                    aria-current={active ? "page" : undefined}
-                    className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-body font-medium transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)] will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                      active
-                        ? "bg-brand-subtle text-brand"
-                        : "text-secondary hover:bg-sunken/70 hover:text-primary"
-                    }`}
-                  >
-                    {active && (
-                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-brand" />
-                    )}
-                    <NavIcon name={item.icon} active={active} />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </nav>
+      <div className="flex-1">{navigation}</div>
       <div className="border-t border-default p-3">
         {state === "loading" ? (
           <div className="flex items-center gap-3 rounded-lg px-3 py-2">

@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import type { ExhibitorDashboard } from "@concourse/api-client";
 import Link from "next/link";
-import { StatusBadge } from "@concourse/ui";
+import { Button, Card, EmptyState, Input, StatusBadge } from "@concourse/ui";
 
 export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: ExhibitorDashboard; organizationId: string }) {
   const [search, setSearch] = useState("");
@@ -13,6 +13,7 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
   const items = useMemo(() => {
     const attention = dashboard.attention.map((a) => ({
       id: a.relationshipId,
+      relationshipId: a.relationshipId,
       name: a.attendeeName ?? "Unknown",
       status: a.reasons.includes("no notes") ? "needs-followup" : a.reasons.includes("new") ? "new" : "active",
       reasons: a.reasons,
@@ -21,9 +22,9 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
     }));
 
     const pipelineItems = [
-      { id: "pipeline-new", name: "New Visitors", status: "new" as const, reasons: ["Recently engaged"], score: 30, lastInteraction: null },
-      { id: "pipeline-active", name: "Active Relationships", status: "active" as const, reasons: ["Ongoing engagement"], score: 70, lastInteraction: null },
-      { id: "pipeline-returning", name: "Returning Visitors", status: "returning" as const, reasons: ["Multiple visits"], score: 80, lastInteraction: null },
+      { id: "pipeline-new", relationshipId: undefined, name: "New Visitors", status: "new" as const, reasons: ["Recently engaged"], score: 30, lastInteraction: null },
+      { id: "pipeline-active", relationshipId: undefined, name: "Active Relationships", status: "active" as const, reasons: ["Ongoing engagement"], score: 70, lastInteraction: null },
+      { id: "pipeline-returning", relationshipId: undefined, name: "Returning Visitors", status: "returning" as const, reasons: ["Multiple visits"], score: 80, lastInteraction: null },
     ];
 
     const all = [...attention, ...pipelineItems.filter((p) => !attention.some((a) => a.name === p.name))];
@@ -65,14 +66,16 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
           <svg className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
             <circle cx="7" cy="7" r="4.5" /><path d="M10.5 10.5L14 14" />
           </svg>
-          <input
-            className="h-(--spacing-control-h) w-full rounded-lg border border-default bg-surface pl-9 pr-3 text-body text-primary outline-none placeholder:text-muted"
+          <Input
+            aria-label="Search attendees"
+            className="pl-9"
             placeholder="Search attendees..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <select
+          aria-label="Filter attendees by status"
           className="h-(--spacing-control-h) rounded-lg border border-default bg-surface px-3 text-body text-primary outline-none"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
@@ -84,6 +87,7 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
           <option value="needs-followup">Needs Follow-up</option>
         </select>
         <select
+          aria-label="Sort attendees"
           className="h-(--spacing-control-h) rounded-lg border border-default bg-surface px-3 text-body text-primary outline-none"
           value={sort}
           onChange={(e) => setSort(e.target.value)}
@@ -94,7 +98,36 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
         </select>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-default">
+      <div className="space-y-3 md:hidden">
+        {items.length === 0 ? (
+          <EmptyState
+            action={<Button variant="ghost" onClick={() => { setSearch(""); setFilter("all"); setSort("name"); }}>Clear filters</Button>}
+            description="Try a different search or filter."
+            title="No attendees found"
+          />
+        ) : items.map((item) => (
+          <Card key={item.id} className="space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-body-sm font-medium text-primary">{item.name}</p>
+                <p className="mt-1 text-caption text-muted">{item.reasons.join(" · ")}</p>
+              </div>
+              <AttendeeStatusBadge status={item.status} />
+            </div>
+            <div className="flex items-center justify-between text-caption text-muted">
+              <span>Score {item.score}</span>
+              <span>{item.lastInteraction ? dateTime(item.lastInteraction) : "No recent interaction"}</span>
+            </div>
+            {item.relationshipId ? (
+              <Button asChild className="w-full" size="sm" variant="secondary">
+                <Link href={`/exhibit/${organizationId}/relationships/${item.relationshipId}`}>Open relationship</Link>
+              </Button>
+            ) : null}
+          </Card>
+        ))}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-xl border border-default md:block">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-default bg-sunken">
@@ -108,7 +141,22 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-body-sm text-muted">No attendees found.</td>
+                <td colSpan={5} className="px-4 py-12 text-center">
+                  <p className="text-body-sm text-muted">No attendees match these filters.</p>
+                  <Button
+                    className="mt-3"
+                    onClick={() => {
+                      setSearch("");
+                      setFilter("all");
+                      setSort("name");
+                    }}
+                    size="sm"
+                    type="button"
+                    variant="ghost"
+                  >
+                    Clear filters
+                  </Button>
+                </td>
               </tr>
             ) : (
               items.map((item) => (
@@ -120,7 +168,14 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
                   <td className="px-4 py-3"><AttendeeStatusBadge status={item.status} /></td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-12 rounded-full bg-sunken">
+                      <div
+                        aria-label={`Lead score ${item.score} out of 100`}
+                        aria-valuemax={100}
+                        aria-valuemin={0}
+                        aria-valuenow={item.score}
+                        className="h-1.5 w-12 rounded-full bg-sunken"
+                        role="progressbar"
+                      >
                         <div className={`h-full rounded-full ${item.score >= 70 ? "bg-status-success" : item.score >= 40 ? "bg-status-warning" : "bg-status-danger"}`} style={{ width: `${item.score}%` }} />
                       </div>
                       <span className="text-body-sm tabular-nums text-primary">{item.score}</span>
@@ -128,12 +183,14 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
                   </td>
                   <td className="px-4 py-3 text-body-sm text-muted">{item.lastInteraction ? dateTime(item.lastInteraction) : "—"}</td>
                   <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/exhibit/${organizationId}/relationships/${item.id}`}
-                      className="text-body-sm text-link hover:underline"
-                    >
-                      Open
-                    </Link>
+                    {item.relationshipId ? (
+                      <Link
+                        href={`/exhibit/${organizationId}/relationships/${item.relationshipId}`}
+                        className="text-body-sm text-link hover:underline"
+                      >
+                        Open
+                      </Link>
+                    ) : null}
                   </td>
                 </tr>
               ))

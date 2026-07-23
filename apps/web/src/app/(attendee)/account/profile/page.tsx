@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition, type FormEvent } from "react";
 import { updateAttendeeProfile } from "@concourse/api-client";
-import { Button, EmptyState, Input, Card, Skeleton } from "@concourse/ui";
+import { Button, Card, EmptyState, Field, Input, Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
 
@@ -71,7 +71,7 @@ export default function AttendeeProfilePage() {
         </p>
       </header>
 
-      <form className="space-y-5">
+      <form className="space-y-5" onSubmit={submit}>
         <Card variant="default" className="space-y-4">
           <Field label="Full name">
             <Input name="fullName" required />
@@ -114,10 +114,6 @@ export default function AttendeeProfilePage() {
           className="w-full"
           disabled={pending}
           type="submit"
-          onClick={(e) => {
-            e.preventDefault();
-            submit(e as unknown as FormEvent<HTMLFormElement>);
-          }}
         >
           {pending ? "Saving..." : "Save Profile"}
         </Button>
@@ -129,15 +125,6 @@ export default function AttendeeProfilePage() {
           You control how your data is shared. Update your consent preferences above at any time.
         </p>
       </Card>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-body-sm font-medium text-primary">{label}</label>
-      {children}
     </div>
   );
 }

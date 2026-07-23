@@ -25,7 +25,7 @@ async function Dashboard({ params }: { params: Promise<{ organizationId: string;
   const boothInfo = workspace
     ? { companyName: workspace.organization.name, eventName: workspace.event.name, boothName: workspace.booth.boothName, boothNumber: workspace.booth.boothNumber }
     : null;
-  return <DashboardScreen dashboard={dashboard} organizationId={organizationId} boothInfo={boothInfo} />;
+  return <DashboardScreen dashboard={dashboard} organizationId={organizationId} eventExhibitorId={eventExhibitorId} boothInfo={boothInfo} />;
 }
 
 function DashboardLoading() {

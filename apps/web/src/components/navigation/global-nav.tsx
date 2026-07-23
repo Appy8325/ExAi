@@ -102,21 +102,25 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
           </span>
         </Link>
 
-        <PerspectiveRow
-          variant={variant}
-          perspectives={PERSPECTIVES}
-          activeId={resolvedActive}
-          className="hidden md:flex"
-        />
+        {variant !== "console" && (
+          <PerspectiveRow
+            variant={variant}
+            perspectives={PERSPECTIVES}
+            activeId={resolvedActive}
+            className="hidden md:flex"
+          />
+        )}
 
-        <div className="hidden items-center gap-2 md:flex">
-          <Link
-            href="/auth"
-            className="inline-flex h-8 items-center rounded-lg bg-brand px-3 text-caption font-semibold text-on-brand shadow-1 transition-all hover:bg-brand-hover"
-          >
-            Sign in
-          </Link>
-        </div>
+        {variant !== "console" && (
+          <div className="hidden items-center gap-2 md:flex">
+            <Link
+              href="/auth"
+              className="inline-flex h-8 items-center rounded-lg bg-brand px-3 text-caption font-semibold text-on-brand shadow-1 transition-all hover:bg-brand-hover"
+            >
+              Sign in
+            </Link>
+          </div>
+        )}
 
         <button
           type="button"
@@ -154,7 +158,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
         </button>
       </div>
 
-      <div
+      {variant !== "console" && <div
         id="global-nav-mobile"
         role="region"
         aria-label="Global navigation"
@@ -212,7 +216,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
             Back to homepage
           </Link>
         </nav>
-      </div>
+      </div>}
     </header>
   );
 }

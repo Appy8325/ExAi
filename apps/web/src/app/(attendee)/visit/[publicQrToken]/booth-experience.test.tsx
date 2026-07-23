@@ -53,10 +53,10 @@ describe("BoothExperience", () => {
     );
 
     expect(html).toContain("Acme");
-    expect(html).toContain("Products &amp; services");
-    expect(html).toContain("Connect with this exhibitor");
-    expect(html).toContain("Published resources");
-    expect(html).toContain("Ask the company AI");
+    expect(html).toContain("Ask about Acme&#x27;s products and services");
+    expect(html).toContain("Connect with Exhibitor");
+    expect(html).toContain("Published Resources");
+    expect(html).toContain("AI Assistant");
   });
 
   it("shows the accessible profile and consent step after enrollment", () => {
@@ -66,6 +66,6 @@ describe("BoothExperience", () => {
 
     expect(html).toContain("Complete your profile");
     expect(html).toContain('name="shareProfileWithExhibitors"');
-    expect(html).toContain("Share my professional profile with Acme");
+    expect(html).toContain("Share my profile with Acme");
   });
 });

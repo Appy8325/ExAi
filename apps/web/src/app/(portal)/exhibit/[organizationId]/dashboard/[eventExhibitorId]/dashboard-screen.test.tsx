@@ -45,8 +45,7 @@ describe("DashboardScreen", () => {
     const html = renderToStaticMarkup(<DashboardScreen dashboard={dashboard} boothInfo={defaultBoothInfo} />);
     expect(html).toContain("Share QR Code");
     expect(html).toContain("View Visitors");
-    expect(html).toContain("Manage Products");
-    expect(html).toContain("Event Settings");
+    expect(html).toContain("Booth Settings");
   });
 
   it("renders relationship pipeline and attention sections", () => {
@@ -59,7 +58,7 @@ describe("DashboardScreen", () => {
     const html = renderToStaticMarkup(<DashboardScreen dashboard={dashboard} boothInfo={defaultBoothInfo} />);
     expect(html).toContain("AI Intelligence");
     expect(html).toContain("How AI Insights Work");
-    expect(html).toContain("high-value leads identified automatically");
+    expect(html).toContain("High-value leads identified automatically");
   });
 
   it("renders attention items with open links when present", () => {
@@ -67,7 +66,7 @@ describe("DashboardScreen", () => {
       ...dashboard,
       attention: [{ relationshipId: "r1", attendeeName: "Jane Smith", reasons: ["No response in 3 days"] }],
     };
-    const html = renderToStaticMarkup(<DashboardScreen dashboard={withAttention} boothInfo={defaultBoothInfo} />);
+    const html = renderToStaticMarkup(<DashboardScreen dashboard={withAttention} organizationId="organization" boothInfo={defaultBoothInfo} />);
     expect(html).toContain("Requires Attention");
     expect(html).toContain("Jane Smith");
     expect(html).toContain("Open");

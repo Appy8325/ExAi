@@ -511,7 +511,7 @@ function LeadFormStep({ booth, error, onSubmit, pending }: { booth: PublicBooth;
       </div>
       <form className="space-y-3" onSubmit={onSubmit}>
         {form.fields.map((field) => (
-          <Field key={field.key} label={`${field.label}${field.required ? " *" : ""}`}>
+          <Field key={field.key} label={field.label}>
             {field.type === "multiline_text" ? (
               <Textarea name={field.key} required={field.required} rows={3} placeholder={field.placeholder ?? undefined} />
             ) : (

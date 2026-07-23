@@ -193,10 +193,10 @@ export function CommandPalette({ children }: { children?: React.ReactNode }) {
       <button
         onClick={() => setOpen(true)}
         className="flex items-center gap-2 rounded-lg border border-default bg-surface px-3 py-1.5 text-body text-muted transition-colors hover:border-strong hover:text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        aria-label="Open command palette"
+        aria-label="Open page navigation"
       >
         <SearchIcon className="size-4" />
-        <span className="hidden sm:inline">Search...</span>
+        <span className="hidden sm:inline">Go to...</span>
         <kbd className="hidden rounded border border-default bg-sunken px-1.5 py-0.5 text-caption font-medium text-muted sm:inline">
           Ctrl+K
         </kbd>
@@ -212,7 +212,7 @@ export function CommandPalette({ children }: { children?: React.ReactNode }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search pages, actions..."
+              placeholder="Go to a page..."
               className="flex-1 bg-transparent text-body text-primary placeholder:text-muted outline-none"
             />
             <kbd className="rounded border border-default bg-sunken px-1.5 py-0.5 text-caption font-medium text-muted">

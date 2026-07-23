@@ -20,6 +20,7 @@ import {
 
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
+import { Button, Input, Textarea } from "@concourse/ui";
 
 export function BoothProfileForm({
   workspace,
@@ -122,16 +123,16 @@ export function BoothProfileForm({
         required
       />
       <label className="grid gap-1 text-body text-secondary sm:col-span-2">
-        Public booth description
-        <textarea
-          className="min-h-32 rounded-md border border-default bg-surface p-3 text-primary"
+        Public booth description <span aria-hidden="true">*</span>
+        <Textarea
+          className="min-h-32"
           defaultValue={booth.description ?? ""}
           maxLength={4000}
           name="description"
           required
         />
       </label>
-      <div className="flex items-center gap-3 sm:col-span-2">
+      <div className="sticky bottom-0 z-10 -mx-6 flex items-center gap-3 border-t border-default bg-surface px-6 py-4 sm:col-span-2 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0">
         <Submit pending={pending}>Save booth</Submit>
         <Notice value={notice} />
       </div>
@@ -456,9 +457,9 @@ export function LeadFormEditor({
         />
       </div>
       <label className="grid gap-1 text-body text-secondary">
-        Consent text
-        <textarea
-          className="min-h-20 rounded-md border border-default bg-surface p-3 text-primary"
+        Consent text <span aria-hidden="true">*</span>
+        <Textarea
+          className="min-h-20"
           defaultValue={
             workspace.leadForm?.consentText ??
             "I agree to share these details with the exhibitor for follow-up."
@@ -701,9 +702,8 @@ function Field({
 }) {
   return (
     <label className="grid gap-1 text-body text-secondary">
-      {label}
-      <input
-        className="h-10 rounded-md border border-default bg-surface px-3 text-primary"
+      {label} {required ? <span aria-hidden="true">*</span> : null}
+      <Input
         defaultValue={defaultValue}
         name={name}
         required={required}
@@ -721,13 +721,9 @@ function Submit({
   children: React.ReactNode;
 }) {
   return (
-    <button
-      className="rounded-md bg-brand px-4 py-2 text-body font-medium text-on-brand disabled:opacity-60"
-      disabled={pending}
-      type="submit"
-    >
+    <Button disabled={pending} type="submit">
       {pending ? "Working…" : children}
-    </button>
+    </Button>
   );
 }
 

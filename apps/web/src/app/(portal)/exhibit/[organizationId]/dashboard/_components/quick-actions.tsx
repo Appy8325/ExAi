@@ -1,14 +1,27 @@
 import Link from "next/link";
+import { Button } from "@concourse/ui";
 
-export function QuickActions() {
+export function QuickActions({
+  organizationId,
+  eventExhibitorId,
+}: {
+  organizationId?: string;
+  eventExhibitorId?: string;
+}) {
+  const basePath = organizationId ? `/exhibit/${organizationId}` : "/exhibit";
+  const context = eventExhibitorId ? `?eeId=${eventExhibitorId}` : "";
+
   return (
     <div className="flex flex-wrap gap-3">
-      <Link
-        href="/exhibit"
-        className="inline-flex h-10 items-center rounded-lg border border-default bg-surface px-4 text-caption font-medium text-primary transition-colors hover:bg-sunken"
-      >
-        View dashboard
-      </Link>
+      <Button asChild>
+        <Link href={`${basePath}/qr${context}`}>Share QR Code</Link>
+      </Button>
+      <Button variant="secondary" asChild>
+        <Link href={`${basePath}/attendees${context}`}>View Visitors</Link>
+      </Button>
+      <Button variant="secondary" asChild>
+        <Link href={`${basePath}/settings`}>Booth Settings</Link>
+      </Button>
     </div>
   );
 }

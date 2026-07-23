@@ -16,10 +16,12 @@ type BoothInfo = {
 export function DashboardScreen({
   dashboard,
   organizationId,
+  eventExhibitorId,
   boothInfo,
 }: {
   dashboard: ExhibitorDashboard;
   organizationId?: string;
+  eventExhibitorId?: string;
   boothInfo: BoothInfo | null;
 }) {
   const perf = dashboard.performance;
@@ -89,7 +91,7 @@ export function DashboardScreen({
         />
       </KpiGrid>
 
-      <QuickActions />
+      <QuickActions organizationId={organizationId} eventExhibitorId={eventExhibitorId} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="rounded-xl border border-default bg-surface p-6 lg:col-span-2">

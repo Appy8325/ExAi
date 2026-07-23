@@ -11,7 +11,6 @@ function buildExhibitorSections(basePath: string) {
     {
       items: [
         { label: "Dashboard", href: `${basePath}`, icon: "grid" },
-        { label: "Visitors", href: `${basePath}/visitors`, icon: "users" },
         { label: "AI Insights", href: `${basePath}/ai-insights`, icon: "sparkle" },
       ],
     },
@@ -47,6 +46,9 @@ export default async function ExhibitorLayout({
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
       <GlobalNav variant="console" active="exhibitor" />
+      <Suspense>
+        <WorkspaceNav sections={sections} basePath={basePath} role="exhibitor" variant="mobile" />
+      </Suspense>
       <div className="flex min-h-[calc(100vh-3.5rem)] flex-1">
         <div className="hidden lg:flex">
           <Suspense fallback={<aside className="w-60 border-r border-default bg-surface" />}>

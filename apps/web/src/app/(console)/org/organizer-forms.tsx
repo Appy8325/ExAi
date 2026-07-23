@@ -1,11 +1,29 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input } from "@concourse/ui";
 
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
+
+const COMMON_TIMEZONES = [
+  "UTC",
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "America/Sao_Paulo",
+  "Europe/London",
+  "Europe/Paris",
+  "Europe/Berlin",
+  "Asia/Kolkata",
+  "Asia/Dubai",
+  "Asia/Singapore",
+  "Asia/Tokyo",
+  "Asia/Shanghai",
+  "Australia/Sydney",
+] as const;
 
 export function CreateOrganizationForm() {
   const router = useRouter();
@@ -58,6 +76,11 @@ export function CreateEventForm({
   const router = useRouter();
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
+  const [timezone, setTimezone] = useState<string>("");
+
+  useEffect(() => {
+    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  }, []);
   return (
     <form
       className="grid gap-6 rounded-xl border border-default bg-surface p-6 shadow-1 sm:grid-cols-2"
@@ -92,12 +115,25 @@ export function CreateEventForm({
         </p>
       </div>
       <Field label="Event name" name="name" required />
-      <Field
-        label="IANA timezone"
-        name="timezone"
-        defaultValue="Asia/Kolkata"
-        required
-      />
+      <div className="space-y-1.5">
+        <label htmlFor="timezone" className="text-body-sm font-medium text-primary">
+          IANA timezone
+        </label>
+        <select
+          id="timezone"
+          name="timezone"
+          value={timezone}
+          onChange={(e) => setTimezone(e.target.value)}
+          required
+          className="h-(--spacing-control-h) w-full rounded-md border border-strong bg-surface px-(--spacing-control-px) text-body text-primary outline-none focus:border-strong focus:ring-2 focus:ring-ring/30"
+        >
+          {COMMON_TIMEZONES.map((tz) => (
+            <option key={tz} value={tz}>
+              {tz}
+            </option>
+          ))}
+        </select>
+      </div>
       <Field label="Starts" name="startAt" type="datetime-local" required />
       <Field label="Ends" name="endAt" type="datetime-local" required />
       <div className="sm:col-span-2 flex items-center gap-3">
@@ -215,6 +251,47 @@ export function PublishEventButton({
         }
       >
         {pending ? "Publishing…" : "Publish event"}
+      </Button>
+      <ErrorMessage error={error} />
+    </div>
+  );
+}
+
+export function ArchiveEventButton({
+  organizationId,
+  eventId,
+}: {
+  organizationId: string;
+  eventId: string;
+}) {
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [pending, startTransition] = useTransition();
+  return (
+    <div className="space-y-2">
+      <Button
+        disabled={pending}
+        variant="secondary"
+        onClick={() => {
+          const confirmed = window.confirm(
+            "Archive this event? This cannot be undone.",
+          );
+          if (!confirmed) return;
+          startTransition(async () => {
+            setError("");
+            try {
+              await organizerRequest(
+                `/v1/organizations/${organizationId}/events/${eventId}/archive`,
+                "POST",
+              );
+              router.push("/org/events");
+            } catch (cause) {
+              setError(message(cause));
+            }
+          });
+        }}
+      >
+        {pending ? "Archiving…" : "Archive event"}
       </Button>
       <ErrorMessage error={error} />
     </div>

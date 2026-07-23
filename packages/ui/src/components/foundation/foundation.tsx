@@ -137,10 +137,14 @@ export interface FieldProps {
 
 export function Field({ label, helper, error, children, className }: FieldProps) {
   const id = React.useId();
+  const required = React.isValidElement(children) && Boolean(
+    (children as React.ReactElement<{ required?: boolean }>).props.required,
+  );
   return (
     <div className={cn("space-y-1.5", className)}>
       <label htmlFor={id} className="text-body-sm font-medium text-primary">
         {label}
+        {required ? <span aria-hidden="true"> *</span> : null}
       </label>
       {React.isValidElement(children)
         ? React.cloneElement(children as React.ReactElement<{ id?: string; error?: boolean }>, {
