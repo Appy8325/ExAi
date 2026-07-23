@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  MetricCard,
   SectionHeader,
   Card,
   StatusBadge,
@@ -15,7 +14,7 @@ import {
   DemoPageHeader,
   DemoUnavailable,
 } from "@/components/demo/shell";
-import { LiveMetricsBar } from "@/components/demo/live-metrics";
+import { LiveDashboardMetrics, LiveEventStats, LiveMetricsBar, LiveOrganizerInsight, RecentActivityFeed } from "@/components/demo/live-metrics";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -31,11 +30,6 @@ export default async function OrganizerDashboardPage() {
   if (!overview) return <DemoUnavailable />;
 
   const firstEvent = overview.events[0];
-  const exhibitorCount = overview.events.reduce(
-    (sum, e) => sum + e.exhibitors.length,
-    0,
-  );
-
   return (
     <div className="space-y-8">
       <DemoPageHeader
@@ -47,22 +41,9 @@ export default async function OrganizerDashboardPage() {
 
       <LiveMetricsBar />
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Live events" value={String(overview.events.length)} />
-        <MetricCard label="Booths monitored" value={String(exhibitorCount)} />
-        <MetricCard
-          label="Captured visits"
-          value={String(analytics?.traffic.capturedVisits ?? 0)}
-        />
-        <MetricCard
-          label="Conversion"
-          value={`${analytics?.conversions.conversionRate ?? 0}%`}
-        />
-      </section>
+      <LiveDashboardMetrics />
 
-      {analytics && analytics.traffic.capturedVisits >= 0 && (
-        <ExecutiveInsight analytics={analytics} eventCount={overview.events.length} />
-      )}
+      <LiveOrganizerInsight />
 
       <section>
         <SectionHeader
@@ -125,26 +106,7 @@ export default async function OrganizerDashboardPage() {
                   {firstEvent.status} · {formatDate(firstEvent.startAt)} –{" "}
                   {formatDate(firstEvent.endAt)} · {firstEvent.timezone}
                 </p>
-                <dl className="mt-3 grid grid-cols-3 gap-4 text-body">
-                  <div>
-                    <dt className="text-caption text-muted">Booths</dt>
-                    <dd className="font-semibold text-primary">
-                      {firstEvent.exhibitors.length}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-caption text-muted">Visits</dt>
-                    <dd className="font-semibold text-primary">
-                      {analytics?.traffic.capturedVisits ?? 0}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-caption text-muted">Leads</dt>
-                    <dd className="font-semibold text-primary">
-                      {analytics?.conversions.leads ?? 0}
-                    </dd>
-                  </div>
-                </dl>
+                <LiveEventStats boothCount={firstEvent.exhibitors.length} />
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Link
@@ -164,6 +126,8 @@ export default async function OrganizerDashboardPage() {
           </Card>
         ) : null}
       </section>
+
+      <RecentActivityFeed />
 
       <section>
         <SectionHeader

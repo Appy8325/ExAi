@@ -1,7 +1,16 @@
-import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import {
+  Inject,
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from "@nestjs/common";
 import { sql } from "drizzle-orm";
 
-import { DATABASE_CLIENT, type DatabaseClient } from "../../common/database-client";
+import {
+  DATABASE_CLIENT,
+  type DatabaseClient,
+} from "../../common/database-client";
 import { DemoAnalyticsStore, type TrackEvent } from "./demo-analytics.store";
 import { DemoScenarioService } from "./demo-scenario.service";
 
@@ -35,6 +44,14 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(DemoSimulationService.name);
   private timer: ReturnType<typeof setInterval> | null = null;
   private seededData: SeededData | null = null;
+  private readonly growth = new Map<
+    TrackEvent["type"],
+    { initial: number; maximum: number }
+  >();
+
+  isEnabled() {
+    return process.env.DEMO_MODE === "true";
+  }
 
   private readonly questionPool: Record<string, string[]> = {
     Microsoft: [
@@ -96,13 +113,24 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
+    if (!this.isEnabled()) {
+      this.logger.log("Demo simulation disabled (DEMO_MODE is not true).");
+      return;
+    }
     await this.loadSeededData();
     const autoStart = process.env.DEMO_SIMULATION_AUTO_START;
-    if (autoStart === "true" || (autoStart === undefined && process.env.NODE_ENV !== "production")) {
+    if (
+      autoStart === "true" ||
+      (autoStart === undefined && process.env.NODE_ENV !== "production")
+    ) {
       this.startSimulation();
-      this.logger.log("Simulation auto-started (DEMO_SIMULATION_AUTO_START enabled).");
+      this.logger.log(
+        "Simulation auto-started (DEMO_SIMULATION_AUTO_START enabled).",
+      );
     } else {
-      this.logger.log("Demo simulation service initialized. Auto-start disabled.");
+      this.logger.log(
+        "Demo simulation service initialized. Auto-start disabled.",
+      );
     }
   }
 
@@ -113,8 +141,13 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
   private async loadSeededData() {
     try {
       const exhibitorRows = await this.database.execute(sql<{
-        id: string; name: string; booth_number: string; industry: string;
-        products_json: string; contacts_json: string; brochures_json: string;
+        id: string;
+        name: string;
+        booth_number: string;
+        industry: string;
+        products_json: string;
+        contacts_json: string;
+        brochures_json: string;
       }>`
         SELECT booth.id, org.name, booth.booth_number,
           COALESCE(booth.description, '') AS industry,
@@ -128,7 +161,10 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
       `);
 
       const attendeeRows = await this.database.execute(sql<{
-        id: string; full_name: string; company: string; job_title: string;
+        id: string;
+        full_name: string;
+        company: string;
+        job_title: string;
       }>`
         SELECT u.id, u.full_name, COALESCE(ap.company, '') AS company,
           COALESCE(ap.job_title, '') AS job_title
@@ -139,10 +175,17 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
         LIMIT 200
       `);
 
-      const exhibitors: SeededExhibitor[] = (exhibitorRows as unknown as Array<{
-        id: string; name: string; booth_number: string; industry: string;
-        products_json: string; contacts_json: string; brochures_json: string;
-      }>).map(r => ({
+      const exhibitors: SeededExhibitor[] = (
+        exhibitorRows as unknown as Array<{
+          id: string;
+          name: string;
+          booth_number: string;
+          industry: string;
+          products_json: string;
+          contacts_json: string;
+          brochures_json: string;
+        }>
+      ).map((r) => ({
         id: r.id,
         name: r.name,
         booth: r.booth_number ?? "",
@@ -152,14 +195,25 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
         brochures: [],
       }));
 
-      const attendees: SeededAttendee[] = (attendeeRows as unknown as Array<{
-        id: string; full_name: string; company: string; job_title: string;
-      }>).map(r => ({
+      const attendees: SeededAttendee[] = (
+        attendeeRows as unknown as Array<{
+          id: string;
+          full_name: string;
+          company: string;
+          job_title: string;
+        }>
+      ).map((r) => ({
         id: r.id,
         fullName: r.full_name ?? "",
         company: r.company ?? "",
         title: r.job_title ?? "",
-        interests: ["AI/ML", "Cloud", "Security", "Data Analytics", "Innovation"],
+        interests: [
+          "AI/ML",
+          "Cloud",
+          "Security",
+          "Data Analytics",
+          "Innovation",
+        ],
         profileType: "General",
       }));
 
@@ -172,14 +226,18 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
         },
       };
 
-      this.logger.log(`Loaded ${attendees.length} attendees and ${exhibitors.length} exhibitors for simulation.`);
+      this.logger.log(
+        `Loaded ${attendees.length} attendees and ${exhibitors.length} exhibitors for simulation.`,
+      );
     } catch (err) {
       this.logger.error("Failed to load seeded data for simulation:", err);
     }
   }
 
   startSimulation(): void {
+    if (!this.isEnabled()) return;
     if (this.timer) return;
+    this.captureGrowthLimits();
     this.scenarioService.start();
     this.scheduleTick();
     this.logger.log("Simulation started.");
@@ -221,17 +279,22 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
     if (!this.scenarioService.isRunning()) return;
     const scenario = this.scenarioService.getCurrentScenario();
     const speed = this.scenarioService.getSpeed();
-    const baseInterval = 20000 + Math.random() * 40000;
-    const adjustedInterval = Math.max(2000, baseInterval / (speed * scenario.trafficMultiplier));
+    const adjustedInterval = Math.max(
+      2000,
+      5000 / (speed * scenario.trafficMultiplier),
+    );
 
     this.timer = setTimeout(() => {
-      this.tick(scenario);
+      const updates = 2 + Math.floor(Math.random() * 4);
+      for (let index = 0; index < updates; index++) this.tick(scenario);
       this.scenarioService.recordEvent();
       this.scheduleTick();
     }, adjustedInterval);
   }
 
-  private tick(scenario: ReturnType<typeof this.scenarioService.getCurrentScenario>): void {
+  private tick(
+    scenario: ReturnType<typeof this.scenarioService.getCurrentScenario>,
+  ): void {
     if (!this.seededData) return;
     const { attendees, exhibitors } = this.seededData;
     if (attendees.length === 0 || exhibitors.length === 0) return;
@@ -244,14 +307,16 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
       return false;
     };
 
-    const biasedExhibitors = exhibitors.filter(e => isBiasMatch(e.name));
-    const normalExhibitors = exhibitors.filter(e => !isBiasMatch(e.name));
+    const biasedExhibitors = exhibitors.filter((e) => isBiasMatch(e.name));
+    const normalExhibitors = exhibitors.filter((e) => !isBiasMatch(e.name));
 
     let chosenExhibitor: SeededExhibitor;
     if (biasedExhibitors.length > 0 && rand() < 0.6) {
-      chosenExhibitor = biasedExhibitors[Math.floor(rand() * biasedExhibitors.length)]!;
+      chosenExhibitor =
+        biasedExhibitors[Math.floor(rand() * biasedExhibitors.length)]!;
     } else if (normalExhibitors.length > 0) {
-      chosenExhibitor = normalExhibitors[Math.floor(rand() * normalExhibitors.length)]!;
+      chosenExhibitor =
+        normalExhibitors[Math.floor(rand() * normalExhibitors.length)]!;
     } else {
       chosenExhibitor = exhibitors[Math.floor(rand() * exhibitors.length)]!;
     }
@@ -264,8 +329,14 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
       { item: "ai_chat" as const, weight: 15 * scenario.aiUsageMultiplier },
       { item: "product_view" as const, weight: 20 },
       { item: "brochure_download" as const, weight: 10 },
-      { item: "lead_submission" as const, weight: 8 * scenario.leadGenerationMultiplier },
-      { item: "meeting_request" as const, weight: 5 * scenario.meetingFrequencyMultiplier },
+      {
+        item: "lead_submission" as const,
+        weight: 8 * scenario.leadGenerationMultiplier,
+      },
+      {
+        item: "meeting_request" as const,
+        weight: 5 * scenario.meetingFrequencyMultiplier,
+      },
       { item: "returning_visitor" as const, weight: 7 },
     ]);
 
@@ -274,13 +345,36 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
       attendeeId: chosenAttendee.id,
     };
 
+    if (
+      !this.canGrow(
+        eventType === "meeting_request"
+          ? "lead_submission"
+          : eventType === "returning_visitor"
+            ? "booth_visit"
+            : eventType,
+      )
+    )
+      return;
+
     if (eventType === "ai_chat") {
       const messageCount = 2 + Math.floor(rand() * 4);
-      this.analyticsStore.track({ ...baseEvent, type: "ai_chat", messageCount } as TrackEvent);
+      this.analyticsStore.track({
+        ...baseEvent,
+        type: "ai_chat",
+        messageCount,
+      } as TrackEvent);
     } else if (eventType === "booth_visit") {
-      const dwellSeconds = 60 + Math.floor(rand() * 900 * scenario.dwellTimeMultiplier);
-      this.analyticsStore.track({ ...baseEvent, type: "booth_visit" } as TrackEvent);
-      this.analyticsStore.track({ ...baseEvent, type: "dwell", seconds: Math.min(dwellSeconds, 3600) } as TrackEvent);
+      const dwellSeconds =
+        60 + Math.floor(rand() * 900 * scenario.dwellTimeMultiplier);
+      this.analyticsStore.track({
+        ...baseEvent,
+        type: "booth_visit",
+      } as TrackEvent);
+      this.analyticsStore.track({
+        ...baseEvent,
+        type: "dwell",
+        seconds: Math.min(dwellSeconds, 3600),
+      } as TrackEvent);
     } else {
       const typeMap: Record<string, TrackEvent["type"]> = {
         qr_scan: "qr_scan",
@@ -290,13 +384,21 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
         product_view: "product_view",
         brochure_download: "brochure_download",
       };
-      this.analyticsStore.track({ ...baseEvent, type: typeMap[eventType] ?? "booth_visit" } as TrackEvent);
+      this.analyticsStore.track({
+        ...baseEvent,
+        type: typeMap[eventType] ?? "booth_visit",
+      } as TrackEvent);
     }
 
-    this.logger.debug(`[Sim] ${eventType} @ ${chosenExhibitor.name} by ${chosenAttendee.fullName}`);
+    this.logger.debug(
+      `[Sim] ${eventType} @ ${chosenExhibitor.name} by ${chosenAttendee.fullName}`,
+    );
   }
 
-  private weightedRandom<T>(rand: () => number, items: Array<{ item: T; weight: number }>): T {
+  private weightedRandom<T>(
+    rand: () => number,
+    items: Array<{ item: T; weight: number }>,
+  ): T {
     const total = items.reduce((s, i) => s + i.weight, 0);
     let r = rand() * total;
     for (const { item, weight } of items) {
@@ -304,5 +406,52 @@ export class DemoSimulationService implements OnModuleInit, OnModuleDestroy {
       if (r <= 0) return item;
     }
     return items[items.length - 1]!.item;
+  }
+
+  private captureGrowthLimits() {
+    const metrics = this.analyticsStore.getEventMetrics();
+    const initial = {
+      booth_visit: metrics.totalLiveBoothVisits,
+      product_view: metrics.totalLiveProductViews,
+      brochure_download: metrics.totalLiveBrochureDownloads,
+      ai_chat: metrics.totalLiveAiConversations,
+      qr_scan: Object.values(metrics.liveMetricsByBooth).reduce(
+        (sum, booth) => sum + booth.scans,
+        0,
+      ),
+      lead_submission: metrics.totalLiveLeadSubmissions,
+      dwell: metrics.totalLiveDwellSeconds,
+      suggested_question_click: 0,
+    } satisfies Record<TrackEvent["type"], number>;
+    this.growth.clear();
+    for (const [type, value] of Object.entries(initial) as Array<
+      [TrackEvent["type"], number]
+    >) {
+      // ponytail: a zero baseline gets a small demo ceiling; hydrate persisted telemetry if zero-start precision becomes required.
+      this.growth.set(type, {
+        initial: value,
+        maximum: value + Math.max(value, 20),
+      });
+    }
+  }
+
+  private canGrow(type: TrackEvent["type"]) {
+    const limit = this.growth.get(type);
+    if (!limit) return false;
+    const metrics = this.analyticsStore.getEventMetrics();
+    const current = {
+      booth_visit: metrics.totalLiveBoothVisits,
+      product_view: metrics.totalLiveProductViews,
+      brochure_download: metrics.totalLiveBrochureDownloads,
+      ai_chat: metrics.totalLiveAiConversations,
+      qr_scan: Object.values(metrics.liveMetricsByBooth).reduce(
+        (sum, booth) => sum + booth.scans,
+        0,
+      ),
+      lead_submission: metrics.totalLiveLeadSubmissions,
+      dwell: metrics.totalLiveDwellSeconds,
+      suggested_question_click: 0,
+    } satisfies Record<TrackEvent["type"], number>;
+    return current[type] < limit.maximum;
   }
 }

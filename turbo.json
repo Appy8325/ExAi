@@ -3,7 +3,13 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        ".next-build/**",
+        "!.next-build/cache/**",
+        "dist/**"
+      ]
     },
     "@concourse/api-client#build": {
       "dependsOn": ["^build"],
@@ -11,7 +17,10 @@
     },
     "@concourse/ai#build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
     "@concourse/flags#build": { "dependsOn": ["^build"], "outputs": [] },
-    "@concourse/notifications#build": { "dependsOn": ["^build"], "outputs": [] },
+    "@concourse/notifications#build": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
     "@concourse/ui#build": { "dependsOn": ["^build"], "outputs": [] },
     "lint": { "dependsOn": ["^build"] },
     "typecheck": { "dependsOn": ["^build"] },

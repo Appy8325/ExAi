@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Keep `next dev` and `next build` from racing over the same generated manifests.
+  distDir:
+    process.env.NEXT_DIST_DIR ??
+    (process.env.NODE_ENV === "production" ? ".next-build" : ".next"),
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
@@ -26,7 +30,8 @@ const nextConfig: NextConfig = {
   webpack(config, { isServer }) {
     if (isServer) {
       config.resolve.alias["@nestjs/websockets/socket-module"] = false;
-      config.resolve.alias["@nestjs/microservices/microservices-module"] = false;
+      config.resolve.alias["@nestjs/microservices/microservices-module"] =
+        false;
     }
     return config;
   },

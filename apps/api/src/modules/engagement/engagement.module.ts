@@ -30,6 +30,7 @@ import { OrganizerOverviewController } from "./organizer-overview.controller";
 import { OrganizerOverviewService } from "./organizer-overview.service";
 import { EventsModule } from "../events/events.module";
 import { AiModule } from "../ai/ai.module";
+import { AgendaModule } from "../agenda/agenda.module";
 import {
   OrganizerBootstrapController,
   OrganizerManagementController,
@@ -46,10 +47,13 @@ import { DemoAnalyticsStore } from "./demo-analytics.store";
 import { DemoSimulationService } from "./demo-simulation.service";
 import { DemoScenarioService } from "./demo-scenario.service";
 import { DemoAdminController } from "./demo-admin.controller";
+import { SessionsController } from "./sessions.controller";
+import { SpeakersController } from "./speakers.controller";
+import { RegistrationsController } from "./registrations.controller";
 import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor";
 
 @Module({
-  imports: [AuthModule, OrganizationsModule, EventsModule, AiModule],
+  imports: [AuthModule, OrganizationsModule, EventsModule, AiModule, AgendaModule],
   controllers: [
     RelationshipWorkspaceController,
     ExhibitorDashboardController,
@@ -66,6 +70,9 @@ import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor
     OrganizerManagementController,
     ExhibitorBootstrapController,
     ExhibitorWorkspaceController,
+    SessionsController,
+    SpeakersController,
+    RegistrationsController,
   ],
   providers: [
     { provide: DATABASE_CLIENT, useValue: db },

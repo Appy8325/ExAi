@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { notFound } from "next/navigation";
-import { Card, MetricCard } from "@concourse/ui";
+import { Card } from "@concourse/ui";
 
 import {
   getPublicDemoExhibitorDashboard,
@@ -13,6 +13,7 @@ import {
   DemoUnavailable,
 } from "@/components/demo/shell";
 import { TrackVisit } from "@/components/demo/analytics-tracker";
+import { LiveDashboardMetrics, LiveExhibitorPipeline, LiveMetricsBar, RecentActivityFeed } from "@/components/demo/live-metrics";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -67,28 +68,13 @@ export default async function ExhibitorDashboardPage({
         badge="Read-only"
       />
 
-        <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          <MetricCard label="New visitors" value={String(pipeline.new)} />
-          <MetricCard label="QR scans" value={String(perf.qrScans)} />
-          <MetricCard
-            label="Relationships"
-            value={String(perf.relationshipsCreated)}
-          />
-          <MetricCard label="Returning" value={String(perf.returningVisitors)} />
-          <MetricCard
-            label="Profile completion"
-            value={`${perf.profileCompletion}%`}
-          />
-          <MetricCard label="Lead quality" value={`${leadQuality}%`} />
-          <MetricCard label="Engagement" value={String(engagementScore)} />
-          <MetricCard
-            label="Source count"
-            value={String(dashboard.boothInfo.sourceCount)}
-            />
-        </section>
+      <LiveMetricsBar />
+
+      <LiveDashboardMetrics boothId={eventExhibitorId} />
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <Card>
+          <LiveExhibitorPipeline boothId={eventExhibitorId} />
+          {/*
             <div className="flex items-start justify-between gap-3">
               <h2 className="text-title-sm font-semibold text-primary">
                 Relationship pipeline
@@ -114,7 +100,7 @@ export default async function ExhibitorDashboardPage({
                 tone="warning"
               />
             </div>
-          </Card>
+          </Card> */}
 
           {dashboard.attention.length > 0 && (
             <Card>
@@ -182,6 +168,8 @@ export default async function ExhibitorDashboardPage({
             )}
           </Card>
         </div>
+
+        <RecentActivityFeed />
 
         <div className="flex flex-wrap gap-3">
           <Link
