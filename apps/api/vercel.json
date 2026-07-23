@@ -1,5 +1,5 @@
 {
-  "framework": null,
+  "framework": "nestjs",
   "project": "api",
   "installCommand": "cd ../.. && corepack pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && corepack pnpm --filter api... build",

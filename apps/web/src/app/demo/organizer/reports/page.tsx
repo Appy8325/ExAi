@@ -1,4 +1,4 @@
-import { Card, MetricCard } from "@concourse/ui";
+import { Card } from "@concourse/ui";
 
 import {
   getPublicDemoAnalytics,
@@ -42,7 +42,7 @@ export default async function OrganizerReportsPage() {
       <DemoPageHeader
         eyebrow="Organizer workspace"
         title={event?.name ?? "Reports"}
-        description="Live event metrics with executive reporting — read-only demo."
+        description="Executive event report — read-only demo."
         badge="Report"
       />
 
@@ -50,54 +50,33 @@ export default async function OrganizerReportsPage() {
         <Card>
           <p className="text-body text-secondary">Event report unavailable.</p>
         </Card>
-      ) : (
-        <>
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MetricCard
-              label="Captured visits"
-              value={String(analytics.traffic.capturedVisits)}
-            />
-            <MetricCard
-              label="Unique attendees"
-              value={String(analytics.traffic.uniqueVisitors)}
-            />
-            <MetricCard
-              label="Leads"
-              value={String(analytics.conversions.leads)}
-            />
-            <MetricCard
-              label="Conversion"
-              value={`${analytics.conversions.conversionRate}%`}
-            />
-          </section>
-
-          <Card>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-semibold text-primary">
-                  Executive AI report
-                </h2>
-                <p className="mt-1 text-body text-secondary">
-                  AI-generated summary based on aggregate event data.
-                </p>
-              </div>
-              {report?.generatedAt && (
-                <span className="text-caption text-muted">
-                  Generated {new Date(report.generatedAt).toLocaleString()}
-                </span>
-              )}
-            </div>
-            {report?.content ? (
-              <pre className="mt-6 whitespace-pre-wrap text-body leading-7 text-secondary font-mono">
-                {report.content}
-              </pre>
-            ) : (
-              <p className="mt-6 text-body text-muted">
-                Generating report from live analytics data...
+      ) : report?.content ? (
+        <Card>
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-primary">
+                Executive AI report
+              </h2>
+              <p className="mt-1 text-body-sm text-secondary">
+                AI-generated summary based on aggregate event data.
               </p>
+            </div>
+            {report.generatedAt && (
+              <span className="text-caption text-muted shrink-0">
+                Generated {new Date(report.generatedAt).toLocaleString()}
+              </span>
             )}
-          </Card>
-        </>
+          </div>
+          <pre className="whitespace-pre-wrap text-body leading-7 text-secondary font-mono">
+            {report.content}
+          </pre>
+        </Card>
+      ) : (
+        <Card>
+          <p className="text-body text-muted">
+            Report is being generated...
+          </p>
+        </Card>
       )}
     </div>
   );

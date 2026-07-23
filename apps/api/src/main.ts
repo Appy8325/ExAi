@@ -1,3 +1,8 @@
+// Required for Vercel NestJS runtime detection.
+// Our dual-mode bootstrap causes @nestjs/core to be tree-shaken from the compiled entrypoint.
+// Do not remove unless the bootstrap architecture is refactored.
+// See NESTJS_ENTRYPOINT_AUDIT.md.
+import '@nestjs/core';
 import "reflect-metadata";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { NestFactory } from "@nestjs/core";

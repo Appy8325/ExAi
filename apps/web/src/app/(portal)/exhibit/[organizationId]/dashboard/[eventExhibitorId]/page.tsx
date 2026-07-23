@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import { ApiError, getExhibitorDashboard } from "@concourse/api-client";
+import { getExhibitorDashboard } from "@concourse/api-client";
 import { createClient } from "@/lib/supabase/server";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { Skeleton } from "@concourse/ui";

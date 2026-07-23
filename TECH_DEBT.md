@@ -7,22 +7,30 @@
 
 ## P0 — Blocking
 
-| Item | Files | Effort | Status |
-|---|---|---|---|
-| **Corrupt package installs** (`@nestjs/config`, `rxjs`, `@supabase/supabase-js` have no `dist/` folders, `index.d.ts` re-exports from non-existent `./dist`) | `apps/api/node_modules/@nestjs/config`, `apps/api/node_modules/rxjs`, `apps/api/node_modules/@supabase/supabase-js` | XS (install) | **Blocked** — deployment frozen |
-| **API build blocked** | `apps/api/tsconfig.json` | XS | tsconfig fix applied; awaiting package reinstall |
+| Item | Files | Type | Effort | Status |
+|---|---|---|---|---|
+| **Vercel NestJS runtime detection workaround** (`import '@nestjs/core'` side-effect import in main.ts) | `apps/api/src/main.ts` | **Deployment** | XS | **Temporary** — deploys work but entrypoint is non-standard; bootstrap refactor needed when deployment architecture stabilizes |
 
 ---
 
 ## P1 — High Impact
 
-None. All P1 items from EPIC 2.5 have been resolved.
+| Item | Files | Type | Effort | Status |
+|---|---|---|---|---|
+| **Pre-existing web build failures** (30 TypeScript errors: 5 missing modules, 1 import conflict, 24 type errors) | See `PRE_EXISTING_WEB_TYPESCRIPT_ERRORS.md` | **Source** | M | **Open** — blocks web production build; API build unaffected |
 
 ---
 
 ## P2 — Medium Impact
 
-None.
+| Item | Files | Effort | Notes |
+|---|---|---|---|
+| **NestJS bootstrap refactor** (deferred to P0.8 in MASTER_ROADMAP) | `apps/api/src/main.ts` | M | Long-term goal: refactor to standard `app.listen()` pattern; currently using side-effect import workaround (`import '@nestjs/core';`); not blocking deployment but needed for clean architecture |
+| **Obsolete pnpm v3 store — incomplete packages** | `apps/api/node_modules/@nestjs/config`, `apps/api/node_modules/rxjs`, `apps/api/node_modules/@supabase/supabase-js` | XS | **RESOLVED** — clean reinstall completed; packages now have complete `dist/` folders; v3 store removed |
+
+---
+
+## P3 — Low Impact / Nice-to-Have
 
 ---
 
@@ -58,6 +66,7 @@ None.
 
 | Item | Resolution | EPIC |
 |---|---|---|
+| Zero error boundaries (critical UX gap) | `apps/web/src/app/global-error.tsx` added — root React error boundary with user-friendly fallback, reset + homepage navigation, error logging | P0.5 |
 | Raw `text-sm`/`text-xs`/`text-base` | Replaced with semantic tokens (50 files) | EPIC 2 |
 | Inline badge implementations (30+) | Replaced with `StatusBadge`/`Badge` (17 files) | EPIC 2 |
 | Raw hex colors in `demo/admin/page.tsx` | Converted to semantic tokens | EPIC 2 |

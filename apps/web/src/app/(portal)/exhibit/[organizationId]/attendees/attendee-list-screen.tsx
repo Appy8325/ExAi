@@ -117,7 +117,7 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
                     <p className="text-body-sm font-medium text-primary">{item.name}</p>
                     <p className="text-caption text-muted">{item.reasons.join(" · ")}</p>
                   </td>
-                  <td className="px-4 py-3"><StatusBadge status={item.status} /></td>
+                  <td className="px-4 py-3"><AttendeeStatusBadge status={item.status} /></td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="h-1.5 w-12 rounded-full bg-sunken">
@@ -145,7 +145,7 @@ export function AttendeeListScreen({ dashboard, organizationId }: { dashboard: E
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function AttendeeStatusBadge({ status }: { status: string }) {
   const map: Record<string, { tone: "info" | "success" | "ai" | "warning" | "neutral"; label: string }> = {
     new: { tone: "info", label: "New" },
     active: { tone: "success", label: "Active" },

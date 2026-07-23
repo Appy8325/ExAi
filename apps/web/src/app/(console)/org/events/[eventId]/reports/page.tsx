@@ -1,11 +1,20 @@
-import { Button, Card, MetricCard } from "@concourse/ui";
+import Link from "next/link";
+import { Button, Card } from "@concourse/ui";
 
 import {
-  loadOrganizerAnalytics,
   loadOrganizerReport,
   loadOrganizerOverview,
 } from "@/lib/organizer";
 import { generateEventReport } from "./actions";
+
+function formatDateRange(startAt: string, endAt: string): string {
+  const start = new Date(startAt);
+  const end = new Date(endAt);
+  const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+  const startStr = start.toLocaleDateString("en-US", opts);
+  const endStr = end.toLocaleDateString("en-US", { ...opts, year: "numeric" });
+  return `${startStr} – ${endStr}`;
+}
 
 export default async function EventReportsPage({
   params,
@@ -13,13 +22,12 @@ export default async function EventReportsPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const [overview, analytics, report] = await Promise.all([
+  const [overview, report] = await Promise.all([
     loadOrganizerOverview(),
-    loadOrganizerAnalytics(eventId),
     loadOrganizerReport(eventId),
   ]);
   const event = overview?.events.find((item) => item.id === eventId);
-  if (!event || !analytics)
+  if (!event)
     return (
       <p className="rounded-xl border border-default bg-surface p-6 text-secondary">
         Event report unavailable.
@@ -27,17 +35,14 @@ export default async function EventReportsPage({
     );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-section">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-body font-medium uppercase tracking-[0.2em] text-muted">
-            Executive reporting
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold text-primary">
+          <h1 className="text-2xl font-semibold text-primary">
             {event.name}
           </h1>
           <p className="mt-1 text-body text-secondary">
-            Deterministic event metrics with an AI-generated executive summary.
+            AI-generated executive summary with event outcomes, trends, and recommended actions.
           </p>
         </div>
         <form action={generateEventReport}>
@@ -48,61 +53,56 @@ export default async function EventReportsPage({
         </form>
       </header>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          label="Captured visits"
-          value={String(analytics.traffic.capturedVisits)}
-        />
-        <MetricCard
-          label="Unique attendees"
-          value={String(analytics.traffic.uniqueVisitors)}
-        />
-        <MetricCard label="Leads" value={String(analytics.conversions.leads)} />
-        <MetricCard
-          label="Conversion"
-          value={`${analytics.conversions.conversionRate}%`}
-        />
-      </section>
+      <p className="text-body-sm text-muted">
+        Showing report for {event.name}
+        {event.status !== "past" ? ` · ${event.status}` : ""}
+        {" · "}
+        {formatDateRange(event.startAt, event.endAt)}
+      </p>
 
       <Card>
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-primary">
-              Executive AI report
+              Executive AI summary
             </h2>
-            <p className="mt-1 text-body text-secondary">
-              Numeric claims cite the aggregate metric snapshot used at
-              generation time.
+            <p className="mt-1 text-body-sm text-secondary">
+              Includes cited metrics, outcome analysis, and recommended next steps.
             </p>
           </div>
           {report?.status === "complete" && (
-            <a
-              href={`/org/events/${eventId}/reports/download`}
-              className="rounded-lg border border-default px-4 py-2 text-body font-medium text-primary"
-            >
-              Download PDF
-            </a>
+            <Button variant="secondary" asChild>
+              <Link href={`/org/events/${eventId}/reports/download`}>
+                Download PDF
+              </Link>
+            </Button>
           )}
         </div>
+
         {report?.status === "complete" && report.content ? (
-          <div className="mt-6 whitespace-pre-wrap text-body leading-7 text-secondary">
+          <div className="whitespace-pre-wrap text-body leading-7 text-secondary">
             {report.content}
           </div>
         ) : report?.status === "failed" ? (
-          <p className="mt-6 text-body text-danger">
-            The previous AI generation failed. Live metrics remain available;
-            try generating again.
+          <p className="text-body text-danger">
+            The previous AI generation failed. Try generating again.
           </p>
         ) : (
-          <p className="mt-6 text-body text-muted">
-            Generate a report to turn the current event snapshot into cited
-            outcomes, trends, limitations, and recommended next actions.
+          <p className="text-body text-muted">
+            Generate a report to receive an AI-written executive summary with
+            outcomes, limitations, and recommended actions for {event.name}.
           </p>
         )}
+
         {report?.generatedAt && (
           <p className="mt-6 text-caption text-muted">
-            Generated {new Date(report.generatedAt).toLocaleString()} using{" "}
-            {report.model}.
+            Generated {new Date(report.generatedAt).toLocaleString()}
+            {report.model ? ` using ${report.model}` : ""}.
+            View detailed metrics in{" "}
+            <a href="/org/analytics" className="text-link hover:underline">
+              Live Analytics
+            </a>
+            .
           </p>
         )}
       </Card>

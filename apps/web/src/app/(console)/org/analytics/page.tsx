@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Card, KPICard, PageHeader, SectionHeader } from "@concourse/ui";
+import { notFound } from "next/navigation";
+import { Card, PageHeader, SectionHeader } from "@concourse/ui";
 
 import { loadOrganizerAnalytics, loadOrganizerOverview } from "@/lib/organizer";
 
@@ -14,13 +15,14 @@ export default async function AnalyticsPage({
   const eventId = overview.events.some((event) => event.id === requestedEventId)
     ? requestedEventId
     : overview.events[0]?.id;
+  if (requestedEventId && !eventId) notFound();
   const analytics = eventId ? await loadOrganizerAnalytics(eventId) : undefined;
 
   return (
     <div className="space-y-section">
       <PageHeader
         title="Live analytics"
-        description="Captured booth interactions and lead outcomes from production data."
+        description="Booth interaction data and lead outcomes for your events."
       />
 
       <nav className="flex flex-wrap gap-2" aria-label="Events">
@@ -43,36 +45,17 @@ export default async function AnalyticsPage({
         <Unavailable>No event analytics are available yet.</Unavailable>
       ) : (
         <>
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <KPICard
-              label="Captured visits"
-              value={String(analytics.traffic.capturedVisits)}
-              accent="brand"
-            />
-            <KPICard
-              label="Unique attendees"
-              value={String(analytics.traffic.uniqueVisitors)}
-              accent="info"
-            />
-            <KPICard
-              label="Leads"
-              value={String(analytics.conversions.leads)}
-              accent="success"
-            />
-            <KPICard
-              label="Conversion"
-              value={`${analytics.conversions.conversionRate}%`}
-              accent="warning"
-            />
-          </section>
+          <p className="text-body-sm text-muted -mt-2">
+            Showing funnel data for {analytics.event.name}
+          </p>
 
           <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
             <Card variant="default">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <SectionHeader
-                    title="Booth heatmap"
-                    description="Relative share of captured interactions; hottest booth is 100%."
+                    title="Pipeline distribution"
+                    description="Where captured visits land on the funnel. Drop-off shows where attendees leave before converting."
                   />
                 </div>
                 <Link
@@ -87,66 +70,110 @@ export default async function AnalyticsPage({
                   </svg>
                 </Link>
               </div>
-              <div className="mt-5 space-y-5">
-                {analytics.booths.map((booth) => (
-                  <div key={booth.id}>
-                    <div className="mb-2 flex justify-between gap-4 text-body-sm">
-                      <span className="font-medium text-primary">
-                        {booth.name}
-                        {booth.boothNumber ? ` · ${booth.boothNumber}` : ""}
-                      </span>
-                      <span className="text-secondary">
-                        {booth.visits} visits · {booth.leads} leads
-                      </span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-sunken">
-                      <div
-                        className="h-full rounded-full bg-brand transition-all duration-[var(--mq-duration-slow)]"
-                        style={{ width: `${booth.heat}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-                {!analytics.booths.length && (
-                  <p className="text-body-sm text-muted">No published booths yet.</p>
-                )}
+              <div className="mt-5 space-y-4">
+                <FunnelStage
+                  label="New"
+                  value={analytics.traffic.capturedVisits}
+                  previousValue={null}
+                  maxValue={analytics.traffic.capturedVisits}
+                />
+                <FunnelStage
+                  label="Unique attendees"
+                  value={analytics.traffic.uniqueVisitors}
+                  previousValue={analytics.traffic.capturedVisits}
+                  maxValue={analytics.traffic.capturedVisits}
+                />
+                <FunnelStage
+                  label="Leads"
+                  value={analytics.conversions.leads}
+                  previousValue={analytics.traffic.uniqueVisitors}
+                  maxValue={analytics.traffic.capturedVisits}
+                />
               </div>
             </Card>
 
             <Card variant="default">
-              <SectionHeader title="Engagement" />
-              <dl className="mt-4 space-y-4">
-                <Stat
-                  label="Returning attendees"
-                  value={String(analytics.traffic.returningVisitors)}
-                />
-                <Stat
-                  label="Repeat engagement"
-                  value={`${analytics.engagement.repeatEngagementRate}%`}
-                />
-                <Stat
-                  label="Average interactions"
-                  value={String(analytics.engagement.averageInteractions)}
-                />
-                <Stat
-                  label="AI-analyzed leads"
-                  value={String(analytics.engagement.analyzedLeads)}
-                />
-              </dl>
+              <SectionHeader
+                title="Booth engagement"
+                description="Per-booth performance ranked by visitor traffic."
+              />
+              <ul className="mt-4 space-y-4" role="list">
+                  {analytics.booths
+                    .slice(0, 6)
+                    .map((booth) => (
+                      <li key={booth.id}>
+                      <div className="mb-1.5 flex justify-between gap-4 text-body-sm">
+                        <span className="font-medium text-primary truncate">
+                          {booth.name}
+                          {booth.boothNumber ? ` · ${booth.boothNumber}` : ""}
+                        </span>
+                        <span className="text-secondary shrink-0 tabular-nums">
+                          {booth.visits} visits · {booth.leads} leads
+                        </span>
+                      </div>
+<div className="h-2 overflow-hidden rounded-full bg-sunken">
+                          <div
+                            role="progressbar"
+                            aria-valuenow={booth.heat}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-label={`${booth.name}: ${booth.heat}% heat`}
+                            className="h-full rounded-full bg-brand transition-all duration-[var(--mq-duration-slow)]"
+                            style={{ width: `${booth.heat}%` }}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                {!analytics.booths.length && (
+                  <p className="text-body-sm text-muted">No published booths yet.</p>
+                )}
+              </ul>
             </Card>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <Breakdown
-              title="Popular industries"
-              items={analytics.industries}
-            />
-            <Breakdown title="Popular topics" items={analytics.topics} />
-          </div>
+          <section className="grid gap-6 md:grid-cols-2">
+            <Card variant="default">
+              <SectionHeader title="Attendee industries" />
+              <div className="mt-4 space-y-3">
+                {analytics.industries.map((item) => (
+                  <div key={item.name} className="flex items-center gap-3">
+                    <span className="min-w-0 flex-1 truncate text-body-sm text-secondary">{item.name}</span>
+                    <span className="text-body-sm font-semibold tabular-nums text-primary">{item.count}</span>
+                  </div>
+                ))}
+                {!analytics.industries.length && (
+                  <p className="text-body-sm text-muted">
+                    Industry data appears once attendees share their profiles.
+                  </p>
+                )}
+              </div>
+              {analytics.industries.length > 0 && (
+                <p className="mt-4 text-caption text-muted">
+                  Includes only attendees who consented to profile sharing.
+                </p>
+              )}
+            </Card>
+
+            <Card variant="default">
+              <SectionHeader title="Topics discussed" />
+              <div className="mt-4 space-y-3">
+                {analytics.topics.map((item) => (
+                  <div key={item.name} className="flex items-center gap-3">
+                    <span className="min-w-0 flex-1 truncate text-body-sm text-secondary">{item.name}</span>
+                    <span className="text-body-sm font-semibold tabular-nums text-primary">{item.count}</span>
+                  </div>
+                ))}
+                {!analytics.topics.length && (
+                  <p className="text-body-sm text-muted">
+                    AI-analyzed conversation topics appear as attendees engage at booths.
+                  </p>
+                )}
+              </div>
+            </Card>
+          </section>
+
           <p className="text-caption text-muted">
-            Updated {new Date(analytics.generatedAt).toLocaleString()} ·
-            Industry data includes only attendees who consented to profile
-            sharing.
+            Updated {new Date(analytics.generatedAt).toLocaleString()}.
           </p>
         </>
       )}
@@ -154,36 +181,47 @@ export default async function AnalyticsPage({
   );
 }
 
-function Breakdown({
-  title,
-  items,
+function FunnelStage({
+  label,
+  value,
+  previousValue,
+  maxValue,
 }: {
-  title: string;
-  items: Array<{ name: string; count: number }>;
+  label: string;
+  value: number;
+  previousValue: number | null;
+  maxValue: number;
 }) {
-  return (
-    <Card variant="default">
-      <SectionHeader title={title} />
-      <div className="mt-4 space-y-3">
-        {items.map((item) => (
-          <div key={item.name} className="flex justify-between text-body-sm">
-            <span className="text-secondary">{item.name}</span>
-            <strong className="text-primary">{item.count}</strong>
-          </div>
-        ))}
-        {!items.length && (
-          <p className="text-body-sm text-muted">No data captured yet.</p>
-        )}
-      </div>
-    </Card>
-  );
-}
+  const pct = Math.round((value / Math.max(1, maxValue)) * 100);
+  const dropoffPct =
+    previousValue !== null && previousValue > 0
+      ? Math.round((1 - value / previousValue) * 100)
+      : null;
 
-function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-4 text-body-sm">
-      <dt className="text-secondary">{label}</dt>
-      <dd className="font-semibold tabular-nums text-primary">{value}</dd>
+    <div>
+      <div className="mb-1.5 flex items-baseline justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <span className="text-body-sm text-secondary">{label}</span>
+          {dropoffPct !== null && dropoffPct > 0 && (
+            <span className="text-caption text-status-warning-text font-medium">
+              ↓ {dropoffPct}% drop-off
+            </span>
+          )}
+        </div>
+        <span className="text-body font-semibold tabular-nums text-primary">{value}</span>
+      </div>
+<div className="h-3 overflow-hidden rounded-full bg-sunken">
+                        <div
+                          role="progressbar"
+                          aria-valuenow={pct}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label={`${label}: ${value}`}
+                          className="h-full rounded-full bg-brand transition-all duration-[var(--mq-duration-slow)]"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
     </div>
   );
 }

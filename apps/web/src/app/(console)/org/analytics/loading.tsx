@@ -7,12 +7,15 @@ export default function AnalyticsLoading() {
         <Skeleton className="h-5 w-40" />
         <Skeleton className="h-4 w-64" />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }, (_, i) => (
-          <SkeletonCard key={i} />
-        ))}
+      <Skeleton className="h-4 w-56" />
+      <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <SkeletonCard className="min-h-56" />
+        <SkeletonCard className="min-h-56" />
       </div>
-      <SkeletonCard className="min-h-64" />
+      <div className="grid gap-6 md:grid-cols-2">
+        <SkeletonCard className="min-h-48" />
+        <SkeletonCard className="min-h-48" />
+      </div>
     </div>
   );
 }

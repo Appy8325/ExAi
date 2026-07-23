@@ -61,8 +61,8 @@ export default async function ExhibitorDashboardPage({
       <DemoPageHeader
         eyebrow="Exhibitor workspace"
         title={booth.companyName}
-        description={`Booth ${booth.boothNumber ?? "—"} · ${booth.boothName}${
-          event ? ` · ${event.name}` : ""
+        description={`Booth ${booth.boothNumber ?? "â€”"} â€” ${booth.boothName}${
+          event ? ` â€” ${event.name}` : ""
         }`}
         badge="Read-only"
       />
@@ -139,7 +139,7 @@ export default async function ExhibitorDashboardPage({
                       {item.attendeeName}
                     </p>
                     <p className="mt-1 text-caption text-secondary">
-                      {item.reasons.join(" · ")}
+                      {item.reasons.join(" â€” ")}
                     </p>
                   </li>
                 ))}

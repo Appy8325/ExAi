@@ -24,7 +24,7 @@ Items are grouped into 4 phases. Phases should be executed sequentially — don'
 
 ### P0.1: Fix `pnpm build` [ENG]
 **Source:** ENGINEERING_AUDIT_V2
-**Effort:** S (tsconfig XS, packages unknown)
+**Effort:** S (tsconfig XS, clean reinstall XS)
 **Impact:** Critical
 **Risk:** Medium
 
@@ -34,16 +34,26 @@ Items are grouped into 4 phases. Phases should be executed sequentially — don'
 "module": "preserve",            // was "commonjs" (required pairing)
 ```
 
-**Status:** tsconfig change complete. Build still fails.
+**Status (July 22, 2026):** PARTIALLY RESOLVED — environment fix successful; new blocker discovered.
 
-**Root cause (updated):** The audit correctly identified `moduleResolution: "Node10"` as a blocker. However, a deeper issue was discovered during fix: three packages are corrupt installs in the local environment:
-- `@nestjs/config` v4.0.4 — `index.d.ts` re-exports from `./dist` which does not exist
-- `rxjs` — no `dist/` folder (source-only install)
-- `@supabase/supabase-js` — no `main`/`types`/`exports` fields
+**Pipeline results (July 22, 2026):**
+| Step | Result |
+|------|--------|
+| 1. Remove node_modules | ✅ PASS |
+| 2. Clean pnpm install | ✅ PASS (1013 packages, v3 store removed) |
+| 3. Verify dependency integrity | ✅ PASS (rxjs, @nestjs/config, @supabase/supabase-js all have dist/) |
+| 4. Type check — API | ✅ PASS (zero errors) |
+| 4. Type check — Web | ❌ FAIL (30 pre-existing errors) |
+| 5. Build — API | ✅ PASS |
+| 5. Build — Web | ❌ FAIL (5 module-not-found errors) |
 
-The tsconfig change is necessary but not sufficient. Packages must also be reinstalled (likely `pnpm install`). This is a pre-existing environment corruption unrelated to the tsconfig fix.
+**API build: PASSES.** The tsconfig fix + clean reinstall resolved the API build failure.
 
-**Next:** Run `pnpm install` once deployment thaws to restore packages, then re-verify `pnpm --filter api build`.
+**Web build: BLOCKED** by pre-existing source code errors (30 TypeScript errors in 5 files — see `PRE_EXISTING_WEB_TYPESCRIPT_ERRORS.md`). These are application code defects, not environment issues.
+
+**Fix for web errors:** Out of scope for Phase 0 (environment validation). See `PRE_EXISTING_WEB_TYPESCRIPT_ERRORS.md` for full list. Affected: `(portal)/exhibit/[organizationId]/ai-insights/`, `(portal)/exhibit/[organizationId]/dashboard/`, `(console)/org/events/`, `(console)/org/`.
+
+**Next:** Web errors must be resolved before web build can pass.
 
 ### P0.2: Remove Vercel OIDC token [ENG]
 **Source:** ENGINEERING_AUDIT_V2
@@ -63,32 +73,35 @@ The `/demo/admin` page has no auth and exposes simulation controls. Either:
 - Add middleware auth gate (preferred), or
 - Move it behind a feature flag and disable in production
 
-### P0.4: Fix demo admin raw hex colors [UX+DS]
+### P0.4: Fix demo admin raw hex colors [UX+DS] ✅ VERIFIED
 **Source:** UX_DESIGN_AUDIT, DESIGN_SYSTEM_AUDIT
 **Effort:** S
 **Impact:** High
 **Risk:** Medium
 
-Replace all hardcoded hex values (`#0a0a0f`, `#e0e0e0`, etc.) with semantic tokens. This page is broken in dark mode.
+Replaced all hardcoded hex values (`#0a0a0f`, `#e0e0e0`, etc.) with semantic tokens. **Status:** Verified — TECH_DEBT already marked this resolved (EPIC 2). Code review confirms no raw hex colors in production components.
 
-### P0.5: Add global error boundary [UX]
+### P0.5: Add global error boundary [UX] ✅ DONE
 **Source:** UX_DESIGN_AUDIT, TECH_DEBT
 **Effort:** XS
 **Impact:** High
 **Risk:** Low
 
-Create `apps/web/src/app/global-error.tsx`:
 ```tsx
+// apps/web/src/app/global-error.tsx
 "use client";
-export default function GlobalError({ error, reset }) {
-  return (
-    <html><body>
-      <h1>Something went wrong</h1>
-      <button onClick={reset}>Try again</button>
-    </body></html>
-  );
-}
+// Full implementation: styled error boundary with reset + homepage navigation
+// Uses semantic CSS tokens, Button from @concourse/ui, error ID logging
+// Shows error message in development mode only
 ```
+
+**Completed:** `apps/web/src/app/global-error.tsx` (147 lines)
+- User-friendly error card with ExAi styling
+- "Try again" + "Go to homepage" buttons
+- Error ID logged to console with message + stack
+- Development mode shows full error message inline
+- Production hides error details, shows only error ID
+- No layout changes; matches existing design system
 
 ### P0.6: Add cookie consent banner [BIZ]
 **Source:** BUSINESS_READINESS
@@ -99,6 +112,38 @@ export default function GlobalError({ error, reset }) {
 Simple banner: "We use cookies. [Accept] [Manage preferences]". Use a third-party library (Consentful or similar) to avoid building this from scratch.
 
 **Exit Criteria:** No GDPR errors in browser console. Cookie consent stored in Supabase.
+
+---
+
+## PHASE 0.5: DEPLOYMENT (Week 2-3)
+
+*Configure production infrastructure. Make the API operational.*
+
+### P0.7: Configure API environment variables [ENG] ✅ DEPLOYMENT PATH VALIDATED
+**Source:** DEPLOYMENT_ARCHITECTURE
+**Effort:** XS
+**Impact:** Critical
+**Risk:** Low
+
+Configure missing environment variables in Vercel project `ex-ai-api`:
+- `API_SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
+- `API_SUPABASE_JWT_SECRET` - Supabase JWT secret
+
+**Validation:** Deploy and verify `/healthz` and `/readyz` return `{"status":"ok"}`.
+
+**Status (2026-07-22):** Deployment architecture investigation CLOSED. Side-effect import workaround validated.
+
+### P0.8: Bootstrap refactor (deferred) [ENG]
+**Source:** NESTJS_ENTRYPOINT_AUDIT
+**Effort:** M
+**Impact:** High
+**Risk:** Medium
+
+**Long-term goal:** Refactor `apps/api/src/main.ts` to use standard NestJS bootstrap pattern when deployment architecture is fully understood.
+
+Current state: Side-effect `import '@nestjs/core';` workaround deployed. Bootstrap architecture uses dual-mode handler pattern.
+
+**Not started.** Deferred until deployment architecture is stable.
 
 ---
 

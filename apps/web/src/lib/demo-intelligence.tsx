@@ -127,7 +127,7 @@ export function computeExhibitorIntelligence(dashboard: {
   intelligenceFeed: { profilesEnriched: number; completeProfiles: number; items: Array<{ id: string; at: string; label: string }>; sinceLastVisited: { since: string } };
   attention: Array<{ relationshipId: string; attendeeName: string | null; reasons: string[] }>;
 }): ExhibitorIntelligence {
-  const { performance: perf, pipeline, intelligenceFeed, attention } = dashboard;
+  const { performance: perf, pipeline, intelligenceFeed } = dashboard;
   const total = pipeline.new + pipeline.active + pipeline.returning + pipeline.needsFollowUp;
   const engRate = total > 0 ? Math.round(((pipeline.active + pipeline.returning) / total) * 100) : 0;
   const healthScore = Math.min(100, Math.round(engRate * 0.3 + perf.profileCompletion * 0.25 + perf.formCompletionRate * 0.2 + (perf.returningVisitors > 0 ? 15 : 0) + (perf.qrScans > 0 ? 10 : 0)));

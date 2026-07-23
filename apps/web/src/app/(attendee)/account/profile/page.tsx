@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useState, useTransition, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { updateAttendeeProfile } from "@concourse/api-client";
 import { Button, EmptyState, Input, Card, Skeleton } from "@concourse/ui";
 import { getApiBaseUrl } from "@/lib/api/config";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AttendeeProfilePage() {
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string>();

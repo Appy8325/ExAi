@@ -1,5 +1,5 @@
 import type { ExhibitorDashboard } from "@concourse/api-client";
-import { AiRecommendationCard } from "../_components/ai-insight-cards";
+import { AiRecommendationCard } from "../dashboard/_components/ai-insight-cards";
 
 export function AiInsightsScreen({ dashboard, organizationId: _organizationId }: { dashboard: ExhibitorDashboard; organizationId?: string }) {
   const topOpportunity = dashboard.attention.find((item) => item.attendeeName)?.attendeeName ?? "No named attendee yet";

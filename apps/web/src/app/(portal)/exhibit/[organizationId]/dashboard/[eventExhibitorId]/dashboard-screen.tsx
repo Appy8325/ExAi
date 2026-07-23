@@ -1,10 +1,10 @@
 import type { ExhibitorDashboard } from "@concourse/api-client";
 import Link from "next/link";
 import { EmptyState, StatusBadge } from "@concourse/ui";
-import { KpiGrid, KpiCard } from "../../_components/kpi-grid";
-import { QuickActions } from "../../_components/quick-actions";
-import { ActivityFeed } from "../../_components/activity-feed";
-import { AiInsightCards } from "../../_components/ai-insight-cards";
+import { KpiGrid, KpiCard } from "../_components/kpi-grid";
+import { QuickActions } from "../_components/quick-actions";
+import { ActivityFeed } from "../_components/activity-feed";
+import { AiInsightCards } from "../_components/ai-insight-cards";
 
 type BoothInfo = {
   companyName: string;
@@ -27,7 +27,7 @@ export function DashboardScreen({
   const scansPerVisitor = pipeline.new > 0 ? perf.qrScans / pipeline.new : 0;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6">
+    <div className="space-y-section">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-title font-semibold text-primary">
@@ -94,24 +94,24 @@ export function DashboardScreen({
       <div className="grid gap-6 lg:grid-cols-3">
         <section className="rounded-xl border border-default bg-surface p-6 lg:col-span-2">
           <h2 className="mb-4 text-body font-semibold text-primary">Relationship Pipeline</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-lg border border-default bg-sunken p-3">
+          <ul role="list" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <li className="rounded-lg border border-default bg-sunken p-3">
               <p className="text-caption font-medium text-secondary">New</p>
               <p className="mt-1 text-title font-semibold text-primary">{pipeline.new}</p>
-            </div>
-            <div className="rounded-lg border border-status-success-border bg-status-success-subtle p-3">
+            </li>
+            <li className="rounded-lg border border-status-success-border bg-status-success-subtle p-3">
               <p className="text-caption font-medium text-status-success-text">Active</p>
               <p className="mt-1 text-title font-semibold text-status-success-text">{pipeline.active}</p>
-            </div>
-            <div className="rounded-lg border border-status-info-border bg-status-info-subtle p-3">
+            </li>
+            <li className="rounded-lg border border-status-info-border bg-status-info-subtle p-3">
               <p className="text-caption font-medium text-status-info-text">Returning</p>
               <p className="mt-1 text-title font-semibold text-status-info-text">{pipeline.returning}</p>
-            </div>
-            <div className="rounded-lg border border-status-warning-border bg-status-warning-subtle p-3">
+            </li>
+            <li className="rounded-lg border border-status-warning-border bg-status-warning-subtle p-3">
               <p className="text-caption font-medium text-status-warning-text">Needs Follow-up</p>
               <p className="mt-1 text-title font-semibold text-status-warning-text">{pipeline.needsFollowUp}</p>
-            </div>
-          </div>
+            </li>
+          </ul>
 
           {dashboard.attention.length > 0 && (
             <>
@@ -127,7 +127,7 @@ export function DashboardScreen({
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-body-sm font-medium text-primary">{item.attendeeName ?? "Attendee"}</p>
-                        <p className="mt-0.5 text-caption text-muted">{item.reasons.join(" · ")}</p>
+                        <p className="mt-0.5 text-caption text-muted">{(item.reasons ?? []).join(" · ")}</p>
                       </div>
                       {organizationId && (
                         <Link
