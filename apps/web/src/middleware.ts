@@ -1,9 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { developmentSessionCookie, hasValidDevelopmentSession } from "@/lib/auth/development-session";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const protectedRoutePrefixes = ["/admin", "/exhibit", "/org", "/organizer", "/account"];
+const protectedRoutePrefixes = ["/admin", "/exhibit", "/org", "/account"];
 
 function isProtectedRoute(pathname: string): boolean {
   return /\/e\/[^/]+\/saved(?:\/|$)/.test(pathname) || protectedRoutePrefixes.some(
@@ -12,25 +11,23 @@ function isProtectedRoute(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname === "/organizer" || request.nextUrl.pathname.startsWith("/organizer/")) {
-    if (await hasValidDevelopmentSession(request.cookies.get(developmentSessionCookie.name)?.value)) {
-      return NextResponse.next();
-    }
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/auth";
-    redirectUrl.search = "";
-    return NextResponse.redirect(redirectUrl);
+  const { pathname } = request.nextUrl;
+  if (pathname === "/organizer" || pathname.startsWith("/organizer/")) {
+    const rewritten = pathname.replace(/^\/organizer/, "/org");
+    const url = request.nextUrl.clone();
+    url.pathname = rewritten;
+    return NextResponse.redirect(url, 308);
   }
 
   const { claims, response } = await updateSession(request);
 
-  if (isProtectedRoute(request.nextUrl.pathname) && !claims) {
+  if (isProtectedRoute(pathname) && !claims) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/auth";
     redirectUrl.search = "";
     redirectUrl.searchParams.set(
       "next",
-      `${request.nextUrl.pathname}${request.nextUrl.search}`,
+      `${pathname}${request.nextUrl.search}`,
     );
 
     const redirectResponse = NextResponse.redirect(redirectUrl);
