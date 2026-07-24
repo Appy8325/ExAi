@@ -33,8 +33,8 @@
     "@concourse/config": "workspace:*",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
-    "prettier": "^3.4.2",
     "pnpm": "9.15.0",
+    "prettier": "^3.4.2",
     "supabase": "^2.109.1",
     "tsx": "^4.19.2",
     "turbo": "^2.3.3",
@@ -48,5 +48,9 @@
     "*.{ts,tsx,js,jsx,json,md,mdx,yml,yaml,css}": [
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "@nestjs/microservices": "^11.1.28",
+    "@nestjs/websockets": "^11.1.28"
   }
 }
