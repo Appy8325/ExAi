@@ -1,4 +1,6 @@
 import { Module } from "@nestjs/common";
+import { SessionsController } from "./sessions.controller";
+import { SpeakersController } from "./speakers.controller";
 import { LeadFormsService } from "./lead-forms.service";
 import { LeadFormsRepository } from "./lead-forms.repository";
 import { LeadSubmissionsRepository } from "./lead-submissions.repository";
@@ -68,6 +70,8 @@ import { DeploymentTaskExecutor, TaskExecutor } from "../../common/task-executor
     OrganizerManagementController,
     ExhibitorBootstrapController,
     ExhibitorWorkspaceController,
+    SessionsController,
+    SpeakersController,
   ],
   providers: [
     { provide: DATABASE_CLIENT, useValue: db },
