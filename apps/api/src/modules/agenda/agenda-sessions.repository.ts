@@ -79,6 +79,46 @@ export class AgendaSessionsRepository {
     });
   }
 
+  async listByEvent(organizationId: string, eventId: string, actorUserId: string) {
+    return db.transaction(async (tx) => {
+      await setRlsContext(tx, organizationId, actorUserId);
+      return tx.select().from(agendaSessions).where(
+        and(
+          eq(agendaSessions.eventId, eventId),
+          ne(agendaSessions.status, "archived"),
+        ),
+      ).orderBy(agendaSessions.startAt);
+    });
+  }
+
+  async publish(organizationId: string, eventId: string, sessionId: string, actorUserId: string) {
+    return db.transaction(async (tx) => {
+      await setRlsContext(tx, organizationId, actorUserId);
+      const [session] = await tx.update(agendaSessions).set({ status: "published", updatedAt: new Date() }).where(
+        and(
+          eq(agendaSessions.id, sessionId),
+          eq(agendaSessions.eventId, eventId),
+          eq(agendaSessions.status, "draft"),
+        ),
+      ).returning();
+      return session;
+    });
+  }
+
+  async unpublish(organizationId: string, eventId: string, sessionId: string, actorUserId: string) {
+    return db.transaction(async (tx) => {
+      await setRlsContext(tx, organizationId, actorUserId);
+      const [session] = await tx.update(agendaSessions).set({ status: "draft", updatedAt: new Date() }).where(
+        and(
+          eq(agendaSessions.id, sessionId),
+          eq(agendaSessions.eventId, eventId),
+          eq(agendaSessions.status, "published"),
+        ),
+      ).returning();
+      return session;
+    });
+  }
+
   async archive(organizationId: string, eventId: string, sessionId: string, actorUserId: string) {
     return db.transaction(async (tx) => {
       await setRlsContext(tx, organizationId, actorUserId);

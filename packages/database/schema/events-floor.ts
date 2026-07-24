@@ -3,7 +3,9 @@ import {
   check,
   index,
   integer,
+  jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -105,5 +107,50 @@ export const agendaSessions = pgTable(
       "agenda_sessions_capacity_check",
       sql`${table.capacity} IS NULL OR ${table.capacity} >= 0`,
     ),
+  }),
+);
+
+export const speakers = pgTable(
+  "speakers",
+  {
+    id: uuid("id").primaryKey().default(uuidv7),
+    eventId: uuid("event_id")
+      .notNull()
+      .references(() => events.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    bio: text("bio"),
+    photoUrl: text("photo_url"),
+    company: text("company"),
+    title: text("title"),
+    socialLinks: jsonb("social_links").default([]),
+    sortOrder: integer("sort_order"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    eventNameUnique: uniqueIndex("speakers_event_name_key").on(
+      table.eventId,
+      table.name,
+    ),
+    eventIdx: index("speakers_event_idx").on(table.eventId),
+  }),
+);
+
+export const sessionSpeakers = pgTable(
+  "session_speakers",
+  {
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => agendaSessions.id, { onDelete: "cascade" }),
+    speakerId: uuid("speaker_id")
+      .notNull()
+      .references(() => speakers.id, { onDelete: "cascade" }),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.sessionId, table.speakerId] }),
   }),
 );

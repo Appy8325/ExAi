@@ -1,0 +1,82 @@
+[
+  {
+    "id": "019f8487-5a5f-7055-8123-039481d3157d",
+    "publicToken": "SZc0KT_NdbCDWbLwc_P-JBwV1nLCyj0hfr7Jk4EPlOs",
+    "name": "Microsoft",
+    "number": "A-101",
+    "organizationId": "019f8487-5a5a-77b5-8585-5d1904847e4d",
+    "relationshipId": "019f8487-5a9f-73c2-9f5d-73afcaadd08e"
+  },
+  {
+    "id": "019f8487-5cca-73dc-ac5c-e5b614ef61d5",
+    "publicToken": "DKTbeW9ASgXZrF6RsqPjsjD11MMY1xX5G4SXg2ma5sk",
+    "name": "Google",
+    "number": "A-102",
+    "organizationId": "019f8487-5cc8-7a36-8beb-aee31a77fe5f",
+    "relationshipId": "019f8487-5ce5-78fe-b8e1-4586a3b7ee0d"
+  },
+  {
+    "id": "019f8487-5ec8-7140-ba5a-364a3aa9a416",
+    "publicToken": "8-e9FZO-Zg-HyoDf2CRGdkolMUbi04b8majdjtRQviY",
+    "name": "Apple",
+    "number": "A-103",
+    "organizationId": "019f8487-5ec6-73d8-a8be-966873aab05a",
+    "relationshipId": "019f8487-5ee6-7033-a154-a13e5b55efc8"
+  },
+  {
+    "id": "019f8487-60b3-72cb-91f9-83f4b7e55496",
+    "publicToken": "0wLTZuCW-8jc3MnCpAC0MfC7KWOnCdRf0gngJw97f44",
+    "name": "NVIDIA",
+    "number": "A-104",
+    "organizationId": "019f8487-60b1-7099-b567-a6eaa71e6a7c",
+    "relationshipId": "019f8487-60cd-779c-aed9-f5bc1213a3e6"
+  },
+  {
+    "id": "019f8487-6281-7290-b0ff-9d147e9fce6d",
+    "publicToken": "8eTsucONePalt4t5SnzINOVt3CCUpt-RXqL7vENa1i0",
+    "name": "Adobe",
+    "number": "B-101",
+    "organizationId": "019f8487-627f-7f52-8523-c2166b3a7ce9",
+    "relationshipId": "019f8487-629b-78a7-ad9e-bccc47a4ae90"
+  },
+  {
+    "id": "019f8487-6465-7344-a0a9-285a2e2fbef5",
+    "publicToken": "6voHEhT8jljYucspFJ8fBgRMR8rc_YwI8uBFOXvRBJU",
+    "name": "Cisco",
+    "number": "B-102",
+    "organizationId": "019f8487-6463-798a-8e4f-d13d0cd71c75",
+    "relationshipId": "019f8487-647e-712c-9644-0588b592ebe9"
+  },
+  {
+    "id": "019f8487-664b-7965-9f5b-d124dbc08c10",
+    "publicToken": "IfydvAGdM8YbVzx_y6y3bEMCOVsjsB5JmsbxbThxZFg",
+    "name": "Salesforce",
+    "number": "C-101",
+    "organizationId": "019f8487-6649-78a4-a14f-f1e71cbf04be",
+    "relationshipId": "019f8487-6670-7d17-a6e8-1c5a8acba356"
+  },
+  {
+    "id": "019f8487-6828-7fe6-a2b7-4de765680d54",
+    "publicToken": "SFsk47wZhj2vkgcfch1a7-5OG7Qv-dozvAlkjIeVVuE",
+    "name": "IBM",
+    "number": "C-102",
+    "organizationId": "019f8487-6826-7411-b804-425de94361a8",
+    "relationshipId": "019f8487-684b-7508-937f-5fea3d267cd1"
+  },
+  {
+    "id": "019f8487-6a04-752f-a9c4-7126ac5f631e",
+    "publicToken": "OBgyuSN6PY8VXMIKVlFFGuD4LTb_zt1H0-Nvihp1bWY",
+    "name": "Intel",
+    "number": "D-101",
+    "organizationId": "019f8487-6a02-7623-af94-3b1b0f51452e",
+    "relationshipId": "019f8487-6a1e-7eb7-980e-900b5132b9c5"
+  },
+  {
+    "id": "019f8487-6c0e-7d28-b74f-c2ad54342930",
+    "publicToken": "s-xKQInu_vWRWCh79giti3W4yrnmYxNZ9aUb-ZoLKDw",
+    "name": "Siemens",
+    "number": "D-102",
+    "organizationId": "019f8487-6c00-732f-b1e5-a8e32a6e072a",
+    "relationshipId": "019f8487-6c29-702a-9bd6-b5978e24f910"
+  }
+]
