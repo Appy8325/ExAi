@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Skeleton } from "@concourse/ui";
+import { Sidebar as SaasSidebar } from "@saas-ui/react";
 import { useAuthSession } from "@/components/auth/session-provider";
 
 export interface WorkspaceNavItem {
@@ -98,7 +99,7 @@ export function WorkspaceNav({ sections, basePath, role, variant = "sidebar" }: 
   }
 
   return (
-    <aside className="flex w-60 flex-col border-r border-default bg-surface">
+    <SaasSidebar className="flex w-60 flex-col border-r border-default bg-sidebar">
       <Link
         href="/"
         className="flex h-14 items-center gap-2.5 border-b border-default px-4 transition-colors hover:bg-sunken/50"
@@ -157,7 +158,7 @@ export function WorkspaceNav({ sections, basePath, role, variant = "sidebar" }: 
           </Link>
         )}
       </div>
-    </aside>
+    </SaasSidebar>
   );
 }
 

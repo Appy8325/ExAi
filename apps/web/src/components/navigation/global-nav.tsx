@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChevronRight, Menu, X } from "lucide-react";
+import { Navbar as SaasNavbar } from "@saas-ui/react";
 
 export interface GlobalPerspective {
   id: "experience" | "organizer" | "exhibitor" | "attendee" | "admin" | "auth";
@@ -84,8 +86,9 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
   }, [mobileOpen]);
 
   return (
-    <header
-      className="sticky top-0 z-(--mq-z-sticky, 50) border-b border-default/50 bg-canvas/85 backdrop-blur-xl"
+    <SaasNavbar
+      as="header"
+      className="sticky top-0 z-(--mq-z-sticky, 50) border-b border-default bg-surface"
       data-global-nav
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5 sm:px-8 sm:py-3">
@@ -130,31 +133,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
           onClick={() => setMobileOpen((v) => !v)}
           className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-default bg-surface text-secondary transition-colors hover:bg-sunken md:hidden"
         >
-          {mobileOpen ? (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden
-            >
-              <path d="M4 4l8 8M12 4l-8 8" />
-            </svg>
-          ) : (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              aria-hidden
-            >
-              <path d="M3 5h10M3 8h10M3 11h10" />
-            </svg>
-          )}
+          {mobileOpen ? <X className="size-4" aria-hidden /> : <Menu className="size-4" aria-hidden />}
         </button>
       </div>
 
@@ -217,7 +196,7 @@ export function GlobalNav({ variant = "marketing", active }: GlobalNavProps) {
           </Link>
         </nav>
       </div>}
-    </header>
+    </SaasNavbar>
   );
 }
 
@@ -245,7 +224,7 @@ function PerspectiveRow({
             key={p.id}
             href={p.href}
             aria-current={isActive ? "page" : undefined}
-            className={`relative rounded-full border px-3 py-1.5 text-caption font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            className={`relative rounded-md border px-3 py-1.5 text-caption font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               isActive
                 ? "border-brand bg-brand-subtle text-brand"
                 : "border-transparent bg-surface text-secondary hover:text-primary"
@@ -260,20 +239,7 @@ function PerspectiveRow({
 }
 
 function ChevronIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      aria-hidden
-      className="text-muted"
-    >
-      <path d="M6 4l4 4-4 4" />
-    </svg>
-  );
+  return <ChevronRight className="size-4 text-muted" aria-hidden />;
 }
 
 export { PERSPECTIVES as GLOBAL_PERSPECTIVES };

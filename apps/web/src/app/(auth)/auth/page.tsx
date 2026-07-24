@@ -18,7 +18,7 @@ export default function AuthPage() {
     startTransition(async () => {
       const { error } = await createClient().auth.signInWithPassword({ email: email.trim(), password });
       if (error) return setError("Invalid email or password.");
-      router.replace("/organizer");
+      router.replace("/org");
       router.refresh();
     });
   }

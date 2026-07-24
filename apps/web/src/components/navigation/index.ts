@@ -8,4 +8,3 @@ export type { PageTab, PageTabsProps } from "./page-tabs";
 export { BackLink } from "./back-link";
 export type { BackLinkProps } from "./back-link";
 export { CommandPalette } from "./command-palette";
-export { UnifiedBreadcrumbs } from "./unified-breadcrumbs";
