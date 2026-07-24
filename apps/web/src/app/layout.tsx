@@ -5,6 +5,7 @@ import "./globals.css";
 
 import { AuthSessionProvider } from "@/components/auth/session-provider";
 import { SkipLink } from "@/components/a11y/skip-link";
+import { SaasProvider } from "@concourse/ui";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -50,10 +51,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="min-h-screen bg-canvas font-sans text-primary antialiased">
-        <AuthSessionProvider>
-          <SkipLink />
-          {children}
-        </AuthSessionProvider>
+        <SaasProvider>
+          <AuthSessionProvider>
+            <SkipLink />
+            {children}
+          </AuthSessionProvider>
+        </SaasProvider>
       </body>
     </html>
   );

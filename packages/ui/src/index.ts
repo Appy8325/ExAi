@@ -3,6 +3,7 @@ export {
   AiChat,
   AiChatBubble,
   AiSuggestedQuestions,
+  AppShell,
   AiTypingIndicator,
   AnimatedCounter,
   Badge,
@@ -30,6 +31,7 @@ export {
   Skeleton,
   SkeletonCard,
   SkeletonTable,
+  Sidebar,
   StatusBadge,
   Table,
   TableBody,
@@ -72,3 +74,4 @@ export {
   type ToastProps,
 } from "./components/foundation";
 export { cn } from "./lib/utils";
+export { SaasProvider } from "./components/saas-provider";

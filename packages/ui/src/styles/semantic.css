@@ -25,6 +25,7 @@
   --mq-bg-selection: color-mix(in srgb, var(--mq-indigo-500) 20%, transparent);
   --mq-bg-skeleton-highlight: rgb(255 255 255 / 0.4);
   --mq-bg-inverse: var(--mq-slate-900);
+  --mq-bg-sidebar: #111827;
 
   --mq-text-primary: var(--mq-slate-900);
   --mq-text-secondary: var(--mq-slate-600);
@@ -104,6 +105,7 @@
   --mq-bg-selection: color-mix(in srgb, var(--mq-indigo-400) 28%, transparent);
   --mq-bg-skeleton-highlight: rgb(255 255 255 / 0.06);
   --mq-bg-inverse: var(--mq-slate-50);
+  --mq-bg-sidebar: #0B1220;
 
   --mq-text-primary: var(--mq-slate-50);
   --mq-text-secondary: var(--mq-slate-400);

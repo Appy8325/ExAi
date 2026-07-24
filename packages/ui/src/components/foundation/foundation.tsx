@@ -5,6 +5,31 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
 
 /* -------------------------------------------------------------------------- */
+/* Application shell                                                          */
+/* -------------------------------------------------------------------------- */
+
+export function AppShell({
+  sidebar,
+  children,
+  className,
+}: {
+  sidebar?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex min-h-screen bg-canvas text-primary", className)}>
+      {sidebar}
+      <div className="min-w-0 flex-1">{children}</div>
+    </div>
+  );
+}
+
+export function Sidebar({ children, className }: React.HTMLAttributes<HTMLElement>) {
+  return <aside className={cn("flex w-60 shrink-0 flex-col border-r border-default bg-sidebar", className)}>{children}</aside>;
+}
+
+/* -------------------------------------------------------------------------- */
 /* Card                                                                       */
 /* -------------------------------------------------------------------------- */
 
@@ -364,7 +389,7 @@ export function KPICard({ label, value, detail, trend, icon, accent = "brand" }:
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl border bg-gradient-to-br p-5 shadow-1 transition-all duration-[var(--mq-duration-moderate)] ease-[var(--mq-ease-standard)] hover:shadow-card-hover",
+        "relative overflow-hidden rounded-xl border bg-surface p-5 shadow-1 transition-all duration-[var(--mq-duration-moderate)] ease-[var(--mq-ease-standard)] hover:shadow-card-hover",
         accentMap[accent],
       )}
     >

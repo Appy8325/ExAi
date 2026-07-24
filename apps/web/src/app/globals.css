@@ -9,13 +9,7 @@
   }
 
   body {
-    background:
-      radial-gradient(
-        circle at 16% -10%,
-        var(--mq-bg-brand-glow),
-        transparent 30rem
-      ),
-      var(--mq-bg-canvas);
+    background: var(--mq-bg-canvas);
   }
 
   ::selection {

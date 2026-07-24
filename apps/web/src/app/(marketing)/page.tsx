@@ -65,7 +65,7 @@ function HeroSection() {
     <section className="relative overflow-hidden px-6 pb-24 pt-20 sm:px-10 sm:pb-32 sm:pt-28">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-40 -z-10 mx-auto h-[600px] max-w-5xl rounded-full bg-gradient-to-tr from-brand/40 via-status-ai-solid/25 to-status-info-solid/25 blur-3xl"
+        className="pointer-events-none absolute inset-x-0 -top-40 -z-10 mx-auto h-[420px] max-w-5xl border-b border-brand/10"
       />
       <div className="mx-auto max-w-4xl text-center">
         <FadeIn>
@@ -75,7 +75,7 @@ function HeroSection() {
         <FadeIn delay={100}>
           <h1 className="mt-8 text-4xl font-bold tracking-tight text-primary sm:text-5xl lg:text-6xl">
             Trade shows that{" "}
-            <span className="bg-gradient-to-br from-brand to-status-ai-solid bg-clip-text text-transparent">
+            <span className="text-brand">
               think
             </span>
           </h1>
@@ -353,9 +353,9 @@ function HowExAiWorks() {
 
         {/* Visual divider with decorative element */}
         <div aria-hidden="true" className="mx-auto mt-16 flex items-center justify-center gap-3">
-          <span className="h-px w-12 bg-gradient-to-r from-transparent to-border-default" />
+          <span className="h-px w-12 bg-border-default" />
           <span className="flex size-2 rounded-full border border-border-default" />
-          <span className="h-px w-12 bg-gradient-to-l from-transparent to-border-default" />
+          <span className="h-px w-12 bg-border-default" />
         </div>
       </div>
     </section>

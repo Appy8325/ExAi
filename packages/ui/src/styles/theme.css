@@ -26,6 +26,7 @@
   --color-bg-selection: var(--mq-bg-selection);
   --color-bg-skeleton-highlight: var(--mq-bg-skeleton-highlight);
   --color-bg-inverse: var(--mq-bg-inverse);
+  --color-bg-sidebar: var(--mq-bg-sidebar);
 
   /* text */
   --color-text-primary: var(--mq-text-primary);

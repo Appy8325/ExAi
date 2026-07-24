@@ -3,16 +3,7 @@ import type { ReactNode } from "react";
 
 export function AuthShell({ children }: { children: ReactNode }) {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-canvas text-primary">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-32 -z-10 mx-auto h-[420px] max-w-5xl rounded-full bg-gradient-to-tr from-brand/30 via-status-ai-solid/20 to-status-info-solid/20 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-72 bg-gradient-to-t from-brand-subtle/60 to-transparent"
-      />
-
+    <main className="min-h-screen bg-canvas text-primary">
       <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 sm:px-10">
         <Link href="/" className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-body font-bold text-on-brand shadow-1">
@@ -24,7 +15,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           href="/"
           className="text-body font-medium text-secondary transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-           Back to home
+          ← Back to home
         </Link>
       </header>
 

@@ -224,13 +224,12 @@ export function HackathonLandingClient({
           heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         }`}
       >
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-subtle via-canvas to-canvas" />
+        <div className="absolute inset-0 -z-10 bg-canvas" />
         <div
           aria-hidden
           className="absolute inset-0 -z-10 text-primary opacity-[0.04]"
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
+            backgroundImage: "none",
           }}
         />
 
@@ -243,7 +242,7 @@ export function HackathonLandingClient({
 
           <h1 className="text-center text-5xl font-bold tracking-tight text-primary sm:text-6xl lg:text-7xl">
             TechExpo{" "}
-            <span className="bg-gradient-to-r from-brand to-status-ai-solid bg-clip-text text-transparent">
+            <span className="text-brand">
               2027
             </span>
           </h1>

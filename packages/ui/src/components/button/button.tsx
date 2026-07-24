@@ -23,7 +23,7 @@ export const buttonVariants = cva(
     "h-(--spacing-control-h) px-(--spacing-control-px)",
     "transition-all duration-[var(--mq-duration-fast)] ease-[var(--mq-ease-standard)]",
     "will-change-transform",
-    "active:scale-[0.97]",
+    "active:opacity-80",
     "disabled:pointer-events-none disabled:opacity-50",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
@@ -33,11 +33,11 @@ export const buttonVariants = cva(
       variant: {
         primary: [
           "bg-brand text-on-brand shadow-1",
-          "hover:bg-brand-hover hover:shadow-2 hover:scale-[1.02]",
+          "hover:bg-brand-hover hover:shadow-2",
         ].join(" "),
         secondary: [
           "bg-surface text-primary border border-strong",
-          "hover:bg-sunken hover:border-default hover:scale-[1.02]",
+          "hover:bg-sunken hover:border-default",
         ].join(" "),
         ghost: [
           "bg-transparent text-primary",
