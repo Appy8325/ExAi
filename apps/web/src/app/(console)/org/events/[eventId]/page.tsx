@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs, Button, KPICard, PageHeader, StatusBadge } from "@concourse/ui";
-import { loadOrganizerAnalytics, loadOrganizerOverview } from "@/lib/organizer";
+import { loadEventSessions, loadEventSpeakers, loadOrganizerAnalytics, loadOrganizerOverview } from "@/lib/organizer";
 import { PublishEventButton } from "../../organizer-forms";
 
 export default async function EventOverviewPage({
@@ -10,9 +10,12 @@ export default async function EventOverviewPage({
   params: Promise<{ eventId: string }>;
 }) {
   const { eventId } = await params;
-  const [overview, analytics] = await Promise.all([
-    loadOrganizerOverview(),
+  const overview = await loadOrganizerOverview();
+  const orgId = overview?.organizationId;
+  const [analytics, sessions, speakers] = await Promise.all([
     loadOrganizerAnalytics(eventId),
+    orgId ? loadEventSessions(orgId, eventId) : undefined,
+    orgId ? loadEventSpeakers(orgId, eventId) : undefined,
   ]);
   const event = overview?.events.find((item) => item.id === eventId);
   if (!event || !overview)
@@ -24,6 +27,8 @@ export default async function EventOverviewPage({
   const daysUntil = Math.ceil((startMs - now) / (1000 * 60 * 60 * 24));
   const isPast = event.status === "past" || endMs < now;
   const isLive = event.status === "live";
+  const sessionCount = sessions?.length ?? 0;
+  const speakerCount = speakers?.length ?? 0;
 
   function getEventHealth(): "good" | "warning" | "danger" | "neutral" {
     if (isPast) return "neutral";
@@ -69,6 +74,20 @@ export default async function EventOverviewPage({
         : "Ready to go live",
       href: `/org/events/${eventId}`,
     });
+    if (sessionCount === 0) {
+      nextBestActions.push({
+        label: "Add sessions",
+        description: "No sessions scheduled — build the event agenda",
+        href: `/org/events/${eventId}/sessions`,
+      });
+    }
+    if (speakerCount === 0) {
+      nextBestActions.push({
+        label: "Add speakers",
+        description: "No speakers confirmed — invite presenters",
+        href: `/org/events/${eventId}/speakers`,
+      });
+    }
     if (event.exhibitors < 3) {
       nextBestActions.push({
         label: "Recruit exhibitors",
@@ -161,6 +180,18 @@ export default async function EventOverviewPage({
       detail: analytics
         ? `${analytics.booths.filter((b) => b.leads > 0).length} with leads captured`
         : "confirmed",
+    },
+    {
+      label: "Sessions",
+      value: String(sessionCount),
+      accent: "info" as const,
+      detail: sessionCount === 1 ? "session scheduled" : `${sessionCount} sessions scheduled`,
+    },
+    {
+      label: "Speakers",
+      value: String(speakerCount),
+      accent: "ai" as const,
+      detail: speakerCount === 1 ? "speaker confirmed" : `${speakerCount} speakers confirmed`,
     },
     {
       label: "Leads",
@@ -278,7 +309,7 @@ export default async function EventOverviewPage({
         </section>
       )}
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {primaryKPIs.map((kpi) => (
           <KPICard
             key={kpi.label}

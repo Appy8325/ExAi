@@ -74,6 +74,70 @@ export async function loadExhibitorInvitations(
   );
 }
 
+export async function loadEventSessions(organizationId: string, eventId: string) {
+  return organizerRequest<Array<{
+    id: string;
+    title: string;
+    slug: string;
+    description: string | null;
+    startAt: string;
+    endAt: string;
+    timezone: string;
+    room: string | null;
+    capacity: number | null;
+    status: string;
+  }>>(
+    `/v1/organizations/${encodeURIComponent(organizationId)}/events/${encodeURIComponent(eventId)}/sessions`,
+  );
+}
+
+export async function loadEventSession(organizationId: string, eventId: string, sessionId: string) {
+  return organizerRequest<{
+    id: string;
+    title: string;
+    slug: string;
+    description: string | null;
+    startAt: string;
+    endAt: string;
+    timezone: string;
+    room: string | null;
+    capacity: number | null;
+    status: string;
+  }>(
+    `/v1/organizations/${encodeURIComponent(organizationId)}/events/${encodeURIComponent(eventId)}/sessions/${encodeURIComponent(sessionId)}`,
+  );
+}
+
+export async function loadEventSpeakers(organizationId: string, eventId: string) {
+  return organizerRequest<Array<{
+    id: string;
+    name: string;
+    bio: string | null;
+    photoUrl: string | null;
+    company: string | null;
+    title: string | null;
+    socialLinks: Array<{ platform: string; url: string }> | null;
+    sortOrder: number | null;
+  }>>(
+    `/v1/organizations/${encodeURIComponent(organizationId)}/events/${encodeURIComponent(eventId)}/speakers`,
+  );
+}
+
+export async function loadEventSpeaker(organizationId: string, eventId: string, speakerId: string) {
+  return organizerRequest<{
+    id: string;
+    name: string;
+    bio: string | null;
+    photoUrl: string | null;
+    company: string | null;
+    title: string | null;
+    socialLinks: Array<{ platform: string; url: string }> | null;
+    sortOrder: number | null;
+  }>(
+    `/v1/organizations/${encodeURIComponent(organizationId)}/events/${encodeURIComponent(eventId)}/speakers/${encodeURIComponent(speakerId)}`,
+  );
+}
+
 async function organizerRequest<T>(path: string): Promise<T | undefined> {
   const {
     data: { session },

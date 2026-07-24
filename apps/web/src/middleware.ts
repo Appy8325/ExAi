@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { developmentSessionCookie, hasValidDevelopmentSession } from "@/lib/auth/development-session";
 import { updateSession } from "@/lib/supabase/middleware";
 
 const protectedRoutePrefixes = ["/admin", "/exhibit", "/org", "/organizer", "/account"];
@@ -11,6 +12,16 @@ function isProtectedRoute(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === "/organizer" || request.nextUrl.pathname.startsWith("/organizer/")) {
+    if (await hasValidDevelopmentSession(request.cookies.get(developmentSessionCookie.name)?.value)) {
+      return NextResponse.next();
+    }
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/auth";
+    redirectUrl.search = "";
+    return NextResponse.redirect(redirectUrl);
+  }
+
   const { claims, response } = await updateSession(request);
 
   if (isProtectedRoute(request.nextUrl.pathname) && !claims) {

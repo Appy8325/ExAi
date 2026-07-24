@@ -60,6 +60,22 @@ export class AgendaSessionsService {
     return session;
   }
 
+  listByEvent(organizationId: string, eventId: string, actorUserId: string) {
+    return this.sessionsRepository.listByEvent(organizationId, eventId, actorUserId);
+  }
+
+  async publish(organizationId: string, eventId: string, sessionId: string, actorUserId: string) {
+    const session = await this.sessionsRepository.publish(organizationId, eventId, sessionId, actorUserId);
+    if (!session) throw new NotFoundException("Session not found or already published.");
+    return session;
+  }
+
+  async unpublish(organizationId: string, eventId: string, sessionId: string, actorUserId: string) {
+    const session = await this.sessionsRepository.unpublish(organizationId, eventId, sessionId, actorUserId);
+    if (!session) throw new NotFoundException("Session not found or not published.");
+    return session;
+  }
+
   async archive(organizationId: string, eventId: string, sessionId: string, actorUserId: string) {
     const session = await this.sessionsRepository.archive(organizationId, eventId, sessionId, actorUserId);
     if (!session) throw new NotFoundException("Session not found or already archived.");

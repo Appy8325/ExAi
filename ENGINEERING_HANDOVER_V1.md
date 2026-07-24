@@ -1,7 +1,8 @@
 # Engineering Handover Document — ExAi
 
-**Version:** v1.0  
+**Version:** RC2  
 **Date:** 2026-07-23  
+**RC2 Status:** COMPLETE · PRODUCTION STABLE · UX COMPLETE · EXHIBITOR DASHBOARD VERIFIED · RUNTIME VERIFICATION PENDING (ENVIRONMENT BLOCKED)  
 **Status:** COMPLETE · DEPLOYED · RC-1 RELEASED  
 **Prepared for:** Codex (incoming engineering team)  
 **Prepared by:** Opencode (outgoing engineering team)  
@@ -13,6 +14,20 @@
 ExAi is a production-grade, AI-powered event platform that transforms physical trade show booth interactions into a digital workflow with actionable intelligence. It serves three personas: **Organizers** (who create and manage events), **Exhibitors** (who staff booths and capture leads), and **Attendees** (who discover exhibitors and share their profile).
 
 ### Current Maturity
+
+### RC2 Freeze Status
+
+RC2 is functionally complete. The deployed Web and API health endpoints returned HTTP 200 on 2026-07-23. Typecheck, lint (warnings only), and an isolated clean web build pass. Production build output is isolated from local dev output to prevent Next.js manifest races during concurrent local development.
+
+Runtime verification is pending, not failed: Docker Desktop/Supabase is unavailable locally. Complete it only in a seeded environment:
+
+1. Start Docker Desktop and run `supabase start`.
+2. Run `pnpm db:seed`.
+3. Start API with `DEMO_MODE=true`, then start web.
+4. Capture repeated five-second Organizer and Exhibitor snapshots; verify shared, monotonic, capped updates and count-up animation.
+5. Restart with `DEMO_MODE=false`; verify the simulator/admin controls are disabled and no simulated metrics change.
+
+Release boundary: RC2 is suitable for the controlled-demo/pilot deployment. It is not approved for unrestricted public file uploads until the ClamAV requirement in `MVP_SECURITY_WAIVER.md` is removed and the worker scanner is deployed.
 
 The project has shipped **v1.0.0-rc1** (Release Candidate 1). All build, runtime, accessibility, and smoke test gates pass. The product is functional, deployed, and cleared for release. Future work is organized as Post-v1.0 enhancements in the MASTER_ROADMAP.
 
